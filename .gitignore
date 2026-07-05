@@ -12,3 +12,7 @@ next-env.d.ts
 # If you deploy via Convex Cloud, you can re-add the ignore line.
 .vercel
 .DS_Store
+
+# Added by si-coder deploy (secret-leak guard)
+.env.*
+!.env.example
