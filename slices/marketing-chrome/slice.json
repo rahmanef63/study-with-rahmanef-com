@@ -1,0 +1,101 @@
+{
+  "$schema": "https://resource.rahmanef.com/slice-schema.json",
+  "slug": "marketing-chrome",
+  "version": "0.2.0",
+  "category": "ui",
+  "kind": "ui",
+  "title": "Marketing Chrome — Header + Footer",
+  "description": "Config-driven marketing site header + footer that every template currently hand-rolls. MarketingHeader takes brand / nav links / primary + secondary CTAs and renders one of three layouts (split = brand-left/nav-center/cta-right, centered = stacked brand over nav, minimal = brand + cta only) with an optional sticky bar and a Sheet-based mobile menu. MarketingFooter takes brand / link columns / social icons / legal links / copyright and renders either a multi-column link grid with a bottom legal bar (columns) or a single brand-links-social row (slim). Pure UI, prop-only, no Convex.",
+  "namespace": "@/features/marketing-chrome",
+  "frontend": {
+    "slicePath": "frontend/slices/marketing-chrome",
+    "configExport": "marketingChromeFeature"
+  },
+  "convex": {
+    "tablesExport": "",
+    "schemaPath": "",
+    "rootPaths": []
+  },
+  "deps": {
+    "npm": [
+      "lucide-react@^0.400.0"
+    ],
+    "shadcn": [
+      "button",
+      "sheet",
+      "separator"
+    ],
+    "env": [],
+    "peers": []
+  },
+  "registers": [],
+  "audit": [],
+  "license": "MIT",
+  "tags": [
+    "ui",
+    "header",
+    "footer",
+    "navbar",
+    "marketing"
+  ],
+  "previews": [
+    {
+      "component": "MarketingHeader",
+      "kind": "variants",
+      "axes": [
+        {
+          "prop": "layout",
+          "values": [
+            "split",
+            "centered",
+            "minimal"
+          ],
+          "default": "split",
+          "description": "split = brand/nav/cta; centered = stacked brand over nav; minimal = brand + cta only"
+        }
+      ],
+      "seed": "static brand + 4 nav links + primary/secondary CTA"
+    },
+    {
+      "component": "MarketingFooter",
+      "kind": "variants",
+      "axes": [
+        {
+          "prop": "layout",
+          "values": [
+            "columns",
+            "slim"
+          ],
+          "default": "columns",
+          "description": "columns = multi-column link grid + legal bar; slim = single brand/links/social row"
+        }
+      ],
+      "seed": "static brand + 3 link columns + social + legal"
+    }
+  ],
+  "contract": {
+    "requires": {
+      "deps": [
+        {
+          "npm": "lucide-react",
+          "range": "^0.400.0"
+        }
+      ]
+    },
+    "provides": {
+      "tools": [
+        "marketing-chrome.configure"
+      ],
+      "components": [
+        "MarketingHeader",
+        "MarketingFooter"
+      ],
+      "utils": [],
+      "hooks": [],
+      "convex": {
+        "tables": [],
+        "rbac": []
+      }
+    }
+  }
+}

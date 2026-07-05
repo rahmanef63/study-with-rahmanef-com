@@ -13,7 +13,7 @@
 | 2 | `slices/courses` — course/module/lesson CRUD + lesson viewer | v1 | #0 | in-progress | gamma | — | — | YouTube embed + markdown + links; evaluate rr `markdown` slice |
 | 3 | `slices/progress` — mark-complete, progress bars, course completion | v1 | #2 (barrel) | open | — | slice/progress | — | completion writes are idempotent |
 | 4 | `slices/profiles` — minimal profile (username, displayName) | v1 | #0 | in-progress | delta | — | — | public page + badges deferred to #9 |
-| 5 | `app/landing` — landing page + marketing chrome + e2e smoke | v1 | #1, #2 | open | — | app/landing | — | `"use cache"` + fetchQuery; **v1 LAUNCH gate** |
+| 5 | `app/landing` — landing page + marketing chrome + e2e smoke | v1 | #1, #2 | in-progress | alpha | — | — | skeleton shipped early (landing, /login google-only, /t/[slug] shell minimal, error/not-found, marketing-chrome installed); final data wiring after #1/#2 review; `"use cache"` + fetchQuery; **v1 LAUNCH gate** |
 | 6 | `tenants` request form + `/admin` approval queue | v1.1 | #1 | open | — | slice/tenants-requests | — | evaluate rr `platform-admin` (contract-only scaffold) |
 | 7 | `slices/resources` — resource board + suggestion box (submit→curate) | v1.1 | #1 | open | — | slice/resources | — | adapt rr `library`; install `rate-limit` |
 | 8 | `slices/quiz` — MCQ builder + attempt + auto-grade | v1.1 | #2 | open | — | slice/quiz | — | P0: answers never reach client pre-submit |

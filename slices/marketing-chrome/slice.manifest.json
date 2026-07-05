@@ -1,0 +1,29 @@
+{
+  "$schema": "https://resource.rahmanef.com/slice-manifest-schema.json",
+  "slug": "marketing-chrome",
+  "version": "0.2.0",
+  "tier": 3,
+  "distribution": {
+    "method": "cli-copy",
+    "command": "npx rr add marketing-chrome",
+    "consumerPath": "slices/marketing-chrome"
+  },
+  "files": [
+    "README.md",
+    "components/MarketingHeader.tsx",
+    "components/MarketingFooter.tsx",
+    "components/header-nav.tsx",
+    "config.ts",
+    "index.ts",
+    "lib/types.ts"
+  ],
+  "imports": {
+    "shared": [],
+    "external": [
+      "lucide-react",
+      "@/components/ui/button",
+      "@/components/ui/sheet",
+      "@/components/ui/separator"
+    ]
+  }
+}
