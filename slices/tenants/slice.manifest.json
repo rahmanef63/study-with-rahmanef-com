@@ -1,0 +1,49 @@
+{
+  "name": "tenants",
+  "version": "0.1.0",
+  "description": "Community profile + join flow + membership/role data layer (owner/instructor/member). Public reads use a safe projection: tenants.discordWebhookUrl never leaves the server (P0).",
+  "category": "community",
+  "stability": "beta",
+  "deps": {
+    "shared": ["features/defineFeature"],
+    "slices": [],
+    "convexFeatures": ["tenants"],
+    "npm": {},
+    "env": []
+  },
+  "files": {
+    "include": ["**/*"],
+    "exclude": ["__tests__/**", "*.test.ts", "*.test.tsx"]
+  },
+  "convexFiles": {
+    "include": ["**/*.ts"],
+    "exclude": ["*.test.ts"]
+  },
+  "permissions": [
+    "tenants.read-public",
+    "tenants.join",
+    "tenants.manage-profile",
+    "tenants.manage-roles"
+  ],
+  "schemaTables": [
+    {
+      "name": "tenants",
+      "namespaced": false,
+      "indexes": ["by_slug", "by_status"]
+    },
+    {
+      "name": "memberships",
+      "namespaced": false,
+      "indexes": ["by_tenant", "by_user", "by_tenant_user"]
+    }
+  ],
+  "compatibility": {
+    "next": ">=16 <17",
+    "react": "^19",
+    "convex": ">=1.16",
+    "tailwind": "4",
+    "auth": "convex-auth"
+  },
+  "tags": ["multi-tenant", "community", "membership", "roles", "bahasa-indonesia"],
+  "notes": "0.1.0 (2026-07-06, agent beta): v1 scope of STATUS.md #1. Schema lives in the app-level convex/schema.ts (pre-composed from docs/DATA-MODEL.md); this slice ships the function layer + UI only. Request form & /admin approval queue are row #6 (v1.1). setMemberRole ships as data layer for R13; its management UI is v1.1."
+}

@@ -1,0 +1,62 @@
+{
+  "$schema": "https://resource.rahmanef.com/slice-schema.json",
+  "slug": "profiles",
+  "version": "0.1.0",
+  "category": "identity",
+  "title": "Profiles — Profil Pengguna (v1 minimal)",
+  "description": "Own-profile record for belajar-with-rahmanef.com: ensure-on-first-login mutation, settings form (username, displayName, bio, avatarUrl), current-profile query. Username globally unique, normalized to lowercase kebab-case; explicit rename collisions reject VALIDATION_FAILED. isPlatformAdmin is read-only from this slice (seed/integrator only). Public page /u/[username] + badge wall ship separately (STATUS row #9, v1.1).",
+  "namespace": "@/features/profiles",
+  "convex": {
+    "schemaPath": "convex/schema.ts",
+    "rootPaths": ["convex/features/profiles"]
+  },
+  "frontend": {
+    "slicePath": "slices/profiles",
+    "configExport": "profilesFeature"
+  },
+  "deps": {
+    "npm": ["convex@^1.16.0", "@convex-dev/auth@^0.0.92", "sonner@^1.7.1"],
+    "shadcn": ["button", "card", "input", "label", "skeleton"],
+    "env": [],
+    "peers": []
+  },
+  "registers": ["registry"],
+  "audit": ["bp:public-fn-validator"],
+  "license": "MIT",
+  "tags": ["profiles", "identity", "convex", "username", "settings"],
+  "contract": {
+    "requires": {
+      "auth": "convex",
+      "convex": {
+        "tables": ["profiles", "users"]
+      }
+    },
+    "provides": {
+      "routes": ["/pengaturan/profil"],
+      "tables": ["profiles"],
+      "components": ["ProfileSettingsView", "ProfileSettingsForm"],
+      "hooks": [
+        "useCurrentProfile",
+        "useEnsureProfile",
+        "useEnsureProfileOnFirstLogin",
+        "useUpdateProfile",
+        "useCheckUsername"
+      ],
+      "helpers": [
+        "normalizeUsername",
+        "isValidUsername",
+        "profileErrorCode"
+      ],
+      "convexFunctions": [
+        "features/profiles/queries:getCurrentProfile",
+        "features/profiles/queries:checkUsername",
+        "features/profiles/mutations:ensureProfile",
+        "features/profiles/mutations:updateProfile"
+      ]
+    },
+    "generalization": {
+      "level": "consumer",
+      "notes": "Copy is props-driven (ProfileLabels); defaults are Bahasa Indonesia per AGENTS.md §7."
+    }
+  }
+}

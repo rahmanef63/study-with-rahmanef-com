@@ -1,0 +1,100 @@
+{
+  "$schema": "https://resource.rahmanef.com/slice-schema.json",
+  "slug": "courses",
+  "version": "0.1.0",
+  "category": "lms",
+  "kind": "fullstack",
+  "title": "Courses — kelas/modul/lesson CRUD + lesson player",
+  "description": "Multi-tenant course → module → lesson management (instructor+) and the member lesson player: YouTube embed (11-char ID validated server-side, youtube-nocookie origin), safe-subset markdown renderer, resource links. Drafts are invisible to members in the queries themselves. Built for belajar-with-rahmanef.com R4 (docs/PRD.md).",
+  "namespace": "@/features/courses",
+  "convex": {
+    "tablesExport": "",
+    "schemaPath": "convex/schema.ts",
+    "rootPaths": ["convex/features/courses"]
+  },
+  "frontend": { "slicePath": "slices/courses", "configExport": "coursesFeature" },
+  "deps": {
+    "npm": [],
+    "shadcn": ["button", "card", "input", "label", "skeleton", "tabs"],
+    "env": [],
+    "peers": ["responsive-dialog"]
+  },
+  "contract": {
+    "barrel": {
+      "components": [
+        "CourseCard",
+        "CourseOverview",
+        "SyllabusList",
+        "LessonView",
+        "LessonLinks",
+        "MarkdownView",
+        "YoutubeEmbed"
+      ],
+      "views": [
+        "CourseCatalog",
+        "CourseOverviewView",
+        "LessonPlayerView",
+        "ManageCoursesView",
+        "ManageCourseEditorView"
+      ],
+      "hooks": [
+        "usePublishedCourses",
+        "useCourseOverview",
+        "useLesson",
+        "useManageCourses",
+        "useCourseTree",
+        "useLessonForManage",
+        "useCourseMutations",
+        "useModuleMutations",
+        "useLessonMutations"
+      ],
+      "lib": [
+        "parseMarkdown",
+        "parseInline",
+        "extractYoutubeVideoId",
+        "isValidYoutubeVideoId",
+        "buildYoutubeEmbedUrl",
+        "buildYoutubeWatchUrl",
+        "coursesErrorMessage",
+        "extractCoursesError"
+      ],
+      "consumerSeams": {
+        "progress#3": [
+          "SyllabusList.completedLessonIds",
+          "LessonView.completionSlot",
+          "CourseOverview.progressSlot",
+          "LessonViewData",
+          "SyllabusModuleData"
+        ],
+        "landing#5": ["CourseCard", "usePublishedCourses", "CourseCatalog"]
+      }
+    },
+    "convexFunctions": {
+      "public": [
+        "features/courses/queries:listPublished",
+        "features/courses/queries:getOverview",
+        "features/courses/queries:getLesson"
+      ],
+      "instructorPlus": [
+        "features/courses/manage:listForManage",
+        "features/courses/manage:getCourseTree",
+        "features/courses/manage:getLessonForManage",
+        "features/courses/courses:create",
+        "features/courses/courses:update",
+        "features/courses/courses:setStatus",
+        "features/courses/modules:createModule",
+        "features/courses/modules:renameModule",
+        "features/courses/modules:reorderModules",
+        "features/courses/modules:deleteModule",
+        "features/courses/lessons:createLesson",
+        "features/courses/lessons:updateLesson",
+        "features/courses/lessons:reorderLessons",
+        "features/courses/lessons:deleteLesson"
+      ]
+    }
+  },
+  "registers": [],
+  "license": "MIT",
+  "tags": ["lms", "courses", "lessons", "youtube", "markdown", "multi-tenant"],
+  "providers": []
+}

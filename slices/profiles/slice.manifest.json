@@ -1,0 +1,43 @@
+{
+  "name": "profiles",
+  "version": "0.1.0",
+  "description": "Own-profile record: ensure-on-first-login, settings form, current-profile query. Username unik global (lowercase kebab-case); isPlatformAdmin read-only dari slice ini.",
+  "category": "identity",
+  "stability": "beta",
+  "deps": {
+    "shared": ["features/defineFeature"],
+    "slices": [],
+    "convexFeatures": ["profiles"],
+    "npm": {
+      "convex": "^1.16.0",
+      "@convex-dev/auth": "^0.0.92",
+      "sonner": "^1.7.1"
+    },
+    "env": []
+  },
+  "files": {
+    "include": ["**/*"],
+    "exclude": ["__tests__/**", "*.test.ts", "*.test.tsx"]
+  },
+  "convexFiles": {
+    "include": ["**/*.ts"],
+    "exclude": ["*.test.ts"]
+  },
+  "permissions": [],
+  "schemaTables": [
+    {
+      "name": "profiles",
+      "namespaced": false,
+      "indexes": ["by_user", "by_username"]
+    }
+  ],
+  "compatibility": {
+    "next": ">=16 <17",
+    "react": "^19",
+    "convex": ">=1.16",
+    "tailwind": "4",
+    "auth": "convex-auth"
+  },
+  "tags": ["profiles", "identity", "username", "settings", "convex"],
+  "notes": "0.1.0 (2026-07-06, agent delta): v1 minimal scope per docs/AGENT-PROMPTS.md #4. Public /u/[username] + badge wall deferred to STATUS row #9 (v1.1). Slice-local Textarea pending integrator `npx shadcn add textarea` (see TODO(rr) in components/textarea.tsx)."
+}

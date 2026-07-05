@@ -1,0 +1,67 @@
+{
+  "$schema": "https://resource.rahmanef.com/slice-schema.json",
+  "slug": "tenants",
+  "version": "0.1.0",
+  "category": "community",
+  "title": "Tenants — community profile, join flow, memberships & roles",
+  "description": "Multi-tenant community layer for belajar-with-rahmanef.com (v1 scope of STATUS.md #1): public tenant profile (/t/[slug] etalase), idempotent join-as-member flow, membership/role data layer (owner/instructor/member), and the owner settings form. Discord webhook URL is write-only: accepted by updateProfile, never present in any query result (P0). Request form + admin approval ship separately (#6, v1.1).",
+  "namespace": "@/features/tenants",
+  "convex": {
+    "schemaPath": "convex/schema.ts",
+    "rootPaths": ["convex/features/tenants"]
+  },
+  "deps": {
+    "npm": [],
+    "shadcn": ["button", "card", "input", "label", "skeleton", "empty"],
+    "env": [],
+    "peers": []
+  },
+  "audit": ["bp:public-fn-validator"],
+  "license": "MIT",
+  "tags": ["multi-tenant", "community", "membership", "roles", "convex", "bahasa-indonesia"],
+  "contract": {
+    "requires": {
+      "auth": "convex",
+      "convex": {
+        "tables": ["tenants", "memberships", "profiles", "users"],
+        "helpers": ["requireUser", "requireTenantRole"]
+      }
+    },
+    "provides": {
+      "routesExpected": ["/t/[slug]", "/t/[slug]/kelola/komunitas"],
+      "components": [
+        "TenantHomeView",
+        "TenantSettingsView",
+        "JoinButton",
+        "MembersList",
+        "TenantProfileCard",
+        "TenantProfileForm",
+        "RoleChip"
+      ],
+      "hooks": [
+        "useTenantBySlug",
+        "useActiveTenants",
+        "useMyMembership",
+        "useTenantMembers",
+        "useTenantManageView",
+        "useJoinTenant",
+        "useUpdateTenantProfile",
+        "useSetMemberRole"
+      ],
+      "helpers": ["tenantsApi", "errorToCopy", "extractErrorCode"],
+      "convexFunctions": [
+        "features/tenants/queries:getPublicBySlug",
+        "features/tenants/queries:listActive",
+        "features/tenants/queries:getManageView",
+        "features/tenants/members:getMyMembership",
+        "features/tenants/members:listMembers",
+        "features/tenants/mutations:join",
+        "features/tenants/mutations:updateProfile",
+        "features/tenants/mutations:setMemberRole"
+      ]
+    },
+    "generalization": {
+      "level": "project-specific"
+    }
+  }
+}

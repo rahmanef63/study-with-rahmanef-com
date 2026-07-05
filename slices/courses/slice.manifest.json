@@ -1,0 +1,37 @@
+{
+  "$schema": "../../docs/slice.manifest.schema.json",
+  "name": "courses",
+  "version": "0.1.0",
+  "description": "Course → module → lesson CRUD (instructor+) + member lesson player (YouTube embed + safe markdown + links) for belajar-with-rahmanef.com. Drafts invisible to members at the query layer; youtubeVideoId validated as an 11-char ID in the mutation (P0).",
+  "category": "lms",
+  "stability": "beta",
+  "deps": {
+    "shared": ["features/defineFeature"],
+    "slices": ["responsive-dialog"],
+    "convexFeatures": ["courses"],
+    "npm": {},
+    "env": []
+  },
+  "files": {
+    "include": ["**/*"],
+    "exclude": ["__tests__/**", "*.test.ts", "*.test.tsx"]
+  },
+  "convexFiles": {
+    "include": ["**/*.ts"],
+    "exclude": ["*.test.ts", "test.helpers.ts"]
+  },
+  "permissions": ["courses.read", "courses.manage"],
+  "schemaTables": [
+    { "name": "courses", "namespaced": false, "indexes": ["by_tenant", "by_tenant_slug", "by_tenant_status"] },
+    { "name": "modules", "namespaced": false, "indexes": ["by_course"] },
+    { "name": "lessons", "namespaced": false, "indexes": ["by_module", "by_course"] }
+  ],
+  "compatibility": {
+    "next": ">=15 <17",
+    "react": "^19",
+    "convex": "^1.16",
+    "tailwind": "4",
+    "auth": "convex-auth"
+  },
+  "notes": "0.1.0 (2026-07-06, agent gamma): v1 scope of STATUS row #2. Markdown reader is an internal safe-subset parser (same `content` prop as rr markdown's MarkdownReader) — swap proposed post-v1. Reads schema tables composed by the integrator from docs/DATA-MODEL.md; no schema writes from this slice."
+}

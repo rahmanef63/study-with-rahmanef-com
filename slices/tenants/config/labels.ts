@@ -1,0 +1,70 @@
+// tenants slice — UI copy SSOT (Bahasa Indonesia, technical terms stay EN).
+// Components merge these with a `labels` prop, so consumers can override copy
+// without forking (props-driven portability).
+
+export const TENANT_TRACK_PRESETS = ["umum", "kerja", "konten"] as const;
+
+export const DEFAULT_TENANT_LABELS = {
+  home: {
+    trackPrefix: "Track",
+    discordCta: "Gabung Discord",
+    membersTitle: "Anggota",
+    notFoundTitle: "Komunitas tidak ditemukan",
+    notFoundBody:
+      "Komunitas ini tidak ada, belum aktif, atau sudah tidak tersedia.",
+    backToHome: "Kembali ke beranda",
+  },
+  join: {
+    cta: "Gabung komunitas",
+    pending: "Memproses…",
+    loginFirst: "Login untuk gabung",
+    alreadyMember: "Kamu sudah bergabung",
+    success: "Selamat datang di komunitas!",
+  },
+  roles: {
+    owner: "Owner",
+    instructor: "Instructor",
+    member: "Member",
+  } as Record<"owner" | "instructor" | "member", string>,
+  members: {
+    title: "Anggota komunitas",
+    empty: "Belum ada anggota.",
+    sinceLabel: "bergabung",
+  },
+  settings: {
+    title: "Pengaturan komunitas",
+    description: "Perbarui profil komunitas kamu. Perubahan langsung tampil di halaman publik.",
+    nameLabel: "Nama komunitas",
+    namePlaceholder: "Contoh: Belajar AI bareng Rahman",
+    descriptionLabel: "Deskripsi",
+    descriptionPlaceholder: "Ceritakan komunitas ini untuk calon anggota…",
+    trackLabel: "Track belajar",
+    trackHelp: "Pilih salah satu, atau tulis track kamu sendiri.",
+    trackCustomPlaceholder: "Track lainnya…",
+    discordInviteLabel: "Link invite Discord",
+    discordInvitePlaceholder: "https://discord.gg/…",
+    discordInviteHelp: "Ditampilkan di halaman publik sebagai tombol gabung Discord.",
+    webhookLabel: "Discord webhook URL",
+    webhookPlaceholder: "https://discord.com/api/webhooks/…",
+    webhookHelpUnset: "Opsional. Dipakai untuk auto-post pengumuman ke Discord.",
+    webhookHelpSet:
+      "Webhook sudah terpasang. Nilainya rahasia dan tidak pernah ditampilkan — isi kolom untuk mengganti.",
+    webhookClear: "Hapus webhook",
+    webhookClearConfirm: "Webhook dihapus setelah kamu menyimpan.",
+    submit: "Simpan perubahan",
+    submitting: "Menyimpan…",
+    success: "Perubahan tersimpan",
+    loadDeniedTitle: "Tidak bisa membuka pengaturan",
+    loadDeniedBody: "Halaman ini hanya untuk owner komunitas.",
+  },
+  errors: {
+    NOT_AUTHENTICATED: "Silakan login dulu",
+    NOT_AUTHORIZED: "Kamu tidak punya akses untuk aksi ini",
+    NOT_FOUND: "Komunitas tidak ditemukan",
+    VALIDATION_FAILED: "Input tidak valid — periksa kembali isianmu",
+    RATE_LIMITED: "Terlalu banyak permintaan — coba lagi nanti",
+    UNKNOWN: "Terjadi kesalahan — coba lagi",
+  } as Record<string, string>,
+};
+// NOTE: intentionally NOT `as const` — labels must widen to `string` so
+// consumers can override copy via props without literal-type friction.
