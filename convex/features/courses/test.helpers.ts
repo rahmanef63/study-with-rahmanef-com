@@ -6,12 +6,12 @@ import { convexTest } from "convex-test";
 import type { Id } from "../../_generated/dataModel";
 import schema from "../../schema";
 
-// convex-test needs every function module of the convex/ directory; the
-// "_generated" key in this glob anchors path normalization (prefix "../../").
+// Absolute glob keeps every key rooted at /convex so convex-test can resolve
+// nested function paths consistently from this nested helper.
 export const modules = import.meta.glob([
-  "../../**/*.{js,ts}",
-  "!../../**/*.test.ts",
-  "!../../**/*.d.ts",
+  "/convex/**/*.{js,ts}",
+  "!/convex/**/*.test.ts",
+  "!/convex/**/*.d.ts",
 ]);
 
 export function setup() {
@@ -73,6 +73,7 @@ export async function seedCourse(
       slug,
       title: `Kelas ${status}`,
       description: "Deskripsi kelas fixture",
+      coverImageUrl: "https://example.com/cover.jpg",
       status,
       createdBy: fx.instructorId,
     });

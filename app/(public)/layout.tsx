@@ -1,6 +1,7 @@
 import { MarketingFooter, MarketingHeader } from "@/features/marketing-chrome";
 
 const BRAND = { name: "belajar-with-rahmanef.com", href: "/" };
+const COPYRIGHT_YEAR = 2026;
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -18,7 +19,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       <main className="flex-1">{children}</main>
       <MarketingFooter
         brand={BRAND}
-        copyright={`© ${new Date().getFullYear()} belajar-with-rahmanef.com — proyek nirlaba untuk belajar AI bersama.`}
+        copyright={`© ${COPYRIGHT_YEAR} belajar-with-rahmanef.com — proyek nirlaba untuk belajar AI bersama.`}
         layout="slim"
       />
     </div>

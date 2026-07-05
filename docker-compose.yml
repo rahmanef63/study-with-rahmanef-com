@@ -1,0 +1,4 @@
+services:
+  # sc-all uses this file as the signal to provision Dokploy's managed Convex template.
+  convex-template-trigger:
+    image: hello-world

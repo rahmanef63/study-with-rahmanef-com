@@ -4,6 +4,7 @@
 // completion-protects-deletion invariant (docs/DATA-MODEL.md).
 import { expect, test } from "vitest";
 import { api } from "../../_generated/api";
+import type { Id } from "../../_generated/dataModel";
 import { asUser, seedCourse, seedTenantFixture, setup } from "./test.helpers";
 
 const baseLesson = { title: "Lesson Baru", contentMd: "Materi baru", links: [] };
@@ -30,11 +31,11 @@ test("createLesson: full YouTube URLs are rejected, a bare 11-char ID is accepte
     ).rejects.toThrow(/VALIDATION_FAILED/);
   }
 
-  const lessonId = await asInstructor.mutation(api.features.courses.lessons.createLesson, {
+  const lessonId = (await asInstructor.mutation(api.features.courses.lessons.createLesson, {
     moduleId,
     ...baseLesson,
     youtubeVideoId: "dQw4w9WgXcQ",
-  });
+  })) as Id<"lessons">;
   const lesson = await t.run(async (ctx) => ctx.db.get(lessonId));
   expect(lesson?.youtubeVideoId).toBe("dQw4w9WgXcQ");
   expect(lesson?.order).toBe(2); // appended after the fixture lesson
@@ -54,9 +55,9 @@ test("createLesson: anon NOT_AUTHENTICATED, member NOT_AUTHORIZED, video-less le
       .mutation(api.features.courses.lessons.createLesson, { moduleId, ...baseLesson })
   ).rejects.toThrow(/NOT_AUTHORIZED/);
 
-  const lessonId = await t
+  const lessonId = (await t
     .withIdentity(asUser(fx.ownerId)) // owner passes the instructor gate
-    .mutation(api.features.courses.lessons.createLesson, { moduleId, ...baseLesson });
+    .mutation(api.features.courses.lessons.createLesson, { moduleId, ...baseLesson })) as Id<"lessons">;
   const lesson = await t.run(async (ctx) => ctx.db.get(lessonId));
   expect(lesson?.youtubeVideoId).toBeUndefined();
 });
@@ -87,10 +88,10 @@ test("reorderLessons: rejects ids from another module, applies new order", async
   const fx = await seedTenantFixture(t);
   const { moduleId, lessonId } = await seedCourse(t, fx, "draft");
   const asInstructor = t.withIdentity(asUser(fx.instructorId));
-  const secondId = await asInstructor.mutation(api.features.courses.lessons.createLesson, {
+  const secondId = (await asInstructor.mutation(api.features.courses.lessons.createLesson, {
     moduleId,
     ...baseLesson,
-  });
+  })) as Id<"lessons">;
 
   await expect(
     asInstructor.mutation(api.features.courses.lessons.reorderLessons, {

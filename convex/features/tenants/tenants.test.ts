@@ -8,12 +8,11 @@ import { api } from "../../_generated/api";
 import type { Id } from "../../_generated/dataModel";
 import schema from "../../schema";
 
-// Modules glob relative to this file, re-keyed to be convex-root-relative so
-// convex-test resolves function paths like "features/tenants/queries".
-const raw = import.meta.glob(["../../**/*.{js,ts}", "!../../**/*.test.ts", "!../../**/*.d.ts"]);
-const modules = Object.fromEntries(
-  Object.entries(raw).map(([k, v]) => [k.replace(/^(\.\.\/)+/, "./"), v])
-);
+const modules = import.meta.glob([
+  "/convex/**/*.{js,ts}",
+  "!/convex/**/*.test.ts",
+  "!/convex/**/*.d.ts",
+]);
 
 const WEBHOOK = "https://discord.com/api/webhooks/123456789/abcDEF_ghi-JKL";
 

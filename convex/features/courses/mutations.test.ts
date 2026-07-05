@@ -26,9 +26,9 @@ test("courses.create: anon NOT_AUTHENTICATED, member NOT_AUTHORIZED, instructor 
       .mutation(api.features.courses.courses.create, createArgs(fx.tenantId))
   ).rejects.toThrow(/NOT_AUTHORIZED/);
 
-  const courseId = await t
+  const courseId = (await t
     .withIdentity(asUser(fx.instructorId))
-    .mutation(api.features.courses.courses.create, createArgs(fx.tenantId));
+    .mutation(api.features.courses.courses.create, createArgs(fx.tenantId))) as Id<"courses">;
   const course = await t.run(async (ctx) => ctx.db.get(courseId));
   expect(course?.status).toBe("draft");
   expect(course?.createdBy).toBe(fx.instructorId);
@@ -56,10 +56,10 @@ test("courses.setStatus: publishing an empty course fails; with a lesson it succ
   const fx = await seedTenantFixture(t);
   const asInstructor = t.withIdentity(asUser(fx.instructorId));
 
-  const emptyCourseId = await asInstructor.mutation(
+  const emptyCourseId = (await asInstructor.mutation(
     api.features.courses.courses.create,
     createArgs(fx.tenantId)
-  );
+  )) as Id<"courses">;
   await expect(
     asInstructor.mutation(api.features.courses.courses.setStatus, {
       courseId: emptyCourseId,
@@ -113,10 +113,10 @@ test("modules: createModule appends order, member denied, rename works", async (
       .mutation(api.features.courses.modules.createModule, { courseId, title: "Modul Member" })
   ).rejects.toThrow(/NOT_AUTHORIZED/);
 
-  const secondId = await asInstructor.mutation(api.features.courses.modules.createModule, {
+  const secondId = (await asInstructor.mutation(api.features.courses.modules.createModule, {
     courseId,
     title: "Modul 2",
-  });
+  })) as Id<"modules">;
   const second = await t.run(async (ctx) => ctx.db.get(secondId));
   expect(second?.order).toBe(2);
 
@@ -133,10 +133,10 @@ test("modules.reorderModules: rejects a non-permutation, applies 1-based order",
   const fx = await seedTenantFixture(t);
   const { courseId, moduleId } = await seedCourse(t, fx, "draft");
   const asInstructor = t.withIdentity(asUser(fx.instructorId));
-  const secondId = await asInstructor.mutation(api.features.courses.modules.createModule, {
+  const secondId = (await asInstructor.mutation(api.features.courses.modules.createModule, {
     courseId,
     title: "Modul 2",
-  });
+  })) as Id<"modules">;
 
   await expect(
     asInstructor.mutation(api.features.courses.modules.reorderModules, {

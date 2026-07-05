@@ -6,10 +6,11 @@ import { api } from "../../_generated/api";
 import type { Id } from "../../_generated/dataModel";
 import schema from "../../schema";
 
-const raw = import.meta.glob(["../../**/*.{js,ts}", "!../../**/*.test.ts", "!../../**/*.d.ts"]);
-const modules = Object.fromEntries(
-  Object.entries(raw).map(([k, v]) => [k.replace(/^(\.\.\/)+/, "./"), v])
-);
+const modules = import.meta.glob([
+  "/convex/**/*.{js,ts}",
+  "!/convex/**/*.test.ts",
+  "!/convex/**/*.d.ts",
+]);
 
 const WEBHOOK = "https://discord.com/api/webhooks/123456789/abcDEF_ghi-JKL";
 

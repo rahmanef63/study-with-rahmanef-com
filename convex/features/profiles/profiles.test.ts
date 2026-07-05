@@ -205,9 +205,8 @@ describe("updateProfile", () => {
     const { authed } = await setup();
     await expect(
       authed.mutation(api.features.profiles.mutations.updateProfile, {
-        // @ts-expect-error — deliberately outside the validator
         isPlatformAdmin: true,
-      })
+      } as never)
     ).rejects.toThrow(/extra field|Validator error/i);
   });
 
