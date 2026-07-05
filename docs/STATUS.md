@@ -8,7 +8,7 @@
 
 | # | Area | Release | Depends on | Status | Agent | Branch | Last commit | Notes |
 |---|---|---|---|---|---|---|---|---|
-| 0 | Scaffold: `rahman-resources init`, convex-auth (google), theme-presets, responsive-dialog, feedback-states, `proxy.ts`, `convex/schema.ts` + `convex/_shared/auth.ts` per DATA-MODEL.md, seed mutation | v1 | — | review | alpha | main | — | **INTEGRATOR ONLY** — tsc green; dashboard-shell deferred (see drift log); `_generated` committed w/ untyped api.d.ts, regenerates on first `npx convex dev` |
+| 0 | Scaffold: `rahman-resources init`, convex-auth (google), theme-presets, responsive-dialog, feedback-states, `proxy.ts`, `convex/schema.ts` + `convex/_shared/auth.ts` per DATA-MODEL.md, seed mutation | v1 | — | done | alpha | main | 06c203c | **INTEGRATOR ONLY** — pushed to origin; tsc green; dashboard-shell deferred (see drift log); `_generated` committed w/ untyped api.d.ts, regenerates on first `npx convex dev` |
 | 1 | `slices/tenants` — tenant profile, join, memberships, roles | v1 | #0 | open | — | slice/tenants | — | request-form & approval UI deferred to #6 |
 | 2 | `slices/courses` — course/module/lesson CRUD + lesson viewer | v1 | #0 | open | — | slice/courses | — | YouTube embed + markdown + links; evaluate rr `markdown` slice |
 | 3 | `slices/progress` — mark-complete, progress bars, course completion | v1 | #2 (barrel) | open | — | slice/progress | — | completion writes are idempotent |
