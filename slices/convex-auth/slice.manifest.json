@@ -1,0 +1,113 @@
+{
+  "$schema": "../../../docs/slice.manifest.schema.json",
+  "name": "convex-auth",
+  "version": "0.4.0",
+  "description": "@convex-dev/auth multi-provider sign-in: Password (PBKDF2-SHA256 100k, self-hosted-friendly), Anonymous (guest), Google OAuth, Resend magic-link. Ships a production <SignInPage> with i18n + prop-driven provider list. No Clerk.",
+  "category": "auth",
+  "stability": "beta",
+  "deps": {
+    "shared": [],
+    "slices": [],
+    "convexFeatures": ["auth"],
+    "npm": {
+      "@convex-dev/auth": "^0.0.92",
+      "@auth/core": "^0.37.4",
+      "resend": "^4.0.0"
+    },
+    "env": [
+      {
+        "name": "AUTH_RESEND_KEY",
+        "required": false,
+        "scope": "server",
+        "description": "Resend API key for magic-link sender. Optional if only OAuth used."
+      },
+      {
+        "name": "JWT_PRIVATE_KEY",
+        "required": true,
+        "scope": "server",
+        "description": "Auth signing key. Self-hosted: push via Convex REST update_environment_variables."
+      },
+      {
+        "name": "JWKS",
+        "required": true,
+        "scope": "server",
+        "description": "Public JSON Web Key Set. Convex Auth generates both this + JWT_PRIVATE_KEY."
+      },
+      {
+        "name": "SITE_URL",
+        "required": true,
+        "scope": "server",
+        "description": "Public site origin for magic-link callback."
+      },
+      {
+        "name": "AUTH_GOOGLE_ID",
+        "required": false,
+        "scope": "server",
+        "description": "Google OAuth client ID. Required only when Google provider enabled."
+      },
+      {
+        "name": "AUTH_GOOGLE_SECRET",
+        "required": false,
+        "scope": "server",
+        "description": "Google OAuth client secret. SAME key as any existing Clerk app during migration so `sub` join works (per Phase 5.5)."
+      }
+    ]
+  },
+  "files": {
+    "include": ["**/*"],
+    "exclude": ["*.test.ts", "*.test.tsx"]
+  },
+  "convexFiles": {
+    "include": ["**/*.ts"],
+    "exclude": ["*.test.ts"]
+  },
+  "permissions": [
+    "auth.sign-in",
+    "auth.sign-out",
+    "auth.manage-account"
+  ],
+  "schemaTables": [
+    {
+      "name": "auth_users",
+      "namespaced": true,
+      "indexes": ["by_email", "by_external_id"]
+    },
+    {
+      "name": "auth_accounts",
+      "namespaced": true,
+      "indexes": ["by_provider", "by_provider_account_id", "by_user"]
+    },
+    {
+      "name": "auth_sessions",
+      "namespaced": true,
+      "indexes": ["by_user", "by_token"]
+    },
+    {
+      "name": "auth_verifiers",
+      "namespaced": true,
+      "indexes": ["by_user", "by_identifier"]
+    }
+  ],
+  "compatibility": {
+    "next": ">=15 <17",
+    "react": "^19",
+    "convex": "^1.36",
+    "tailwind": "4",
+    "auth": "convex-auth"
+  },
+  "hooks": {
+    "postInstall": [
+      "echo 'Run: npx @convex-dev/auth init  (generates JWT_PRIVATE_KEY + JWKS)'",
+      "echo 'Add SITE_URL + AUTH_RESEND_KEY to Convex env'"
+    ],
+    "checks": [
+      {
+        "name": "env-vars-present",
+        "command": "node -e \"['JWT_PRIVATE_KEY','JWKS','SITE_URL'].forEach(k=>{if(!process.env[k]&&!require('fs').readFileSync('.env.example','utf8').includes(k))process.exit(1)})\"",
+        "phase": "post"
+      }
+    ]
+  },
+  "tags": ["auth", "convex-auth", "password", "magic-link", "oauth", "google", "anonymous", "pbkdf2", "no-clerk"],
+  "notes": "0.2.0 (2026-05-17): lifted production SignInPage from CareerPack. Backend (convex/features/auth/auth.ts) already shipped Password + Anonymous + Google + PBKDF2-SHA256 100k crypto; this release fills in the frontend with login/register tabs, Google + Anonymous buttons, and i18n-via-props. PBKDF2 (not Scrypt) because Scrypt times out behind reverse proxies that gate WebSocket actions (e.g. Dokploy). Pre-migration note still applies: if migrating from Clerk, reuse the same Google client ID/secret so the OAuth `sub` join preserves identity."
+}
