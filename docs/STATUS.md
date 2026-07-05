@@ -9,10 +9,10 @@
 | # | Area | Release | Depends on | Status | Agent | Branch | Last commit | Notes |
 |---|---|---|---|---|---|---|---|---|
 | 0 | Scaffold: `rahman-resources init`, convex-auth (google), theme-presets, responsive-dialog, feedback-states, `proxy.ts`, `convex/schema.ts` + `convex/_shared/auth.ts` per DATA-MODEL.md, seed mutation | v1 | — | done | alpha | main | 06c203c | **INTEGRATOR ONLY** — pushed to origin; tsc green; dashboard-shell deferred (see drift log); `_generated` committed w/ untyped api.d.ts, regenerates on first `npx convex dev` |
-| 1 | `slices/tenants` — tenant profile, join, memberships, roles | v1 | #0 | open | — | slice/tenants | — | request-form & approval UI deferred to #6 |
-| 2 | `slices/courses` — course/module/lesson CRUD + lesson viewer | v1 | #0 | open | — | slice/courses | — | YouTube embed + markdown + links; evaluate rr `markdown` slice |
+| 1 | `slices/tenants` — tenant profile, join, memberships, roles | v1 | #0 | in-progress | beta | — | — | request-form & approval UI deferred to #6 |
+| 2 | `slices/courses` — course/module/lesson CRUD + lesson viewer | v1 | #0 | in-progress | gamma | — | — | YouTube embed + markdown + links; evaluate rr `markdown` slice |
 | 3 | `slices/progress` — mark-complete, progress bars, course completion | v1 | #2 (barrel) | open | — | slice/progress | — | completion writes are idempotent |
-| 4 | `slices/profiles` — minimal profile (username, displayName) | v1 | #0 | open | — | slice/profiles | — | public page + badges deferred to #9 |
+| 4 | `slices/profiles` — minimal profile (username, displayName) | v1 | #0 | in-progress | delta | — | — | public page + badges deferred to #9 |
 | 5 | `app/landing` — landing page + marketing chrome + e2e smoke | v1 | #1, #2 | open | — | app/landing | — | `"use cache"` + fetchQuery; **v1 LAUNCH gate** |
 | 6 | `tenants` request form + `/admin` approval queue | v1.1 | #1 | open | — | slice/tenants-requests | — | evaluate rr `platform-admin` (contract-only scaffold) |
 | 7 | `slices/resources` — resource board + suggestion box (submit→curate) | v1.1 | #1 | open | — | slice/resources | — | adapt rr `library`; install `rate-limit` |
