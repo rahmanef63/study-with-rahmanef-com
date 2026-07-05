@@ -12,7 +12,8 @@
     "convex:dev": "convex dev",
     "convex:codegen": "convex dev --once",
     "build:auto": "if [ -n \"$CONVEX_DEPLOY_KEY\" ]; then node scripts/setup-auth.mjs && convex deploy --cmd 'next build'; else next build; fi",
-    "smoke": "node scripts/smoke-test.mjs"
+    "smoke": "node scripts/smoke-test.mjs",
+    "test": "vitest run"
   },
   "dependencies": {
     "@auth/core": "^0.37.4",
@@ -36,12 +37,15 @@
     "vaul": "^1.1.2"
   },
   "devDependencies": {
+    "@edge-runtime/vm": "^5.0.0",
     "@tailwindcss/postcss": "^4.0.0",
     "@types/node": "^22.10.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "convex-test": "^0.0.54",
     "postcss": "^8.5.0",
     "tailwindcss": "^4.0.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "vitest": "^4.1.9"
   }
 }
