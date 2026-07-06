@@ -10,10 +10,16 @@ export type CourseCardProps = {
   course: CourseCardData;
   /** Route target — built by the consumer, e.g. `/t/${slug}/kelas/${course.slug}`. */
   href: string;
+  /** Member progress (UI-UX-PRD §4). Omit for public/etalase cards. */
+  progress?: { completedCount: number; totalCount: number };
   className?: string;
 };
 
-export function CourseCard({ course, href, className }: CourseCardProps) {
+export function CourseCard({ course, href, progress, className }: CourseCardProps) {
+  const pct =
+    progress && progress.totalCount > 0
+      ? Math.round((progress.completedCount / progress.totalCount) * 100)
+      : null;
   return (
     <Link href={href} className="block focus-visible:outline-none">
       <Card
@@ -36,7 +42,25 @@ export function CourseCard({ course, href, className }: CourseCardProps) {
           <CardTitle className="line-clamp-2 text-lg">{course.title}</CardTitle>
           <CardDescription className="line-clamp-3">{course.description}</CardDescription>
         </CardHeader>
-        <CardContent />
+        <CardContent>
+          {pct !== null && progress ? (
+            <div className="space-y-1.5">
+              <div
+                className="h-1.5 w-full overflow-hidden rounded-full bg-muted"
+                role="progressbar"
+                aria-valuenow={pct}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label={`Progress: ${pct}%`}
+              >
+                <div className="h-full rounded-full bg-primary" style={{ width: `${pct}%` }} />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {progress.completedCount}/{progress.totalCount} lesson selesai
+              </p>
+            </div>
+          ) : null}
+        </CardContent>
       </Card>
     </Link>
   );

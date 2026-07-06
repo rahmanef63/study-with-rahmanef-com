@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
-import { CourseCard } from "@/features/courses";
 import { JoinButton, TenantProfileCard } from "@/features/tenants";
 import { TenantAnnouncementsTeaser } from "./tenant-announcements-teaser";
+import { TenantCourseGrid } from "./tenant-course-grid";
 import { getPublicTenant, getPublishedCourses } from "./tenant-data";
 
 export default async function TenantHomePage({
@@ -23,15 +23,7 @@ export default async function TenantHomePage({
       <section className="space-y-4">
         <h2 className="text-xl font-semibold">Kelas</h2>
         {courses.length > 0 ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {courses.map((course) => (
-              <CourseCard
-                key={course._id}
-                course={course}
-                href={`/t/${tenant.slug}/kelas/${course.slug}`}
-              />
-            ))}
-          </div>
+          <TenantCourseGrid courses={courses} tenantId={tenant._id} slug={tenant.slug} />
         ) : (
           <div className="rounded-xl border border-dashed bg-muted/30 px-6 py-12 text-center">
             <p className="font-medium">Kelas pertama sedang disiapkan 🌱</p>
