@@ -1,0 +1,15 @@
+feat(profiles): public profile /u/[username] + badge wall (#9)
+
+Two anonymous public* etalase queries per AGENTS.md section 6
+(publicGetByUsername, publicListBadges): explicit safe projections (no
+userId/isPlatformAdmin/_id; shape asserted in public.test.ts), published
+courses of active tenants only, bounded takes. PublicProfileView +
+PublicProfileCard + BadgeWall + ProfileAvatar (CSS-escaped background-image).
+
+Integrator review: convex types.ts + mutation hooks + README were silently
+stale through the mount sync (old content, no git diff) - re-materialized
+byte-identical from the authored content.
+
+Agent: delta
+Reviewed-by: Agent: alpha
+Co-Authored-By: Claude <noreply@anthropic.com>

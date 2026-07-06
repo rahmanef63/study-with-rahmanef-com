@@ -1,0 +1,14 @@
+feat(announcements): in-app announcements + Discord webhook action (#10)
+
+create (instructor+) inserts postedToDiscord=false then schedules the
+internal action; postToDiscord reads tenants.discordWebhookUrl INSIDE the
+internal flow only (DB -> internalQuery -> internalAction - never an arg,
+return value, or public surface; P0). Webhook failure logs
+[announcements:postToDiscord] without PII/URL and leaves the announcement
+intact. Member-scoped list via by_tenant, newest first, bounded.
+
+Integrator review: union-narrowing casts + a tuple cast fixed in specs.
+
+Agent: zeta
+Reviewed-by: Agent: alpha
+Co-Authored-By: Claude <noreply@anthropic.com>

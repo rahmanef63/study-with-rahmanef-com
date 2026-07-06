@@ -1,0 +1,11 @@
+feat(quiz): MCQ builder, taking, server-side auto-grade (#8)
+
+One quiz per module (v1.1); 2-6 options, correctIndex in range, passing 0-100
+validated in mutations. P0: getQuizForTaking projects {prompt, options} only -
+correctIndex/explanation stripped (shape asserted in taking.test.ts); grading
++ reveal only in submitAttempt's result; draft-course quizzes invisible to
+members; authz-before-read incl. dangling-id specs.
+
+Agent: gamma
+Reviewed-by: Agent: alpha
+Co-Authored-By: Claude <noreply@anthropic.com>

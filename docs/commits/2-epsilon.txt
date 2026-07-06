@@ -1,0 +1,14 @@
+feat(resources): resource board + suggestion box, submit->curate (#7)
+
+resources: submit (member, http(s)-validated) -> pending -> approve/reject
+(instructor+, reviewedBy recorded); suggestions: submit + open/planned/done/
+rejected triage. Anti-spam per DATA-MODEL: >5 pending/open per user per
+tenant -> RATE_LIMITED (indexed count, no new dependency). Pending visibility
+enforced in the queries (instructor+ & submitter only).
+
+Integrator review: 5 component files re-materialized (mount truncation);
+AnyApi-era type annotations added in specs. Tests + tsc green.
+
+Agent: epsilon
+Reviewed-by: Agent: alpha
+Co-Authored-By: Claude <noreply@anthropic.com>

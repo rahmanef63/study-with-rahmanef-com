@@ -1,0 +1,14 @@
+feat(tenants): community request flow + platform-admin approval queue (#6)
+
+requestTenant (pending, 1-per-user anti-spam), listPending/approve/reject/
+getMyPlatformAdmin (requirePlatformAdmin, auth-before-read), RequestTenantForm
++ AdminTenantQueueView, hooks, ID copy. Reject = status 'suspended' (schema
+has no rejected literal - documented). Webhook URL still write-only (P0).
+
+Integrator review: several files arrived truncated/stale through the Cowork
+mount sync and were re-materialized byte-identical from the authored content.
+Tests + tsc green post-repair (vitest 273/273, tsc 0 errors).
+
+Agent: beta
+Reviewed-by: Agent: alpha
+Co-Authored-By: Claude <noreply@anthropic.com>
