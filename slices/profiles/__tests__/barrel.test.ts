@@ -36,6 +36,28 @@ describe("profiles barrel contract", () => {
   });
 });
 
+describe("public profile barrel contract (STATUS #9)", () => {
+  test("public components + hook are exported", () => {
+    expect(typeof barrel.PublicProfileView).toBe("function");
+    expect(typeof barrel.PublicProfileCard).toBe("function");
+    expect(typeof barrel.BadgeWall).toBe("function");
+    expect(typeof barrel.ProfileAvatar).toBe("function");
+    expect(typeof barrel.usePublicProfile).toBe("function");
+  });
+
+  test("public labels are exported with full Bahasa copy (every key non-empty)", () => {
+    const labels = barrel.DEFAULT_PUBLIC_PROFILE_LABELS;
+    for (const value of Object.values(labels)) {
+      expect(typeof value).toBe("string");
+      expect(value.length).toBeGreaterThan(0);
+    }
+    // Spot-check a couple of contract keys exist.
+    expect(labels.notFoundTitle).toBeTruthy();
+    expect(labels.badgesTitle).toBeTruthy();
+    expect(labels.copyLabel).toBeTruthy();
+  });
+});
+
 describe("slice metadata pair", () => {
   test("versions are in sync (audit:slices contract)", () => {
     expect(sliceJson.version).toBe(manifest.version);

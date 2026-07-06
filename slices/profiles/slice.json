@@ -1,10 +1,10 @@
 {
   "$schema": "https://resource.rahmanef.com/slice-schema.json",
   "slug": "profiles",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "category": "identity",
-  "title": "Profiles — Profil Pengguna (v1 minimal)",
-  "description": "Own-profile record for belajar-with-rahmanef.com: ensure-on-first-login mutation, settings form (username, displayName, bio, avatarUrl), current-profile query. Username globally unique, normalized to lowercase kebab-case; explicit rename collisions reject VALIDATION_FAILED. isPlatformAdmin is read-only from this slice (seed/integrator only). Public page /u/[username] + badge wall ship separately (STATUS row #9, v1.1).",
+  "title": "Profiles — Profil Pengguna + Halaman Publik",
+  "description": "Own-profile record + public profile page for belajar-with-rahmanef.com. v1: ensure-on-first-login mutation, settings form (username, displayName, bio, avatarUrl), current-profile query; username globally unique, normalized to lowercase kebab-case; explicit rename collisions reject VALIDATION_FAILED; isPlatformAdmin read-only from this slice (seed/integrator only). v1.1 (STATUS #9): anonymous etalase page /u/[username] via two public* queries (publicGetByUsername + publicListBadges) returning safe projections only (AGENTS.md §6), plus a badge wall from courseCompletions joined to published courses of active tenants.",
   "namespace": "@/features/profiles",
   "convex": {
     "schemaPath": "convex/schema.ts",
@@ -16,7 +16,7 @@
   },
   "deps": {
     "npm": ["convex@^1.16.0", "@convex-dev/auth@^0.0.92", "sonner@^1.7.1"],
-    "shadcn": ["button", "card", "input", "label", "skeleton"],
+    "shadcn": ["button", "card", "empty", "input", "label", "skeleton"],
     "env": [],
     "peers": []
   },
@@ -28,19 +28,27 @@
     "requires": {
       "auth": "convex",
       "convex": {
-        "tables": ["profiles", "users"]
+        "tables": ["profiles", "users", "courseCompletions", "courses", "tenants"]
       }
     },
     "provides": {
-      "routes": ["/pengaturan/profil"],
+      "routes": ["/pengaturan/profil", "/u/[username]"],
       "tables": ["profiles"],
-      "components": ["ProfileSettingsView", "ProfileSettingsForm"],
+      "components": [
+        "ProfileSettingsView",
+        "ProfileSettingsForm",
+        "PublicProfileView",
+        "PublicProfileCard",
+        "BadgeWall",
+        "ProfileAvatar"
+      ],
       "hooks": [
         "useCurrentProfile",
         "useEnsureProfile",
         "useEnsureProfileOnFirstLogin",
         "useUpdateProfile",
-        "useCheckUsername"
+        "useCheckUsername",
+        "usePublicProfile"
       ],
       "helpers": [
         "normalizeUsername",
@@ -51,7 +59,9 @@
         "features/profiles/queries:getCurrentProfile",
         "features/profiles/queries:checkUsername",
         "features/profiles/mutations:ensureProfile",
-        "features/profiles/mutations:updateProfile"
+        "features/profiles/mutations:updateProfile",
+        "features/profiles/public:publicGetByUsername",
+        "features/profiles/public:publicListBadges"
       ]
     },
     "generalization": {

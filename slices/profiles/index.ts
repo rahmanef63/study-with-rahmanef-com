@@ -11,8 +11,21 @@ export {
   type ProfileSettingsViewProps,
 } from "./components/profile-settings-view";
 
+// Public profile page /u/[username] + badge wall (STATUS #9, v1.1).
+export {
+  PublicProfileView,
+  type PublicProfileViewProps,
+} from "./components/public-profile-view";
+export {
+  PublicProfileCard,
+  type PublicProfileCardProps,
+} from "./components/public-profile-card";
+export { BadgeWall, type BadgeWallProps } from "./components/badge-wall";
+export { ProfileAvatar, type ProfileAvatarProps } from "./components/profile-avatar";
+
 export { useCurrentProfile } from "./hooks/use-current-profile";
 export type { UseCurrentProfileResult } from "./hooks/use-current-profile";
+export { usePublicProfile } from "./hooks/use-public-profile";
 export {
   profileErrorCode,
   useCheckUsername,
@@ -23,6 +36,7 @@ export {
 
 export { profilesFeature } from "./config";
 export { DEFAULT_PROFILE_LABELS } from "./config/labels";
+export { DEFAULT_PUBLIC_PROFILE_LABELS } from "./config/public-labels";
 
 // Username rules — same functions the server enforces (SSOT in the convex
 // feature; pure module, safe for the client bundle).
@@ -40,9 +54,13 @@ export {
   PROFILE_ERROR_CODES,
 } from "./types";
 export type {
+  Badge,
   CurrentProfile,
   ProfileErrorCode,
   ProfileFormValues,
   ProfileLabels,
+  PublicProfile,
+  PublicProfileData,
+  PublicProfileLabels,
   UsernameCheck,
 } from "./types";

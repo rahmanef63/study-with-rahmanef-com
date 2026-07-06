@@ -9,7 +9,46 @@ export {
   DISPLAY_NAME_MAX,
   PROFILE_ERROR_CODES,
 } from "@convex/features/profiles/types";
-export type { ProfileErrorCode, UsernameCheck } from "@convex/features/profiles/types";
+export type {
+  Badge,
+  ProfileErrorCode,
+  PublicProfile,
+  UsernameCheck,
+} from "@convex/features/profiles/types";
+
+// Import for local use in the label/prop types below (SSOT stays server-side).
+import type { Badge, PublicProfile } from "@convex/features/profiles/types";
+
+/**
+ * Result of the public /u/[username] read. The queries THROW NOT_FOUND for an
+ * unknown handle (API contract, asserted in public.test.ts); that throw is
+ * surfaced by useQuery to the slice's error boundary, so this hook result only
+ * models loading → loaded. `profile` is non-null whenever `isLoading` is false.
+ */
+export type PublicProfileData = {
+  profile: PublicProfile | null;
+  badges: Badge[];
+  isLoading: boolean;
+};
+
+/** Every user-facing string on the public profile page — props-driven. */
+export type PublicProfileLabels = {
+  loading: string;
+  notFoundTitle: string;
+  notFoundBody: string;
+  /** Title/body when the page fails to load for a reason other than not-found. */
+  errorTitle: string;
+  errorBody: string;
+  bioEmpty: string;
+  badgesTitle: string;
+  badgesEmpty: string;
+  /** Prefix before the earned date, e.g. "Diselesaikan". */
+  badgeEarnedPrefix: string;
+  /** Accessible label + tooltip for the share/ID copy button. */
+  copyLabel: string;
+  /** Transient confirmation after copying. */
+  copiedLabel: string;
+};
 
 /** Own-profile shape returned by getCurrentProfile (full doc — self read). */
 export type CurrentProfile = Doc<"profiles">;

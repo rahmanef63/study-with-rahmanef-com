@@ -1,7 +1,7 @@
 {
   "name": "profiles",
-  "version": "0.1.0",
-  "description": "Own-profile record: ensure-on-first-login, settings form, current-profile query. Username unik global (lowercase kebab-case); isPlatformAdmin read-only dari slice ini.",
+  "version": "0.2.0",
+  "description": "Own-profile record + public profile page. v1: ensure-on-first-login, settings form, current-profile query (username unik global lowercase kebab-case; isPlatformAdmin read-only). v1.1: anonymous /u/[username] page + badge wall via two public* etalase queries with safe projections (AGENTS.md §6).",
   "category": "identity",
   "stability": "beta",
   "deps": {
@@ -38,6 +38,6 @@
     "tailwind": "4",
     "auth": "convex-auth"
   },
-  "tags": ["profiles", "identity", "username", "settings", "convex"],
-  "notes": "0.1.0 (2026-07-06, agent delta): v1 minimal scope per docs/AGENT-PROMPTS.md #4. Public /u/[username] + badge wall deferred to STATUS row #9 (v1.1). Slice-local Textarea pending integrator `npx shadcn add textarea` (see TODO(rr) in components/textarea.tsx)."
+  "tags": ["profiles", "identity", "username", "settings", "public-profile", "badges", "convex"],
+  "notes": "0.2.0 (2026-07-06, agent delta): adds the public /u/[username] page + badge wall (STATUS #9). Two anonymous public* etalase queries (publicGetByUsername, publicListBadges) return safe projections only per AGENTS.md §6; badges read the shared courseCompletions/courses/tenants tables (published courses of active tenants only — sanctioned table access, not code import). Avatar renders a CSS-escaped background-image div (mirrors courses/course-card; no next/image remotePatterns coupling). Alpha mounts /u/[username] (see README integration point). 0.1.0: v1 minimal scope per docs/AGENT-PROMPTS.md #4; slice-local Textarea pending integrator `npx shadcn add textarea` (TODO(rr) in components/textarea.tsx)."
 }
