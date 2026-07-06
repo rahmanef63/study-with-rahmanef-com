@@ -13,6 +13,7 @@ export { ThemePresetSwitcher } from "./components/ThemePresetSwitcher";
 export { SaveSiteDefaultButton } from "./components/SaveSiteDefaultButton";
 export { ThemeColorSync } from "./components/ThemeColorSync";
 export { ThemeProviders } from "./components/ThemeProviders";
+export { ThemePresetStyle } from "./components/ThemePresetStyle";
 
 export {
   applyTweakcnPreset,

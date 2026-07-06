@@ -3,9 +3,14 @@ import { Suspense } from "react";
 import { Inter, Lora } from "next/font/google";
 import { ConvexClientProvider } from "@/components/convex-provider";
 import { VersionWatcher } from "@/components/version-watcher";
-import { ThemeProviders } from "@/features/theme-presets";
+import { ThemeProviders, ThemePresetStyle } from "@/features/theme-presets";
 import { Toaster } from "sonner";
 import "./globals.css";
+
+// "Akademik & Tenang" build-time look (UI-UX-PRD §1). One source of truth for
+// the default preset so the pre-hydration inline CSS and the provider agree.
+const DEFAULT_MODE = "light" as const;
+const DEFAULT_PRESET = "nature";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 // Serif display for the "Akademik & Tenang" hierarchy (UI-UX-PRD §1.2).
@@ -36,7 +41,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="id" suppressHydrationWarning>
       <body className={`${inter.variable} ${lora.variable} font-sans antialiased`}>
-        <ThemeProviders defaultMode="light" defaultPreset="nature">
+        <ThemePresetStyle preset={DEFAULT_PRESET} />
+        <ThemeProviders defaultMode={DEFAULT_MODE} defaultPreset={DEFAULT_PRESET}>
           <VersionWatcher />
           <Suspense fallback={null}>
             <ConvexClientProvider>{children}</ConvexClientProvider>

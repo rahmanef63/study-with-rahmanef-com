@@ -29,6 +29,9 @@ export type ManagedTenant = PublicTenant & {
 
 export type MyMembership = { role: TenantRole; since: number } | null;
 
+/** A community the caller belongs to ("Komunitas saya"): public shape + role. */
+export type MyCommunity = PublicTenant & { role: TenantRole };
+
 export type TenantMember = {
   userId: Id<"users">;
   role: TenantRole;

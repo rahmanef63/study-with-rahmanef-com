@@ -37,6 +37,7 @@ describe("barrel type contract (compile-time, enforced by tsc)", () => {
     // hooks
     expectTypeOf<typeof Barrel.useTenantBySlug>().toBeFunction();
     expectTypeOf<typeof Barrel.useActiveTenants>().toBeFunction();
+    expectTypeOf<typeof Barrel.useMyCommunities>().toBeFunction();
     expectTypeOf<typeof Barrel.useMyMembership>().toBeFunction();
     expectTypeOf<typeof Barrel.useTenantMembers>().toBeFunction();
     expectTypeOf<typeof Barrel.useTenantManageView>().toBeFunction();
@@ -68,6 +69,7 @@ describe("barrel runtime contract (alias-free modules)", () => {
         "join",
         "listActive",
         "listMembers",
+        "listMine",
         "listPending",
         "reject",
         "requestTenant",

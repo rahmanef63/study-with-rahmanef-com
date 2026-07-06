@@ -3,6 +3,7 @@
 // including authz-denied paths, plus the P0 "webhook never leaks" contract.
 // Pattern: convex/seed.test.ts (modules glob + convex-test + denied paths).
 import { convexTest } from "convex-test";
+import { makeFunctionReference } from "convex/server";
 import { describe, expect, test } from "vitest";
 import { api } from "../../_generated/api";
 import type { Id } from "../../_generated/dataModel";
@@ -53,6 +54,42 @@ function expectNoWebhook(value: unknown) {
   expect(JSON.stringify(value)).not.toContain("webhook");
   expect(JSON.stringify(value)).not.toContain(WEBHOOK);
 }
+
+describe("queries.listMine", () => {
+  const listMine = makeFunctionReference<"query">(
+    "features/tenants/queries:listMine"
+  );
+
+  test("anonymous → NOT_AUTHENTICATED (authz before read)", async () => {
+    const t = convexTest(schema, modules);
+    await seed(t);
+    await expect(t.query(listMine, {})).rejects.toThrow(/NOT_AUTHENTICATED/);
+  });
+
+  test("returns the caller's active communities + role (P0: no webhook)", async () => {
+    const t = convexTest(schema, modules);
+    const { userId, tenantId } = await seed(t);
+    await t.run(async (ctx) => {
+      await ctx.db.insert("memberships", { tenantId, userId, role: "member" });
+    });
+    const result = await as(t, userId).query(listMine, {});
+    expect(result).toHaveLength(1);
+    expect(result[0].name).toBe("Belajar AI");
+    expect(result[0].role).toBe("member");
+    expect(result[0]).not.toHaveProperty("discordWebhookUrl");
+    expectNoWebhook(result);
+  });
+
+  test("excludes suspended/pending communities", async () => {
+    const t = convexTest(schema, modules);
+    const { userId, tenantId } = await seed(t, "suspended");
+    await t.run(async (ctx) => {
+      await ctx.db.insert("memberships", { tenantId, userId, role: "member" });
+    });
+    const result = await as(t, userId).query(listMine, {});
+    expect(result).toHaveLength(0);
+  });
+});
 
 describe("queries.getPublicBySlug", () => {
   test("returns the safe projection for an active tenant (P0: no webhook)", async () => {

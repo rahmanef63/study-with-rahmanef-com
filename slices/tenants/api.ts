@@ -2,6 +2,8 @@
 // convex/features/tenants layout ever moves). Consumers (pages, other slices)
 // use these for preloadQuery/useQuery instead of hand-writing paths.
 import { api } from "@convex/_generated/api";
+import { makeFunctionReference } from "convex/server";
+import type { MyCommunity } from "./types";
 
 export const tenantsApi = {
   /** query — public: safe tenant by slug or null (inactive = null). */
@@ -12,6 +14,12 @@ export const tenantsApi = {
   getManageView: api.features.tenants.queries.getManageView,
   /** query — authed: caller's membership in a tenant or null. */
   getMyMembership: api.features.tenants.members.getMyMembership,
+  /** query — authed: communities the caller belongs to ("Komunitas saya").
+   *  Hand-referenced so the typed `api` stays valid before the next codegen;
+   *  the pre-push convex deploy publishes the function. */
+  listMine: makeFunctionReference<"query", Record<string, never>, MyCommunity[]>(
+    "features/tenants/queries:listMine"
+  ),
   /** query — member: bounded member roster with profile info. */
   listMembers: api.features.tenants.members.listMembers,
   /** mutation — authed: idempotent join as member. */

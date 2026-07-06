@@ -8,6 +8,7 @@ import type { Id } from "@convex/_generated/dataModel";
 import { tenantsApi } from "../api";
 import type {
   ManagedTenant,
+  MyCommunity,
   MyMembership,
   PendingTenantRequest,
   PublicTenant,
@@ -25,6 +26,14 @@ export function useTenantBySlug(slug: string): PublicTenant | null | undefined {
 /** Active communities (landing etalase). */
 export function useActiveTenants(limit?: number): PublicTenant[] | undefined {
   return useQuery(tenantsApi.listActive, { limit }) as PublicTenant[] | undefined;
+}
+
+/** Communities the caller belongs to; skip until authenticated. */
+export function useMyCommunities(): MyCommunity[] | undefined {
+  const { isAuthenticated } = useConvexAuth();
+  return useQuery(tenantsApi.listMine, isAuthenticated ? {} : "skip") as
+    | MyCommunity[]
+    | undefined;
 }
 
 /** Caller's membership; `undefined` while loading OR logged out (see flag). */

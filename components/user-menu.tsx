@@ -1,10 +1,10 @@
 "use client";
 
 // G2/G6 (UI-UX-PRD §3): the signed-in user's home in the header — avatar
-// trigger → public profile, profile settings, sign out (@convex-dev/auth).
+// trigger → Profil publik, Pengaturan profil, Komunitas saya, Keluar (signOut).
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LogOut, Settings, UserRound } from "lucide-react";
+import { LayoutGrid, LogOut, Settings, UserRound } from "lucide-react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import {
   Popover,
@@ -51,6 +51,9 @@ export function UserMenu() {
         ) : null}
         <Link href="/pengaturan/profil" className={itemClass}>
           <Settings className="size-4" /> Pengaturan profil
+        </Link>
+        <Link href="/komunitas-saya" className={itemClass}>
+          <LayoutGrid className="size-4" /> Komunitas saya
         </Link>
         <Separator className="my-1" />
         <button

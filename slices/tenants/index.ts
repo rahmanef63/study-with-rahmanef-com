@@ -44,6 +44,7 @@ export {
 export {
   useActiveTenants,
   useAdminPendingTenants,
+  useMyCommunities,
   useMyMembership,
   useMyPlatformAdmin,
   useTenantBySlug,
@@ -62,6 +63,7 @@ export { errorToCopy, extractErrorCode } from "./lib/error-copy";
 // Types
 export type {
   ManagedTenant,
+  MyCommunity,
   MyMembership,
   PendingTenantRequest,
   PublicTenant,

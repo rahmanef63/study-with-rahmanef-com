@@ -5,8 +5,13 @@
 // safe projection (never `discordWebhookUrl`, DATA-MODEL.md security note #1).
 import { v } from "convex/values";
 import { query } from "../../_generated/server";
-import { requireTenantRole } from "../../_shared/auth";
-import { TENANT_LIMITS, toManagedTenant, toPublicTenant } from "./helpers";
+import { requireTenantRole, requireUser } from "../../_shared/auth";
+import {
+  TENANT_LIMITS,
+  toManagedTenant,
+  toPublicTenant,
+  type PublicTenant,
+} from "./helpers";
 
 /**
  * Public community profile by slug (`/t/[slug]` etalase).
@@ -43,6 +48,30 @@ export const listActive = query({
       .withIndex("by_status", (q) => q.eq("status", "active"))
       .take(limit);
     return tenants.map(toPublicTenant);
+  },
+});
+
+/**
+ * Communities the signed-in user belongs to ("Komunitas saya", UI-UX-PRD §5.3).
+ * Auth FIRST (requireUser) — never leaks membership to anon. Bounded by the
+ * by_user membership index; returns the public tenant projection + the caller's
+ * own role. Active-only, matching R6 (pending/suspended stay invisible).
+ */
+export const listMine = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await requireUser(ctx);
+    const memberships = await ctx.db
+      .query("memberships")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .take(TENANT_LIMITS.activeListMax);
+    const out: (PublicTenant & { role: "owner" | "instructor" | "member" })[] = [];
+    for (const m of memberships) {
+      const tenant = await ctx.db.get(m.tenantId);
+      if (tenant === null || tenant.status !== "active") continue;
+      out.push({ ...toPublicTenant(tenant), role: m.role });
+    }
+    return out;
   },
 });
 
