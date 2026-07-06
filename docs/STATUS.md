@@ -14,14 +14,15 @@
 | 3 | `slices/progress` — mark-complete, progress bars, course completion | v1 | #2 (barrel) | done | epsilon | main | — | 27 files, 18 specs (167 total green), authz-before-read pattern, double idempotency; api.d.ts regenerated as loose fallback — typed variant returns at next real `convex dev/deploy` |
 | 4 | `slices/profiles` — minimal profile (username, displayName) | v1 | #0 | done | delta | main | 342905c | 144-test suite + tsc green; public page + badges deferred to #9 |
 | 5 | `app/landing` — landing page + marketing chrome + e2e smoke | v1 | #1, #2 | done | alpha | main | bf4ee89 | Routes + progress slots wired (completionSlot di player, progressSlot + completedLessonIds di overview, member-gated mount); sisa: e2e smoke + verifikasi produksi; **v1 LAUNCH gate** |
-| 6 | `tenants` request form + `/admin` approval queue | v1.1 | #1 | open | — | slice/tenants-requests | — | evaluate rr `platform-admin` (contract-only scaffold) |
-| 7 | `slices/resources` — resource board + suggestion box (submit→curate) | v1.1 | #1 | open | — | slice/resources | — | adapt rr `library`; install `rate-limit` |
-| 8 | `slices/quiz` — MCQ builder + attempt + auto-grade | v1.1 | #2 | open | — | slice/quiz | — | P0: answers never reach client pre-submit |
-| 9 | `profiles` public page + badge wall `/u/[username]` | v1.1 | #3, #4 | open | — | slice/profiles-public | — | evaluate rr `profile` |
-| 10 | `slices/announcements` — in-app + Discord webhook action | v1.1 | #1 | open | — | slice/announcements | — | P0: webhook URL server-only; evaluate `notifications-center` |
+| 6 | `tenants` request form + `/admin` approval queue | v1.1 | #1 | in-progress | beta | — | — | pre-claimed (wave v1.1); reject = status `suspended` (schema has no rejected literal) |
+| 7 | `slices/resources` — resource board + suggestion box (submit→curate) | v1.1 | #1 | in-progress | epsilon | — | — | pre-claimed; anti-spam = DATA-MODEL pending-count guard (NO rr rate-limit dependency) |
+| 8 | `slices/quiz` — MCQ builder + attempt + auto-grade | v1.1 | #2 | in-progress | gamma | — | — | pre-claimed; P0: answers never reach client pre-submit; standalone views, editor integration by alpha |
+| 9 | `profiles` public page + badge wall `/u/[username]` | v1.1 | #3, #4 | in-progress | delta | — | — | pre-claimed; public* etalase queries per §6, safe projection asserted in tests |
+| 10 | `slices/announcements` — in-app + Discord webhook action | v1.1 | #1 | in-progress | zeta | — | — | pre-claimed; P0 webhook server-only (internal action); scheduler pattern |
 | 11 | ops: production deploy sehat — Convex self-hosted, OAuth Google, seed, domain | v1 | #0 | done | vps | main | d894356 | A–E verified; live: https://study-with.rahmanef.com; 2 auth defects fixed (stale AUTH_GOOGLE_SECRET, missing auth.config.ts); seed done — Rahman = platform admin + owner `belajar-ai` |
 | 12 | ops: ROTASI SECRET — Convex admin key, JWT_PRIVATE_KEY/JWKS, AUTH_GOOGLE_SECRET (terekspos di chat sesi vps) | v1 | #11 | open | vps | — | — | **URGENT** — jalankan di VPS; JWT rotate = logout sesi aktif (login ulang saja); hapus juga .env.local berisi admin key di laptop |
 | 13 | e2e smoke Playwright (login → join → lesson → complete → progress) terhadap staging/prod | v1.1 | #11 | open | — | — | — | deferred dari #5 (drift log); v1 launch memakai smoke-lite: audit vps A–E + login riil Rahman + HTTP checks |
+| 14 | ops: deploy v1.1 + verifikasi rute + seed check (SETELAH merge wave v1.1) | v1.1 | #6–#10, #12 | open | vps | — | — | prompt final di AGENT-PROMPTS; jalan terakhir setelah alpha merge & Rahman push |
 
 ## Proposals (shared-surface changes — integrator applies)
 
