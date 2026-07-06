@@ -3,6 +3,7 @@
 import { use } from "react";
 import type { Id } from "@convex/_generated/dataModel";
 import { LessonPlayerView } from "@/features/courses";
+import { LessonCompletion } from "@/features/progress";
 
 export default function LessonPage({
   params,
@@ -18,6 +19,7 @@ export default function LessonPage({
         lessonId={lessonId as Id<"lessons">}
         lessonHref={(id) => `${courseHref}/belajar/${id}`}
         backHref={courseHref}
+        completionSlot={<LessonCompletion lessonId={lessonId as Id<"lessons">} />}
       />
     </div>
   );
