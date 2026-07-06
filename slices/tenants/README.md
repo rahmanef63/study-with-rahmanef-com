@@ -23,4 +23,23 @@ All views self-fetch via `convex/react`. For preloaded first paint, use the
   anti-spam caps each user at **one** open pending request (`RATE_LIMITED`).
   Pending tenants stay out of the public etalase (R6).
 - `listPending` / `approve` / `reject` (platform admin): the queue. `approve`
-  sets `status: "active"` and e
+  sets `status: "active"` and ensures the requester holds an `owner` membership
+  (idempotent); the owner gains no membership in any other tenant.
+- **Reject semantic:** `tenants.status` has no `"rejected"` literal in the SSOT
+  schema (docs/DATA-MODEL.md), so `reject` sets `status: "suspended"` and keeps
+  `requestMessage` intact for context. Suspended reads as `null` publicly (R6).
+
+## Security (P0)
+
+- `tenants.discordWebhookUrl` never appears in ANY query result. Public reads
+  project a safe shape; the owner manage view exposes only `hasDiscordWebhook`.
+  The form submits the webhook write-only and never receives it back.
+- Inactive (pending/suspended) tenants read as `null` publicly (R6).
+- Every function: `v.*` validators; member-scoped reads/writes call
+  `requireUser` / `requireTenantRole` as the first handler line.
+
+## Out of scope here
+
+Role management UI (R13, v1.1 — the `setMemberRole` mutation + hook already
+ship) · course content (courses slice) · route wiring for `/buka-komunitas` and
+`/admin/komunitas` (alpha mounts the exported views).
