@@ -7,6 +7,7 @@ import { ConvexAuthProvider } from "@convex-dev/auth/react";
 import { ConvexReactClient } from "convex/react";
 import { ConvexHttpClient } from "convex/browser";
 import { useState, type ReactNode } from "react";
+import { AuthCallbackHandler } from "@/components/auth-callback-handler";
 
 export function ConvexClientProvider({ children }: { children: ReactNode }) {
   const [convex] = useState(() => {
@@ -24,5 +25,10 @@ export function ConvexClientProvider({ children }: { children: ReactNode }) {
     return client;
   });
 
-  return <ConvexAuthProvider client={convex}>{children}</ConvexAuthProvider>;
+  return (
+    <ConvexAuthProvider client={convex} shouldHandleCode={false}>
+      <AuthCallbackHandler />
+      {children}
+    </ConvexAuthProvider>
+  );
 }

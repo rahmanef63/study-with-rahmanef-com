@@ -21,9 +21,13 @@ export function PublicHeader() {
     if (isLoading || handled.current) return;
     const url = new URL(window.location.href);
     if (!url.searchParams.has("login")) return;
+    if (url.searchParams.has("code")) return;
     handled.current = true;
-    if (isAuthenticated) toast.success("Berhasil masuk");
-    else toast.error("Login belum berhasil. Silakan coba lagi.");
+    if (isAuthenticated && url.searchParams.get("login") !== "failed") {
+      toast.success("Berhasil masuk");
+    } else {
+      toast.error("Login belum berhasil. Silakan coba lagi.");
+    }
     url.searchParams.delete("login");
     window.history.replaceState({}, "", url);
   }, [isAuthenticated, isLoading]);
