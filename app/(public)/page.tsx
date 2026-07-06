@@ -1,10 +1,76 @@
 import Link from "next/link";
+import { cacheLife, cacheTag } from "next/cache";
+import { fetchQuery } from "convex/nextjs";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { CourseCard, type CourseCardData } from "@/features/courses";
+import { tenantsApi, type PublicTenant } from "@/features/tenants";
+import { api } from "@convex/_generated/api";
 
-// TODO(rr): assignment #5 — replace the placeholder cards with a "use cache" +
-// fetchQuery read of active tenants via the @/features/tenants barrel once
-// assignment #1 passes review. Static skeleton keeps launch surface compiling.
+const convexOptions = { skipConvexDeploymentUrlCheck: true } as const;
+
+async function CommunityCatalog() {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("landing-catalog");
+
+  if (!process.env.NEXT_PUBLIC_CONVEX_URL) {
+    return <p className="text-center text-muted-foreground">Belum ada komunitas aktif.</p>;
+  }
+
+  const tenants = (await fetchQuery(
+    tenantsApi.listActive,
+    { limit: 6 },
+    convexOptions
+  )) as PublicTenant[];
+  const catalog = await Promise.all(
+    tenants.map(async (tenant) => ({
+      tenant,
+      courses: (await fetchQuery(
+        api.features.courses.queries.listPublished,
+        { tenantId: tenant._id },
+        convexOptions
+      )) as CourseCardData[],
+    }))
+  );
+
+  if (catalog.length === 0) {
+    return <p className="text-center text-muted-foreground">Belum ada komunitas aktif.</p>;
+  }
+
+  return (
+    <div className="space-y-10">
+      {catalog.map(({ tenant, courses }) => (
+        <section key={tenant._id} className="space-y-4">
+          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+            <div>
+              <h3 className="text-xl font-semibold">{tenant.name}</h3>
+              <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+                {tenant.description}
+              </p>
+            </div>
+            <Button asChild variant="outline">
+              <Link href={`/t/${tenant.slug}`}>Buka komunitas</Link>
+            </Button>
+          </div>
+          {courses.length > 0 ? (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {courses.map((course) => (
+                <CourseCard
+                  key={course._id}
+                  course={course}
+                  href={`/t/${tenant.slug}/kelas/${course.slug}`}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">Kelas pertama sedang disiapkan.</p>
+          )}
+        </section>
+      ))}
+    </div>
+  );
+}
+
 export default function HomePage() {
   return (
     <>
@@ -28,36 +94,7 @@ export default function HomePage() {
 
       <section id="komunitas" className="mx-auto max-w-5xl px-6 py-16">
         <h2 className="mb-8 text-center text-2xl font-semibold">Komunitas</h2>
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card>
-            <CardHeader>
-              <CardTitle>Belajar AI bareng Rahman</CardTitle>
-              <CardDescription>
-                Komunitas pertama — kelas dasar pengaplikasian AI untuk semua orang.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">
-              Segera dibuka. Login untuk bergabung begitu kelas pertama tayang.
-            </CardContent>
-          </Card>
-          <Card className="border-dashed">
-            <CardHeader>
-              <CardTitle className="text-muted-foreground">Komunitasmu?</CardTitle>
-              <CardDescription>
-                Pengajar sukarelawan bisa membuka komunitas sendiri di sini — fitur
-                pengajuan menyusul setelah rilis pertama.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-          <Card className="border-dashed">
-            <CardHeader>
-              <CardTitle className="text-muted-foreground">Track lain menyusul</CardTitle>
-              <CardDescription>
-                AI untuk kerja, konten & UMKM — kurikulum ditambah bertahap.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </div>
+        <CommunityCatalog />
       </section>
 
       <section id="tentang" className="mx-auto max-w-3xl px-6 py-16 text-center">
