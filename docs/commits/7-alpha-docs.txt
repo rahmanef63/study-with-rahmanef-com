@@ -1,0 +1,20 @@
+docs(contract): absorb v1.1 deploy findings - convex module naming, board close
+
+Post-review of vps hotfix 86ca386 (verified: pure renames + 4 importer lines
++ typed codegen; tsc 0 errors, vitest 273/273 against the extracted commit):
+
+- AGENTS.md section 7: new rule - non-test modules under convex/** must be
+  camelCase (Convex forbids '-' in module paths; whole deploy fails). Slice
+  frontend files stay kebab-case per rr P2. P1 prompt-enforced until a CI
+  guard lands (vps proposal recorded as tooling candidate).
+- AGENTS.md section 4: vps deploy-blocking-hotfix exception widened to cover
+  mechanical toolchain fixes (renames + import updates), never behavioral
+  logic; mandatory alpha post-review unchanged.
+- STATUS: #14 done (deploy v1.1 live, routes 200, idempotent seed OK);
+  #12 rotation remains OPEN & URGENT (held by Rahman for a maintenance
+  window); drift log entries for the naming constraint + accepted hotfix.
+- Cleanup: one-shot wave-v1.1 integration script + message files removed
+  (already in history).
+
+Agent: alpha
+Co-Authored-By: Claude <noreply@anthropic.com>
