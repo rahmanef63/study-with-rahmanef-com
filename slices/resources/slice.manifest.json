@@ -1,0 +1,44 @@
+{
+  "$schema": "../../docs/slice.manifest.schema.json",
+  "name": "resources",
+  "version": "0.1.0",
+  "description": "Resource board (R8) + suggestion box (R9): member submit → instructor curate/triage. Pending visibility enforced in-query (P0); light per-tenant anti-spam via by_tenant_status (DATA-MODEL guard, not the rr rate-limit dep). Two mounted views: ResourceBoardView, SuggestionBoxView.",
+  "category": "community",
+  "stability": "beta",
+  "deps": {
+    "shared": ["features/defineFeature"],
+    "slices": [],
+    "convexFeatures": ["resources"],
+    "npm": { "sonner": "^1.7.1", "lucide-react": "^0.460.0" },
+    "env": []
+  },
+  "files": {
+    "include": ["**/*"],
+    "exclude": ["__tests__/**", "*.test.ts", "*.test.tsx"]
+  },
+  "convexFiles": {
+    "include": ["**/*.ts"],
+    "exclude": ["*.test.ts", "test.helpers.ts"]
+  },
+  "permissions": ["resources.read", "resources.write", "resources.curate"],
+  "schemaTables": [
+    {
+      "name": "resources",
+      "namespaced": false,
+      "indexes": ["by_tenant_status", "by_submitter"]
+    },
+    {
+      "name": "suggestions",
+      "namespaced": false,
+      "indexes": ["by_tenant_status"]
+    }
+  ],
+  "compatibility": {
+    "next": ">=15 <17",
+    "react": "^19",
+    "convex": "^1.16",
+    "tailwind": "4",
+    "auth": "convex-auth"
+  },
+  "notes": "0.1.0 (2026-07-06, agent epsilon): STATUS row #7 (v1.1). Owns resources + suggestions tables. submit=member, curate/triage=instructor+, pending items visible only to instructor+ and the submitter (enforced in-query). Anti-spam = DATA-MODEL pending-count guard, NO rr rate-limit dependency. Copy-first: board/card shapes adapted from rr `library` (index/card + props-driven copy override), not imported. Optional resources.courseId supported by the mutation but omitted from the v1 submit form UI; instructor triage covers open→planned/done/rejected."
+}

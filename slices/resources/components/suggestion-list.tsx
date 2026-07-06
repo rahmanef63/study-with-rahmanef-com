@@ -1,0 +1,42 @@
+"use client";
+// resources slice — suggestion grid (loading / empty / list). Optional
+// `renderActions` injects instructor triage controls per card so the box view
+// stays lean and the card stays presentational.
+import type { ReactNode } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { ResourcesCopy } from "../config/copy";
+import type { SuggestionCard as SuggestionCardData } from "../types";
+import { SuggestionCard } from "./suggestion-card";
+
+export type SuggestionListProps = {
+  items: SuggestionCardData[] | undefined;
+  emptyLabel: string;
+  copy: ResourcesCopy;
+  renderActions?: (suggestion: SuggestionCardData) => ReactNode;
+};
+
+export function SuggestionList({ items, emptyLabel, copy, renderActions }: SuggestionListProps) {
+  if (items === undefined) {
+    return (
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Skeleton className="h-32" />
+        <Skeleton className="hidden h-32 sm:block" />
+      </div>
+    );
+  }
+  if (items.length === 0) {
+    return <p className="text-sm text-muted-foreground">{emptyLabel}</p>;
+  }
+  return (
+    <div className="grid gap-4 sm:grid-cols-2">
+      {items.map((s) => (
+        <SuggestionCard
+          key={s._id}
+          suggestion={s}
+          copy={copy}
+          actions={renderActions?.(s)}
+        />
+      ))}
+    </div>
+  );
+}

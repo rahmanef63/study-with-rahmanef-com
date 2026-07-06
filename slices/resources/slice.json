@@ -1,0 +1,85 @@
+{
+  "$schema": "https://resource.rahmanef.com/slice-schema.json",
+  "slug": "resources",
+  "version": "0.1.0",
+  "category": "community",
+  "kind": "fullstack",
+  "title": "Resources — resource board + suggestion box",
+  "description": "Community-curated resource sharing (R8) and a class/topic suggestion box (R9) for belajar-with-rahmanef.com. Members submit resources (http(s) links) that land pending until an instructor+ approves/rejects; members post suggestions that instructors triage open→planned/done/rejected. Pending items are visible only to instructors and the submitter — enforced in the query, not just the UI (P0). Light per-tenant anti-spam cap on pending/open items via the by_tenant_status index (the DATA-MODEL guard, not the rr rate-limit dependency). Two mounted views: ResourceBoardView and SuggestionBoxView.",
+  "namespace": "@/features/resources",
+  "convex": {
+    "tablesExport": "",
+    "schemaPath": "convex/schema.ts",
+    "rootPaths": ["convex/features/resources"]
+  },
+  "frontend": { "slicePath": "slices/resources", "configExport": "resourcesFeature" },
+  "deps": {
+    "npm": ["convex", "sonner", "lucide-react"],
+    "shadcn": ["button", "card", "input", "label", "tabs", "skeleton"],
+    "env": [],
+    "peers": []
+  },
+  "contract": {
+    "barrel": {
+      "views": ["ResourceBoardView", "SuggestionBoxView"],
+      "components": [
+        "ResourceCard",
+        "ResourceGrid",
+        "ResourceReviewRow",
+        "ResourceReviewList",
+        "ResourceSubmitForm",
+        "SuggestionCard",
+        "SuggestionList",
+        "SuggestionStatusActions",
+        "SuggestionSubmitForm",
+        "StatusBadge"
+      ],
+      "hooks": [
+        "useApprovedResources",
+        "usePendingResources",
+        "useMyResources",
+        "useSubmitResource",
+        "useCurateResource",
+        "useOpenSuggestions",
+        "useMySuggestions",
+        "useSubmitSuggestion",
+        "useSetSuggestionStatus"
+      ],
+      "lib": [
+        "resourcesErrorMessage",
+        "extractResourcesError",
+        "isHttpUrl",
+        "displayHost",
+        "resourceStatusLabel",
+        "suggestionStatusLabel",
+        "resourceStatusTone",
+        "suggestionStatusTone"
+      ],
+      "consumerSeams": {
+        "app-shell": [
+          "/t/[slug]/resources ← <ResourceBoardView tenantId canModerate />",
+          "/t/[slug]/usulan ← <SuggestionBoxView tenantId canModerate />"
+        ]
+      }
+    },
+    "convexFunctions": {
+      "member": [
+        "features/resources/resources:submit",
+        "features/resources/suggestions:submit",
+        "features/resources/queries:listApprovedResources",
+        "features/resources/queries:listMineResources",
+        "features/resources/queries:listOpenSuggestions",
+        "features/resources/queries:listMineSuggestions"
+      ],
+      "instructor": [
+        "features/resources/resources:curate",
+        "features/resources/suggestions:setStatus",
+        "features/resources/queries:listPendingResources"
+      ]
+    }
+  },
+  "registers": [],
+  "license": "MIT",
+  "tags": ["community", "resources", "suggestions", "curation", "multi-tenant"],
+  "providers": []
+}
