@@ -40,7 +40,7 @@ Catatan: `convex/_generated` di-commit (lihat .gitignore) supaya build Docker Ne
 
 1. **Kunci JWT @convex-dev/auth** — set di deployment Convex:
    `JWT_PRIVATE_KEY` + `JWKS` (scaffold menyediakan `scripts/setup-auth.mjs`; `npm run build:auto` menjalankannya otomatis saat `CONVEX_DEPLOY_KEY` ada — untuk self-hosted, jalankan manual sekali dan set via `npx convex env set`).
-2. `npx convex env set SITE_URL https://belajar-with-rahmanef.com`
+2. `npx convex env set SITE_URL https://study-with.rahmanef.com`
 3. **Google OAuth** — console.cloud.google.com → Credentials → OAuth Client (Web):
    - Authorized redirect URI: `https://convex-site.<domain-mu>/api/auth/callback/google`
    - Set di Convex: `npx convex env set AUTH_GOOGLE_ID ...` dan `AUTH_GOOGLE_SECRET ...`
@@ -52,7 +52,7 @@ Catatan: `convex/_generated` di-commit (lihat .gitignore) supaya build Docker Ne
 2. Env build & runtime:
    - `NEXT_PUBLIC_CONVEX_URL` = `https://convex.<domain-mu>`
    - `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` = acak 32-byte base64 (pin sekali)
-3. Domain `belajar-with-rahmanef.com` + TLS di Dokploy.
+3. Domain `study-with.rahmanef.com` + TLS di Dokploy (live sejak 2026-07-06).
 4. ✅ Cek: landing tampil, `/login` jalan, tidak ada error di logs.
 
 ## E. Seed tenant pertama (sekali, SETELAH login Google pertamamu)
