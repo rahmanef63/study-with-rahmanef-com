@@ -63,15 +63,19 @@ export function LessonView({
         </div>
       ) : null}
 
-      <section aria-label={copy.material}>
-        <MarkdownView content={lesson.contentMd} />
-      </section>
+      {/* Reading column — comfortable measure for prose (UI-UX-PRD §1.1). */}
+      <div className="mx-auto w-full max-w-2xl space-y-6">
+        <section aria-label={copy.material}>
+          <MarkdownView content={lesson.contentMd} />
+        </section>
 
-      <LessonLinks links={lesson.links} heading={copy.resources} />
+        <LessonLinks links={lesson.links} heading={copy.resources} />
 
-      {completionSlot !== undefined && <div>{completionSlot}</div>}
+        {completionSlot !== undefined && (
+          <div className="sticky bottom-3 z-10">{completionSlot}</div>
+        )}
 
-      <nav className="flex items-center justify-between gap-3 border-t border-border pt-4">
+        <nav className="flex items-center justify-between gap-3 border-t border-border pt-4">
         {lesson.prevLessonId !== null ? (
           <Button asChild variant="outline" size="sm">
             <Link href={lessonHref(lesson.prevLessonId)}>
@@ -90,7 +94,8 @@ export function LessonView({
         ) : (
           <span />
         )}
-      </nav>
+        </nav>
+      </div>
     </article>
   );
 }
