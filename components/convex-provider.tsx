@@ -1,26 +1,16 @@
 "use client";
 
-// SSG-safe Convex auth provider for Next 16 + cacheComponents:true.
-//
-// Why not ConvexAuthNextjsProvider? Postmortem 5.2: it crashes during static
-// prerender (calls useConvexAuth() with undefined context). This client-only
-// mount + Suspense wrap pattern matches what the si-coder skill ships.
-//
-// Auth actions are routed through HTTP (not WebSocket) so signIn / signOut
-// work even when the client hasn't established its WS yet.
+// Convex auth provider for Next 16 + cacheComponents:true. Auth actions use
+// HTTP so signIn/signOut do not depend on an established WebSocket.
 
 import { ConvexAuthProvider } from "@convex-dev/auth/react";
-import { ConvexReactClient, ConvexProvider } from "convex/react";
+import { ConvexReactClient } from "convex/react";
 import { ConvexHttpClient } from "convex/browser";
-import { useEffect, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 
 export function ConvexClientProvider({ children }: { children: ReactNode }) {
-  const [mounted, setMounted] = useState(false);
   const [convex] = useState(() => {
-    // Always construct a client so `useQuery` ALWAYS has a ConvexProvider above
-    // it and can never throw "Could not find Convex client". If the env var is
-    // missing (misconfig), fall back to a non-connecting placeholder — queries
-    // stay in the loading state instead of crashing the page.
+    // Keep prerender deterministic when deployment env is missing.
     const url = process.env.NEXT_PUBLIC_CONVEX_URL || "https://placeholder.convex.cloud";
     const client = new ConvexReactClient(url);
     const http = new ConvexHttpClient(url);
@@ -34,14 +24,5 @@ export function ConvexClientProvider({ children }: { children: ReactNode }) {
     return client;
   });
 
-  useEffect(() => setMounted(true), []);
-  // Outer ConvexProvider ALWAYS supplies the client, so `useQuery` can never
-  // throw "Could not find Convex client" — during SSR/prerender, during the
-  // mount transition, or under the auth provider. ConvexAuthProvider nests
-  // client-side only (it errors during static prerender).
-  return (
-    <ConvexProvider client={convex}>
-      {mounted ? <ConvexAuthProvider client={convex}>{children}</ConvexAuthProvider> : children}
-    </ConvexProvider>
-  );
+  return <ConvexAuthProvider client={convex}>{children}</ConvexAuthProvider>;
 }
