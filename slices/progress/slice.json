@@ -1,0 +1,49 @@
+{
+  "$schema": "https://resource.rahmanef.com/slice-schema.json",
+  "slug": "progress",
+  "version": "0.1.0",
+  "category": "lms",
+  "kind": "fullstack",
+  "title": "Progress — mark-complete + course completion",
+  "description": "Self-paced progress tracking for belajar-with-rahmanef.com R5: an idempotent markLessonComplete mutation, derived-count progress reads, and idempotent courseCompletion (badge) creation when the final lesson lands. A user writes only their own completions (userId from ctx, never args — P0). No routes: the slice fills the courses barrel seams (LessonView.completionSlot, CourseOverview.progressSlot, SyllabusList.completedLessonIds). Reads the shared lessons/courses tables directly; never imports the courses feature.",
+  "namespace": "@/features/progress",
+  "convex": {
+    "tablesExport": "",
+    "schemaPath": "convex/schema.ts",
+    "rootPaths": ["convex/features/progress"]
+  },
+  "frontend": { "slicePath": "slices/progress", "configExport": "progressFeature" },
+  "deps": {
+    "npm": [],
+    "shadcn": ["button", "skeleton"],
+    "env": [],
+    "peers": ["courses"]
+  },
+  "contract": {
+    "barrel": {
+      "components": ["CourseProgressBar", "CompletionButton"],
+      "views": ["CourseProgress", "LessonCompletion"],
+      "hooks": ["useCourseProgress", "useLessonCompletion", "useMarkLessonComplete"],
+      "lib": ["toPercent", "progressErrorMessage", "extractProgressError"],
+      "consumerSeams": {
+        "courses#2": [
+          "LessonView.completionSlot ← <LessonCompletion lessonId>",
+          "CourseOverview.progressSlot ← <CourseProgress courseId>",
+          "SyllabusList.completedLessonIds ← useCourseProgress(courseId).completedLessonIds"
+        ],
+        "profiles-public#9": ["courseCompletions written idempotently for the badge wall"]
+      }
+    },
+    "convexFunctions": {
+      "member": [
+        "features/progress/mutations:markLessonComplete",
+        "features/progress/queries:getCourseProgress",
+        "features/progress/queries:getLessonCompletion"
+      ]
+    }
+  },
+  "registers": [],
+  "license": "MIT",
+  "tags": ["lms", "progress", "completion", "badges", "multi-tenant"],
+  "providers": []
+}
