@@ -19,6 +19,7 @@
 | 8 | `slices/quiz` — MCQ builder + attempt + auto-grade | v1.1 | #2 | open | — | slice/quiz | — | P0: answers never reach client pre-submit |
 | 9 | `profiles` public page + badge wall `/u/[username]` | v1.1 | #3, #4 | open | — | slice/profiles-public | — | evaluate rr `profile` |
 | 10 | `slices/announcements` — in-app + Discord webhook action | v1.1 | #1 | open | — | slice/announcements | — | P0: webhook URL server-only; evaluate `notifications-center` |
+| 11 | ops: production deploy sehat — Convex self-hosted, OAuth Google, seed, domain (jalankan docs/DEPLOY.md A–E) | v1 | #0 | open | vps | — | — | agent di VPS (Claude Code); laporan via chat; secrets tidak pernah keluar server; lihat AGENT-PROMPTS "Prompt — vps" |
 
 ## Proposals (shared-surface changes — integrator applies)
 
@@ -32,4 +33,4 @@ _none yet_
 | Date | Agent | Issue | Resolution |
 |---|---|---|---|
 | 2026-07-06 | alpha | rr `dashboard-shell` facade is not liftable standalone — it imports the full superspace workspace foundation (AppSidebar, Workspace/Guest providers, onboarding, theme). Too heavy for charity v1. | Integrator decision: slice dropped from #0. `/t/[slug]` shell will be a minimal app-level layout built at #5 with shadcn primitives; revisit a full lift post-v1. `responsive-dialog` kept (component copied into the slice); `defineFeature` sanitized to `shared/features/defineFeature.ts` (no zod). |
-| 2026-07-06 | alpha | Security P0 says an authz helper is first in every public Convex handler, while R2/R3/R4 and DATA-MODEL require anonymous tenant/course etalase queries. Courses also has protected ID lookups before auth. | Open launch blocker: clarify an explicit anonymous safe-projection exception in the contract; gamma must move protected reads behind `requireUser` before #2 reaches review. |
+| 2026-07-06 | alpha | Security P0 says an authz helper is first in every public Convex handler, while R2/R3/R4 and DATA-MODEL require anonymous tenant/course etalase queries. Courses also has protected ID lookups before auth. | ✅ RESOLVED 2026-07-06 by alpha: anonymous public-read exception added to AGENTS.md §6 (`public*` naming + active/published-only via index + safe projection). Remaining for gamma: move protected ID lookups behind `requireUser` before #2 reaches review. |

@@ -26,6 +26,7 @@ Wave 1 = beta + gamma + delta at once. epsilon (#3) starts only after gamma's ba
 | **delta** | worker | #4 profiles → #9 public profile+badges (v1.1) |
 | **epsilon** | worker | #3 progress (after #2 review) → #7 resources (v1.1) |
 | **zeta** | worker (optional) | #10 announcements (v1.1) |
+| **vps** | ops — Claude Code di server produksi | #11 production deploy sehat |
 
 ---
 
@@ -133,3 +134,44 @@ Your next assignment is row #<n> — <area>; alpha has claimed it for you (verif
 - **epsilon → #7**: resource board + suggestion box; adapt rr `library`; `rate-limit` install is a proposal for alpha (package.json is integrator-only); pending items visible only to instructor+ & submitter; >5 pending per user per tenant → RATE_LIMITED.
 - **gamma → #8**: MCQ builder + attempts; P0: correctIndex/explanation never in public reads — grade in submitAttempt server-side.
 - **delta → #9**: /u/[username] + badge wall from courseCompletions; evaluate rr `profile`.
+
+---
+
+## Prompt — vps (#11 ops, jalan DI server)
+
+```
+You are agent "vps", the operations agent, running as a Claude Code session ON the production VPS (Dokploy node), inside ~/projects/study-with-rahmanef-com — a clone of the deployed repo.
+
+Onboarding, in order:
+1. Read CLAUDE.md, then AGENTS.md fully — §4 "Ops agent (vps)" is your role definition and overrides worker rules.
+2. Read docs/DEPLOY.md (your runbook) and docs/STATUS.md row #11 (your assignment, pre-claimed).
+3. `git pull --ff-only origin main` — the ONLY git command you may ever run.
+
+Your domain — runtime only:
+- Dokploy: app config, domain/TLS, deploy status, build logs.
+- Convex self-hosted stack (docker compose): container health, `npx convex env list/set` (names only in reports), `npx convex deploy`, codegen.
+- Auth wiring per DEPLOY.md §C: JWT keys, SITE_URL, AUTH_GOOGLE_ID/SECRET, Google OAuth redirect URI.
+- Seed: `npx convex run seed:bootstrap '...'` (idempotent) — only AFTER Rahman's first Google login on production.
+- Diagnosis: docker logs, curl health checks, the app's version endpoint.
+
+Hard boundaries (P0):
+- NEVER edit application source. Never commit, push, branch, or npm publish.
+- NEVER write secret VALUES into chat, reports, or files — reference env var NAMES only.
+- DB access only through documented `npx convex run` entry points. Destructive ops (volume/db delete, instance reset, data wipe) need Rahman's explicit "ya" in chat FIRST.
+- Anything requiring a file change (including fixes to docs/DEPLOY.md) = written proposal in your report for alpha.
+
+Work loop: walk DEPLOY.md checklists A→E against reality → fix runtime config where allowed → finish every session with a structured report: (a) per-section checklist status, (b) config changes made (names, never values), (c) blockers + proposals for alpha, (d) exact log errors if any. Rahman relays reports to alpha.
+```
+
+### Cara menghidupkan agent-vps (sekali, dari laptop Rahman)
+
+```bash
+ssh vpsku
+cd ~/projects/study-with-rahmanef-com
+git pull --ff-only origin main          # samakan dengan main terbaru
+npm install -g @anthropic-ai/claude-code   # sekali saja
+claude                                   # login sekali dengan akunmu
+# lalu paste "Prompt — vps" di atas sebagai pesan pertama
+```
+
+Sesi berikutnya cukup: `ssh vpsku` → `cd ~/projects/study-with-rahmanef-com` → `claude --continue`.
