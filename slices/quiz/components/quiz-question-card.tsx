@@ -48,15 +48,17 @@ export function QuizQuestionCard({
               <Label
                 key={id}
                 htmlFor={id}
-                className={`flex cursor-pointer items-center gap-3 rounded-md border p-3 text-sm font-normal transition-colors ${
-                  selected ? "border-primary bg-primary/5" : "border-border hover:bg-muted/50"
+                className={`flex min-h-11 cursor-pointer items-center gap-3 rounded-md border p-3 text-sm transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-background ${
+                  selected
+                    ? "border-primary bg-primary/5 font-medium text-foreground"
+                    : "border-border font-normal hover:bg-muted/50"
                 }`}
               >
                 <input
                   id={id}
                   type="radio"
                   name={name}
-                  className="size-4 accent-primary"
+                  className="size-4 shrink-0 accent-primary focus-visible:outline-none"
                   checked={selected}
                   onChange={() => onChange(optionIndex)}
                 />

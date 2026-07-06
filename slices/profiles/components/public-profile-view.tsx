@@ -63,8 +63,8 @@ function PublicProfileContent({ username, shareUrl, labels }: ContentProps) {
 function ProfileSkeleton() {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-8" aria-busy="true">
-      <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
-        <Skeleton className="size-24 rounded-full" />
+      <div className="flex flex-col items-center gap-4 rounded-xl border border-border bg-card p-6 sm:flex-row sm:items-start sm:gap-5">
+        <Skeleton className="size-24 shrink-0 rounded-full" />
         <div className="flex w-full flex-col gap-2">
           <Skeleton className="h-7 w-48" />
           <Skeleton className="h-4 w-32" />

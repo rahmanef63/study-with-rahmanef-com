@@ -41,11 +41,19 @@ export function QuizQuestionEditor({ index, question, onChange, onRemove, canRem
   };
 
   return (
-    <div className="space-y-3 rounded-lg border border-border p-4">
+    <div className="space-y-3 rounded-lg border border-border bg-card p-4">
       <div className="flex items-start justify-between gap-3">
-        <Label htmlFor={`${name}-prompt`} className="pt-1 text-sm font-semibold">
-          {copy.fieldPrompt} {index + 1}
-        </Label>
+        <div className="flex items-center gap-2">
+          <span
+            aria-hidden
+            className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold text-muted-foreground"
+          >
+            {index + 1}
+          </span>
+          <Label htmlFor={`${name}-prompt`} className="text-sm font-semibold">
+            {copy.fieldPrompt}
+          </Label>
+        </div>
         {canRemove && (
           <Button type="button" variant="ghost" size="sm" onClick={onRemove} aria-label={copy.removeQuestion}>
             <Trash2 className="size-4" aria-hidden /> {copy.removeQuestion}
@@ -56,6 +64,7 @@ export function QuizQuestionEditor({ index, question, onChange, onRemove, canRem
         id={`${name}-prompt`}
         value={question.prompt}
         onChange={(e) => onChange({ ...question, prompt: e.target.value })}
+        placeholder={copy.fieldPrompt}
         required
         minLength={3}
         maxLength={MAX_PROMPT_CHARS}
@@ -66,11 +75,16 @@ export function QuizQuestionEditor({ index, question, onChange, onRemove, canRem
           {copy.markCorrect}
         </legend>
         {question.options.map((option, optionIndex) => (
-          <div key={optionIndex} className="flex items-center gap-2">
+          <div
+            key={optionIndex}
+            className={`flex items-center gap-2 rounded-md p-1.5 transition-colors ${
+              question.correctIndex === optionIndex ? "bg-primary/5" : ""
+            }`}
+          >
             <input
               type="radio"
               name={name}
-              className="size-4 shrink-0 accent-primary"
+              className="size-4 shrink-0 cursor-pointer accent-primary"
               aria-label={`${copy.correctKey} ${optionIndex + 1}`}
               checked={question.correctIndex === optionIndex}
               onChange={() => onChange({ ...question, correctIndex: optionIndex })}

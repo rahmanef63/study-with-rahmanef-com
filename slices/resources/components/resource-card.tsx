@@ -18,11 +18,12 @@ export type ResourceCardProps = {
 };
 
 export function ResourceCard({ resource, copy, showStatus = false }: ResourceCardProps) {
+  const host = displayHost(resource.url);
   return (
-    <Card className="h-full">
+    <Card className="h-full gap-4 transition-shadow hover:shadow-md">
       <CardHeader>
         <div className="flex items-start justify-between gap-2">
-          <CardTitle className="line-clamp-2 text-base">{resource.title}</CardTitle>
+          <CardTitle className="line-clamp-2 text-base leading-snug">{resource.title}</CardTitle>
           {showStatus && (
             <StatusBadge
               label={resourceStatusLabel(resource.status, copy)}
@@ -31,7 +32,7 @@ export function ResourceCard({ resource, copy, showStatus = false }: ResourceCar
           )}
         </div>
       </CardHeader>
-      <CardContent className="space-y-2">
+      <CardContent className="space-y-3">
         {resource.note && (
           <p className="line-clamp-3 text-sm text-muted-foreground">{resource.note}</p>
         )}
@@ -39,10 +40,23 @@ export function ResourceCard({ resource, copy, showStatus = false }: ResourceCar
           href={resource.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+          className="inline-flex max-w-full items-center gap-1.5 rounded-sm text-sm font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
-          <ExternalLink className="size-3.5" aria-hidden />
-          <span>{displayHost(resource.url)}</span>
+          <img
+            src={`https://www.google.com/s2/favicons?domain=${host}&sz=64`}
+            alt=""
+            width={16}
+            height={16}
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            aria-hidden
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+            }}
+            className="size-4 shrink-0 rounded-sm"
+          />
+          <span className="truncate">{host}</span>
+          <ExternalLink className="size-3.5 shrink-0 opacity-60" aria-hidden />
           <span className="sr-only">{copy.openLink}</span>
         </a>
       </CardContent>

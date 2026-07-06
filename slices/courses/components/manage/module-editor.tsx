@@ -2,7 +2,7 @@
 // courses slice — one module card in the course editor: rename inline,
 // move up/down (parent owns reorder), delete (only when empty — server
 // enforces), lesson rows with edit/delete/move controls.
-import { ChevronDown, ChevronUp, Link2, Pencil, PlayCircle, Plus, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronUp, GripVertical, Link2, Pencil, PlayCircle, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import type { Id } from "@convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
@@ -61,9 +61,16 @@ export function ModuleEditor({
           </form>
         ) : (
           <>
-            <h3 className="min-w-0 flex-1 truncate font-semibold">
-              {index + 1}. {mod.title}
-            </h3>
+            {/* drag handle placeholder — reorder ships in fase 2 (use ▲▼ for now) */}
+            <GripVertical className="size-4 shrink-0 text-muted-foreground/50" aria-hidden />
+            <div className="flex min-w-0 flex-1 flex-col">
+              <h3 className="truncate font-semibold">
+                {index + 1}. {mod.title}
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                {mod.lessons.length === 0 ? "Belum ada lesson" : `${mod.lessons.length} lesson`}
+              </p>
+            </div>
             <Button variant="ghost" size="icon" aria-label={copy.renameModule} onClick={() => setEditing(true)}>
               <Pencil aria-hidden />
             </Button>
@@ -86,9 +93,11 @@ export function ModuleEditor({
         )}
       </CardHeader>
       <CardContent className="space-y-2">
-        <ul className="divide-y divide-border rounded-lg border border-border">
+        {/* lessons nest under the module: tinted panel + grip-indented rows */}
+        <ul className="divide-y divide-border rounded-lg border border-border bg-muted/20">
           {mod.lessons.map((lesson, lessonIndex) => (
             <li key={lesson._id} className="flex items-center gap-2 p-2 text-sm">
+              <GripVertical className="size-4 shrink-0 text-muted-foreground/40" aria-hidden />
               <span className="min-w-0 flex-1 truncate font-medium">{lesson.title}</span>
               {lesson.hasVideo && <PlayCircle className="size-4 shrink-0 text-muted-foreground" aria-hidden />}
               {lesson.linkCount > 0 && (
@@ -111,7 +120,7 @@ export function ModuleEditor({
             </li>
           ))}
           {mod.lessons.length === 0 && (
-            <li className="p-3 text-sm text-muted-foreground">{copy.emptySyllabus}</li>
+            <li className="px-3 py-4 text-center text-sm text-muted-foreground">{copy.emptySyllabus}</li>
           )}
         </ul>
         <Button variant="outline" size="sm" onClick={() => onAddLesson(mod._id)}>

@@ -46,7 +46,7 @@ export function SuggestionBoxView({
         <p className="text-sm text-muted-foreground">{copy.boxSubtitle}</p>
       </header>
 
-      <Card>
+      <Card id="usulkan-topik" className="scroll-mt-24">
         <CardHeader>
           <CardTitle className="text-lg">{copy.submitSuggestionTitle}</CardTitle>
         </CardHeader>

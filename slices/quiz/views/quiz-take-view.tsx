@@ -109,7 +109,7 @@ export function QuizTakeView({ moduleId, copy: copyOverride, className }: QuizTa
 
       <div className="flex items-center justify-end gap-3">
         {!allAnswered && <span className="text-xs text-muted-foreground">{copy.answerAllFirst}</span>}
-        <Button onClick={() => void handleSubmit()} disabled={!allAnswered || isPending}>
+        <Button className="min-h-11" onClick={() => void handleSubmit()} disabled={!allAnswered || isPending}>
           {isPending ? copy.submitting : copy.submit}
         </Button>
       </div>

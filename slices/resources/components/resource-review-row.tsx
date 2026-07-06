@@ -36,10 +36,23 @@ export function ResourceReviewRow({
             href={item.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+            className="inline-flex max-w-full items-center gap-1.5 rounded-sm text-xs text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
-            <ExternalLink className="size-3" aria-hidden />
-            {displayHost(item.url)}
+            <img
+              src={`https://www.google.com/s2/favicons?domain=${displayHost(item.url)}&sz=64`}
+              alt=""
+              width={14}
+              height={14}
+              loading="lazy"
+              referrerPolicy="no-referrer"
+              aria-hidden
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+              }}
+              className="size-3.5 shrink-0 rounded-sm"
+            />
+            <span className="truncate">{displayHost(item.url)}</span>
+            <ExternalLink className="size-3 shrink-0 opacity-60" aria-hidden />
           </a>
         </div>
         <div className="flex shrink-0 gap-2">

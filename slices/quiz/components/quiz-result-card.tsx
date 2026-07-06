@@ -88,7 +88,7 @@ export function QuizResultCard({ result, questions, copy: copyOverride, onRetry,
 
       {onRetry !== undefined && (
         <div className="flex justify-end">
-          <Button variant="outline" onClick={onRetry}>
+          <Button variant="outline" className="min-h-11" onClick={onRetry}>
             {copy.retry}
           </Button>
         </div>

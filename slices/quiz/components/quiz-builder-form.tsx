@@ -113,7 +113,7 @@ export function QuizBuilderForm({ initial, onSave, submitting, copy }: QuizBuild
         >
           <Plus className="size-4" aria-hidden /> {copy.addQuestion}
         </Button>
-        <Button type="submit" disabled={submitting}>
+        <Button type="submit" className="min-h-11" disabled={submitting}>
           {submitting ? copy.saving : copy.save}
         </Button>
       </div>

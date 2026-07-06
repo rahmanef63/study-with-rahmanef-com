@@ -51,7 +51,7 @@ export function ResourceBoardView({
         <p className="text-sm text-muted-foreground">{copy.boardSubtitle}</p>
       </header>
 
-      <Card>
+      <Card id="bagikan-sumber" className="scroll-mt-24">
         <CardHeader>
           <CardTitle className="text-lg">{copy.submitResourceTitle}</CardTitle>
         </CardHeader>

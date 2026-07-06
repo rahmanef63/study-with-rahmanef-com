@@ -3,9 +3,11 @@
 // `renderActions` injects instructor triage controls per card so the box view
 // stays lean and the card stays presentational.
 import type { ReactNode } from "react";
+import { Lightbulb } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ResourcesCopy } from "../config/copy";
 import type { SuggestionCard as SuggestionCardData } from "../types";
+import { BoardEmptyState } from "./board-empty-state";
 import { SuggestionCard } from "./suggestion-card";
 
 export type SuggestionListProps = {
@@ -25,7 +27,13 @@ export function SuggestionList({ items, emptyLabel, copy, renderActions }: Sugge
     );
   }
   if (items.length === 0) {
-    return <p className="text-sm text-muted-foreground">{emptyLabel}</p>;
+    return (
+      <BoardEmptyState
+        icon={Lightbulb}
+        message={emptyLabel}
+        cta={{ label: copy.submitSuggestionTitle, href: "#usulkan-topik" }}
+      />
+    );
   }
   return (
     <div className="grid gap-4 sm:grid-cols-2">

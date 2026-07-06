@@ -1,10 +1,12 @@
 "use client";
 // resources slice — instructor pending-review queue (loading / empty / list).
 // Wraps ResourceReviewRow so the board view stays lean.
+import { Inbox } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Id } from "@convex/_generated/dataModel";
 import type { ResourcesCopy } from "../config/copy";
 import type { ResourceReviewItem } from "../types";
+import { BoardEmptyState } from "./board-empty-state";
 import { ResourceReviewRow } from "./resource-review-row";
 
 export type ResourceReviewListProps = {
@@ -26,7 +28,7 @@ export function ResourceReviewList({ items, onCurate, pending, copy }: ResourceR
     );
   }
   if (items.length === 0) {
-    return <p className="text-sm text-muted-foreground">{copy.emptyPending}</p>;
+    return <BoardEmptyState icon={Inbox} message={copy.emptyPending} />;
   }
   return (
     <div className="space-y-3">

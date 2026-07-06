@@ -43,23 +43,29 @@ export function PublicProfileCard({
 
   return (
     <div className={cn("mx-auto flex w-full max-w-2xl flex-col gap-8", className)}>
-      <header className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:text-left">
+      <header className="flex flex-col items-center gap-4 rounded-xl border border-border bg-card p-6 text-center sm:flex-row sm:items-start sm:gap-5 sm:text-left">
         <ProfileAvatar
           name={profile.displayName}
           avatarUrl={profile.avatarUrl}
           size={96}
           className="shrink-0"
         />
-        <div className="flex flex-col items-center gap-2 sm:items-start">
-          <h1 className="text-2xl font-bold text-foreground">{profile.displayName}</h1>
+        <div className="flex min-w-0 flex-col items-center gap-2 sm:items-start">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">{profile.displayName}</h1>
           <p className="text-sm text-muted-foreground">@{profile.username}</p>
           {profile.bio ? (
-            <p className="max-w-prose text-sm text-foreground">{profile.bio}</p>
+            <p className="max-w-prose text-sm leading-relaxed text-foreground">{profile.bio}</p>
           ) : (
             <p className="text-sm text-muted-foreground">{copy.bioEmpty}</p>
           )}
           <div className="mt-1" aria-live="polite">
-            <Button type="button" variant="outline" size="sm" onClick={() => void onCopy()}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              aria-label={copy.copyLabel}
+              onClick={() => void onCopy()}
+            >
               {copied ? copy.copiedLabel : copy.copyLabel}
             </Button>
           </div>

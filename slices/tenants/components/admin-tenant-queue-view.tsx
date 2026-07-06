@@ -43,7 +43,14 @@ export function AdminTenantQueueView({ labels, className }: AdminTenantQueueView
   if (admin === undefined || (isAdmin && pending === undefined)) {
     return (
       <div className={className}>
-        <Skeleton className="h-64 w-full rounded-xl" />
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <Skeleton className="h-6 w-56 max-w-full rounded-md" />
+            <Skeleton className="h-4 w-72 max-w-full rounded-md" />
+          </div>
+          <Skeleton className="h-40 w-full rounded-xl" />
+          <Skeleton className="h-40 w-full rounded-xl" />
+        </div>
       </div>
     );
   }
@@ -69,9 +76,19 @@ export function AdminTenantQueueView({ labels, className }: AdminTenantQueueView
 
   return (
     <div className={className}>
-      <div className="mb-4">
-        <h2 className="text-foreground text-lg font-semibold">{t.title}</h2>
-        <p className="text-muted-foreground text-sm">{t.subtitle}</p>
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="text-foreground text-lg font-semibold">{t.title}</h2>
+          <p className="text-muted-foreground text-sm">{t.subtitle}</p>
+        </div>
+        {requests.length > 0 ? (
+          <span
+            className="bg-primary/10 text-primary shrink-0 rounded-full px-2.5 py-0.5 text-sm font-medium tabular-nums"
+            aria-label={`${requests.length} pengajuan menunggu ditinjau`}
+          >
+            {requests.length}
+          </span>
+        ) : null}
       </div>
 
       {requests.length === 0 ? (
@@ -82,7 +99,7 @@ export function AdminTenantQueueView({ labels, className }: AdminTenantQueueView
           </EmptyHeader>
         </Empty>
       ) : (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
           {requests.map((r) => (
             <TenantRequestCard
               key={r._id}
