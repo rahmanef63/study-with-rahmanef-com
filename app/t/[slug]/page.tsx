@@ -16,7 +16,7 @@ export default async function TenantHomePage({
     <div className="mx-auto max-w-5xl space-y-8 px-6 py-10">
       <TenantProfileCard
         tenant={tenant}
-        actions={<JoinButton tenantId={tenant._id} loginHref="/login" />}
+        actions={<JoinButton tenantId={tenant._id} loginHref={`/login?returnTo=/t/${tenant.slug}`} />}
       />
       <section className="space-y-4">
         <h2 className="text-xl font-semibold">Kelas</h2>

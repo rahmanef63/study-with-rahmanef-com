@@ -67,7 +67,7 @@ export function TenantNav({ slug }: { slug: string }) {
         <UserMenu />
       ) : (
         <Button asChild variant="outline" className="min-h-11 shrink-0">
-          <Link href="/login">Masuk</Link>
+          <Link href={`/login?returnTo=${encodeURIComponent(pathname)}`}>Masuk</Link>
         </Button>
       )}
     </header>
