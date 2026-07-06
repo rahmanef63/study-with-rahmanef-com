@@ -1,9 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-
 let id: string | null = null;
 
 export function GET() {
