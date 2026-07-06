@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Inter } from "next/font/google";
 import { ConvexClientProvider } from "@/components/convex-provider";
+import { VersionWatcher } from "@/components/version-watcher";
 import { ThemeProviders } from "@/features/theme-presets";
 import { Toaster } from "sonner";
 import "./globals.css";
@@ -22,6 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="id" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased`}>
         <ThemeProviders>
+          <VersionWatcher />
           <Suspense fallback={null}>
             <ConvexClientProvider>{children}</ConvexClientProvider>
           </Suspense>
