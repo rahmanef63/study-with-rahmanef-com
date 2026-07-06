@@ -1,0 +1,36 @@
+{
+  "$schema": "../../docs/slice.manifest.schema.json",
+  "name": "quiz",
+  "version": "0.1.0",
+  "description": "One MCQ quiz per module for belajar-with-rahmanef.com R6 (STATUS #8): instructor builder + member attempt + server-side auto-grade. Correct answers/explanations are stripped from the taking query and revealed only in the graded attempt result (P0). Draft-course quizzes invisible to plain members.",
+  "category": "lms",
+  "stability": "beta",
+  "deps": {
+    "shared": ["features/defineFeature"],
+    "slices": [],
+    "convexFeatures": ["quiz"],
+    "npm": {},
+    "env": []
+  },
+  "files": {
+    "include": ["**/*"],
+    "exclude": ["__tests__/**", "*.test.ts", "*.test.tsx"]
+  },
+  "convexFiles": {
+    "include": ["**/*.ts"],
+    "exclude": ["*.test.ts", "test.helpers.ts"]
+  },
+  "permissions": ["quiz.take", "quiz.manage"],
+  "schemaTables": [
+    { "name": "quizzes", "namespaced": false, "indexes": ["by_module"] },
+    { "name": "quizAttempts", "namespaced": false, "indexes": ["by_user_quiz", "by_quiz"] }
+  ],
+  "compatibility": {
+    "next": ">=15 <17",
+    "react": "^19",
+    "convex": "^1.16",
+    "tailwind": "4",
+    "auth": "convex-auth"
+  },
+  "notes": "0.1.0 (2026-07-06, agent gamma): v1.1 scope of STATUS row #8. Standalone builder + take views; the integrator wires them into the course/lesson surfaces (course editor NOT edited — see README integration points). Reads schema tables composed by the integrator from docs/DATA-MODEL.md; no schema writes from this slice."
+}
