@@ -76,9 +76,9 @@ export function ManageCoursesView({
           <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
             <GraduationCap className="size-6" aria-hidden />
           </div>
-          <h2 className="mt-4 text-base font-semibold">Belum ada kelas</h2>
+          <h2 className="mt-4 text-base font-semibold">{copy.emptyManageTitle}</h2>
           <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">
-            Mulai susun materi komunitasmu. Buat kelas pertama, lalu tambahkan modul dan lesson.
+            {copy.emptyManageBody}
           </p>
           <Button className="mt-5" onClick={() => setCreateOpen(true)}>
             <Plus aria-hidden /> {copy.newCourse}

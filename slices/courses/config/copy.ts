@@ -19,6 +19,9 @@ export const COURSES_COPY = {
   // manage surface
   manageTitle: "Kelola Kelas",
   newCourse: "Kelas baru",
+  emptyManageTitle: "Belum ada kelas",
+  emptyManageBody:
+    "Mulai susun materi komunitasmu. Buat kelas pertama, lalu tambahkan modul dan lesson.",
   editCourse: "Ubah kelas",
   newModule: "Tambah modul",
   renameModule: "Ubah nama modul",

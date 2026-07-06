@@ -41,6 +41,7 @@ export function QuizQuestionCard({
       </CardHeader>
       <CardContent>
         <fieldset className="space-y-2" disabled={disabled}>
+          <legend className="sr-only">{question.prompt}</legend>
           {question.options.map((option, optionIndex) => {
             const id = `${name}-opt-${optionIndex}`;
             const selected = value === optionIndex;
