@@ -1,4 +1,5 @@
-import { MarketingFooter, MarketingHeader } from "@/features/marketing-chrome";
+import { PublicHeader } from "@/components/public-header";
+import { MarketingFooter } from "@/features/marketing-chrome";
 
 const BRAND = { name: "belajar-with-rahmanef.com", href: "/" };
 const COPYRIGHT_YEAR = 2026;
@@ -6,16 +7,7 @@ const COPYRIGHT_YEAR = 2026;
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-dvh flex-col">
-      <MarketingHeader
-        brand={BRAND}
-        nav={[
-          { label: "Beranda", href: "/" },
-          { label: "Komunitas", href: "/#komunitas" },
-          { label: "Tentang", href: "/#tentang" },
-        ]}
-        cta={{ label: "Masuk", href: "/login" }}
-        sticky
-      />
+      <PublicHeader />
       <main className="flex-1">{children}</main>
       <MarketingFooter
         brand={BRAND}

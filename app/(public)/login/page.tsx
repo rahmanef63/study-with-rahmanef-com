@@ -20,7 +20,7 @@ export default function LoginPage() {
         }}
         onGoogle={async () => {
           try {
-            await signIn("google", { redirectTo: "/" });
+            await signIn("google", { redirectTo: "/?login=1" });
             return { ok: true };
           } catch {
             return { ok: false, error: "Gagal menghubungi Google. Coba lagi." };
