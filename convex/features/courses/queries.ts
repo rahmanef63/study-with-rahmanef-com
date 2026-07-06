@@ -3,10 +3,13 @@
 // PUBLIC etalase; lesson CONTENT requires membership; drafts are invisible to
 // everyone below instructor IN THE QUERY ITSELF (R4 — not just the UI).
 // Every query: v.* validators; authz/visibility gate before any data leaves.
+//
+// ANONYMOUS ETALASE WHITELIST (AGENTS.md §6): listPublished, getOverview —
+// published/active rows only via index, safe projection, no auth by design.
 import { v } from "convex/values";
 import type { Doc } from "../../_generated/dataModel";
 import { query } from "../../_generated/server";
-import { requireTenantRole } from "../../_shared/auth";
+import { requireTenantRole, requireUser } from "../../_shared/auth";
 import { getViewerRole, isInstructorPlus } from "./access";
 import { fail } from "./errors";
 import { LIST_TAKE, MAX_LESSONS_PER_COURSE, MAX_MODULES_PER_COURSE } from "./validate";
@@ -102,12 +105,14 @@ export const getOverview = query({
 
 /**
  * Full lesson content for the player — MEMBER-ONLY (R3: konten butuh join).
- * requireTenantRole is the first line; drafts additionally require
+ * requireUser runs BEFORE the lesson read (no existence oracle), then
+ * requireTenantRole(member); drafts additionally require
  * instructor+ and read as NOT_FOUND for plain members.
  */
 export const getLesson = query({
   args: { lessonId: v.id("lessons") },
   handler: async (ctx, args) => {
+    await requireUser(ctx); // auth BEFORE read (review fix #2)
     const lesson = await ctx.db.get(args.lessonId);
     if (lesson === null) fail("NOT_FOUND", "Lesson tidak ditemukan");
     const { membership } = await requireTenantRole(ctx, lesson.tenantId, "member");

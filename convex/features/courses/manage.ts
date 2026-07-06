@@ -3,7 +3,7 @@
 // (instructor) as the FIRST line of every handler (P0).
 import { v } from "convex/values";
 import { query } from "../../_generated/server";
-import { requireTenantRole } from "../../_shared/auth";
+import { requireTenantRole, requireUser } from "../../_shared/auth";
 import { getCourseOrFail, requireInstructorForLesson } from "./access";
 import {
   MANAGE_LIST_TAKE,
@@ -39,6 +39,7 @@ export const listForManage = query({
 export const getCourseTree = query({
   args: { courseId: v.id("courses") },
   handler: async (ctx, args) => {
+    await requireUser(ctx); // auth BEFORE read (review fix #2)
     const course = await getCourseOrFail(ctx, args.courseId);
     await requireTenantRole(ctx, course.tenantId, "instructor");
 

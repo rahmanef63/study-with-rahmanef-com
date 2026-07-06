@@ -1,11 +1,12 @@
 // courses feature — access helpers. Every public function's handler calls one
 // of these before touching data (P0 server-side authz; route guards are UX).
-// Doc-first lookups here only RESOLVE the tenant for the authz check — nothing
-// is returned to the caller before the role check passes.
+// Protected helpers authenticate (requireUser) BEFORE any DB read — the doc
+// lookup only resolves the tenant for the role check, and anonymous callers
+// are rejected before any domain row is touched (no existence oracle).
 import { getAuthUserId } from "@convex-dev/auth/server";
 import type { Doc, Id } from "../../_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "../../_generated/server";
-import { requireTenantRole, type TenantRole } from "../../_shared/auth";
+import { requireTenantRole, requireUser, type TenantRole } from "../../_shared/auth";
 import { fail } from "./errors";
 
 type Ctx = QueryCtx | MutationCtx;
@@ -65,6 +66,7 @@ export async function requireInstructorForCourse(
   ctx: Ctx,
   courseId: Id<"courses">
 ): Promise<{ userId: Id<"users">; course: Doc<"courses"> }> {
+  await requireUser(ctx); // auth BEFORE read (review fix #2)
   const course = await getCourseOrFail(ctx, courseId);
   const { userId } = await requireTenantRole(ctx, course.tenantId, "instructor");
   return { userId, course };
@@ -74,6 +76,7 @@ export async function requireInstructorForModule(
   ctx: Ctx,
   moduleId: Id<"modules">
 ): Promise<{ userId: Id<"users">; module: Doc<"modules"> }> {
+  await requireUser(ctx); // auth BEFORE read (review fix #2)
   const mod = await getModuleOrFail(ctx, moduleId);
   const { userId } = await requireTenantRole(ctx, mod.tenantId, "instructor");
   return { userId, module: mod };
@@ -83,6 +86,7 @@ export async function requireInstructorForLesson(
   ctx: Ctx,
   lessonId: Id<"lessons">
 ): Promise<{ userId: Id<"users">; lesson: Doc<"lessons"> }> {
+  await requireUser(ctx); // auth BEFORE read (review fix #2)
   const lesson = await getLessonOrFail(ctx, lessonId);
   const { userId } = await requireTenantRole(ctx, lesson.tenantId, "instructor");
   return { userId, lesson };
