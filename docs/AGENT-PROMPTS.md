@@ -13,6 +13,7 @@ beta, gamma, and delta run **simultaneously** as separate Claude Cowork sessions
 5. **Tests are mandatory to WRITE** (DoD §5). To RUN them inside Cowork: copy the folder to sandbox `/tmp/w` (exclude node_modules), `npm install --legacy-peer-deps` there (re-run on timeout — progress persists), then `npx vitest run` and `npx tsc --noEmit`. If the install won't complete, ship the tests and mark "tests not executed" in your report — alpha executes at review.
 6. **Finish = final report in chat**, structured: (a) files created/changed, (b) barrel exports (the contract), (c) test results or "not executed", (d) proposals for integrator, (e) TODO(rr) markers added. Then stop. Rahman relays the report to alpha.
 7. Reference test pattern: `convex/seed.test.ts` (modules glob + convex-test + denied-path).
+8. **Author files in THE PROJECT FOLDER, never in /tmp.** The sandbox /tmp copy exists ONLY to run tests; any file you create or edit must land in the real project folder via your file tools. Before writing your final report, VERIFY your files exist in the project folder (list them) — incident 2026-07-06: a worker's entire fix lived only in its /tmp copy and never reached the repo.
 
 Wave 1 = beta + gamma + delta at once. epsilon (#3) starts only after gamma's barrel passes review; zeta and the v1.1 wave follow STATUS "Depends on".
 
