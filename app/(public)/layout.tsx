@@ -1,4 +1,5 @@
 import { PublicHeader } from "@/components/public-header";
+import { OnboardingNudge } from "@/components/onboarding-nudge";
 import { MarketingFooter } from "@/features/marketing-chrome";
 
 const BRAND = { name: "belajar-with-rahmanef.com", href: "/" };
@@ -28,6 +29,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
   return (
     <div className="flex min-h-dvh flex-col">
       <PublicHeader />
+      <OnboardingNudge />
       <main className="flex-1">{children}</main>
       <MarketingFooter
         brand={BRAND}

@@ -148,7 +148,7 @@ export default function HomePage() {
             {STEPS.map((step, i) => (
               <li
                 key={step.title}
-                className="rounded-xl border bg-background p-6 shadow-sm"
+                className="reveal-on-scroll rounded-xl border bg-background p-6 shadow-sm"
               >
                 <span className="flex size-9 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
                   {i + 1}
@@ -168,7 +168,7 @@ export default function HomePage() {
         <CommunityCatalog />
       </section>
 
-      <section id="tentang" className="mx-auto max-w-3xl px-6 py-16 text-center">
+      <section id="tentang" className="reveal-on-scroll mx-auto max-w-3xl px-6 py-16 text-center">
         <h2 className="mb-4 text-2xl font-semibold">Kenapa platform ini ada</h2>
         <p className="mx-auto max-w-2xl leading-relaxed text-muted-foreground">
           Materi AI kebanyakan berbahasa Inggris, tersebar, dan terlalu teknis.
