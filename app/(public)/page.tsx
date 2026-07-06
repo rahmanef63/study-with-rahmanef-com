@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { cacheLife, cacheTag } from "next/cache";
 import { fetchQuery } from "convex/nextjs";
 import { Button } from "@/components/ui/button";
@@ -74,21 +75,32 @@ async function CommunityCatalog() {
 export default function HomePage() {
   return (
     <>
-      <section className="mx-auto flex max-w-3xl flex-col items-center gap-6 px-6 py-24 text-center">
-        <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
-          Belajar pakai AI, bareng-bareng, gratis.
-        </h1>
-        <p className="max-w-xl text-lg text-muted-foreground">
-          Kelas praktis pengaplikasian AI untuk sehari-hari, kerja, dan usaha —
-          berbahasa Indonesia, dipandu komunitas, tanpa biaya.
-        </p>
-        <div className="flex gap-3">
-          <Button asChild size="lg">
-            <Link href="/login">Mulai belajar</Link>
-          </Button>
-          <Button asChild size="lg" variant="outline">
-            <Link href="/#komunitas">Lihat komunitas</Link>
-          </Button>
+      <section className="relative flex min-h-[min(70dvh,640px)] items-center overflow-hidden">
+        <Image
+          src="/images/learning-community-hero.png"
+          alt="Komunitas Indonesia belajar menggunakan AI bersama"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-background/75" />
+        <div className="relative mx-auto flex w-full max-w-5xl flex-col items-start gap-6 px-6 py-20 text-left">
+          <h1 className="max-w-2xl text-4xl font-bold tracking-tight md:text-5xl">
+            Belajar pakai AI, bareng-bareng, gratis.
+          </h1>
+          <p className="max-w-xl text-lg text-foreground/80">
+            Kelas praktis pengaplikasian AI untuk sehari-hari, kerja, dan usaha —
+            berbahasa Indonesia, dipandu komunitas, tanpa biaya.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Button asChild size="lg">
+              <Link href="/login">Mulai belajar</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              <Link href="/#komunitas">Lihat komunitas</Link>
+            </Button>
+          </div>
         </div>
       </section>
 
