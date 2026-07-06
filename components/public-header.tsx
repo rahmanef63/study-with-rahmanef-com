@@ -3,7 +3,8 @@
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { MarketingHeader } from "@/features/marketing-chrome";
-import { useCurrentProfile, useEnsureProfileOnFirstLogin } from "@/features/profiles";
+import { useCurrentProfile } from "@/features/profiles";
+import { UserMenu } from "@/components/user-menu";
 
 const BRAND = { name: "belajar-with-rahmanef.com", href: "/" };
 const NAV = [
@@ -13,9 +14,9 @@ const NAV = [
 ];
 
 export function PublicHeader() {
-  const { profile, isLoading, isAuthenticated } = useCurrentProfile();
+  // Profile bootstrap lives at root (components/profile-bootstrap.tsx) now (G1).
+  const { isLoading, isAuthenticated } = useCurrentProfile();
   const handled = useRef(false);
-  useEnsureProfileOnFirstLogin(isAuthenticated && !isLoading && profile === null);
 
   useEffect(() => {
     if (isLoading || handled.current) return;
@@ -36,11 +37,8 @@ export function PublicHeader() {
     <MarketingHeader
       brand={BRAND}
       nav={NAV}
-      cta={
-        isAuthenticated
-          ? { label: profile?.displayName ?? "Sudah masuk", href: "/#komunitas" }
-          : { label: "Masuk", href: "/login" }
-      }
+      cta={isAuthenticated ? undefined : { label: "Masuk", href: "/login" }}
+      actions={isAuthenticated ? <UserMenu /> : undefined}
       sticky
     />
   );

@@ -8,6 +8,7 @@ import { ConvexReactClient } from "convex/react";
 import { ConvexHttpClient } from "convex/browser";
 import { useState, type ReactNode } from "react";
 import { AuthCallbackHandler } from "@/components/auth-callback-handler";
+import { ProfileBootstrap } from "@/components/profile-bootstrap";
 
 export function ConvexClientProvider({ children }: { children: ReactNode }) {
   const [convex] = useState(() => {
@@ -28,6 +29,7 @@ export function ConvexClientProvider({ children }: { children: ReactNode }) {
   return (
     <ConvexAuthProvider client={convex} shouldHandleCode={false}>
       <AuthCallbackHandler />
+      <ProfileBootstrap />
       {children}
     </ConvexAuthProvider>
   );

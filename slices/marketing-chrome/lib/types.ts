@@ -42,6 +42,9 @@ export interface MarketingHeaderProps {
   nav: NavLink[];
   cta?: Cta;
   secondaryCta?: Cta;
+  /** Right-cluster override (e.g. a signed-in user menu). Replaces the CTA
+   *  buttons on desktop and shows alongside the mobile nav trigger. */
+  actions?: React.ReactNode;
   layout?: HeaderLayout;
   sticky?: boolean;
   className?: string;

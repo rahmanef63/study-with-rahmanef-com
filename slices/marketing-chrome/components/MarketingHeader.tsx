@@ -35,6 +35,7 @@ export function MarketingHeader({
   nav,
   cta,
   secondaryCta,
+  actions,
   layout = "split",
   sticky = false,
   className,
@@ -71,16 +72,19 @@ export function MarketingHeader({
               {layout === "split" && showNav ? (
                 <DesktopNav nav={nav} className="mr-4" />
               ) : null}
-              <CtaButtons cta={cta} secondaryCta={secondaryCta} />
+              {actions ?? <CtaButtons cta={cta} secondaryCta={secondaryCta} />}
             </div>
           ) : null}
           {layout !== "centered" ? (
-            <MobileNav
-              nav={nav}
-              cta={cta}
-              secondaryCta={secondaryCta}
-              brandName={brand.name}
-            />
+            <div className="flex items-center gap-1 md:hidden">
+              {actions}
+              <MobileNav
+                nav={nav}
+                cta={cta}
+                secondaryCta={secondaryCta}
+                brandName={brand.name}
+              />
+            </div>
           ) : null}
         </div>
 

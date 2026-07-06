@@ -9,13 +9,42 @@ import { api } from "@convex/_generated/api";
 
 const convexOptions = { skipConvexDeploymentUrlCheck: true } as const;
 
+const STEPS = [
+  {
+    title: "Masuk & pilih komunitas",
+    body: "Login sekali pakai akun Google, lalu buka komunitas belajar yang paling cocok denganmu.",
+  },
+  {
+    title: "Belajar per lesson",
+    body: "Video singkat, materi tertulis, dan tautan sumber untuk tiap topik — satu lesson sekali duduk.",
+  },
+  {
+    title: "Catat progress, lanjut kapan saja",
+    body: "Tandai lesson selesai, progres tersimpan otomatis, dan lanjutkan diskusi bareng komunitas di Discord.",
+  },
+] as const;
+
+function CatalogEmpty() {
+  return (
+    <div className="mx-auto max-w-md rounded-xl border border-dashed bg-muted/30 px-6 py-12 text-center">
+      <p className="font-medium">Belum ada komunitas aktif</p>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Komunitas pertama sedang dikurasi. Mau memulai satu?
+      </p>
+      <Button asChild variant="outline" size="sm" className="mt-4">
+        <Link href="/buka-komunitas">Buka komunitas</Link>
+      </Button>
+    </div>
+  );
+}
+
 async function CommunityCatalog() {
   "use cache";
   cacheLife("hours");
   cacheTag("landing-catalog");
 
   if (!process.env.NEXT_PUBLIC_CONVEX_URL) {
-    return <p className="text-center text-muted-foreground">Belum ada komunitas aktif.</p>;
+    return <CatalogEmpty />;
   }
 
   const tenants = (await fetchQuery(
@@ -35,7 +64,7 @@ async function CommunityCatalog() {
   );
 
   if (catalog.length === 0) {
-    return <p className="text-center text-muted-foreground">Belum ada komunitas aktif.</p>;
+    return <CatalogEmpty />;
   }
 
   return (
@@ -64,7 +93,12 @@ async function CommunityCatalog() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">Kelas pertama sedang disiapkan.</p>
+            <div className="rounded-xl border border-dashed bg-muted/30 px-6 py-10 text-center">
+              <p className="font-medium">Kelas pertama sedang disiapkan 🌱</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Buka komunitasnya untuk ikut sejak awal.
+              </p>
+            </div>
           )}
         </section>
       ))}
@@ -85,7 +119,7 @@ export default function HomePage() {
           className="object-cover object-center"
         />
         <div className="absolute inset-0 bg-background/75" />
-        <div className="relative mx-auto flex w-full max-w-5xl flex-col items-start gap-6 px-6 py-20 text-left">
+        <div className="relative mx-auto flex w-full max-w-6xl flex-col items-start gap-6 px-6 py-20 text-left">
           <h1 className="max-w-2xl text-4xl font-bold tracking-tight md:text-5xl">
             Belajar pakai AI, bareng-bareng, gratis.
           </h1>
@@ -104,14 +138,39 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="komunitas" className="mx-auto max-w-5xl px-6 py-16">
+      <section id="cara-kerja" className="border-y bg-muted/30">
+        <div className="mx-auto max-w-6xl px-6 py-16">
+          <h2 className="mb-3 text-center text-2xl font-semibold">Cara kerjanya</h2>
+          <p className="mx-auto mb-10 max-w-xl text-center text-muted-foreground">
+            Tiga langkah tenang — tanpa biaya, tanpa ribet.
+          </p>
+          <ol className="grid gap-6 md:grid-cols-3">
+            {STEPS.map((step, i) => (
+              <li
+                key={step.title}
+                className="rounded-xl border bg-background p-6 shadow-sm"
+              >
+                <span className="flex size-9 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
+                  {i + 1}
+                </span>
+                <h3 className="mt-4 text-lg font-semibold">{step.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {step.body}
+                </p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <section id="komunitas" className="mx-auto max-w-6xl px-6 py-16">
         <h2 className="mb-8 text-center text-2xl font-semibold">Komunitas</h2>
         <CommunityCatalog />
       </section>
 
       <section id="tentang" className="mx-auto max-w-3xl px-6 py-16 text-center">
         <h2 className="mb-4 text-2xl font-semibold">Kenapa platform ini ada</h2>
-        <p className="text-muted-foreground">
+        <p className="mx-auto max-w-2xl leading-relaxed text-muted-foreground">
           Materi AI kebanyakan berbahasa Inggris, tersebar, dan terlalu teknis.
           Di sini kamu belajar <em>pengaplikasiannya</em> langsung — video singkat,
           materi tertulis, progress tercatat, dan diskusi di Discord. Untuk materi

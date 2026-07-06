@@ -2,6 +2,17 @@
 
 @theme {
   --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-serif), Georgia, "Times New Roman", serif;
+}
+
+/* Akademik & Tenang: page-level display headings in serif (UI-UX-PRD §1.2).
+   In @layer base so an explicit `font-sans` utility still wins; scoped to
+   h1/h2 so component chrome (CardTitle h3) stays sans. */
+@layer base {
+  h1,
+  h2 {
+    font-family: var(--font-serif);
+  }
 }
 
 :root {

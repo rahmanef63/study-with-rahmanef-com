@@ -63,7 +63,7 @@ export function MobileNav({
           variant="ghost"
           size="icon"
           className="md:hidden"
-          aria-label="Open menu"
+          aria-label="Buka menu"
         >
           <Menu className="size-5" />
         </Button>

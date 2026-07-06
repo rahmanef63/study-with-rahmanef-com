@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { CourseCard } from "@/features/courses";
 import { JoinButton, TenantProfileCard } from "@/features/tenants";
-import { KelolaLink } from "./kelola-link";
 import { getPublicTenant, getPublishedCourses } from "./tenant-data";
 
 export default async function TenantHomePage({
@@ -20,10 +19,7 @@ export default async function TenantHomePage({
         actions={<JoinButton tenantId={tenant._id} loginHref="/login" />}
       />
       <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Kelas</h2>
-          <KelolaLink tenantId={tenant._id} slug={tenant.slug} />
-        </div>
+        <h2 className="text-xl font-semibold">Kelas</h2>
         {courses.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {courses.map((course) => (
@@ -35,7 +31,12 @@ export default async function TenantHomePage({
             ))}
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">Kelas pertama sedang disiapkan.</p>
+          <div className="rounded-xl border border-dashed bg-muted/30 px-6 py-12 text-center">
+            <p className="font-medium">Kelas pertama sedang disiapkan 🌱</p>
+            <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">
+              Gabung dulu supaya kamu jadi yang pertama tahu saat kelasnya tayang.
+            </p>
+          </div>
         )}
       </section>
     </div>
