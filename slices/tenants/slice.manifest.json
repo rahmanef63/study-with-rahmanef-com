@@ -1,12 +1,12 @@
 {
   "name": "tenants",
-  "version": "0.1.0",
-  "description": "Community profile + join flow + membership/role data layer (owner/instructor/member). Public reads use a safe projection: tenants.discordWebhookUrl never leaves the server (P0).",
+  "version": "0.2.0",
+  "description": "Community profile + join flow + membership/role data layer (owner/instructor/member) + community request flow & platform-admin approval queue (#6). Public reads use a safe projection: tenants.discordWebhookUrl never leaves the server (P0).",
   "category": "community",
   "stability": "beta",
   "deps": {
     "shared": ["features/defineFeature"],
-    "slices": [],
+    "slices": ["responsive-dialog"],
     "convexFeatures": ["tenants"],
     "npm": {},
     "env": []
@@ -23,7 +23,9 @@
     "tenants.read-public",
     "tenants.join",
     "tenants.manage-profile",
-    "tenants.manage-roles"
+    "tenants.manage-roles",
+    "tenants.request",
+    "tenants.approve"
   ],
   "schemaTables": [
     {
@@ -45,5 +47,5 @@
     "auth": "convex-auth"
   },
   "tags": ["multi-tenant", "community", "membership", "roles", "bahasa-indonesia"],
-  "notes": "0.1.0 (2026-07-06, agent beta): v1 scope of STATUS.md #1. Schema lives in the app-level convex/schema.ts (pre-composed from docs/DATA-MODEL.md); this slice ships the function layer + UI only. Request form & /admin approval queue are row #6 (v1.1). setMemberRole ships as data layer for R13; its management UI is v1.1."
+  "notes": "0.2.0 (2026-07-06, agent beta): adds STATUS.md #6 (v1.1) — requestTenant mutation (pending, anti-spam 1/user), platform-admin approval queue (listPending/approve/reject/getMyPlatformAdmin), and the RequestTenantForm + AdminTenantQueueView surfaces (alpha mounts /buka-komunitas + /admin/komunitas). Reject reuses status 'suspended' (schema has no 'rejected' literal). 0.1.0: v1 scope of STATUS.md #1. Schema lives in the app-level convex/schema.ts (pre-composed from docs/DATA-MODEL.md); this slice ships the function layer + UI only. setMemberRole ships as data layer for R13; its management UI is v1.1."
 }

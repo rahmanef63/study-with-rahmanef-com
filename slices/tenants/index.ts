@@ -8,6 +8,16 @@ export {
   type TenantSettingsViewProps,
 } from "./components/tenant-settings-view";
 
+// #6 (v1.1) — request + approval views (alpha mounts /buka-komunitas + /admin/komunitas)
+export {
+  RequestTenantForm,
+  type RequestTenantFormProps,
+} from "./components/request-tenant-form";
+export {
+  AdminTenantQueueView,
+  type AdminTenantQueueViewProps,
+} from "./components/admin-tenant-queue-view";
+
 // Building blocks
 export { JoinButton, type JoinButtonProps } from "./components/join-button";
 export { MembersList, type MembersListProps } from "./components/members-list";
@@ -24,13 +34,18 @@ export { RoleChip } from "./components/role-chip";
 
 // Hooks
 export {
+  useApproveTenant,
   useJoinTenant,
+  useRejectTenant,
+  useRequestTenant,
   useSetMemberRole,
   useUpdateTenantProfile,
 } from "./hooks/use-tenant-mutations";
 export {
   useActiveTenants,
+  useAdminPendingTenants,
   useMyMembership,
+  useMyPlatformAdmin,
   useTenantBySlug,
   useTenantManageView,
   useTenantMembers,
@@ -48,7 +63,9 @@ export { errorToCopy, extractErrorCode } from "./lib/error-copy";
 export type {
   ManagedTenant,
   MyMembership,
+  PendingTenantRequest,
   PublicTenant,
+  RequestTenantFormValues,
   TenantLabels,
   TenantMember,
   TenantProfileFormValues,

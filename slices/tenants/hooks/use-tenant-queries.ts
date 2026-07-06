@@ -6,7 +6,13 @@
 import { useConvexAuth, useQuery } from "convex/react";
 import type { Id } from "@convex/_generated/dataModel";
 import { tenantsApi } from "../api";
-import type { ManagedTenant, MyMembership, PublicTenant, TenantMember } from "../types";
+import type {
+  ManagedTenant,
+  MyMembership,
+  PendingTenantRequest,
+  PublicTenant,
+  TenantMember,
+} from "../types";
 
 /** Public tenant by slug; `undefined` = loading, `null` = not found/inactive. */
 export function useTenantBySlug(slug: string): PublicTenant | null | undefined {
@@ -56,4 +62,26 @@ export function useTenantManageView(
     tenantsApi.getManageView,
     isAuthenticated && tenantId ? { tenantId } : "skip"
   ) as ManagedTenant | null | undefined;
+}
+
+// #6 (v1.1) — request + approval reads.
+
+/** Platform-admin pending queue (skip until authenticated; server re-checks). */
+export function useAdminPendingTenants(
+  limit?: number
+): PendingTenantRequest[] | undefined {
+  const { isAuthenticated } = useConvexAuth();
+  return useQuery(
+    tenantsApi.listPending,
+    isAuthenticated ? { limit } : "skip"
+  ) as PendingTenantRequest[] | undefined;
+}
+
+/** Caller's platform-admin flag for the admin-queue UX gate (skip until authed). */
+export function useMyPlatformAdmin(): { isPlatformAdmin: boolean } | undefined {
+  const { isAuthenticated } = useConvexAuth();
+  return useQuery(
+    tenantsApi.getMyPlatformAdmin,
+    isAuthenticated ? {} : "skip"
+  ) as { isPlatformAdmin: boolean } | undefined;
 }

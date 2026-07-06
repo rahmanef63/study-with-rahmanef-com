@@ -97,3 +97,66 @@ export function useSetMemberRole(labels?: {
     labels?.errors
   );
 }
+
+// #6 (v1.1) — request + approval mutations.
+
+type RequestArgs = {
+  slug: string;
+  name: string;
+  description: string;
+  track?: string;
+  requestMessage?: string;
+};
+
+/** Request a new community; resolves the created ref or null on failure. */
+export function useRequestTenant(labels?: {
+  success?: string;
+  errors?: Record<string, string>;
+}) {
+  const request = useMutation(tenantsApi.requestTenant);
+  return useToastedMutation<
+    RequestArgs,
+    { tenantId: Id<"tenants">; slug: string; status: "pending" }
+  >(
+    (args) =>
+      request(args) as Promise<{
+        tenantId: Id<"tenants">;
+        slug: string;
+        status: "pending";
+      }>,
+    labels?.success ?? DEFAULT_TENANT_LABELS.request.success,
+    labels?.errors
+  );
+}
+
+/** Platform admin: approve a pending request (→ active). */
+export function useApproveTenant(labels?: {
+  success?: string;
+  errors?: Record<string, string>;
+}) {
+  const approve = useMutation(tenantsApi.approve);
+  return useToastedMutation<
+    { tenantId: Id<"tenants"> },
+    { slug: string; status: "active" }
+  >(
+    (args) => approve(args) as Promise<{ slug: string; status: "active" }>,
+    labels?.success ?? DEFAULT_TENANT_LABELS.adminQueue.approveSuccess,
+    labels?.errors
+  );
+}
+
+/** Platform admin: reject a pending request (→ suspended). */
+export function useRejectTenant(labels?: {
+  success?: string;
+  errors?: Record<string, string>;
+}) {
+  const reject = useMutation(tenantsApi.reject);
+  return useToastedMutation<
+    { tenantId: Id<"tenants"> },
+    { slug: string; status: "suspended" }
+  >(
+    (args) => reject(args) as Promise<{ slug: string; status: "suspended" }>,
+    labels?.success ?? DEFAULT_TENANT_LABELS.adminQueue.rejectSuccess,
+    labels?.errors
+  );
+}

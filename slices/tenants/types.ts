@@ -38,6 +38,27 @@ export type TenantMember = {
   avatarUrl?: string;
 };
 
+/** One row of the platform-admin approval queue (mirrors request-helpers.ts). */
+export type PendingTenantRequest = {
+  _id: Id<"tenants">;
+  slug: string;
+  name: string;
+  description: string;
+  track?: string;
+  requestMessage?: string;
+  requestedAt: number;
+  owner: { userId: Id<"users">; username?: string; displayName?: string };
+};
+
+/** Values the "request a community" form submits (#6). */
+export type RequestTenantFormValues = {
+  slug: string;
+  name: string;
+  description: string;
+  track: string;
+  requestMessage: string;
+};
+
 /** Values the settings form submits. "" clears an optional field. */
 export type TenantProfileFormValues = {
   name: string;

@@ -20,4 +20,16 @@ export const tenantsApi = {
   updateProfile: api.features.tenants.mutations.updateProfile,
   /** mutation — owner: member ↔ instructor (R13 data layer). */
   setMemberRole: api.features.tenants.mutations.setMemberRole,
+
+  // #6 (v1.1) — community request + platform-admin approval queue.
+  /** mutation — authed: request a new community (created `pending`). */
+  requestTenant: api.features.tenants.requests.requestTenant,
+  /** query — platform admin: pending community requests queue. */
+  listPending: api.features.tenants.admin.listPending,
+  /** mutation — platform admin: approve a pending request (→ active). */
+  approve: api.features.tenants.admin.approve,
+  /** mutation — platform admin: reject a pending request (→ suspended). */
+  reject: api.features.tenants.admin.reject,
+  /** query — authed: whether the caller is a platform admin (UX gate only). */
+  getMyPlatformAdmin: api.features.tenants.admin.getMyPlatformAdmin,
 };

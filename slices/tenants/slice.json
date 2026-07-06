@@ -1,10 +1,10 @@
 {
   "$schema": "https://resource.rahmanef.com/slice-schema.json",
   "slug": "tenants",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "category": "community",
-  "title": "Tenants — community profile, join flow, memberships & roles",
-  "description": "Multi-tenant community layer for belajar-with-rahmanef.com (v1 scope of STATUS.md #1): public tenant profile (/t/[slug] etalase), idempotent join-as-member flow, membership/role data layer (owner/instructor/member), and the owner settings form. Discord webhook URL is write-only: accepted by updateProfile, never present in any query result (P0). Request form + admin approval ship separately (#6, v1.1).",
+  "title": "Tenants — community profile, join flow, memberships, roles & requests",
+  "description": "Multi-tenant community layer for belajar-with-rahmanef.com (STATUS.md #1 + #6): public tenant profile (/t/[slug] etalase), idempotent join-as-member flow, membership/role data layer (owner/instructor/member), owner settings form, and (v1.1) the community request flow (/buka-komunitas) plus the platform-admin approval queue (/admin/komunitas). Discord webhook URL is write-only: accepted by updateProfile, never present in any query result (P0). Reject reuses status 'suspended' (schema has no 'rejected' literal).",
   "namespace": "@/features/tenants",
   "convex": {
     "schemaPath": "convex/schema.ts",
@@ -22,13 +22,19 @@
   "contract": {
     "requires": {
       "auth": "convex",
+      "slices": ["responsive-dialog"],
       "convex": {
         "tables": ["tenants", "memberships", "profiles", "users"],
-        "helpers": ["requireUser", "requireTenantRole"]
+        "helpers": ["requireUser", "requireTenantRole", "requirePlatformAdmin"]
       }
     },
     "provides": {
-      "routesExpected": ["/t/[slug]", "/t/[slug]/kelola/komunitas"],
+      "routesExpected": [
+        "/t/[slug]",
+        "/t/[slug]/kelola/komunitas",
+        "/buka-komunitas",
+        "/admin/komunitas"
+      ],
       "components": [
         "TenantHomeView",
         "TenantSettingsView",
@@ -36,7 +42,9 @@
         "MembersList",
         "TenantProfileCard",
         "TenantProfileForm",
-        "RoleChip"
+        "RoleChip",
+        "RequestTenantForm",
+        "AdminTenantQueueView"
       ],
       "hooks": [
         "useTenantBySlug",
@@ -46,7 +54,12 @@
         "useTenantManageView",
         "useJoinTenant",
         "useUpdateTenantProfile",
-        "useSetMemberRole"
+        "useSetMemberRole",
+        "useRequestTenant",
+        "useApproveTenant",
+        "useRejectTenant",
+        "useAdminPendingTenants",
+        "useMyPlatformAdmin"
       ],
       "helpers": ["tenantsApi", "errorToCopy", "extractErrorCode"],
       "convexFunctions": [
@@ -57,7 +70,12 @@
         "features/tenants/members:listMembers",
         "features/tenants/mutations:join",
         "features/tenants/mutations:updateProfile",
-        "features/tenants/mutations:setMemberRole"
+        "features/tenants/mutations:setMemberRole",
+        "features/tenants/requests:requestTenant",
+        "features/tenants/admin:listPending",
+        "features/tenants/admin:approve",
+        "features/tenants/admin:reject",
+        "features/tenants/admin:getMyPlatformAdmin"
       ]
     },
     "generalization": {
