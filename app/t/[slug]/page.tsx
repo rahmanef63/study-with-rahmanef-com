@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { CourseCard } from "@/features/courses";
 import { JoinButton, TenantProfileCard } from "@/features/tenants";
+import { TenantAnnouncementsTeaser } from "./tenant-announcements-teaser";
 import { getPublicTenant, getPublishedCourses } from "./tenant-data";
 
 export default async function TenantHomePage({
@@ -18,6 +19,7 @@ export default async function TenantHomePage({
         tenant={tenant}
         actions={<JoinButton tenantId={tenant._id} loginHref={`/login?returnTo=/t/${tenant.slug}`} />}
       />
+      <TenantAnnouncementsTeaser tenantId={tenant._id} slug={tenant.slug} />
       <section className="space-y-4">
         <h2 className="text-xl font-semibold">Kelas</h2>
         {courses.length > 0 ? (
