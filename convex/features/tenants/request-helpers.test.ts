@@ -7,7 +7,7 @@ import {
   buildTenantRequestInput,
   isValidTenantSlug,
   toPendingRequest,
-} from "./request-helpers";
+} from "./requestHelpers";
 import type { Doc } from "../../_generated/dataModel";
 
 describe("isValidTenantSlug", () => {

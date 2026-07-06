@@ -7,7 +7,7 @@
 import { ConvexError, v } from "convex/values";
 import { mutation, query } from "../../_generated/server";
 import { requirePlatformAdmin, requireUser } from "../../_shared/auth";
-import { TENANT_REQUEST_LIMITS, toPendingRequest } from "./request-helpers";
+import { TENANT_REQUEST_LIMITS, toPendingRequest } from "./requestHelpers";
 
 /**
  * Pending community requests for the admin queue. Bounded read via by_status

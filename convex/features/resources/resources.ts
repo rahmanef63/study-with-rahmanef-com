@@ -6,7 +6,7 @@ import { v } from "convex/values";
 import { mutation } from "../../_generated/server";
 import { requireTenantRole } from "../../_shared/auth";
 import { assertCourseInTenant, requireInstructorForResource } from "./access";
-import { assertUnderLimit, countUserPendingResources } from "./anti-spam";
+import { assertUnderLimit, countUserPendingResources } from "./antiSpam";
 import { assertNote, assertTitle, assertUrl } from "./validate";
 
 /**

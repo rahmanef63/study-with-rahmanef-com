@@ -6,7 +6,7 @@
 import { ConvexError, v } from "convex/values";
 import { mutation } from "../../_generated/server";
 import { requireUser } from "../../_shared/auth";
-import { buildTenantRequestInput, TENANT_REQUEST_LIMITS } from "./request-helpers";
+import { buildTenantRequestInput, TENANT_REQUEST_LIMITS } from "./requestHelpers";
 
 /**
  * Request a new community (R7). Any signed-in user may ask; the tenant is

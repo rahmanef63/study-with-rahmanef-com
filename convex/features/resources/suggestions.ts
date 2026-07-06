@@ -6,7 +6,7 @@ import { v } from "convex/values";
 import { mutation } from "../../_generated/server";
 import { requireTenantRole } from "../../_shared/auth";
 import { requireInstructorForSuggestion } from "./access";
-import { assertUnderLimit, countUserOpenSuggestions } from "./anti-spam";
+import { assertUnderLimit, countUserOpenSuggestions } from "./antiSpam";
 import { assertDetail, assertTitle } from "./validate";
 
 /**
