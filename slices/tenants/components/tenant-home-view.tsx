@@ -13,8 +13,10 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { Id } from "@convex/_generated/dataModel";
 import { DEFAULT_TENANT_LABELS } from "../config/labels";
 import { useMyMembership, useTenantBySlug } from "../hooks/use-tenant-queries";
+import { useSetMemberRole } from "../hooks/use-tenant-mutations";
 import type { TenantLabels } from "../types";
 import { JoinButton } from "./join-button";
 import { MembersList } from "./members-list";
@@ -25,6 +27,9 @@ export type TenantHomeViewProps = {
   loginHref?: string;
   homeHref?: string;
   showMembers?: boolean;
+  /** The viewer's own user id. When set AND the viewer is the owner, the roster
+   *  gains a per-member role control (member↔instructor); omit for read-only. */
+  currentUserId?: Id<"users">;
   labels?: {
     home?: Partial<TenantLabels["home"]>;
     join?: Partial<TenantLabels["join"]>;
@@ -41,6 +46,7 @@ export function TenantHomeView({
   loginHref,
   homeHref = "/",
   showMembers = true,
+  currentUserId,
   labels,
   children,
   className,
@@ -48,6 +54,8 @@ export function TenantHomeView({
   const t = { ...DEFAULT_TENANT_LABELS.home, ...labels?.home };
   const tenant = useTenantBySlug(slug);
   const { membership } = useMyMembership(tenant?._id);
+  const [setRole, { isPending: isSettingRole }] = useSetMemberRole();
+  const canManageRoles = membership?.role === "owner";
 
   if (tenant === undefined) {
     return (
@@ -91,6 +99,10 @@ export function TenantHomeView({
           tenantId={tenant._id}
           labels={labels?.members}
           roleLabels={labels?.roles}
+          canManageRoles={canManageRoles}
+          currentUserId={currentUserId}
+          isSettingRole={isSettingRole}
+          onSetRole={(targetUserId, role) => setRole({ tenantId: tenant._id, targetUserId, role })}
         />
       ) : null}
     </div>

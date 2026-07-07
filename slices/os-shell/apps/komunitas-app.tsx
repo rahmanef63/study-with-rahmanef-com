@@ -10,11 +10,19 @@
 // Runs inside an appshell window, so it fetches client-side via useQuery (root
 // layout already mounts Convex). Tenant/course rendering is REUSED from the
 // tenants + courses slices — nothing about profiles/join/roles is reimplemented.
+import { useState } from "react";
 import { useQuery } from "convex/react";
 import { type AppProps } from "@/features/appshell";
+import {
+  ResponsiveDialog,
+  ResponsiveDialogBody,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/features/responsive-dialog";
 import { openApp } from "./_nav";
 import {
   JoinButton,
+  RequestTenantForm,
   RoleChip,
   TenantHomeView,
   tenantsApi,
@@ -36,7 +44,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { Compass, Library, LogIn, Megaphone, Settings2, Users } from "lucide-react";
+import { Compass, Library, LogIn, Megaphone, Plus, Settings2, Users } from "lucide-react";
 
 // ── Shared course tile ───────────────────────────────────────────────────────
 // Mirrors Beranda's KelasGrid item: a button (not a route Link) so a course
@@ -135,11 +143,16 @@ function CommunityBody({ slug }: { slug: string }) {
 }
 
 function CommunityView({ slug }: { slug: string }) {
+  // Feed the viewer's own id so an owner gets role controls in the roster (and
+  // their own row stays read-only). tenants slice stays decoupled from profiles —
+  // the id is supplied here at the integration layer, not fetched inside it.
+  const { profile } = useCurrentProfile();
   return (
     <div className="mx-auto w-full max-w-4xl p-6 sm:p-8">
       <TenantHomeView
         slug={slug}
         loginHref="/masuk"
+        currentUserId={profile?.userId}
         className="flex flex-col gap-8"
       >
         <CommunityBody slug={slug} />
@@ -248,12 +261,23 @@ function DirectoryRow({ tenant }: { tenant: PublicTenant }) {
 
 function ExploreSection() {
   const tenants = useQuery(tenantsApi.listActive, { limit: 12 }) as PublicTenant[] | undefined;
+  const [openRequest, setOpenRequest] = useState(false);
 
   return (
     <section className="space-y-4">
-      <div className="flex flex-col gap-1 border-b pb-3">
-        <span className="eyebrow">Jelajahi</span>
-        <h2 className="font-serif text-2xl">Komunitas aktif.</h2>
+      <div className="flex flex-wrap items-end justify-between gap-3 border-b pb-3">
+        <div className="flex min-w-0 flex-col gap-1">
+          <span className="eyebrow">Jelajahi</span>
+          <h2 className="font-serif text-2xl">Komunitas aktif.</h2>
+        </div>
+        <Button
+          variant="outline"
+          className="min-h-11 shrink-0 gap-1.5 sm:min-h-9"
+          onClick={() => setOpenRequest(true)}
+        >
+          <Plus className="size-4" aria-hidden />
+          Ajukan komunitas
+        </Button>
       </div>
 
       {tenants === undefined ? (
@@ -281,6 +305,17 @@ function ExploreSection() {
           ))}
         </ul>
       )}
+
+      {/* RequestTenantForm self-contains the mutation + toasts + its own signed-out
+          state, so this trigger just opens it; onSuccess closes the dialog. */}
+      <ResponsiveDialog open={openRequest} onOpenChange={setOpenRequest} size="lg">
+        <ResponsiveDialogHeader>
+          <ResponsiveDialogTitle>Ajukan komunitas baru</ResponsiveDialogTitle>
+        </ResponsiveDialogHeader>
+        <ResponsiveDialogBody>
+          <RequestTenantForm onSuccess={() => setOpenRequest(false)} />
+        </ResponsiveDialogBody>
+      </ResponsiveDialog>
     </section>
   );
 }
