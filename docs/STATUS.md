@@ -42,3 +42,51 @@ _none yet_
 | 2026-07-06 | vps | Secret exposure: Convex admin key + JWT_PRIVATE_KEY leaked by vps filter mistakes; AUTH_GOOGLE_SECRET pasted by Rahman in chat. | Rotation tracked as row #12 (URGENT, runs on VPS). Reminder reinforced: reports reference env var NAMES only. |
 | 2026-07-06 | vps | Convex rejects `-` in module paths — two v1.1 kebab-case modules (anti-spam.ts, request-helpers.ts) failed the entire deploy; committed api.d.ts was also stale → all v1.1 routes 404 until hotfix. vps committed 86ca386 (renames + importers + typed codegen), exceeding the then-narrow hotfix exception. | Post-hoc review alpha: diff = rename murni + 4 importer + codegen, ACCEPTED; AGENTS.md §7 gains the convex camelCase module rule (P1, prompt-enforced) and §4 exception widened to cover mechanical toolchain fixes. vps proposal CI guard (ban `-` in convex/** non-test + pre-commit codegen check) tercatat sebagai kandidat tooling. |
 | 2026-07-06 | alpha | Cowork mount staleness escalated during wave-v1.1 review: 19 worker files truncated in the Linux view, several MODIFIED tracked files silently served OLD content (no git diff), and .git/index corrupted twice — Linux-side git commits became unreliable. | Mitigation: all affected files re-materialized byte-identical from the Windows-side truth (file tools); integration commits packaged as scripts/integrate-wave-v11.sh for Rahman to run with Windows git (reads correct bytes). Follow-up: workers should keep authoring via file tools; integrator verifies via /tmp copies; consider worktree mode if this recurs. |
+
+## OS desktop shell + enhancement plan (2026-07-07)
+
+> Solo-owner arc (bukan multi-agent claim board di atas). Semua perubahan **frontend
+> chrome saja** — Convex backend UNCHANGED (schema, tables, authz, `convex/features/<slice>`
+> sama; DATA-MODEL.md tetap valid). App di-rebuild dari **route-based multi-tenant site**
+> jadi **OS desktop shell**: satu catch-all `app/[[...slug]]/page.tsx` render desktop
+> untuk SETIAP path (History-API URL sync), di atas framework `slices/appshell`
+> (5 shell: macOS · Windows · iOS · Android · Dashboard). Integrasi = `slices/os-shell/`
+> (manifest + 10 window-apps yang REUSE slice views + Convex queries lama). Route groups
+> `app/(public)`, `app/t/[slug]`, `app/u/[username]` **DIHAPUS**; `app/admin` + `app/api` tetap.
+
+### Shipped
+
+| # | Item | Scope | Commit | Status |
+|---|---|---|---|---|
+| OS-1 | OS pivot — route site → windowed OS desktop shell (`slices/os-shell` + appshell mount, catch-all routing) | frontend | 89c4434 | done |
+| OS-2 | Deep-link URLs (shareable, round-trip via UrlSync) + tweakcn preset theming (glass/window/dock → `--card`/`--radius`) | frontend | 5094760 | done |
+| OS-3 | Lesson deep-link + auto-open Beranda on cold boot + prune dead routes/code | frontend | b1a38f4 | done |
+| OS-4 | **P1 make-it-live** — ⌘K search · command palette · announcement toasts+badge (Komunitas dock) · "Lanjutkan belajar" recents | frontend | b6479a2 | done |
+| OS-5 | **P2** — lesson inspector (⌘I) · learning widgets (mobile Today) · shell picker (Pengaturan → "Tampilan OS") · fix invisible chrome (`--info/--success/--warning` tokens) | frontend | 510b1c0 | done |
+| OS-6 | **P3** — share lesson link (share sheet) · Focus mode command (snap/split-view sudah jalan) | frontend | 1cb407d | done |
+
+### Deferred / open
+
+| # | Item | Scope | Status | Blocker |
+|---|---|---|---|---|
+| OS-7 | Real AI study-assistant (LLM httpAction; skarang `chatComingSoon` placeholder) | backend | **DEFERRED** | butuh `ANTHROPIC_API_KEY` di Convex self-hosted + manual `npx convex deploy` (owner) |
+| OS-8 | Sticky-notes widget · Quick Look · Dynamic Island | frontend | deferred | scope P3 sisa, non-blocking |
+| 12 | ROTASI SECRET (admin key · JWT_PRIVATE_KEY/JWKS · AUTH_GOOGLE_SECRET) — lihat baris #12 & drift log | ops | **OPEN / URGENT** | ditahan Rahman; jalankan di VPS |
+
+Capabilities seam (`manifest.capabilities`) = **4/7 wired**: appearance (next-themes) · cpu
+(null stub) · **search** (Convex course+community) · **chat** ("coming soon" placeholder).
+Belum ada analog belajar untuk systemStats & serverToggle → sengaja di-omit.
+
+```mermaid
+pie showData
+  title Capability seam · 4/7 wired
+  "Wired (appearance · cpu · search · chat)" : 4
+  "Not wired (systemStats · serverToggle · reserved)" : 3
+```
+
+Commit trail: OS pivot `89c4434` → deep-links + preset theming `5094760` → lesson deep-link /
+auto-open Beranda / prune `b1a38f4` → P1 `b6479a2` → P2 + shells `510b1c0` → P3 `1cb407d`.
+
+Deploy: Dokploy webhook on `git push origin main` → build → deploy (owner auto-ship).
+Convex self-hosted TIDAK auto-deploy on push — perubahan `convex/` butuh manual
+`npx convex deploy`. Live: https://study-with.rahmanef.com.

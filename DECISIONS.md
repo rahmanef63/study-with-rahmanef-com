@@ -49,3 +49,55 @@ Spec turunan: [docs/PRD.md](docs/PRD.md) · [docs/DATA-MODEL.md](docs/DATA-MODEL
 1. **v1 (launch):** auth Google → tenant pertama (seed) → kelas/modul/lesson → progress → landing.
 2. **v1.1:** form buka komunitas + approval, resource board + suggestion box, quiz MCQ, badge + profil publik, pengumuman + Discord webhook.
 3. **Fase 2:** komentar per lesson, moderator/TA, subdomain, email.
+
+---
+
+## Addendum — Pivot OS Desktop Shell (2026-07-07)
+
+> Keputusan besar arsitektur **frontend**, disetujui owner (Rahman). Tabel 20 Q&A di atas **tetap sah** dan tidak diubah; addendum ini hanya menambah keputusan baru + menandai yang di-*supersede*.
+
+### Keputusan
+
+| # | Topik | Keputusan | Catatan |
+|---|-------|-----------|---------|
+| 21 | Kerangka UI | **OS desktop shell**, bukan halaman berbasis route | UI dibangun ulang dari `/t/[slug]` menjadi desktop OS berjendela di atas framework `slices/appshell` yang di-vendor (5 shell: macOS · Windows · iOS · Android · Dashboard; window manager, dock, launcher, ⌘K Spotlight, notifikasi, inspector, widgets). Layer integrasi = `slices/os-shell/` (manifest, capabilities, os-root, `apps/`). |
+| 22 | Routing | **Satu catch-all `app/[[...slug]]/page.tsx`** untuk semua path | Desktop di-render untuk SETIAP path; URL disinkron via History API (`routing: true`). Route group lama `app/(public)`, `app/t/[slug]`, `app/u/[username]` **dihapus**. `app/admin` + `app/api` tetap. |
+| 23 | Isi desktop | **10 window-app** yang me-*reuse* view slice lama | beranda · komunitas · kelas · kuis · profil · resources · pengumuman · kelola · pengaturan · masuk. Tiap app = wrapper client tipis di atas view + query Convex yang sudah ada (tanpa nulis ulang logika domain). |
+| 24 | URL tenant/course | **Deep-link berbasis app**: `/komunitas/<tenant>`, `/kelas/<tenant>/<course>` | **SUPERSEDE #17** (`/t/[slug]`). Path lain: `/kelas/<tenant>/<course>/lesson/<id>`, `/kuis/<tenant>/<course>/<module>`, `/profil/<username>`, `/resources|pengumuman|kelola/<tenant>`, `/pengaturan`, `/masuk`. `openApp(id, title, [segs])` (di `apps/_nav.ts`) meng-encode param ke `payload.path`; UrlSync appshell mirror ke address bar, link yang di-paste re-open jendela yang sama. |
+| 25 | Scope shell | **Full desktop OS** — trade-off SEO katalog publik | Dipilih owner secara sadar: pengalaman OS penuh > halaman katalog publik yang ter-index mesin pencari. Cold boot auto-open Beranda. |
+| 26 | Capabilities seam | **`manifest.capabilities`, 4/7 wired** | appearance (next-themes) · cpu (stub null) · **search** (Convex course+community) · **chat** (placeholder "coming soon"). Diabaikan: systemStats, serverToggle (tak ada analogi belajar). Ini titik injeksi yang menyalakan fitur shell. |
+| 27 | AI study-assistant | **Placeholder dulu, LLM asli DITUNDA** | `chatComingSoon` sekarang cuma placeholder. LLM nyata butuh `ANTHROPIC_API_KEY` di backend Convex self-hosted + `convex deploy` manual, lalu swap ke httpAction. Lihat juga [claude-api] saat mengimplementasi. |
+
+### Yang TIDAK berubah
+
+- **Backend Convex self-hosted UTUH**: schema, tabel, authz, dan `convex/features/<slice>` (tenants, courses, progress, profiles, resources, quiz, announcements) **sama persis**. [docs/DATA-MODEL.md](docs/DATA-MODEL.md) masih valid.
+- **Keputusan #1–16, #18–20 tetap berlaku** apa adanya. Slice domain menyimpan fungsi Convex + view presentasional-nya; **hanya host frontend-nya yang pindah** (route → jendela OS).
+- Konflik #4 vs #18 yang sudah RESOLVED (2026-07-05) tetap berlaku.
+
+### Desain
+
+Bespoke **"Editorial Warmth"** (Fraunces + Hanken, token oklch terracotta) tetap dipakai. Chrome shell mengikuti preset tweakcn aktif (warna, radius, font) via remap token di `app/globals.css` (glass/window/dock → `--card`/`--radius`).
+
+### Diagram — arsitektur sistem (pasca-pivot)
+
+```mermaid
+flowchart TD
+  U["Browser · any path"] --> CA["app catch-all [[...slug]]"]
+  CA --> OR["OsRoot (client)"]
+  OR --> AS["AppShell (slices/appshell)"]
+  MAN["slices/os-shell/manifest"] -->|brand · apps · features · capabilities| AS
+  AS --> SH["Shell chrome<br/>macOS · Windows · iOS · Android · Dashboard"]
+  AS --> WS["Window store<br/>(useSyncExternalStore)"]
+  AS --> URL["UrlSync · History API<br/>window to slug path"]
+  MAN --> APPS["10 window-apps<br/>beranda · kelas · kuis · …"]
+  MAN --> FEAT["Features to slots<br/>⌘K search · notifications · inspector · widgets"]
+  MAN --> CAP["Capabilities seam<br/>appearance · search · chat · cpu"]
+  APPS --> VIEWS["reused slice views"]
+  VIEWS --> CVX[("Convex (self-hosted)<br/>tenants · courses · progress · quiz …")]
+  CAP --> CVX
+```
+
+### Status terkait
+
+- **Rotasi secret** (STATUS #12, dipegang Rahman, URGENT) — belum berubah.
+- **AI tutor asli** — blocked di owner set API key + deploy manual.

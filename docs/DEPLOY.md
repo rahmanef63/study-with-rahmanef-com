@@ -3,6 +3,10 @@
 > Operator: Rahman. Mode: satu VPS Dokploy menjalankan (a) Convex self-hosted via Docker Compose dan (b) app Next.js. Sesuai stack pin `docs/rr-conventions.md`.
 > Referensi resmi: https://docs.convex.dev/self-hosting · https://labs.convex.dev/auth · https://docs.dokploy.com
 
+> **Alur deploy — 2 jalur TERPISAH (PENTING).**
+> - **Next app:** `git push origin main` → webhook Dokploy auto-build + auto-deploy. Tidak perlu trigger manual.
+> - **Convex self-hosted:** TIDAK auto-deploy saat push. Perubahan di `convex/` (schema/functions) HANYA live setelah `npx convex deploy` manual dari laptop/CI lokal (§B). Repo ini tidak punya pre-push hook Convex — `git push` saja tidak mempublish backend.
+
 ## Arsitektur
 
 ```
@@ -10,6 +14,8 @@
                                               (HTTP actions/auth :3211)
 Convex backend ── Postgres (compose yang sama) ── volume persisten
 ```
+
+Frontend = windowed **OS desktop** (satu catch-all route `app/[[...slug]]`, mount `slices/appshell` via `slices/os-shell/`); tiap path jadi deep-link URL yang membuka window. Tetap satu app Next.js seperti diagram di atas — backend Convex tidak berubah. (Detail arsitektur: AGENTS.md §0.)
 
 ## A. Convex self-hosted (sekali)
 
@@ -36,6 +42,8 @@ npx convex codegen         # regenerate _generated bertipe penuh → commit
 
 Catatan: `convex/_generated` di-commit (lihat .gitignore) supaya build Docker Next bisa typecheck tanpa menjalankan codegen.
 
+**Ingat:** langkah ini WAJIB dijalankan manual tiap kali `convex/` berubah — `git push` ke main hanya membangun ulang app Next, TIDAK mempublish backend Convex.
+
 ## C. Auth (sekali, lalu jarang disentuh)
 
 1. **Kunci JWT @convex-dev/auth** — set di deployment Convex:
@@ -44,7 +52,7 @@ Catatan: `convex/_generated` di-commit (lihat .gitignore) supaya build Docker Ne
 3. **Google OAuth** — console.cloud.google.com → Credentials → OAuth Client (Web):
    - Authorized redirect URI: `https://convex-site.<domain-mu>/api/auth/callback/google`
    - Set di Convex: `npx convex env set AUTH_GOOGLE_ID ...` dan `AUTH_GOOGLE_SECRET ...`
-4. ✅ Cek: buka `/login` → "Masuk dengan Google" → kembali dalam keadaan login.
+4. ✅ Cek: buka `/masuk` (app Masuk di OS shell) → "Masuk dengan Google" → kembali dalam keadaan login. (Route `/login` lama sudah pensiun setelah OS pivot.)
 
 ## D. App Next.js di Dokploy (tiap push ke main)
 
@@ -53,7 +61,7 @@ Catatan: `convex/_generated` di-commit (lihat .gitignore) supaya build Docker Ne
    - `NEXT_PUBLIC_CONVEX_URL` = `https://convex.<domain-mu>`
    - `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` = acak 32-byte base64 (pin sekali)
 3. Domain `study-with.rahmanef.com` + TLS di Dokploy (live sejak 2026-07-06).
-4. ✅ Cek: landing tampil, `/login` jalan, tidak ada error di logs.
+4. ✅ Cek: OS desktop (Beranda) tampil di `/`, app Masuk jalan di `/masuk`, tidak ada error di logs.
 
 ## E. Seed tenant pertama (sekali, SETELAH login Google pertamamu)
 

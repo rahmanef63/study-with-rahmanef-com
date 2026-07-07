@@ -1,6 +1,7 @@
 # PRD — belajar-with-rahmanef.com
 
 > v0.1 · 2026-07-05 · Status: **draft untuk review Rahman**
+> v0.2 · 2026-07-07 · **Delivery pivot:** frontend jadi OS desktop shell berjendela (lihat §11). Domain produk (multi-tenant · Kelas→Modul→Lesson · quiz · progress · badge · Discord-first) & Convex backend **tidak berubah**.
 > Sumber: [DECISIONS.md](../DECISIONS.md) (20 Q&A). Teknis: [DATA-MODEL.md](DATA-MODEL.md), [SLICES.md](SLICES.md).
 
 ## 1. Problem statement
@@ -79,6 +80,8 @@ Target audiens campuran multi-track (umum / kerja / konten-UMKM) — tiap track 
 | R5 | Progress | tombol "tandai selesai" idempoten; progress bar per modul & kelas akurat; penyelesaian kelas tersimpan saat semua lesson selesai |
 | R6 | Routing multi-tenant `/t/[slug]` | slug unik; tenant non-aktif tidak bisa diakses; guard role di halaman kelola |
 
+> **Superseded (v0.2 delivery):** R2 (landing `/`) & R6 (routing `/t/[slug]`) — halaman ber-route diganti OS desktop + catch-all mount + deep-link URL. Semantik requirement (guard role, slug unik, tenant non-aktif tertutup, landing menjelaskan platform) tetap; hanya bentuk URL/host-nya berubah. R3 halaman komunitas kini app **Komunitas** di `/komunitas/<tenant>`. Lihat §11.4.
+
 ### P1 — v1.1 (fast follow)
 
 | # | Requirement | Catatan |
@@ -90,6 +93,8 @@ Target audiens campuran multi-track (umum / kerja / konten-UMKM) — tiap track 
 | R11 | Profil publik `/u/[username]` + badge | badge = penyelesaian kelas; bisa dibagikan |
 | R12 | Pengumuman + Discord webhook | tampil in-app, auto-post ke Discord; webhook URL tidak pernah bocor ke client |
 | R13 | Owner kelola role (member → instructor) | dari halaman kelola komunitas |
+
+> **Superseded (v0.2 delivery):** R11 profil publik `/u/[username]` kini app **Profil** di `/profil/<username>`; R13 kelola role kini app **Kelola** di `/kelola/<tenant>`. Requirement domain tetap; lihat §11.4.
 
 ### P2 — fase 2 (jangan sampai arsitektur menghalangi)
 
@@ -121,3 +126,70 @@ Komentar per lesson · role Moderator/TA · subdomain per tenant · email (Resen
 | **Fase 2** | sesuai demand komunitas | — |
 
 Urutan build teknis & definition of done: lihat [SLICES.md](SLICES.md).
+
+## 11. Antarmuka & delivery — OS desktop (v0.2, 2026-07-07)
+
+> **Perubahan delivery, bukan domain.** Sejak commit OS pivot, frontend tidak lagi berupa halaman ber-route (`app/(public)`, `app/t/[slug]`, `app/u/[username]` — **dihapus**). UI sekarang satu **OS desktop berjendela** di atas framework `slices/appshell`. **Semua requirement R1–R13, prinsip produk (§2), dan Convex backend (skema, tabel, authz, `convex/features/<slice>`) TIDAK berubah** — yang berganti hanya "kulit"/host antarmukanya (route → jendela OS). [DATA-MODEL.md](DATA-MODEL.md) masih valid.
+
+### 11.1 Mount tunggal (catch-all)
+
+Satu route catch-all `app/[[...slug]]/page.tsx` merender desktop untuk **setiap** path (`routing: true`, sinkronisasi URL via History API). `app/admin` + `app/api` tetap. Integrasi lewat `slices/os-shell/` (`manifest.tsx` = brand + apps + features + capabilities, `capabilities.ts` = data seam, `os-root.tsx` = mount `<AppShell>`, `apps/` = window-apps + `_nav.ts`).
+
+### 11.2 Sepuluh window-app
+
+Tiap app adalah wrapper tipis yang **memakai ulang** view slice + query Convex yang sudah ada (tidak ada logika domain ditulis ulang):
+
+beranda · komunitas · kelas · kuis · profil · resources · pengumuman · kelola · pengaturan · masuk.
+
+Shell chrome bisa diganti (macOS · Windows · iOS · Android · Dashboard) via Pengaturan → "Tampilan OS". Ini menegaskan — bukan membatalkan — non-goal §5 "web responsive mobile-first": tetap web responsif, kini dengan skin desktop & mobile.
+
+### 11.3 Deep-link URL (shareable, round-trip via URL-sync)
+
+| URL | Membuka |
+|---|---|
+| `/` · `/beranda` | Beranda (auto-buka saat cold boot) |
+| `/komunitas` · `/komunitas/<tenant>` | direktori komunitas / satu komunitas |
+| `/kelas/<tenant>/<course>[/lesson/<id>]` | kelas + lesson |
+| `/kuis/<tenant>/<course>/<module>` | quiz |
+| `/profil/<username>` | profil publik |
+| `/resources/<tenant>` · `/pengumuman/<tenant>` · `/kelola/<tenant>` | surface komunitas |
+| `/pengaturan` · `/masuk` | pengaturan / login |
+
+`openApp(id, title, [segs])` (di `apps/_nav.ts`) meng-encode param ke `payload.path`; UrlSync appshell mencerminkannya ke address bar, dan link yang di-paste membuka ulang jendela yang sama.
+
+### 11.4 Remap route lama → OS app (superseded)
+
+| Lama (dihapus) | Sekarang |
+|---|---|
+| Landing `/` (R2) | app **Beranda** (auto-buka) |
+| `/t/[slug]` (R3, R6) | app **Komunitas** · `/komunitas/<tenant>` |
+| `/u/[username]` (R11) | app **Profil** · `/profil/<username>` |
+| halaman kelola tenant (R13) | app **Kelola** · `/kelola/<tenant>` |
+
+Acceptance criteria domain di §7 tetap berlaku; hanya bentuk URL/host-nya yang berubah seperti tabel di atas.
+
+### 11.5 Arsitektur
+
+```mermaid
+flowchart TD
+  U["Browser · any path"] --> CA["app/[[...slug]] catch-all"]
+  CA --> OR["OsRoot (client)"]
+  OR --> AS["AppShell (slices/appshell)"]
+  MAN["slices/os-shell/manifest"] -->|brand · apps · features · capabilities| AS
+  AS --> SH["Shell chrome<br/>macOS · Windows · iOS · Android · Dashboard"]
+  AS --> WS["Window store<br/>(useSyncExternalStore)"]
+  AS --> URL["UrlSync · History API<br/>window ⇄ /slug/path"]
+  MAN --> APPS["10 window-apps<br/>beranda · kelas · kuis · …"]
+  MAN --> FEAT["Features → slots<br/>⌘K search · notifications · inspector · widgets"]
+  MAN --> CAP["Capabilities seam<br/>appearance · search · chat · cpu"]
+  APPS --> VIEWS["reused slice views"]
+  VIEWS --> CVX[("Convex (self-hosted)<br/>tenants · courses · progress · quiz …")]
+  CAP --> CVX
+```
+
+### 11.6 Catatan
+
+- **Design:** bespoke "Editorial Warmth" (Fraunces + Hanken, terracotta oklch tokens); shell chrome ikut preset tweakcn aktif via remap token di `app/globals.css` (glass/window/dock → `--card`/`--radius`).
+- **Capabilities seam** (`manifest.capabilities`, 4/7 wired): appearance (next-themes) · search (course + community) wired; chat = placeholder "coming soon"; cpu = stub. Omit systemStats & serverToggle (tak ada padanan learning).
+- **AI tutor asli DITUNDA** — butuh `ANTHROPIC_API_KEY` di backend Convex self-hosted + `convex deploy` manual, lalu ganti `chatComingSoon` dengan httpAction. Tercermin di §9 open questions (pemilik: Rahman).
+- **Deploy:** Dokploy webhook on `git push origin main` → build → deploy. Convex self-hosted **tidak** auto-deploy dari push — perubahan `convex/` butuh `npx convex deploy` manual. Live: https://study-with.rahmanef.com.

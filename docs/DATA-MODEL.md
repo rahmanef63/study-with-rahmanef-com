@@ -3,6 +3,132 @@
 > Menyertai [PRD.md](PRD.md). Full multi-tenant dari hari 1: semua tabel domain ber-`tenantId`.
 > `_creationTime` bawaan Convex dipakai sebagai timestamp — tidak ada field `createdAt` manual.
 
+> **Catatan (pivot OS-shell, 2026-07):** Skema & backend Convex **tidak berubah** oleh pivot
+> frontend ke OS desktop shell. Tabel, index, authz, dan fungsi `convex/features/<slice>` tetap
+> identik; yang berpindah hanya *host* frontend-nya — dari route Next.js (`app/(public)`,
+> `app/t/[slug]`, `app/u/[username]`) menjadi window-app OS yang meng-konsumsi query/mutation
+> yang sama persis. Doc ini masih 100% valid. Lihat [UI-UX-PRD.md](UI-UX-PRD.md) untuk cara
+> tiap app membungkus view slice yang sudah ada.
+
+## Diagram relasi (ERD)
+
+Cerminan langsung `convex/schema.ts` (tabel + relasi kunci; field rahasia ditandai). `users`
+berasal dari `@convex-dev/auth`. `siteSettings` singleton config tidak punya relasi.
+
+```mermaid
+erDiagram
+  users ||--o| profiles : "has"
+  users ||--o{ tenants : "owns"
+  tenants ||--o{ memberships : "has members"
+  users ||--o{ memberships : "joins"
+  tenants ||--o{ courses : "hosts"
+  courses ||--o{ modules : "groups"
+  modules ||--o{ lessons : "contains"
+  modules ||--o{ quizzes : "has"
+  lessons ||--o{ lessonCompletions : "marked by"
+  users ||--o{ lessonCompletions : "completes"
+  courses ||--o{ courseCompletions : "badge"
+  users ||--o{ courseCompletions : "earns"
+  quizzes ||--o{ quizAttempts : "attempted"
+  users ||--o{ quizAttempts : "submits"
+  tenants ||--o{ resources : "curates"
+  courses |o--o{ resources : "optional link"
+  users ||--o{ resources : "submits"
+  tenants ||--o{ suggestions : "collects"
+  users ||--o{ suggestions : "submits"
+  tenants ||--o{ announcements : "posts"
+  users ||--o{ announcements : "authors"
+
+  users {
+    string authFields "from @convex-dev/auth"
+  }
+  profiles {
+    id userId FK
+    string username UK
+    string displayName
+    bool isPlatformAdmin
+  }
+  tenants {
+    string slug UK
+    string status "pending / active / suspended"
+    string discordWebhookUrl "SECRET"
+    id ownerId FK
+  }
+  memberships {
+    id tenantId FK
+    id userId FK
+    string role "owner / instructor / member"
+  }
+  courses {
+    id tenantId FK
+    string slug "unique per tenant"
+    string status "draft / published / archived"
+    id createdBy FK
+  }
+  modules {
+    id tenantId FK
+    id courseId FK
+    number order
+  }
+  lessons {
+    id tenantId FK
+    id courseId FK
+    id moduleId FK
+    string youtubeVideoId "11-char id"
+    string contentMd
+    number order
+  }
+  lessonCompletions {
+    id tenantId FK
+    id userId FK
+    id courseId FK
+    id lessonId FK
+  }
+  courseCompletions {
+    id tenantId FK
+    id userId FK
+    id courseId FK
+  }
+  quizzes {
+    id tenantId FK
+    id courseId FK
+    id moduleId FK
+    number passingScorePct
+    array questions "correctIndex SECRET"
+  }
+  quizAttempts {
+    id tenantId FK
+    id userId FK
+    id quizId FK
+    number scorePct
+    bool passed
+  }
+  resources {
+    id tenantId FK
+    id courseId FK "optional"
+    id submittedBy FK
+    string status "pending / approved / rejected"
+  }
+  suggestions {
+    id tenantId FK
+    id submittedBy FK
+    string status "open / planned / done / rejected"
+  }
+  announcements {
+    id tenantId FK
+    id createdBy FK
+    bool postedToDiscord
+  }
+  siteSettings {
+    string siteName "singleton — no FK"
+    string themePreset
+  }
+```
+
+> Catatan hierarki: `lessons` & `quizzes` juga membawa `courseId` (denormalisasi untuk query
+> `by_course`), selain `moduleId` yang dipetakan di diagram. `siteSettings` adalah singleton
+> branding bawaan starter (satu baris, tanpa `tenantId`) — bukan tabel domain.
+
 ## Skema target (convex/schema.ts)
 
 ```ts
@@ -12,6 +138,23 @@ import { authTables } from "@convex-dev/auth/server";
 
 export default defineSchema({
   ...authTables, // users, sessions, dst. dari @convex-dev/auth
+
+  // Singleton config branding bawaan rr starter (satu baris, tanpa tenantId).
+  siteSettings: defineTable({
+    siteName: v.optional(v.string()),
+    tagline: v.optional(v.string()),
+    ownerName: v.optional(v.string()),
+    contactEmail: v.optional(v.string()),
+    brandColor: v.optional(v.string()),
+    themeDefault: v.optional(v.string()),
+    themePreset: v.optional(v.string()),
+    logoUrl: v.optional(v.string()),
+    faviconUrl: v.optional(v.string()),
+    socials: v.optional(v.string()),
+    seoDescription: v.optional(v.string()),
+    analyticsId: v.optional(v.string()),
+    onboardedAt: v.optional(v.number()),
+  }),
 
   profiles: defineTable({
     userId: v.id("users"),
@@ -154,7 +297,7 @@ export default defineSchema({
 });
 ```
 
-13 tabel domain. v1 memakai: profiles, tenants, memberships, courses, modules, lessons, lessonCompletions, courseCompletions. Sisanya v1.1 — tetap dideklarasikan sejak awal agar tidak ada migrasi.
+13 tabel domain (+ `siteSettings` singleton config bawaan starter, di luar hitungan domain). v1 memakai: profiles, tenants, memberships, courses, modules, lessons, lessonCompletions, courseCompletions. Sisanya v1.1 — tetap dideklarasikan sejak awal agar tidak ada migrasi.
 
 ## Authz & helper (convex/_shared/auth.ts)
 

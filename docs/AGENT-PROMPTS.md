@@ -2,6 +2,8 @@
 
 > Contract: [AGENTS.md](../AGENTS.md). Claim board: [STATUS.md](STATUS.md).
 > Wave 1 (#0–#5, #11) selesai — v1 LIVE di https://study-with.rahmanef.com.
+>
+> **Frontend pivot (2026-07-07 — after v1.1).** The route-based mount points in the prompts below are now HISTORICAL. The app was rebuilt into a windowed **OS desktop**: one catch-all `app/[[...slug]]/page.tsx` mounts `slices/appshell` via `slices/os-shell/`, and every surface these prompts describe as a route (`/t/[slug]/…`, `/u/[username]`, `/buka-komunitas`, `/admin/…`) now opens as a **window-app** reachable by a deep-link URL (`/komunitas/<tenant>`, `/kelas/<tenant>/<course>`, `/profil/<username>`, `/kelola/<tenant>`, `/resources/<tenant>`, `/pengumuman/<tenant>`, `/pengaturan`, `/masuk`). Convex backend UNCHANGED; the worker assignments/logic stay valid — only the mount points moved from routes → `slices/os-shell/apps/`. See AGENTS.md §0.
 
 ## EXECUTION MODE: Cowork parallel (same folder) — unchanged
 
@@ -130,7 +132,7 @@ Assignments: docs/STATUS.md rows #14 (deploy v1.1) and #12 (secret rotation — 
 Work loop, in order:
 1. git pull --ff-only origin main. Confirm the v1.1 commits are present.
 2. npx convex deploy (pushes new feature functions; schema unchanged since day 1) + commit-ready typed codegen note for alpha if api.d.ts drifts (deploy-blocking-hotfix exception applies).
-3. Verify Dokploy rebuilt the Next app; smoke-check routes: /, /t/belajar-ai, /t/belajar-ai/resources, /t/belajar-ai/usulan, /t/belajar-ai/pengumuman, /u/<username>, /buka-komunitas, /admin/komunitas (expect 200/redirect-to-login as appropriate).
+3. Verify Dokploy rebuilt the Next app; smoke-check deep-link URLs (post-OS-pivot — see banner atop this file): /, /komunitas/belajar-ai, /resources/belajar-ai, /pengumuman/belajar-ai, /kelas/belajar-ai/<course>, /profil/<username>, /pengaturan, /masuk, /admin/komunitas (every path 200s — the catch-all renders the OS desktop; auth-gated windows redirect to sign-in as appropriate).
 4. EXECUTE ROTATION (#12), with Rahman standing by to re-login afterwards:
    a. JWT keypair (JWT_PRIVATE_KEY + JWKS) — regenerate, set on the Convex deployment; active sessions will be logged out.
    b. AUTH_GOOGLE_SECRET — Rahman creates the new secret in Google Cloud Console (guide him: APIs & Services → Credentials → the OAuth client → reset secret); set it via npx convex env set; verify login end-to-end.

@@ -215,6 +215,9 @@ return view ? createElement(view) : <AdminFeatureCard block={block} />;
   (`h-dvh`) — the workspace IS the product.
 - **Shell hierarchy: exactly one outer chrome.** dashboard-shell owns admin/workspace
   chrome; admin-panel/admin/platform-admin mount INSIDE it; never nest two chromes.
+  *(This project's single outer chrome is now `slices/appshell` — the windowed OS
+  desktop — not `dashboard-shell`; the rule is unchanged, only the chrome moved. See
+  AGENTS.md §0.)*
 
 ## Delivery rules (P1)
 

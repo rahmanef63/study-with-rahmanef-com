@@ -6,6 +6,8 @@ Binding contract for EVERY AI agent working in this repo. Read this file fully b
 
 Charity AI-learning platform & community (Bahasa Indonesia). Multi-tenant LMS-lite: communities (tenants) → courses → modules → lessons (YouTube embed + markdown + links), self-paced progress tracking, MCQ quizzes, curated resource sharing, Discord-first discussion. Zero running cost beyond VPS + domain — this constraint is product law, not preference.
 
+**Frontend shell (updated 2026-07-07 — OS pivot).** The UI was rebuilt from route-based pages into a windowed **OS desktop**. ONE catch-all `app/[[...slug]]/page.tsx` renders the desktop for every path, mounted on the vendored `slices/appshell` framework and wired through `slices/os-shell/` (manifest + capabilities seam + 10 window-apps that REUSE the existing slice views). The old route groups `app/(public)`, `app/t/[slug]`, `app/u/[username]` are **RETIRED**; `app/admin` + `app/api` remain. Paths are now shareable **deep-link URLs** that open windows via History-API URL-sync — e.g. `/komunitas/<tenant>`, `/kelas/<tenant>/<course>`, `/profil/<username>`, `/pengaturan`, `/masuk`. **Backend UNCHANGED**: same Convex schema, authz, and `convex/features/<slice>` functions — DATA-MODEL.md stays valid; only the frontend host changed (routes → OS windows).
+
 ## 1. Binding documents — read order & precedence
 
 | Order | Document | Authority |
@@ -33,7 +35,7 @@ Pre-mapped for this project (verified against the catalog 2026-07-05):
 | Need (req.) | rr slice | Action |
 |---|---|---|
 | Google sign-in (R1) | `convex-auth` | install, google provider only |
-| Workspace shell | `dashboard-shell` | install |
+| Workspace shell | `dashboard-shell` → `slices/appshell` | superseded by the OS desktop shell (one outer chrome); see §0 |
 | Landing header/footer (R2) | `marketing-chrome` | install |
 | Landing sections (R2) | `sections` | install/adapt |
 | Theme switcher | `theme-presets` | install |
@@ -91,7 +93,7 @@ Quality gate: `audit-bp` score ≥80 to ship (pulls latest Next 16 / React 19 / 
 - **Do NOT build, even if it seems helpful** (PRD non-goals): in-app chat/forum, payments, email sending, PDF certificates, native mobile app, file upload, self-hosted video.
 - **UI:** shadcn primitives only; theme tokens only (no hex); mobile-first; exactly one shell chrome; workspace surfaces full-bleed `h-dvh` without marketing chrome.
 - **Convex module naming (discovered 2026-07-06, hotfix 86ca386):** non-test module files under `convex/**` must be camelCase — Convex forbids `-` in module paths and the whole deploy fails (`*.test.ts` exempt: Convex excludes them). Slice frontend files stay kebab-case per rr P2. Until a CI guard exists, this rule is prompt-enforced (treat as P1).
-- **Tenancy:** every domain table carries `tenantId` and every query scopes by it (index `by_tenant*`). Tenant routing is path-based `/t/[slug]`.
+- **Tenancy:** every domain table carries `tenantId` and every query scopes by it (index `by_tenant*`). The tenant now appears in the OS shell's deep-link URLs (`/komunitas/<tenant>`, `/kelas/<tenant>/…`) that open as windows — the old `/t/[slug]` route group is retired (see §0).
 
 ## 8. When blocked
 
@@ -101,7 +103,7 @@ Quality gate: `audit-bp` score ≥80 to ship (pulls latest Next 16 / React 19 / 
 
 ## 9. Quick facts
 
-- Live host: **https://study-with.rahmanef.com** (repo: study-with-rahmanef-com; project codename tetap belajar-with-rahmanef.com — brand decision pending, Rahman). Tenant routes `/t/[slug]` · admin `/admin` · profiles `/u/[username]`.
+- Live host: **https://study-with.rahmanef.com** (repo: study-with-rahmanef-com; project codename tetap belajar-with-rahmanef.com — brand decision pending, Rahman). Frontend = windowed OS desktop on one catch-all route; deep-link URLs `/komunitas/<tenant>` · `/kelas/<tenant>/<course>` · `/profil/<username>` · `/pengaturan` · `/masuk`; `app/admin` + `app/api` remain. (Old route groups `app/(public)`, `app/t/[slug]`, `app/u/[username]` retired — see §0.)
 - Hosting: Dokploy VPS; Convex self-hosted via Docker Compose on the same node.
 - Releases: v1 = R1–R6 (build steps 0–4 in SLICES.md), v1.1 = R7–R13 (steps 5–9).
 - First tenant is seeded (Rahman's community); the "open a community" request form ships in v1.1.
