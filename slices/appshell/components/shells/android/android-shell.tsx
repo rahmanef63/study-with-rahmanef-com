@@ -115,6 +115,8 @@ function AndroidShell() {
             <Search className="size-4 text-muted-foreground" />
             <span className="text-sm text-muted-foreground">Search</span>
           </Button>
+          {/* [study-with fork] widget: surface the today slot above the app grid (mirrors mobile-home) */}
+          <Slot region="today" />
           <div ref={gridRef} className="mt-6 grid min-h-0 grid-cols-4 content-start gap-x-3 gap-y-5 overflow-y-auto">
             {dockable.slice(0, 12).map((a) => (
               <AppCell key={a.id} app={a} onClick={() => launch(a)} />

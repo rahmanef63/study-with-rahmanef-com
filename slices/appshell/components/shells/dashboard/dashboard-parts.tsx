@@ -12,6 +12,7 @@ import { closeWindow } from "../../../lib/store";
 import { useSystemStats } from "../../../registry/capabilities";
 import type { AppDescriptor } from "../../../lib/types";
 import { AppIcon } from "../../app-icon";
+import { Slot } from "../../../registry/feature-registry"; // [study-with fork] today widget below
 
 export function DashboardHome({ apps, onOpenApp }: { apps: AppDescriptor[]; onOpenApp: (app: AppDescriptor) => void }) {
   const stats = useSystemStats();
@@ -28,6 +29,11 @@ export function DashboardHome({ apps, onOpenApp }: { apps: AppDescriptor[]; onOp
     <div className="mx-auto h-full max-w-6xl overflow-auto px-8 py-7">
       <h1 className="mb-1 text-xl font-semibold tracking-tight">Welcome back</h1>
       <p className="mb-8 text-sm text-muted-foreground">Everything in one pane.</p>
+
+      {/* [study-with fork] the learning "today" widget, in-flow (dashboard has no floating layer) */}
+      <div className="mb-9 max-w-sm">
+        <Slot region="today" />
+      </div>
 
       {cards.length > 0 && (
         <Section title="Host">
