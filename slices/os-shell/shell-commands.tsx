@@ -9,7 +9,7 @@
 // `section` or `icon` field, so we express the grouping through `hint`
 // ("Navigasi", the right-aligned kind tag Spotlight renders) and omit icons.
 import { useEffect } from "react";
-import { registerCommands, type ShellCommand } from "@/features/appshell";
+import { registerCommands, toggleFocusMode, type ShellCommand } from "@/features/appshell";
 import { openApp } from "./apps/_nav";
 
 // App ids come from ./manifest (beranda/komunitas/profil/pengaturan).
@@ -41,6 +41,13 @@ const NAV_COMMANDS: ShellCommand[] = [
     hint: "Navigasi",
     keywords: "settings preferensi konfigurasi setelan",
     run: () => openApp("pengaturan", "Pengaturan"),
+  },
+  {
+    id: "shell-nav:fokus",
+    label: "Mode fokus (belajar)",
+    hint: "Mode",
+    keywords: "focus fokus belajar study dnd jangan ganggu senyap notifikasi tenang",
+    run: toggleFocusMode,
   },
 ];
 

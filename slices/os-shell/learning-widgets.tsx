@@ -53,9 +53,11 @@ function ProgressWidget() {
 }
 
 // Reuses the "widgets" id so it slots exactly where appshell's default widget
-// feature did (the manifest filters that one out and appends this).
+// feature did (the manifest filters that one out and appends this). Mounts on the
+// mobile Today page ONLY — the desktop widget slot is intentionally left free
+// (reserved for a future sticky-notes widget), so the desktop isn't cluttered.
 export const learningWidgetsFeature = defineFeature({
   id: "widgets",
   kind: "custom",
-  slots: { today: ProgressWidget, desktopWidgets: ProgressWidget },
+  slots: { today: ProgressWidget },
 });

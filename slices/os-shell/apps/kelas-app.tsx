@@ -11,7 +11,7 @@
 import { useEffect, type MouseEvent } from "react";
 import { BookOpen, Compass } from "lucide-react";
 import type { Id } from "@convex/_generated/dataModel";
-import { type AppProps, usePublishInspector } from "@/features/appshell";
+import { type AppProps, usePublishInspector, share } from "@/features/appshell";
 import { JoinButton, useTenantBySlug } from "@/features/tenants";
 import { openApp, seg } from "./_nav";
 import { recordRecentCourse } from "../recent-courses";
@@ -151,6 +151,14 @@ function KelasInspector({
         { label: "Berikutnya", value: next?.title ?? "Semua selesai 🎉" },
       ],
       actions: [
+        {
+          id: "share-course",
+          label: "Bagikan kelas",
+          run: () => {
+            const url = `${window.location.origin}/kelas/${encodeURIComponent(tenantSlug)}/${encodeURIComponent(courseSlug)}`;
+            share(`${overview.course.title} — ${url}`);
+          },
+        },
         ...(next
           ? [
               {
