@@ -9,7 +9,7 @@
 // window via openWindow. Runs inside an appshell window, so it fetches
 // client-side via useQuery (root layout already mounts Convex).
 import { useEffect, type MouseEvent } from "react";
-import { BookOpen, Compass } from "lucide-react";
+import { BookOpen, Compass, Share2 } from "lucide-react";
 import type { Id } from "@convex/_generated/dataModel";
 import { type AppProps, usePublishInspector, share } from "@/features/appshell";
 import { JoinButton, useTenantBySlug } from "@/features/tenants";
@@ -31,6 +31,14 @@ import {
 // handler below parses them back into state instead of letting Next navigate.
 const lessonHref = (id: string) => `#lesson/${id}`;
 const OVERVIEW_HREF = "#overview";
+
+// Share the course deep-link via the shell share sheet. Used by BOTH the desktop
+// inspector action and the in-body button — the latter is the only share trigger
+// on mobile, where no inspector renders (rightPanel is desktop-only).
+function shareCourse(tenantSlug: string, courseSlug: string, title: string) {
+  const url = `${window.location.origin}/kelas/${encodeURIComponent(tenantSlug)}/${encodeURIComponent(courseSlug)}`;
+  share(`${title} — ${url}`);
+}
 
 function KelasEmpty({ title, description }: { title: string; description: string }) {
   return (
@@ -154,10 +162,7 @@ function KelasInspector({
         {
           id: "share-course",
           label: "Bagikan kelas",
-          run: () => {
-            const url = `${window.location.origin}/kelas/${encodeURIComponent(tenantSlug)}/${encodeURIComponent(courseSlug)}`;
-            share(`${overview.course.title} — ${url}`);
-          },
+          run: () => shareCourse(tenantSlug, courseSlug, overview.course.title),
         },
         ...(next
           ? [
@@ -253,6 +258,18 @@ function KelasCourse({
 
   return (
     <div onClickCapture={onNavCapture} className="mx-auto w-full max-w-4xl p-6 sm:p-8">
+      {/* Body share trigger — on mobile the inspector (its twin) never renders, so
+          without this "Bagikan kelas" would be unreachable on the phone shells. */}
+      <div className="mb-4 flex justify-end">
+        <button
+          type="button"
+          onClick={() => shareCourse(tenantSlug, courseSlug, overview.course.title)}
+          className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border bg-card px-3 py-1.5 text-xs font-medium transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <Share2 className="size-3.5" aria-hidden />
+          Bagikan
+        </button>
+      </div>
       {isMember ? (
         <>
           <KelasInspector overview={overview} tenantSlug={tenantSlug} courseSlug={courseSlug} />

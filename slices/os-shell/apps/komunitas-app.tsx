@@ -113,7 +113,7 @@ function CommunityBody({ slug }: { slug: string }) {
           <h2 className="font-serif text-2xl">Mulai belajar di sini.</h2>
         </div>
         {tenant === undefined || courses === undefined ? (
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-3 @sm:grid-cols-2 @xl:grid-cols-3">
             {[0, 1].map((i) => (
               <Skeleton key={i} className="h-24 w-full rounded-xl" />
             ))}
@@ -123,7 +123,7 @@ function CommunityBody({ slug }: { slug: string }) {
             Kelas pertama sedang disiapkan 🌱
           </p>
         ) : (
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-3 @sm:grid-cols-2 @xl:grid-cols-3">
             {courses.map((course) => (
               <CourseTile key={course._id} course={course} tenantSlug={slug} />
             ))}

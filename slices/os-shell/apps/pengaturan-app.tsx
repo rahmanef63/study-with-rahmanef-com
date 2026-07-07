@@ -39,7 +39,7 @@ function ShellSection() {
             <span className="text-sm font-medium">{label}</span>
             <span className="eyebrow">{hint}</span>
           </div>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-2 @md:grid-cols-3">
             {shellsForSurface(surface).map((s) => {
               const active = prefs[surface] === s.id;
               return (

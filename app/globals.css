@@ -45,6 +45,34 @@
   .rule-ink {
     border-color: color-mix(in oklab, var(--color-foreground) 14%, transparent);
   }
+  /* Minimalist scroll area for OS window bodies — thin, muted, rounded, no
+     arrows; track is invisible, thumb darkens on hover/drag. Cross-engine
+     (Firefox scrollbar-* + WebKit pseudo-elements). Used by AppScroll. */
+  .scroll-minimal {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--color-muted-foreground) 32%, transparent) transparent;
+  }
+  .scroll-minimal::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
+  }
+  .scroll-minimal::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scroll-minimal::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--color-muted-foreground) 28%, transparent);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  .scroll-minimal:hover::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--color-muted-foreground) 46%, transparent);
+    background-clip: padding-box;
+  }
+  .scroll-minimal::-webkit-scrollbar-thumb:active {
+    background: color-mix(in oklab, var(--color-muted-foreground) 62%, transparent);
+    background-clip: padding-box;
+  }
 }
 
 /* Paper grain — a tactile noise layer that kills the flat "AI slop" look.

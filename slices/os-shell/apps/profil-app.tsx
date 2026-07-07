@@ -154,7 +154,7 @@ function OwnSkeleton() {
         </div>
       </div>
       <Skeleton className="h-4 w-full max-w-md" />
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 @sm:grid-cols-3 @lg:grid-cols-4">
         <Skeleton className="h-28 w-full" />
         <Skeleton className="h-28 w-full" />
         <Skeleton className="h-28 w-full" />

@@ -26,6 +26,7 @@ import {
 import { LogoMark } from "@/components/brand/logo";
 import { editorialCapabilities } from "./capabilities";
 import { learningWidgetsFeature } from "./learning-widgets";
+import { scrollize } from "./app-scroll";
 
 // Warm, distinct "Editorial Warmth" glossy dock/launcher gradients.
 const beranda: AppDescriptor = {
@@ -34,7 +35,7 @@ const beranda: AppDescriptor = {
   title: "Beranda",
   icon: Home,
   gradient: "linear-gradient(160deg, #c9744a 0%, #a24e2f 100%)",
-  load: () => import("./apps/beranda-app"),
+  load: scrollize(() => import("./apps/beranda-app")),
   defaultSize: { w: 960, h: 640 },
   pinned: true,
 };
@@ -45,7 +46,7 @@ const komunitas: AppDescriptor = {
   title: "Komunitas",
   icon: Users,
   gradient: "linear-gradient(160deg, #cd7a6a 0%, #a8503f 100%)",
-  load: () => import("./apps/komunitas-app"),
+  load: scrollize(() => import("./apps/komunitas-app")),
   defaultSize: { w: 940, h: 660 },
   pinned: true,
 };
@@ -56,7 +57,7 @@ const kelas: AppDescriptor = {
   title: "Kelas",
   icon: GraduationCap,
   gradient: "linear-gradient(160deg, #d0913f 0%, #a8641f 100%)",
-  load: () => import("./apps/kelas-app"),
+  load: scrollize(() => import("./apps/kelas-app")),
   defaultSize: { w: 1000, h: 680 },
   noDock: true,
 };
@@ -67,7 +68,7 @@ const kuis: AppDescriptor = {
   title: "Kuis",
   icon: ListChecks,
   gradient: "linear-gradient(160deg, #c58a4a 0%, #8f5a22 100%)",
-  load: () => import("./apps/kuis-app"),
+  load: scrollize(() => import("./apps/kuis-app")),
   defaultSize: { w: 720, h: 640 },
   noDock: true,
 };
@@ -78,7 +79,7 @@ const resources: AppDescriptor = {
   title: "Resources",
   icon: Library,
   gradient: "linear-gradient(160deg, #b0764a 0%, #7d4e28 100%)",
-  load: () => import("./apps/resources-app"),
+  load: scrollize(() => import("./apps/resources-app")),
   defaultSize: { w: 900, h: 640 },
   noDock: true,
 };
@@ -89,7 +90,7 @@ const pengumuman: AppDescriptor = {
   title: "Pengumuman",
   icon: Megaphone,
   gradient: "linear-gradient(160deg, #d47a55 0%, #b0472f 100%)",
-  load: () => import("./apps/pengumuman-app"),
+  load: scrollize(() => import("./apps/pengumuman-app")),
   defaultSize: { w: 740, h: 640 },
   noDock: true,
 };
@@ -100,7 +101,7 @@ const kelola: AppDescriptor = {
   title: "Kelola",
   icon: SlidersHorizontal,
   gradient: "linear-gradient(160deg, #8a7a68 0%, #56463a 100%)",
-  load: () => import("./apps/kelola-app"),
+  load: scrollize(() => import("./apps/kelola-app")),
   defaultSize: { w: 1060, h: 700 },
   noDock: true,
 };
@@ -111,7 +112,7 @@ const profil: AppDescriptor = {
   title: "Profil",
   icon: UserRound,
   gradient: "linear-gradient(160deg, #c07a86 0%, #9a4f5c 100%)",
-  load: () => import("./apps/profil-app"),
+  load: scrollize(() => import("./apps/profil-app")),
   defaultSize: { w: 820, h: 660 },
   pinned: true,
 };
@@ -122,7 +123,7 @@ const pengaturan: AppDescriptor = {
   title: "Pengaturan",
   icon: Settings,
   gradient: "linear-gradient(160deg, #96897a 0%, #5f5346 100%)",
-  load: () => import("./apps/pengaturan-app"),
+  load: scrollize(() => import("./apps/pengaturan-app")),
   defaultSize: { w: 640, h: 620 },
   pinned: true,
 };
@@ -133,7 +134,7 @@ const masuk: AppDescriptor = {
   title: "Masuk",
   icon: LogIn,
   gradient: "linear-gradient(160deg, #c9744a 0%, #9a4a2c 100%)",
-  load: () => import("./apps/masuk-app"),
+  load: scrollize(() => import("./apps/masuk-app")),
   defaultSize: { w: 460, h: 560 },
   noDock: true,
 };
