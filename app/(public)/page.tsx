@@ -61,21 +61,28 @@ async function CommunityCatalog() {
     return <CatalogEmpty />;
   }
 
-  const tenants = (await fetchQuery(
-    tenantsApi.listActive,
-    { limit: 6 },
-    convexOptions
-  )) as PublicTenant[];
-  const catalog = await Promise.all(
-    tenants.map(async (tenant) => ({
-      tenant,
-      courses: (await fetchQuery(
-        api.features.courses.queries.listPublished,
-        { tenantId: tenant._id },
-        convexOptions
-      )) as CourseCardData[],
-    }))
-  );
+  let catalog: { tenant: PublicTenant; courses: CourseCardData[] }[];
+  try {
+    const tenants = (await fetchQuery(
+      tenantsApi.listActive,
+      { limit: 6 },
+      convexOptions
+    )) as PublicTenant[];
+    catalog = await Promise.all(
+      tenants.map(async (tenant) => ({
+        tenant,
+        courses: (await fetchQuery(
+          api.features.courses.queries.listPublished,
+          { tenantId: tenant._id },
+          convexOptions
+        )) as CourseCardData[],
+      }))
+    );
+  } catch {
+    // Resilience: a Convex hiccup during prerender/build must not fail the
+    // whole site build — degrade to the empty state (revalidates next cacheLife).
+    return <CatalogEmpty />;
+  }
 
   if (catalog.length === 0) {
     return <CatalogEmpty />;
