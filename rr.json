@@ -46,11 +46,6 @@
       "slug": "responsive-dialog",
       "version": "main",
       "addedAt": "2026-07-05"
-    },
-    {
-      "slug": "feedback-states",
-      "version": "main",
-      "addedAt": "2026-07-05"
     }
   ],
   "slices": [

@@ -63,7 +63,7 @@ export function ProfileSettingsView({ labels }: ProfileSettingsViewProps) {
         </CardHeader>
         <CardContent>
           <Button asChild>
-            <Link href="/login?returnTo=/pengaturan/profil">{copy.signInAction}</Link>
+            <Link href="/masuk">{copy.signInAction}</Link>
           </Button>
         </CardContent>
       </Card>

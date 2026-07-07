@@ -59,7 +59,7 @@ function PublicProfileContent({ username, shareUrl, labels }: ContentProps) {
       profile={profile}
       badges={badges}
       shareValue={shareUrl ?? `@${profile.username}`}
-      editHref={isOwner ? "/pengaturan/profil" : undefined}
+      editHref={isOwner ? "/pengaturan" : undefined}
       labels={labels}
     />
   );

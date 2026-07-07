@@ -8,7 +8,7 @@
 // A module's quiz CTA is the exception: it spawns the "kuis" app in its own
 // window via openWindow. Runs inside an appshell window, so it fetches
 // client-side via useQuery (root layout already mounts Convex).
-import { useState, type MouseEvent } from "react";
+import { type MouseEvent } from "react";
 import { BookOpen, Compass } from "lucide-react";
 import type { Id } from "@convex/_generated/dataModel";
 import { type AppProps } from "@/features/appshell";
@@ -25,8 +25,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-
-type KelasPayload = { tenantSlug: string; courseSlug: string; lessonId?: string };
 
 // In-window nav scheme — the reused views build hrefs with these; the capture
 // handler below parses them back into state instead of letting Next navigate.
@@ -129,16 +127,17 @@ function KelasCourse({
   tenantSlug,
   courseSlug,
   lessonId,
-  setLessonId,
 }: {
   tenantId: Id<"tenants">;
   tenantSlug: string;
   courseSlug: string;
   lessonId: Id<"lessons"> | null;
-  setLessonId: (id: Id<"lessons"> | null) => void;
 }) {
   const overview = useCourseOverview(tenantId, courseSlug);
 
+  // Payload-driven in-window nav so lessons are deep-linkable: selecting a lesson
+  // (or "back") re-opens this same window with a new path, which appshell mirrors
+  // to the URL (/kelas/<t>/<c>[/lesson/<id>]) — no local state.
   const onNavCapture = (e: MouseEvent<HTMLDivElement>) => {
     const anchor = (e.target as HTMLElement).closest("a");
     const href = anchor?.getAttribute("href");
@@ -146,11 +145,11 @@ function KelasCourse({
     if (href.startsWith("#lesson/")) {
       e.preventDefault();
       e.stopPropagation();
-      setLessonId(href.slice("#lesson/".length) as Id<"lessons">);
+      openApp("kelas", "Kelas", [tenantSlug, courseSlug, "lesson", href.slice("#lesson/".length)]);
     } else if (href === OVERVIEW_HREF) {
       e.preventDefault();
       e.stopPropagation();
-      setLessonId(null);
+      openApp("kelas", "Kelas", [tenantSlug, courseSlug]);
     }
   };
 
@@ -186,7 +185,7 @@ function KelasCourse({
           tenantId={tenantId}
           courseSlug={courseSlug}
           lessonHref={lessonHref}
-          joinCtaSlot={<JoinButton tenantId={tenantId} loginHref="/login" />}
+          joinCtaSlot={<JoinButton tenantId={tenantId} loginHref="/masuk" />}
         />
       )}
     </div>
@@ -194,11 +193,16 @@ function KelasCourse({
 }
 
 /** Resolves the tenant slug → id, then hands off to KelasCourse. */
-function KelasWindow({ tenantSlug, courseSlug, initialLessonId }: KelasPayload & { initialLessonId?: string }) {
+function KelasWindow({
+  tenantSlug,
+  courseSlug,
+  lessonId,
+}: {
+  tenantSlug: string;
+  courseSlug: string;
+  lessonId: Id<"lessons"> | null;
+}) {
   const tenant = useTenantBySlug(tenantSlug);
-  const [lessonId, setLessonId] = useState<Id<"lessons"> | null>(
-    initialLessonId != null ? (initialLessonId as Id<"lessons">) : null
-  );
 
   if (tenant === undefined) return <KelasSkeleton />;
   if (tenant === null) {
@@ -216,14 +220,15 @@ function KelasWindow({ tenantSlug, courseSlug, initialLessonId }: KelasPayload &
       tenantSlug={tenantSlug}
       courseSlug={courseSlug}
       lessonId={lessonId}
-      setLessonId={setLessonId}
     />
   );
 }
 
 export default function KelasApp(props: AppProps) {
   // Deep-link path: /kelas/<tenantSlug>/<courseSlug>
-  const [tenantSlug, courseSlug] = seg(props.payload);
+  const segs = seg(props.payload);
+  const [tenantSlug, courseSlug] = segs;
+  const lessonId = segs[2] === "lesson" && segs[3] ? (segs[3] as Id<"lessons">) : null;
 
   if (!tenantSlug || !courseSlug) {
     return (
@@ -243,5 +248,5 @@ export default function KelasApp(props: AppProps) {
     );
   }
 
-  return <KelasWindow tenantSlug={tenantSlug} courseSlug={courseSlug} />;
+  return <KelasWindow tenantSlug={tenantSlug} courseSlug={courseSlug} lessonId={lessonId} />;
 }

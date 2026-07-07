@@ -5,7 +5,15 @@
 // The manifest is a stable module constant, so no memoization is needed.
 import { AppShell } from "@/features/appshell";
 import { shellManifest } from "./manifest";
+import { BootBeranda } from "./boot-beranda";
 
 export function OsRoot() {
-  return <AppShell manifest={shellManifest} />;
+  return (
+    <>
+      <AppShell manifest={shellManifest} />
+      {/* MUST stay AFTER <AppShell/>: its effect fires after UrlSync's deep-link
+          open + usePersistLayout's hydrateBoot restore (fiber post-order). */}
+      <BootBeranda />
+    </>
+  );
 }

@@ -150,7 +150,7 @@ export function ProfileSettingsForm({
           </Button>
           {initial.username ? (
             <Button asChild variant="link" className="min-h-11 text-muted-foreground">
-              <Link href={`/u/${initial.username}`}>{copy.viewPublicProfile}</Link>
+              <Link href={`/profil/${initial.username}`}>{copy.viewPublicProfile}</Link>
             </Button>
           ) : null}
         </CardFooter>

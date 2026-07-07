@@ -24,7 +24,7 @@ export type JoinButtonProps = {
 
 export function JoinButton({
   tenantId,
-  loginHref = "/login",
+  loginHref = "/masuk",
   labels,
   roleLabels,
   className,
