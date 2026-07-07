@@ -69,6 +69,7 @@ _none yet_
 | OS-11 | Account + Dashboard inspector — account control + sign-out BENERAN (`menuBarStatus` slot + Pengaturan "Akun"; benerin logout appshell yang no-op) · Dashboard `rightPanel` slot (appshell fork bertanda `[study-with fork]`) | frontend | 267c293 | done |
 | OS-12 | **Onboarding dosen** — G1 "Ajukan komunitas" (`RequestTenantForm` dialog → feed antrian admin) · G2 kontrol peran owner di roster (member↔instructor via `useSetMemberRole`) | frontend | 383ff23 | done |
 | OS-13 | **P2 display** — badge status kuis (Lulus ✓ / Belum lulus / Kerjakan) di CTA modul, baca attempt tersimpan (no backend change) | frontend | 35c9d73 | done |
+| OS-15 | Widget "Lanjutkan belajar" di SEMUA shell — isi slot `today` (iOS/Android/Dashboard) + `desktopWidgets` (macOS/Windows) · ukuran S/M/L (klik-kanan + tombol header, persist localStorage) · warna+bentuk ikut theme preset (`--glass-menu` / `--radius-win`, zero hardcode) · Android + Dashboard `today`-slot = appshell fork bertanda `[study-with fork]` | frontend | 0b26ad4 | done |
 
 ### Deferred / open
 
@@ -93,7 +94,7 @@ pie showData
 Commit trail: OS pivot `89c4434` → deep-links + preset theming `5094760` → lesson deep-link /
 auto-open Beranda / prune `b1a38f4` → P1 `b6479a2` → P2 + shells `510b1c0` → P3 `1cb407d`
 → docs+diagrams `2dbe231` → scroll/responsive/share `9b41851` → account + Dashboard inspector
-`267c293` → onboarding dosen (G1/G2) `383ff23` → P2 quiz badge `35c9d73`.
+`267c293` → onboarding dosen (G1/G2) `383ff23` → P2 quiz badge `35c9d73` → widget all-shells + S/M/L `0b26ad4`.
 
 Deploy: Dokploy webhook on `git push origin main` → build → deploy (owner auto-ship).
 Convex self-hosted TIDAK auto-deploy on push — perubahan `convex/` butuh manual
