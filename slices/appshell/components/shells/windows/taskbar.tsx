@@ -5,10 +5,13 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { Search, LayoutGrid, ArrowUpRight, Minimize2, X } from "lucide-react";
+import { Search, LayoutGrid, ArrowUpRight, Minimize2, X, Settings2, Moon, Sun, MoonStar, Bell } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useApps } from "../../../lib/registry";
 import { useWindowOrder, useWindow, useFocused } from "../../../hooks/use-shell";
 import { focusWindow, minimizeWindow, restoreWindow, closeWindow, toggleNotificationCenter } from "../../../lib/store";
+import { toggleFocusMode, useFocusMode } from "../../../lib/focus-mode"; // [study-with fork] tray quick-settings
+import { useShellAppearance } from "../../../registry/capabilities";
 import { AppIcon } from "../../app-icon";
 import { ContextMenu, useContextMenu } from "../context-menu";
 import { StartMenu } from "./start-menu";
@@ -52,7 +55,8 @@ export function Taskbar({ onTaskView }: { onTaskView?: () => void }) {
             <TaskButton key={id} id={id} />
           ))}
         </div>
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center">
+          <QuickSettings />
           <Clock />
         </div>
       </div>
@@ -137,5 +141,50 @@ function Clock() {
       <span>{now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
       <span>{now.toLocaleDateString([], { day: "2-digit", month: "2-digit", year: "numeric" })}</span>
     </Button>
+  );
+}
+
+// [study-with fork] Windows tray quick-settings — Focus (DND) + light/dark, the two
+// toggles that were ⌘K-only on Windows. Reuses the same focus-mode + appearance
+// surface the mobile Control Center uses (single source of truth). Opens upward from
+// the bottom taskbar; CapabilitiesProvider wraps the whole desktop so the hooks resolve.
+function QuickSettings() {
+  const focus = useFocusMode();
+  const { theme, setTheme } = useShellAppearance();
+  const dark = theme === "dark";
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="ghost"
+          aria-label="Setelan cepat"
+          className="h-auto p-0 font-normal hover:bg-transparent grid size-9 place-items-center rounded-md text-muted-foreground hover:bg-muted"
+        >
+          <Settings2 className="size-4" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent side="top" align="end" sideOffset={8} className="w-56 p-2">
+        <button
+          type="button"
+          onClick={toggleFocusMode}
+          className={cn(
+            "flex min-h-9 w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors",
+            focus ? "bg-primary text-primary-foreground" : "hover:bg-muted",
+          )}
+        >
+          {focus ? <MoonStar className="size-4" /> : <Bell className="size-4" />}
+          Mode fokus {focus ? "aktif" : "nonaktif"}
+        </button>
+        <button
+          type="button"
+          onClick={() => setTheme(dark ? "light" : "dark")}
+          className="mt-1 flex min-h-9 w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-muted"
+        >
+          {dark ? <Moon className="size-4" /> : <Sun className="size-4" />}
+          Tema: {dark ? "gelap" : "terang"}
+        </button>
+      </PopoverContent>
+    </Popover>
   );
 }

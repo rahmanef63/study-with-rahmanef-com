@@ -12,12 +12,14 @@
 import { Button } from "@/components/ui/button";
 import { useRef, useState, type CSSProperties } from "react";
 import { usePathname } from "next/navigation";
-import { Search, ChevronLeft, Bot } from "lucide-react";
+import { Search, ChevronLeft, Bot, Bell } from "lucide-react";
 import { useApps } from "../../../lib/registry";
 import { usePullDown } from "../../../hooks/use-pull-down";
 import { useWindowOrder, useFocused, useWindow } from "../../../hooks/use-shell";
 import { shellStore, openWindow, focusApp, minimizeWindow, restoreWindow, toggleSpotlight } from "../../../lib/store";
 import { WindowContent } from "../../window-content";
+import { MobileNotifications } from "../../mobile-notifications"; // [study-with fork] notif log
+import { useNotifications } from "../../../lib/toast";
 import { registerShell } from "../../../registry/shells";
 import { Slot } from "../../../registry/feature-registry";
 import { useShellConfig } from "../../../registry/shell-config";
@@ -32,8 +34,10 @@ function AndroidShell() {
   const focused = useFocused();
   const [drawer, setDrawer] = useState(false);
   const [cc, setCc] = useState(false); // control center (pull down on home)
+  const [nc, setNc] = useState(false); // notification center (bell) [study-with fork]
   const [recents, setRecents] = useState(false);
   const gridRef = useRef<HTMLDivElement>(null);
+  const hasUnread = useNotifications().some((n) => !n.read);
 
   // URL → surface (same derivation as the iOS shell): a pathname naming an app
   // slug shows the app pane (UrlSync opens/focuses its window in the store);
@@ -106,6 +110,19 @@ function AndroidShell() {
             <Clock mode="big" />
             <Clock mode="date" />
           </div>
+          {/* [study-with fork] notification bell → the persistent log (Android had none).
+              stopPropagation on pointerdown so a bell press never arms the pull-down shade. */}
+          <Button
+            type="button"
+            variant="ghost"
+            aria-label="Notifikasi"
+            onClick={() => setNc(true)}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="relative mt-2 grid size-10 shrink-0 self-end place-items-center rounded-full border border-border bg-card/80 shadow-sm backdrop-blur hover:bg-card/80"
+          >
+            <Bell className="size-4 text-muted-foreground" aria-hidden />
+            {hasUnread && <span className="absolute right-2 top-2 size-2 rounded-full bg-destructive" />}
+          </Button>
           <Button
             type="button"
             variant="ghost"
@@ -153,6 +170,8 @@ function AndroidShell() {
         {drawer && <AppDrawer apps={dockable} onLaunch={launch} onClose={() => setDrawer(false)} />}
         {recents && <Recents order={order} apps={apps} onResume={resume} onHome={goHome} />}
         <Slot region="controlCenter" />
+        {/* [study-with fork] notification log overlay (z-40), mirrors iOS MobileShell */}
+        <MobileNotifications open={nc} onClose={() => setNc(false)} />
       </div>
     </ShellUIProvider>
   );
