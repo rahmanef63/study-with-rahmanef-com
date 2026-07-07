@@ -26,6 +26,7 @@ import {
 import { LogoMark } from "@/components/brand/logo";
 import { editorialCapabilities } from "./capabilities";
 import { learningWidgetsFeature } from "./learning-widgets";
+import { accountFeature } from "./account";
 import { scrollize } from "./app-scroll";
 
 // Warm, distinct "Editorial Warmth" glossy dock/launcher gradients.
@@ -164,8 +165,13 @@ export const shellManifest: ShellManifest = {
   brand: BRAND,
   apps: APPS,
   // Swap appshell's dead system-stats widgets for our learning widgets (resume
-  // courses); keep the rest of DEFAULT_FEATURES (search, notifications, …).
-  features: [...DEFAULT_FEATURES.filter((f) => f.id !== "widgets"), learningWidgetsFeature],
+  // courses); keep the rest of DEFAULT_FEATURES (search, notifications, …). Append
+  // accountFeature to fill the macOS menu-bar account slot (empty in stock appshell).
+  features: [
+    ...DEFAULT_FEATURES.filter((f) => f.id !== "widgets"),
+    learningWidgetsFeature,
+    accountFeature,
+  ],
   persistKey: "study-with:os",
   capabilities: editorialCapabilities,
   // Full-desktop: mirror the focused app to the URL (History API). Paired with

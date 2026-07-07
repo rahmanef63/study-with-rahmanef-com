@@ -9,6 +9,7 @@
 // "masuk" (sign-in) window instead of navigating to the /login route.
 import { type AppProps, shellsForSurface, useShellPrefs, setShell } from "@/features/appshell";
 import { openApp } from "./_nav";
+import { AccountSettings } from "../account";
 import { ThemePresetSwitcher } from "@/features/theme-presets";
 import { ProfileSettingsView, useCurrentProfile } from "@/features/profiles";
 import { cn } from "@/lib/utils";
@@ -125,6 +126,8 @@ export default function PengaturanApp(_props: AppProps) {
           Atur tampilan aplikasi dan perbarui profil belajarmu.
         </p>
       </header>
+
+      <AccountSettings />
 
       <section className="min-w-0 space-y-4">
         <div className="flex flex-col gap-1 border-b pb-3">

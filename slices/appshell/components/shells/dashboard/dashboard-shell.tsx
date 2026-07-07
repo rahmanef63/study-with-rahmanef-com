@@ -19,6 +19,7 @@ import { shellStore, openWindow, minimizeWindow, restoreWindow } from "../../../
 import type { AppDescriptor } from "../../../lib/types";
 import { AppIcon } from "../../app-icon";
 import { WindowContent } from "../../window-content";
+import { Slot } from "../../../registry/feature-registry"; // [study-with fork] rightPanel below
 import { DashboardHome, NavItem, RunningRow, SidebarLabel } from "./dashboard-parts";
 
 function DashboardShell() {
@@ -139,6 +140,10 @@ function DashboardShell() {
           )}
         </main>
       </div>
+      {/* [study-with fork] Inspector (rightPanel) — mirrors desktop.tsx:157 so the
+          Dashboard shell gets the Kelas inspector (progress/next/quiz/share/AI). The
+          panel self-positions (absolute right-0), so this flex sibling is inert. */}
+      <Slot region="rightPanel" />
     </div>
   );
 }
