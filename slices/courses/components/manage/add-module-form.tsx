@@ -17,7 +17,7 @@ export function AddModuleForm({ courseId, onCreate, copy }: AddModuleFormProps) 
   const [title, setTitle] = useState("");
   return (
     <form
-      className="flex items-center gap-2"
+      className="flex flex-col gap-2 sm:flex-row sm:items-center"
       onSubmit={async (e) => {
         e.preventDefault();
         const created = await onCreate(courseId, title.trim());
@@ -31,8 +31,9 @@ export function AddModuleForm({ courseId, onCreate, copy }: AddModuleFormProps) 
         minLength={3}
         maxLength={120}
         required
+        className="sm:flex-1"
       />
-      <Button type="submit" variant="outline">
+      <Button type="submit" variant="outline" className="min-h-11 shrink-0 sm:min-h-9">
         <Plus aria-hidden /> {copy.newModule}
       </Button>
     </form>

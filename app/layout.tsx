@@ -1,21 +1,29 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Inter, Lora } from "next/font/google";
+import { Fraunces, Hanken_Grotesk } from "next/font/google";
 import { ConvexClientProvider } from "@/components/convex-provider";
 import { VersionWatcher } from "@/components/version-watcher";
 import { ThemeProviders, ThemePresetStyle } from "@/features/theme-presets";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
-// "Akademik & Tenang" build-time look (UI-UX-PRD §1). One source of truth for
-// the default preset so the pre-hydration inline CSS and the provider agree.
+// "Editorial Warmth" identity lives in the BASE tokens (app/globals.css), so
+// the default preset is null — the brand shows with zero preset injection and
+// the switcher's "Default" reset returns here. defaultMode stays light (warm
+// paper); visitors can flip to dark or pick a preset.
 const DEFAULT_MODE = "light" as const;
-const DEFAULT_PRESET = "nature";
+const DEFAULT_PRESET = null;
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
-// Serif display for the "Akademik & Tenang" hierarchy (UI-UX-PRD §1.2).
-// Vars ride on <body> → they shadow any preset's :root font tokens.
-const lora = Lora({ subsets: ["latin"], variable: "--font-serif" });
+// Hanken Grotesk (body/UI) + Fraunces (optical display serif). Distinctive,
+// warm, and — unlike Inter — not the generic default. Vars ride on <body> so
+// they shadow any preset's :root font tokens.
+const sans = Hanken_Grotesk({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
+const serif = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-serif",
+  display: "swap",
+  style: ["normal", "italic"],
+});
 
 const SITE_DESCRIPTION =
   "Platform & komunitas belajar pengaplikasian AI — gratis, terbuka, berbahasa Indonesia.";
@@ -40,7 +48,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id" suppressHydrationWarning>
-      <body className={`${inter.variable} ${lora.variable} font-sans antialiased`}>
+      <body className={`${sans.variable} ${serif.variable} font-sans antialiased`}>
         <ThemePresetStyle preset={DEFAULT_PRESET} />
         <ThemeProviders defaultMode={DEFAULT_MODE} defaultPreset={DEFAULT_PRESET}>
           <VersionWatcher />

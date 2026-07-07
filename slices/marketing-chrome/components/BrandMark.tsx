@@ -5,7 +5,7 @@ export function BrandMark({ brand }: { brand: Brand }) {
   const inner = (
     <span className="flex items-center gap-2 font-semibold tracking-tight">
       {brand.logo}
-      <span>{brand.name}</span>
+      {brand.name ? <span>{brand.name}</span> : null}
     </span>
   );
   return brand.href ? (

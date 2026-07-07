@@ -1,8 +1,13 @@
 import { PublicHeader } from "@/components/public-header";
 import { OnboardingNudge } from "@/components/onboarding-nudge";
+import { Logo } from "@/components/brand/logo";
 import { MarketingFooter } from "@/features/marketing-chrome";
 
-const BRAND = { name: "belajar-with-rahmanef.com", href: "/" };
+const BRAND = {
+  name: "",
+  href: "/",
+  logo: <Logo />,
+};
 const COPYRIGHT_YEAR = 2026;
 
 const FOOTER_COLUMNS = [

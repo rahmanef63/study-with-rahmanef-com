@@ -39,6 +39,7 @@ export function SuggestionStatusActions({
           variant="outline"
           disabled={pending}
           onClick={() => void onSet(a.status)}
+          className="min-h-11"
         >
           {copy[a.labelKey]}
         </Button>

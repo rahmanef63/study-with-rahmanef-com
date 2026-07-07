@@ -45,10 +45,13 @@ export function ResourceBoardView({
   const pendingCount = pending?.length ?? 0;
 
   return (
-    <div className={className ? `space-y-6 ${className}` : "space-y-6"}>
-      <header className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">{copy.boardTitle}</h1>
-        <p className="text-sm text-muted-foreground">{copy.boardSubtitle}</p>
+    <div className={className ? `space-y-8 ${className}` : "space-y-8"}>
+      <header className="flex flex-col gap-2 border-b pb-5">
+        <span className="eyebrow">Kurasi komunitas</span>
+        <h1 className="text-2xl sm:text-3xl">{copy.boardTitle}</h1>
+        <p className="max-w-2xl text-pretty text-sm text-muted-foreground sm:text-base">
+          {copy.boardSubtitle}
+        </p>
       </header>
 
       <Card id="bagikan-sumber" className="scroll-mt-24">

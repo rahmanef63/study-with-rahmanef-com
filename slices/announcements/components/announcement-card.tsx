@@ -55,25 +55,25 @@ export function AnnouncementCard({ announcement, copy, className }: Announcement
   return (
     <Card className={cn("w-full", className)}>
       <CardHeader>
-        <CardTitle className="text-lg">{announcement.title}</CardTitle>
+        <CardTitle className="min-w-0 break-words text-lg">{announcement.title}</CardTitle>
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <time
             dateTime={new Date(announcement.createdAt).toISOString()}
             title={formatDate(announcement.createdAt)}
-            className="text-muted-foreground text-xs"
+            className="text-xs text-muted-foreground"
           >
             {relativeDate(announcement.createdAt)}
           </time>
           {announcement.postedToDiscord ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full border bg-muted px-2 py-0.5 text-muted-foreground text-[11px] font-medium">
-              <span aria-hidden className="size-1.5 rounded-full bg-primary/70" />
+            <span className="inline-flex items-center gap-1.5 rounded-full border bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+              <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-primary/70" />
               {t.postedToDiscord}
             </span>
           ) : null}
         </div>
       </CardHeader>
       <CardContent>
-        <p className="text-sm leading-relaxed whitespace-pre-wrap">{announcement.bodyMd}</p>
+        <p className="text-sm leading-relaxed break-words whitespace-pre-wrap">{announcement.bodyMd}</p>
       </CardContent>
     </Card>
   );

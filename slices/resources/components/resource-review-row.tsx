@@ -55,12 +55,23 @@ export function ResourceReviewRow({
             <ExternalLink className="size-3 shrink-0 opacity-60" aria-hidden />
           </a>
         </div>
-        <div className="flex shrink-0 gap-2">
-          <Button size="sm" onClick={() => onApprove()} disabled={pending}>
+        <div className="flex w-full shrink-0 gap-2 sm:w-auto">
+          <Button
+            size="sm"
+            onClick={() => onApprove()}
+            disabled={pending}
+            className="min-h-11 flex-1 sm:flex-none"
+          >
             <Check className="size-4" aria-hidden />
             {copy.approve}
           </Button>
-          <Button size="sm" variant="outline" onClick={() => onReject()} disabled={pending}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => onReject()}
+            disabled={pending}
+            className="min-h-11 flex-1 sm:flex-none"
+          >
             <X className="size-4" aria-hidden />
             {copy.reject}
           </Button>

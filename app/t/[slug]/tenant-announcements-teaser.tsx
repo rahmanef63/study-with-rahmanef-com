@@ -22,16 +22,19 @@ export function TenantAnnouncementsTeaser({
   if (!isMember || !announcements || announcements.length === 0) return null;
 
   return (
-    <section className="space-y-3">
-      <h2 className="text-lg font-semibold">Pengumuman terbaru</h2>
-      <div className="grid gap-3">
+    <section className="space-y-4">
+      <div className="flex flex-col gap-1">
+        <span className="eyebrow">Terbaru</span>
+        <h2 className="text-xl sm:text-2xl">Pengumuman</h2>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
         {announcements.slice(0, 2).map((a) => (
           <AnnouncementCard key={a._id} announcement={a} />
         ))}
       </div>
       <Link
         href={`/t/${slug}/pengumuman`}
-        className="inline-block text-sm font-medium text-primary hover:underline"
+        className="inline-flex min-h-11 items-center text-sm font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
       >
         Lihat semua pengumuman →
       </Link>

@@ -45,16 +45,14 @@ export function LessonSyllabusAside({
           className="mb-4"
         />
       ) : null}
-      {!hideLabel ? (
-        <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          Silabus
-        </p>
-      ) : null}
+      {!hideLabel ? <p className="eyebrow mb-3">Silabus</p> : null}
       <nav className="space-y-4 text-sm">
         {overview.modules.map((m) => (
           <div key={m._id}>
-            <p className="mb-1 font-medium">{m.title}</p>
-            <ul className="space-y-0.5">
+            <p className="mb-1 font-serif text-sm font-medium text-foreground text-pretty">
+              {m.title}
+            </p>
+            <ul>
               {m.lessons.map((l) => {
                 const active = l._id === currentLessonId;
                 const done = completed.has(l._id);
@@ -64,17 +62,17 @@ export function LessonSyllabusAside({
                       href={`/t/${slug}/kelas/${courseSlug}/belajar/${l._id}`}
                       aria-current={active ? "page" : undefined}
                       className={cn(
-                        "flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+                        "flex min-h-11 items-center gap-2 rounded-md px-2.5 py-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
                         active
                           ? "bg-accent font-medium text-accent-foreground"
-                          : "text-muted-foreground hover:text-foreground"
+                          : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                       )}
                     >
                       <Check
                         aria-hidden
                         className={cn("size-3.5 shrink-0", done ? "text-primary" : "text-transparent")}
                       />
-                      <span className="truncate">{l.title}</span>
+                      <span className="min-w-0 truncate">{l.title}</span>
                     </Link>
                   </li>
                 );

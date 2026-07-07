@@ -6,6 +6,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Logo, LogoMark } from "@/components/brand/logo";
 import { cn } from "@/lib/utils";
 import { useCurrentProfile } from "@/features/profiles";
 import { ThemePresetSwitcher } from "@/features/theme-presets";
@@ -38,13 +39,19 @@ export function TenantNav({ slug }: { slug: string }) {
   ];
 
   return (
-    <header className="flex items-center gap-3 border-b px-4 py-2">
-      <Link href="/" className="shrink-0 text-sm font-semibold">
-        belajar-with-rahmanef.com
+    <header className="flex items-center gap-2 border-b bg-background px-4 py-2 sm:gap-3 sm:px-6">
+      <Link
+        href="/"
+        aria-label="belajar-with-rahmanef.com — beranda"
+        className="flex min-h-11 shrink-0 items-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <LogoMark className="size-6 text-primary sm:hidden" />
+        <Logo className="hidden sm:inline-flex" />
       </Link>
       {tenant?.name ? (
-        <span className="hidden max-w-[12rem] shrink-0 truncate text-sm text-muted-foreground sm:inline">
-          / {tenant.name}
+        <span className="hidden max-w-[12rem] shrink-0 truncate text-sm text-muted-foreground lg:inline">
+          <span aria-hidden className="mr-1 text-border">/</span>
+          {tenant.name}
         </span>
       ) : null}
       <nav className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto text-sm">

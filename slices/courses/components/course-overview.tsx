@@ -45,20 +45,28 @@ export function CourseOverview({
         : null;
 
   return (
-    <div className={className ? `space-y-8 ${className}` : "space-y-8"}>
-      <header className="space-y-3">
-        {statusLabel !== null && (
-          <span className="inline-flex rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-            {statusLabel}
-          </span>
-        )}
-        <h1 className="text-3xl font-bold tracking-tight">{course.title}</h1>
-        <p className="max-w-prose leading-7 text-muted-foreground">{course.description}</p>
+    <div className={className ? `space-y-10 ${className}` : "space-y-10"}>
+      <header className="space-y-4">
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <span className="eyebrow">{copy.courses}</span>
+            {statusLabel !== null && (
+              <span className="inline-flex rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+                {statusLabel}
+              </span>
+            )}
+          </div>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl">{course.title}</h1>
+        </div>
+        <p className="max-w-prose text-pretty leading-7 text-muted-foreground sm:text-lg">
+          {course.description}
+        </p>
         {progressSlot}
         {!isMember && joinCtaSlot}
       </header>
 
-      <section aria-label={copy.modules}>
+      <section aria-label={copy.modules} className="space-y-5">
+        <h2 className="border-b pb-3 text-xl sm:text-2xl">{copy.modules}</h2>
         <SyllabusList
           modules={overview.modules}
           lessonHref={lessonHref}

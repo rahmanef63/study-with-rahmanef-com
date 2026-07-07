@@ -44,22 +44,31 @@ export function ModuleEditor({
 }: ModuleEditorProps) {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(mod.title);
+  // Comfortable 44px tap target on phones, compact on ≥sm (editorial density).
+  const iconBtn = "size-11 sm:size-9";
 
   return (
     <Card>
       <CardHeader className="flex flex-row items-center gap-2 space-y-0">
         {editing ? (
           <form
-            className="flex flex-1 items-center gap-2"
+            className="flex flex-1 flex-wrap items-center gap-2"
             onSubmit={async (e) => {
               e.preventDefault();
               await onRename(mod._id, title.trim());
               setEditing(false);
             }}
           >
-            <Input value={title} onChange={(e) => setTitle(e.target.value)} minLength={3} maxLength={120} required />
-            <Button type="submit" size="sm">{copy.save}</Button>
-            <Button type="button" size="sm" variant="ghost" onClick={() => { setTitle(mod.title); setEditing(false); }}>
+            <Input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              minLength={3}
+              maxLength={120}
+              required
+              className="min-w-0 flex-1 basis-full sm:basis-0"
+            />
+            <Button type="submit" size="sm" className="min-h-11 sm:min-h-8">{copy.save}</Button>
+            <Button type="button" size="sm" variant="ghost" className="min-h-11 sm:min-h-8" onClick={() => { setTitle(mod.title); setEditing(false); }}>
               {copy.cancel}
             </Button>
           </form>
@@ -73,24 +82,27 @@ export function ModuleEditor({
                 {mod.lessons.length === 0 ? "Belum ada lesson" : `${mod.lessons.length} lesson`}
               </p>
             </div>
-            <Button variant="ghost" size="icon" aria-label={copy.renameModule} onClick={() => setEditing(true)}>
-              <Pencil aria-hidden />
-            </Button>
-            <Button variant="ghost" size="icon" aria-label={copy.moveUp} disabled={index === 0 || reorderDisabled} onClick={() => onMove(mod._id, -1)}>
-              <ChevronUp aria-hidden />
-            </Button>
-            <Button variant="ghost" size="icon" aria-label={copy.moveDown} disabled={index === total - 1 || reorderDisabled} onClick={() => onMove(mod._id, 1)}>
-              <ChevronDown aria-hidden />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label={copy.deleteModule}
-              disabled={mod.lessons.length > 0}
-              onClick={() => onDelete(mod._id)}
-            >
-              <Trash2 aria-hidden />
-            </Button>
+            <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
+              <Button variant="ghost" size="icon" className={iconBtn} aria-label={copy.renameModule} onClick={() => setEditing(true)}>
+                <Pencil aria-hidden />
+              </Button>
+              <Button variant="ghost" size="icon" className={iconBtn} aria-label={copy.moveUp} disabled={index === 0 || reorderDisabled} onClick={() => onMove(mod._id, -1)}>
+                <ChevronUp aria-hidden />
+              </Button>
+              <Button variant="ghost" size="icon" className={iconBtn} aria-label={copy.moveDown} disabled={index === total - 1 || reorderDisabled} onClick={() => onMove(mod._id, 1)}>
+                <ChevronDown aria-hidden />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={iconBtn}
+                aria-label={copy.deleteModule}
+                disabled={mod.lessons.length > 0}
+                onClick={() => onDelete(mod._id)}
+              >
+                <Trash2 aria-hidden />
+              </Button>
+            </div>
           </>
         )}
       </CardHeader>
@@ -98,33 +110,40 @@ export function ModuleEditor({
         {/* lessons nest under the module: tinted panel */}
         <ul className="divide-y divide-border rounded-lg border border-border bg-muted/20">
           {mod.lessons.map((lesson, lessonIndex) => (
-            <li key={lesson._id} className="flex items-center gap-2 p-2 text-sm">
-              <span className="min-w-0 flex-1 truncate font-medium">{lesson.title}</span>
-              {lesson.hasVideo && <PlayCircle className="size-4 shrink-0 text-muted-foreground" aria-hidden />}
-              {lesson.linkCount > 0 && (
-                <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                  <Link2 className="size-3.5" aria-hidden /> {lesson.linkCount}
-                </span>
-              )}
-              <Button variant="ghost" size="icon" aria-label={`${copy.moveUp} — ${lesson.title}`} disabled={lessonIndex === 0 || reorderDisabled} onClick={() => onMoveLesson(mod._id, lesson._id, -1)}>
-                <ChevronUp aria-hidden />
-              </Button>
-              <Button variant="ghost" size="icon" aria-label={`${copy.moveDown} — ${lesson.title}`} disabled={lessonIndex === mod.lessons.length - 1 || reorderDisabled} onClick={() => onMoveLesson(mod._id, lesson._id, 1)}>
-                <ChevronDown aria-hidden />
-              </Button>
-              <Button variant="ghost" size="icon" aria-label={`${copy.editLesson} — ${lesson.title}`} onClick={() => onEditLesson(lesson._id)}>
-                <Pencil aria-hidden />
-              </Button>
-              <Button variant="ghost" size="icon" aria-label={`${copy.deleteLesson} — ${lesson.title}`} onClick={() => onDeleteLesson(lesson._id)}>
-                <Trash2 aria-hidden />
-              </Button>
+            <li
+              key={lesson._id}
+              className="flex flex-col gap-1 p-2 text-sm sm:flex-row sm:items-center sm:gap-2"
+            >
+              <div className="flex min-w-0 items-center gap-2">
+                <span className="min-w-0 flex-1 truncate font-medium">{lesson.title}</span>
+                {lesson.hasVideo && <PlayCircle className="size-4 shrink-0 text-muted-foreground" aria-hidden />}
+                {lesson.linkCount > 0 && (
+                  <span className="inline-flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
+                    <Link2 className="size-3.5" aria-hidden /> {lesson.linkCount}
+                  </span>
+                )}
+              </div>
+              <div className="flex shrink-0 items-center gap-0.5 sm:ml-auto sm:gap-1">
+                <Button variant="ghost" size="icon" className={iconBtn} aria-label={`${copy.moveUp} — ${lesson.title}`} disabled={lessonIndex === 0 || reorderDisabled} onClick={() => onMoveLesson(mod._id, lesson._id, -1)}>
+                  <ChevronUp aria-hidden />
+                </Button>
+                <Button variant="ghost" size="icon" className={iconBtn} aria-label={`${copy.moveDown} — ${lesson.title}`} disabled={lessonIndex === mod.lessons.length - 1 || reorderDisabled} onClick={() => onMoveLesson(mod._id, lesson._id, 1)}>
+                  <ChevronDown aria-hidden />
+                </Button>
+                <Button variant="ghost" size="icon" className={iconBtn} aria-label={`${copy.editLesson} — ${lesson.title}`} onClick={() => onEditLesson(lesson._id)}>
+                  <Pencil aria-hidden />
+                </Button>
+                <Button variant="ghost" size="icon" className={iconBtn} aria-label={`${copy.deleteLesson} — ${lesson.title}`} onClick={() => onDeleteLesson(lesson._id)}>
+                  <Trash2 aria-hidden />
+                </Button>
+              </div>
             </li>
           ))}
           {mod.lessons.length === 0 && (
             <li className="px-3 py-4 text-center text-sm text-muted-foreground">{copy.emptySyllabus}</li>
           )}
         </ul>
-        <Button variant="outline" size="sm" onClick={() => onAddLesson(mod._id)}>
+        <Button variant="outline" size="sm" className="min-h-11 sm:min-h-8" onClick={() => onAddLesson(mod._id)}>
           <Plus aria-hidden /> {copy.newLesson}
         </Button>
       </CardContent>

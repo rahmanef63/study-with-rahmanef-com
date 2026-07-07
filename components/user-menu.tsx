@@ -15,7 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { ProfileAvatar, useCurrentProfile } from "@/features/profiles";
 
 const itemClass =
-  "flex items-center gap-2 rounded-md px-2 py-2 text-sm text-foreground transition-colors hover:bg-accent focus-visible:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring";
+  "flex min-h-11 items-center gap-2 rounded-md px-2 py-2 text-sm text-foreground transition-colors hover:bg-accent focus-visible:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:min-h-9";
 
 export function UserMenu() {
   const router = useRouter();

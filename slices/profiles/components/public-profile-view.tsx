@@ -67,19 +67,23 @@ function PublicProfileContent({ username, shareUrl, labels }: ContentProps) {
 
 function ProfileSkeleton() {
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-8" aria-busy="true">
-      <div className="flex flex-col items-center gap-4 rounded-xl border border-border bg-card p-6 sm:flex-row sm:items-start sm:gap-5">
-        <Skeleton className="size-24 shrink-0 rounded-full" />
-        <div className="flex w-full flex-col gap-2">
-          <Skeleton className="h-7 w-48" />
-          <Skeleton className="h-4 w-32" />
-          <Skeleton className="h-4 w-full max-w-md" />
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-10 sm:gap-14" aria-busy="true">
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-end sm:gap-6">
+          <Skeleton className="size-28 shrink-0 rounded-full" />
+          <div className="flex w-full flex-col items-center gap-2 sm:items-start">
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="h-9 w-52" />
+            <Skeleton className="h-4 w-28" />
+          </div>
         </div>
+        <Skeleton className="h-4 w-full max-w-md" />
+        <Skeleton className="h-11 w-40 rounded-md" />
       </div>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <Skeleton className="h-24 w-full" />
-        <Skeleton className="h-24 w-full" />
-        <Skeleton className="h-24 w-full" />
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+        <Skeleton className="h-28 w-full" />
+        <Skeleton className="h-28 w-full" />
+        <Skeleton className="h-28 w-full" />
       </div>
     </div>
   );

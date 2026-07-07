@@ -20,15 +20,18 @@ export default function KomunitasSayaPage() {
   const communities = useMyCommunities();
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-12">
-      <h1 className="text-2xl font-semibold">Komunitas saya</h1>
-      <p className="mt-1 text-muted-foreground">Komunitas belajar yang kamu ikuti.</p>
+    <div className="mx-auto max-w-3xl px-6 py-12 sm:py-16">
+      <span className="eyebrow">Komunitas</span>
+      <h1 className="mt-2 text-3xl sm:text-4xl">Komunitas saya</h1>
+      <p className="mt-2 text-pretty text-muted-foreground">
+        Komunitas belajar yang kamu ikuti.
+      </p>
 
       <div className="mt-8">
         {!isAuthenticated && !isLoading ? (
           <div className="rounded-xl border border-dashed bg-muted/30 px-6 py-12 text-center">
             <p className="font-medium">Masuk untuk melihat komunitasmu</p>
-            <Button asChild className="mt-4">
+            <Button asChild className="mt-4 min-h-11 sm:min-h-9">
               <Link href="/login?returnTo=/komunitas-saya">Masuk dengan Google</Link>
             </Button>
           </div>
@@ -47,10 +50,10 @@ export default function KomunitasSayaPage() {
             </EmptyHeader>
             <EmptyContent>
               <div className="flex flex-wrap justify-center gap-2">
-                <Button asChild variant="outline">
+                <Button asChild variant="outline" className="min-h-11 sm:min-h-9">
                   <Link href="/#komunitas">Jelajahi komunitas</Link>
                 </Button>
-                <Button asChild>
+                <Button asChild className="min-h-11 sm:min-h-9">
                   <Link href="/buka-komunitas">Buka komunitas</Link>
                 </Button>
               </div>

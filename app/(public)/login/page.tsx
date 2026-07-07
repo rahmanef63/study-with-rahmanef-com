@@ -23,10 +23,15 @@ export default function LoginPage() {
 
   return (
     <div className="mx-auto grid min-h-[70dvh] max-w-5xl items-center gap-8 px-6 py-10 md:grid-cols-2 md:gap-10 md:py-16">
-      <section className="flex flex-col gap-4 md:gap-6">
-        <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-          Belajar pakai AI, bareng-bareng.
+      <section className="flex flex-col gap-5 md:gap-6">
+        <span className="eyebrow">Masuk · Gratis selamanya</span>
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl">
+          Belajar pakai AI,{" "}
+          <em className="italic text-primary">bareng-bareng.</em>
         </h1>
+        <p className="max-w-md text-pretty text-muted-foreground">
+          Satu klik dengan akun Google — tanpa password baru, tanpa biaya.
+        </p>
         <ul className="flex flex-col gap-3">
           {VALUE_PROPS.map((v) => (
             <li key={v} className="flex items-start gap-3 text-muted-foreground">

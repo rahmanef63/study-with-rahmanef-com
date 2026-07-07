@@ -91,6 +91,12 @@ export function QuizBuilderForm({ initial, onSave, submitting, copy }: QuizBuild
       </div>
 
       <div className="space-y-3">
+        <p className="eyebrow flex items-baseline gap-2 border-b pb-2">
+          {copy.fieldPrompt}
+          <span className="tabular-nums text-foreground/70">
+            {questions.length}/{MAX_QUESTIONS}
+          </span>
+        </p>
         {questions.map((question, index) => (
           <QuizQuestionEditor
             key={index}
@@ -104,16 +110,17 @@ export function QuizBuilderForm({ initial, onSave, submitting, copy }: QuizBuild
         ))}
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Button
           type="button"
           variant="outline"
+          className="min-h-11 w-full sm:w-auto"
           onClick={addQuestion}
           disabled={questions.length >= MAX_QUESTIONS}
         >
           <Plus className="size-4" aria-hidden /> {copy.addQuestion}
         </Button>
-        <Button type="submit" className="min-h-11" disabled={submitting}>
+        <Button type="submit" className="min-h-11 w-full sm:w-auto" disabled={submitting}>
           {submitting ? copy.saving : copy.save}
         </Button>
       </div>

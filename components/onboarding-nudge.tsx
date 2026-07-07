@@ -35,7 +35,7 @@ export function OnboardingNudge() {
 
   return (
     <div className="border-b bg-primary/5">
-      <div className="mx-auto flex max-w-6xl items-center gap-4 px-6 py-2.5 text-sm">
+      <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-2 text-sm sm:gap-4 sm:px-6 sm:py-2.5">
         <p className="min-w-0 flex-1">
           <span className="font-medium">
             Selamat datang{profile?.displayName ? `, ${profile.displayName}` : ""}!
@@ -62,7 +62,7 @@ export function OnboardingNudge() {
           type="button"
           onClick={dismiss}
           aria-label="Tutup"
-          className="shrink-0 rounded-md p-1 text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="flex size-11 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:size-8"
         >
           <X className="size-4" />
         </button>

@@ -5,6 +5,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import type { Id } from "@convex/_generated/dataModel";
 import { DEFAULT_TENANT_LABELS } from "../config/labels";
 import { useMyMembership } from "../hooks/use-tenant-queries";
@@ -38,7 +39,7 @@ export function JoinButton({
 
   if (!isAuthenticated) {
     return (
-      <Button asChild className={className}>
+      <Button asChild className={cn("min-h-11 sm:min-h-9", className)}>
         <Link href={loginHref}>{t.loginFirst}</Link>
       </Button>
     );
@@ -46,7 +47,7 @@ export function JoinButton({
 
   if (membership) {
     return (
-      <div className={className}>
+      <div className={cn("inline-flex items-center", className)}>
         <span className="text-muted-foreground mr-2 text-sm">{t.alreadyMember}</span>
         <RoleChip role={membership.role} labels={roleLabels} />
       </div>
@@ -55,7 +56,7 @@ export function JoinButton({
 
   return (
     <Button
-      className={className}
+      className={cn("min-h-11 sm:min-h-9", className)}
       disabled={isPending}
       onClick={() => void join({ tenantId })}
     >

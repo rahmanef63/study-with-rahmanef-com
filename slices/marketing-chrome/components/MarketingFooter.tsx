@@ -31,7 +31,7 @@ const SOCIAL_ICON: Record<SocialKind, LucideIcon> = {
 function Social({ social }: { social: SocialLink[] }) {
   if (social.length === 0) return null;
   return (
-    <div className="flex items-center gap-3">
+    <div className="-ml-2.5 flex items-center gap-0.5">
       {social.map((s) => {
         const Icon = SOCIAL_ICON[s.kind];
         return (
@@ -41,7 +41,7 @@ function Social({ social }: { social: SocialLink[] }) {
             aria-label={s.kind}
             target="_blank"
             rel="noreferrer noopener"
-            className="text-muted-foreground transition-colors hover:text-foreground"
+            className="grid size-11 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <Icon className="size-4" />
           </a>
@@ -125,7 +125,7 @@ export function MarketingFooter({
           </div>
           {columns.map((col) => (
             <div key={col.heading} className="flex flex-col gap-3">
-              <h3 className="text-sm font-semibold">{col.heading}</h3>
+              <h3 className="eyebrow">{col.heading}</h3>
               <ul className="flex flex-col gap-2">
                 {col.links.map((l) => (
                   <li key={l.href + l.label}>

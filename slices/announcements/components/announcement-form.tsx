@@ -34,7 +34,11 @@ export function AnnouncementForm({ onSubmit, isPending, copy, className }: Annou
   };
 
   return (
-    <form onSubmit={handleSubmit} className={cn("flex flex-col gap-4", className)}>
+    <form
+      onSubmit={handleSubmit}
+      className={cn("flex flex-col gap-4 rounded-xl border bg-muted/20 p-4 sm:p-5", className)}
+    >
+      <h2 className="text-lg">{t.formTitle}</h2>
       <div className="flex flex-col gap-2">
         <Label htmlFor="announcement-title">{t.titleLabel}</Label>
         <Input
@@ -60,7 +64,7 @@ export function AnnouncementForm({ onSubmit, isPending, copy, className }: Annou
         />
       </div>
 
-      <Button type="submit" disabled={isPending} className="w-fit">
+      <Button type="submit" disabled={isPending} className="min-h-11 w-full sm:min-h-9 sm:w-fit">
         {isPending ? t.submitting : t.submit}
       </Button>
     </form>

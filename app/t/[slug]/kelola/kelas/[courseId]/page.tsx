@@ -28,13 +28,19 @@ function QuizLinks({ slug, courseId }: { slug: string; courseId: Id<"courses"> }
   const tree = useCourseTree(courseId);
   if (!tree || tree.modules.length === 0) return null;
   return (
-    <section className="mt-8 space-y-3">
-      <h2 className="text-lg font-semibold">Quiz per modul</h2>
+    <section className="mt-10 space-y-4 border-t pt-8">
+      <div className="flex flex-col gap-1">
+        <span className="eyebrow">Quiz</span>
+        <h2 className="text-xl sm:text-2xl">Quiz per modul</h2>
+      </div>
       <ul className="space-y-2">
         {tree.modules.map((mod) => (
-          <li key={mod._id} className="flex items-center justify-between rounded-md border px-4 py-2">
-            <span className="text-sm">{mod.title}</span>
-            <Button asChild size="sm" variant="outline">
+          <li
+            key={mod._id}
+            className="flex items-center justify-between gap-3 rounded-md border px-4 py-2"
+          >
+            <span className="min-w-0 truncate text-sm">{mod.title}</span>
+            <Button asChild size="sm" variant="outline" className="min-h-11 shrink-0 sm:min-h-8">
               <Link href={`/t/${slug}/kelola/kelas/${courseId}/quiz/${mod._id}`}>
                 Kelola quiz
               </Link>

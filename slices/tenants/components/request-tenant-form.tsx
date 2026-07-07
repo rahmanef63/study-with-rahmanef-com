@@ -140,7 +140,11 @@ export function RequestTenantForm({ labels, className, onSuccess }: RequestTenan
         />
       </div>
 
-      <Button type="submit" disabled={isPending} className="w-fit">
+      <Button
+        type="submit"
+        disabled={isPending}
+        className="min-h-11 w-full sm:min-h-9 sm:w-fit"
+      >
         {isPending ? t.submitting : t.submit}
       </Button>
     </form>

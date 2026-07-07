@@ -31,7 +31,7 @@ export function CompletionButton({
         variant="secondary"
         disabled
         aria-disabled
-        className={cn("text-primary", className)}
+        className={cn("min-h-11 w-full text-primary sm:min-h-9 sm:w-auto", className)}
       >
         <CheckCircle2 aria-hidden /> {copy.completed}
       </Button>
@@ -44,7 +44,7 @@ export function CompletionButton({
       onClick={onComplete}
       disabled={isPending}
       aria-busy={isPending}
-      className={className}
+      className={cn("min-h-11 w-full sm:min-h-9 sm:w-auto", className)}
     >
       {isPending ? <Loader2 className="animate-spin" aria-hidden /> : null}
       {isPending ? copy.marking : copy.markComplete}

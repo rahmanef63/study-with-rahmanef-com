@@ -102,7 +102,7 @@ export function CourseForm({ initial, onSubmit, submitting, copy }: CourseFormPr
         />
       </div>
       <div className="flex justify-end">
-        <Button type="submit" disabled={submitting}>
+        <Button type="submit" disabled={submitting} className="min-h-11 w-full sm:min-h-9 sm:w-auto">
           {submitting ? copy.saving : copy.save}
         </Button>
       </div>

@@ -39,8 +39,12 @@ export function CourseCard({ course, href, progress, className }: CourseCardProp
           }
         />
         <CardHeader>
-          <CardTitle className="line-clamp-2 text-lg">{course.title}</CardTitle>
-          <CardDescription className="line-clamp-3">{course.description}</CardDescription>
+          <CardTitle className="line-clamp-2 font-serif text-lg leading-snug">
+            {course.title}
+          </CardTitle>
+          <CardDescription className="line-clamp-3 text-pretty">
+            {course.description}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {pct !== null && progress ? (
@@ -55,7 +59,7 @@ export function CourseCard({ course, href, progress, className }: CourseCardProp
               >
                 <div className="h-full rounded-full bg-primary" style={{ width: `${pct}%` }} />
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs tabular-nums text-muted-foreground">
                 {progress.completedCount}/{progress.totalCount} lesson selesai
               </p>
             </div>

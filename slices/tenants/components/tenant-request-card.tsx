@@ -35,24 +35,33 @@ export function TenantRequestCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{request.name}</CardTitle>
-        <CardDescription>{meta}</CardDescription>
+        <CardTitle className="font-serif text-lg">{request.name}</CardTitle>
+        <CardDescription className="break-words">{meta}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
-        <p className="text-foreground text-sm">{request.description}</p>
+        <p className="text-foreground text-pretty text-sm">{request.description}</p>
         {request.requestMessage ? (
-          <p className="text-muted-foreground text-sm">
+          <p className="text-muted-foreground text-pretty text-sm">
             <span className="font-medium">{t.messageLabel}:</span> {request.requestMessage}
           </p>
         ) : null}
         <p className="text-muted-foreground text-xs">
           {t.ownerLabel}: {owner}
         </p>
-        <div className="flex gap-2">
-          <Button size="sm" disabled={disabled} onClick={onApprove}>
+        <div className="flex flex-col gap-2 pt-1 sm:flex-row">
+          <Button
+            className="min-h-11 flex-1 sm:min-h-9 sm:flex-none"
+            disabled={disabled}
+            onClick={onApprove}
+          >
             {t.approve}
           </Button>
-          <Button size="sm" variant="outline" disabled={disabled} onClick={onReject}>
+          <Button
+            variant="outline"
+            className="min-h-11 flex-1 sm:min-h-9 sm:flex-none"
+            disabled={disabled}
+            onClick={onReject}
+          >
             {t.reject}
           </Button>
         </div>

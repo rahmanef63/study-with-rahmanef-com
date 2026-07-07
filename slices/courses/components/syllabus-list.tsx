@@ -59,15 +59,18 @@ export function SyllabusList({
         </p>
       )}
       {modules.map((mod, moduleIndex) => (
-        <section key={mod._id} className="space-y-2">
-          <h3 className="text-sm font-semibold text-muted-foreground">
-            {moduleIndex + 1}. {mod.title}
+        <section key={mod._id} className="space-y-3">
+          <h3 className="flex items-baseline gap-2 font-serif text-base sm:text-lg">
+            <span className="tabular-nums text-primary/80">
+              {String(moduleIndex + 1).padStart(2, "0")}
+            </span>
+            <span className="min-w-0 text-pretty">{mod.title}</span>
           </h3>
-          <ul className="divide-y divide-border rounded-lg border border-border">
+          <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border">
             {mod.lessons.map((lesson) => {
               const isDone = completed.has(lesson._id);
               const row = (
-                <span className="flex items-center gap-3 p-3 text-sm">
+                <span className="flex min-h-11 items-center gap-3 px-4 py-3 text-sm">
                   {isDone ? (
                     <CheckCircle2 className="size-4 shrink-0 text-primary" aria-hidden />
                   ) : (
@@ -86,7 +89,7 @@ export function SyllabusList({
                   ) : (
                     <Link
                       href={lessonHref(lesson._id)}
-                      className="block transition-colors hover:bg-muted/50"
+                      className="block transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                     >
                       {row}
                     </Link>

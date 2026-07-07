@@ -100,7 +100,7 @@ export type MarkdownViewProps = {
 export function MarkdownView({ content, className }: MarkdownViewProps) {
   const blocks = parseMarkdown(content);
   return (
-    <div className={className ? `space-y-4 ${className}` : "space-y-4"}>
+    <div className={className ? `space-y-4 break-words ${className}` : "space-y-4 break-words"}>
       {blocks.map((block, i) => (
         <Block key={i} block={block} />
       ))}

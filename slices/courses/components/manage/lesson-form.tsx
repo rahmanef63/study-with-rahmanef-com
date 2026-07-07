@@ -105,7 +105,7 @@ export function LessonForm({ initial, onSubmit, submitting, copy }: LessonFormPr
       <LinksEditor value={links} onChange={setLinks} copy={copy} />
 
       <div className="flex justify-end">
-        <Button type="submit" disabled={submitting || videoInvalid}>
+        <Button type="submit" disabled={submitting || videoInvalid} className="min-h-11 w-full sm:min-h-9 sm:w-auto">
           {submitting ? copy.saving : copy.save}
         </Button>
       </div>

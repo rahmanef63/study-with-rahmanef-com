@@ -95,15 +95,18 @@ export function ManageCourseEditorView({ courseId, backHref, copy: copyOverride,
 
   return (
     <div className={className ? `space-y-6 ${className}` : "space-y-6"}>
-      <header className="space-y-3">
+      <header className="space-y-3 border-b pb-5">
         <Button asChild variant="ghost" size="sm" className="-ml-2 text-muted-foreground">
           <Link href={backHref}>
             <ArrowLeft aria-hidden /> {copy.manageTitle}
           </Link>
         </Button>
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="min-w-0 flex-1 truncate text-2xl font-bold tracking-tight">{tree.course.title}</h1>
-          <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="min-w-0 flex-1">
+            <span className="eyebrow">Editor kelas</span>
+            <h1 className="mt-1 truncate text-2xl sm:text-3xl">{tree.course.title}</h1>
+          </div>
+          <Button variant="outline" size="sm" className="min-h-11 shrink-0 sm:min-h-8" onClick={() => setEditOpen(true)}>
             <Pencil aria-hidden /> {copy.editCourse}
           </Button>
         </div>

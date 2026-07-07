@@ -76,14 +76,15 @@ export function AdminTenantQueueView({ labels, className }: AdminTenantQueueView
 
   return (
     <div className={className}>
-      <div className="mb-4 flex items-start justify-between gap-3">
+      <div className="mb-6 flex items-start justify-between gap-3 border-b pb-5">
         <div className="min-w-0">
-          <h2 className="text-foreground text-lg font-semibold">{t.title}</h2>
-          <p className="text-muted-foreground text-sm">{t.subtitle}</p>
+          <span className="eyebrow">Moderasi</span>
+          <h2 className="mt-1 text-2xl sm:text-3xl">{t.title}</h2>
+          <p className="mt-2 max-w-xl text-pretty text-sm text-muted-foreground">{t.subtitle}</p>
         </div>
         {requests.length > 0 ? (
           <span
-            className="bg-primary/10 text-primary shrink-0 rounded-full px-2.5 py-0.5 text-sm font-medium tabular-nums"
+            className="bg-primary/10 text-primary mt-1 shrink-0 rounded-full px-2.5 py-0.5 text-sm font-medium tabular-nums"
             aria-label={`${requests.length} pengajuan menunggu ditinjau`}
           >
             {requests.length}

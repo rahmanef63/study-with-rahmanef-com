@@ -144,12 +144,12 @@ export function ProfileSettingsForm({
             </div>
           </div>
         </CardContent>
-        <CardFooter className="gap-3">
-          <Button type="submit" disabled={isSaving}>
+        <CardFooter className="flex-wrap gap-3">
+          <Button type="submit" disabled={isSaving} className="min-h-11 px-5">
             {isSaving ? copy.saving : copy.save}
           </Button>
           {initial.username ? (
-            <Button asChild variant="link" className="text-muted-foreground">
+            <Button asChild variant="link" className="min-h-11 text-muted-foreground">
               <Link href={`/u/${initial.username}`}>{copy.viewPublicProfile}</Link>
             </Button>
           ) : null}

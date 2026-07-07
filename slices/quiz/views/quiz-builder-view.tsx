@@ -62,11 +62,18 @@ export function QuizBuilderView({ moduleId, courseId, tenantId, copy: copyOverri
       data-course-id={courseId}
       data-tenant-id={tenantId}
     >
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold tracking-tight">{copy.builderTitle}</h1>
+      <div className="flex flex-col gap-3 border-b pb-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          <span className="eyebrow">{copy.quizTitle}</span>
+          <h1 className="mt-1.5 text-2xl sm:text-3xl">{copy.builderTitle}</h1>
+        </div>
         {existing && (
           <>
-            <Button variant="outline" onClick={() => setConfirmOpen(true)}>
+            <Button
+              variant="outline"
+              className="min-h-11 w-full shrink-0 sm:w-auto"
+              onClick={() => setConfirmOpen(true)}
+            >
               {copy.deleteQuiz}
             </Button>
             <ResponsiveDialog open={confirmOpen} onOpenChange={setConfirmOpen} variant="alert" size="sm">

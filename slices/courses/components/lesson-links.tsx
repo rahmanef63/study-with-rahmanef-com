@@ -19,17 +19,17 @@ export function LessonLinks({ links, heading, className }: LessonLinksProps) {
         <CardTitle className="text-base">{heading}</CardTitle>
       </CardHeader>
       <CardContent>
-        <ul className="space-y-2">
+        <ul className="space-y-1">
           {links.map((link, i) => (
             <li key={i}>
               <Link
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm font-medium text-primary underline-offset-4 hover:underline"
+                className="flex min-h-11 items-center gap-2 text-sm font-medium text-primary underline-offset-4 hover:underline"
               >
                 <ExternalLink className="size-4 shrink-0" aria-hidden />
-                {link.label}
+                <span className="min-w-0 break-words">{link.label}</span>
               </Link>
             </li>
           ))}

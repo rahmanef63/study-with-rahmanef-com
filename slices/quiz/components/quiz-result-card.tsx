@@ -22,27 +22,29 @@ export function QuizResultCard({ result, questions, copy: copyOverride, onRetry,
   const toneText = result.passed ? "text-primary" : "text-destructive";
 
   return (
-    <div className={className ? `space-y-4 ${className}` : "space-y-4"}>
+    <div className={className ? `space-y-5 ${className}` : "space-y-5"}>
       <Card>
         <CardHeader>
-          <CardDescription>{copy.yourScore}</CardDescription>
-          <CardTitle className={`text-4xl font-bold tabular-nums ${toneText}`}>
+          <CardDescription className="eyebrow">{copy.yourScore}</CardDescription>
+          <CardTitle
+            className={`font-serif text-5xl font-semibold tabular-nums sm:text-6xl ${toneText}`}
+          >
             {result.scorePct}%
           </CardTitle>
-          <p className={`text-sm font-medium ${toneText}`}>
+          <p className={`text-sm font-medium text-pretty ${toneText}`}>
             {result.passed ? copy.passed : copy.failed}
-            <span className="text-muted-foreground font-normal">
+            <span className="font-normal text-muted-foreground">
               {" · "}
-              {copy.correctCount}: {result.correctCount}/{result.totalQuestions}
+              {copy.correctCount}: <span className="tabular-nums">{result.correctCount}/{result.totalQuestions}</span>
               {" · "}
-              {copy.passingScore} {result.passingScorePct}%
+              {copy.passingScore} <span className="tabular-nums">{result.passingScorePct}%</span>
             </span>
           </p>
         </CardHeader>
       </Card>
 
       <section aria-label={copy.reviewAnswers} className="space-y-3">
-        <h3 className="text-sm font-semibold text-muted-foreground">{copy.reviewAnswers}</h3>
+        <h3 className="eyebrow border-b pb-2">{copy.reviewAnswers}</h3>
         {result.results.map((r) => {
           const q = questions[r.questionIndex];
           if (q === undefined) return null;

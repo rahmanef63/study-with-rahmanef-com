@@ -62,7 +62,7 @@ export function SuggestionSubmitForm({ onSubmit, submitting, copy }: SuggestionS
         />
       </div>
       <div className="flex justify-end">
-        <Button type="submit" disabled={!canSubmit}>
+        <Button type="submit" disabled={!canSubmit} className="min-h-11 w-full px-5 sm:w-auto">
           {submitting ? copy.submitting : copy.submit}
         </Button>
       </div>

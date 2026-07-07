@@ -28,11 +28,14 @@ export function BadgeWall({ badges, labels, className }: BadgeWallProps) {
   const copy = { ...DEFAULT_PUBLIC_PROFILE_LABELS, ...labels };
 
   return (
-    <section className={cn("flex flex-col gap-4", className)} aria-label={copy.badgesTitle}>
-      <div className="flex items-baseline justify-between gap-2">
-        <h2 className="text-lg font-semibold text-foreground">{copy.badgesTitle}</h2>
+    <section className={cn("flex flex-col gap-5", className)} aria-label={copy.badgesTitle}>
+      <div className="flex items-end justify-between gap-3 border-b pb-3">
+        <div className="flex flex-col gap-1">
+          <span className="eyebrow">Koleksi</span>
+          <h2 className="text-xl sm:text-2xl">{copy.badgesTitle}</h2>
+        </div>
         {badges.length > 0 ? (
-          <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium tabular-nums text-muted-foreground">
+          <span className="mb-0.5 shrink-0 rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium tabular-nums text-muted-foreground">
             {badges.length}
           </span>
         ) : null}
@@ -51,25 +54,30 @@ export function BadgeWall({ badges, labels, className }: BadgeWallProps) {
           </EmptyHeader>
         </Empty>
       ) : (
-        <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        // Hairline-separated tile wall (matches the reference numbered grid):
+        // gap-px cells on bg-border, each cell bg-card. Denser toward the top —
+        // 2-up at 360px, more columns as the viewport grows.
+        <ul className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border bg-border sm:grid-cols-3 lg:grid-cols-4">
           {badges.map((badge) => (
             <li
               key={`${badge.tenantSlug}/${badge.courseSlug}`}
-              className="flex items-start gap-3 rounded-lg border border-border bg-card p-4"
+              className="flex flex-col items-center gap-2 bg-card p-4 text-center sm:p-5"
             >
               <span
                 aria-hidden="true"
-                className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary"
+                className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary"
               >
                 <Award className="size-5" />
               </span>
-              <div className="flex min-w-0 flex-col gap-1">
-                <span className="font-medium text-foreground">{badge.courseTitle}</span>
-                <span className="truncate text-sm text-muted-foreground">@{badge.tenantSlug}</span>
-                <span className="mt-1 text-xs text-muted-foreground">
-                  {copy.badgeEarnedPrefix} {formatEarned(badge.earnedAt)}
-                </span>
-              </div>
+              <span className="line-clamp-2 text-sm font-medium leading-snug text-foreground">
+                {badge.courseTitle}
+              </span>
+              <span className="max-w-full truncate text-xs text-muted-foreground">
+                @{badge.tenantSlug}
+              </span>
+              <span className="text-[0.7rem] leading-tight text-muted-foreground">
+                {copy.badgeEarnedPrefix} {formatEarned(badge.earnedAt)}
+              </span>
             </li>
           ))}
         </ul>

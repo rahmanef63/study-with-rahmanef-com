@@ -4,19 +4,13 @@
 // Client-gates on the owner role for friendly UX; the real guard is the
 // owner-only Convex authz on getManageView/updateProfile (route guards = UX).
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
   Empty,
   EmptyDescription,
   EmptyHeader,
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import { DEFAULT_TENANT_LABELS } from "../config/labels";
 import { useUpdateTenantProfile } from "../hooks/use-tenant-mutations";
 import { useMyMembership, useTenantBySlug, useTenantManageView } from "../hooks/use-tenant-queries";
@@ -63,19 +57,20 @@ export function TenantSettingsView({ slug, labels, className }: TenantSettingsVi
   }
 
   return (
-    <Card className={className}>
-      <CardHeader>
-        <CardTitle>{t.title}</CardTitle>
-        <CardDescription>{t.description}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <TenantProfileForm
-          tenant={managed}
-          isPending={isPending}
-          labels={labels}
-          onSubmit={(values) => updateProfile({ tenantId: managed._id, ...values })}
-        />
-      </CardContent>
-    </Card>
+    <section className={cn("space-y-6", className)}>
+      <div className="border-b pb-5">
+        <span className="eyebrow">Kelola</span>
+        <h2 className="mt-1 text-2xl sm:text-3xl">{t.title}</h2>
+        <p className="mt-2 max-w-2xl text-pretty text-sm text-muted-foreground">
+          {t.description}
+        </p>
+      </div>
+      <TenantProfileForm
+        tenant={managed}
+        isPending={isPending}
+        labels={labels}
+        onSubmit={(values) => updateProfile({ tenantId: managed._id, ...values })}
+      />
+    </section>
   );
 }

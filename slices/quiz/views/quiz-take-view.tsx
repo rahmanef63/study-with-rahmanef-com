@@ -6,7 +6,7 @@
 // appear). The integrator mounts this on the lesson/module surface.
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Id } from "@convex/_generated/dataModel";
 import { QuizQuestionCard } from "../components/quiz-question-card";
@@ -76,15 +76,20 @@ export function QuizTakeView({ moduleId, copy: copyOverride, className }: QuizTa
   };
 
   return (
-    <div className={className ? `space-y-4 ${className}` : "space-y-4"}>
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-xl">{quiz.title}</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            {copy.startHint} {copy.passingScore}: {quiz.passingScorePct}%
-          </p>
-        </CardHeader>
-      </Card>
+    <div className={className ? `space-y-5 ${className}` : "space-y-5"}>
+      <header className="border-b pb-4">
+        <span className="eyebrow">{copy.quizTitle}</span>
+        <h2 className="mt-1.5 text-2xl sm:text-3xl">{quiz.title}</h2>
+        <p className="mt-2 text-pretty text-sm text-muted-foreground">
+          {copy.startHint}{" "}
+          <span className="whitespace-nowrap">
+            {copy.passingScore}:{" "}
+            <span className="font-medium tabular-nums text-foreground">
+              {quiz.passingScorePct}%
+            </span>
+          </span>
+        </p>
+      </header>
 
       {quiz.questions.map((question, index) => (
         <QuizQuestionCard
@@ -103,17 +108,29 @@ export function QuizTakeView({ moduleId, copy: copyOverride, className }: QuizTa
 
       {attempts !== undefined && attempts.length > 0 && (
         <p className="text-xs text-muted-foreground">
-          {copy.previousAttempts}: {attempts.length} · {copy.attemptScore}{" "}
-          {Math.max(...attempts.map((a) => a.scorePct))}%
+          {copy.previousAttempts}: <span className="tabular-nums">{attempts.length}</span> ·{" "}
+          {copy.attemptScore}{" "}
+          <span className="font-medium tabular-nums text-foreground">
+            {Math.max(...attempts.map((a) => a.scorePct))}%
+          </span>
         </p>
       )}
 
-      <div className="sticky bottom-3 z-10 flex flex-wrap items-center justify-end gap-3 rounded-xl border bg-background/80 px-3 py-2 backdrop-blur">
-        <span className="mr-auto text-xs text-muted-foreground">
-          {answeredCount}/{quiz.questions.length} {copy.answered}
-        </span>
-        {!allAnswered && <span className="text-xs text-muted-foreground">{copy.answerAllFirst}</span>}
-        <Button className="min-h-11" onClick={() => void handleSubmit()} disabled={!allAnswered || isPending}>
+      <div className="sticky bottom-3 z-10 flex flex-col gap-3 rounded-xl border bg-background/85 p-3 shadow-sm backdrop-blur supports-[padding:max(0px)]:pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:flex-row sm:items-center">
+        <div className="min-w-0 text-xs text-muted-foreground sm:mr-auto">
+          <span className="font-medium tabular-nums text-foreground">
+            {answeredCount}/{quiz.questions.length}
+          </span>{" "}
+          {copy.answered}
+          {!allAnswered && (
+            <span className="block sm:inline"> · {copy.answerAllFirst}</span>
+          )}
+        </div>
+        <Button
+          className="min-h-11 w-full sm:w-auto"
+          onClick={() => void handleSubmit()}
+          disabled={!allAnswered || isPending}
+        >
           {isPending ? copy.submitting : copy.submit}
         </Button>
       </div>

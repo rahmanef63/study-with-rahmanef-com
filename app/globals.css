@@ -5,29 +5,83 @@
   --font-serif: var(--font-serif), Georgia, "Times New Roman", serif;
 }
 
-/* Akademik & Tenang: page-level display headings in serif (UI-UX-PRD §1.2).
-   In @layer base so an explicit `font-sans` utility still wins; scoped to
-   h1/h2 so component chrome (CardTitle h3) stays sans. */
+/* ── Editorial Warmth type system ───────────────────────────────────────────
+   Display headings in Fraunces (optical serif); body/UI in Hanken Grotesk.
+   Scoped to h1/h2 so component chrome (CardTitle h3) stays sans; an explicit
+   `font-sans` utility still wins. Optical sizing + tight tracking give the
+   headline its editorial character. */
 @layer base {
   h1,
   h2 {
     font-family: var(--font-serif);
+    font-optical-sizing: auto;
+    font-weight: 560;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+  /* Better rag on big display lines. */
+  h1 {
+    text-wrap: balance;
   }
 }
 
-/* Calm scroll reveal (UI-UX-PRD §8). CSS scroll-driven — no JS. Guarded by
-   reduced-motion AND @supports, so unsupported browsers just show content. */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
+  /* Editorial eyebrow / kicker label. */
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted-foreground);
+  }
+  /* Fine hairline rule in the ink color (editorial dividers). */
+  .rule-ink {
+    border-color: color-mix(in oklab, var(--color-foreground) 14%, transparent);
+  }
+}
+
+/* Paper grain — a tactile noise layer that kills the flat "AI slop" look.
+   Add `.grain` to a positioned container; the noise sits behind its content
+   via an isolated stacking context. Very low opacity so it reads as texture,
+   not pattern. */
+.grain {
+  position: relative;
+  isolation: isolate;
+}
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 140px 140px;
+  opacity: 0.035;
+}
+.dark .grain::after {
+  opacity: 0.05;
+}
+
+/* Calm scroll reveal — CSS scroll-driven, no JS. Guarded by reduced-motion
+   AND @supports so unsupported browsers just show content. */
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
     .reveal-on-scroll {
       animation: reveal-fade linear both;
       animation-timeline: view();
-      animation-range: entry 0% cover 25%;
+      animation-range: entry 0% cover 24%;
     }
     @keyframes reveal-fade {
       from {
         opacity: 0;
-        transform: translateY(16px);
+        transform: translateY(18px);
       }
       to {
         opacity: 1;
@@ -37,49 +91,54 @@
   }
 }
 
+/* ── Editorial Warmth palette ───────────────────────────────────────────────
+   Bespoke default (no preset needed): warm paper + deep espresso ink + a
+   terracotta/clay accent. This is the brand identity in the BASE, so the app
+   has character even before the preset switcher touches anything. The
+   ThemePresetSwitcher still lets a visitor override; "Default" returns here. */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --radius: 0.625rem;
+  --background: oklch(0.986 0.006 83);
+  --foreground: oklch(0.246 0.017 55);
+  --card: oklch(0.997 0.004 83);
+  --card-foreground: oklch(0.246 0.017 55);
+  --popover: oklch(0.997 0.004 83);
+  --popover-foreground: oklch(0.246 0.017 55);
+  --primary: oklch(0.567 0.132 41);
+  --primary-foreground: oklch(0.98 0.008 83);
+  --secondary: oklch(0.938 0.013 76);
+  --secondary-foreground: oklch(0.33 0.02 50);
+  --muted: oklch(0.949 0.01 79);
+  --muted-foreground: oklch(0.505 0.018 54);
+  --accent: oklch(0.927 0.026 55);
+  --accent-foreground: oklch(0.36 0.045 44);
+  --destructive: oklch(0.553 0.203 27);
+  --destructive-foreground: oklch(0.98 0.008 83);
+  --border: oklch(0.902 0.013 71);
+  --input: oklch(0.8 0.022 64);
+  --ring: oklch(0.567 0.132 41);
+  --radius: 0.5rem;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(1 0 0 / 0.1);
-  --input: oklch(1 0 0 / 0.15);
-  --ring: oklch(0.556 0 0);
+  --background: oklch(0.203 0.012 54);
+  --foreground: oklch(0.944 0.008 83);
+  --card: oklch(0.243 0.014 54);
+  --card-foreground: oklch(0.944 0.008 83);
+  --popover: oklch(0.243 0.014 54);
+  --popover-foreground: oklch(0.944 0.008 83);
+  --primary: oklch(0.706 0.124 46);
+  --primary-foreground: oklch(0.203 0.012 54);
+  --secondary: oklch(0.301 0.016 52);
+  --secondary-foreground: oklch(0.92 0.008 83);
+  --muted: oklch(0.283 0.014 52);
+  --muted-foreground: oklch(0.724 0.012 70);
+  --accent: oklch(0.334 0.03 48);
+  --accent-foreground: oklch(0.92 0.02 70);
+  --destructive: oklch(0.704 0.191 22);
+  --destructive-foreground: oklch(0.2 0.012 54);
+  --border: oklch(0.345 0.014 52);
+  --input: oklch(0.46 0.02 52);
+  --ring: oklch(0.706 0.124 46);
 }
 
 @theme inline {
@@ -115,4 +174,6 @@
 body {
   background: var(--color-background);
   color: var(--color-foreground);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }

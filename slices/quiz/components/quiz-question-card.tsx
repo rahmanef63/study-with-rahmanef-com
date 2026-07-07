@@ -34,10 +34,22 @@ export function QuizQuestionCard({
   return (
     <Card>
       <CardHeader>
-        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          {questionLabel} {index + 1} {ofLabel} {total}
-        </p>
-        <CardTitle className="text-base font-medium leading-snug">{question.prompt}</CardTitle>
+        <div className="flex gap-3 sm:gap-4">
+          <span
+            aria-hidden
+            className="font-serif text-2xl leading-none tabular-nums text-primary/70 sm:text-3xl"
+          >
+            {String(index + 1).padStart(2, "0")}
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="eyebrow">
+              {questionLabel} {index + 1} {ofLabel} {total}
+            </p>
+            <CardTitle className="mt-1.5 text-base font-medium leading-snug text-pretty">
+              {question.prompt}
+            </CardTitle>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <fieldset className="space-y-2" disabled={disabled}>
@@ -49,7 +61,7 @@ export function QuizQuestionCard({
               <Label
                 key={id}
                 htmlFor={id}
-                className={`flex min-h-11 cursor-pointer items-center gap-3 rounded-md border p-3 text-sm transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-background ${
+                className={`flex min-h-11 cursor-pointer items-center gap-3 rounded-md border p-3 text-sm leading-snug transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-background ${
                   selected
                     ? "border-primary bg-primary/5 font-medium text-foreground"
                     : "border-border font-normal hover:bg-muted/50"
@@ -63,7 +75,7 @@ export function QuizQuestionCard({
                   checked={selected}
                   onChange={() => onChange(optionIndex)}
                 />
-                <span>{option}</span>
+                <span className="min-w-0 flex-1 text-pretty">{option}</span>
               </Label>
             );
           })}

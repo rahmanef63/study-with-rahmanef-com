@@ -10,8 +10,12 @@ export const metadata: Metadata = { title: "Pengaturan profil" };
 
 export default function ProfilSettingsPage() {
   return (
-    <div className="mx-auto max-w-2xl px-6 py-12">
-      <Tabs defaultValue="profil">
+    <div className="mx-auto max-w-2xl px-6 py-12 sm:py-16">
+      <header className="mb-6">
+        <span className="eyebrow">Akun</span>
+        <h1 className="mt-2 text-2xl sm:text-3xl">Pengaturan</h1>
+      </header>
+      <Tabs defaultValue="profil" className="gap-6">
         <TabsList>
           <TabsTrigger value="profil">Profil</TabsTrigger>
           <TabsTrigger value="tampilan">Tampilan</TabsTrigger>
@@ -20,7 +24,7 @@ export default function ProfilSettingsPage() {
           <ProfileSettingsView />
         </TabsContent>
         <TabsContent value="tampilan">
-          <section className="space-y-3">
+          <section className="space-y-4">
             <div className="space-y-1">
               <h2 className="text-sm font-medium text-foreground">Tema</h2>
               <p className="text-sm text-muted-foreground">

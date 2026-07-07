@@ -38,9 +38,10 @@ export function AnnouncementsView({
 
   return (
     <div className={cn("flex flex-col gap-6", className)}>
-      <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold tracking-tight">{t.title}</h1>
-        <p className="text-muted-foreground text-sm">{t.subtitle}</p>
+      <header className="flex flex-col gap-2 border-b pb-5">
+        <span className="eyebrow">Komunitas</span>
+        <h1 className="text-2xl sm:text-3xl">{t.title}</h1>
+        <p className="text-pretty text-sm text-muted-foreground">{t.subtitle}</p>
       </header>
 
       {canManage ? (

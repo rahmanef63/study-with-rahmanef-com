@@ -22,12 +22,14 @@ export function CourseCatalog({ tenantId, courseHref, copy: copyOverride, classN
   const copy = mergeCopy(copyOverride);
   const courses = usePublishedCourses(tenantId);
 
+  const gridClass = "grid gap-4 sm:grid-cols-2 lg:grid-cols-3";
+
   if (courses === undefined) {
     return (
-      <div className={className ? `grid gap-4 md:grid-cols-2 lg:grid-cols-3 ${className}` : "grid gap-4 md:grid-cols-2 lg:grid-cols-3"}>
+      <div className={className ? `${gridClass} ${className}` : gridClass}>
         <Skeleton className="h-56" />
-        <Skeleton className="h-56 hidden md:block" />
-        <Skeleton className="h-56 hidden lg:block" />
+        <Skeleton className="hidden h-56 sm:block" />
+        <Skeleton className="hidden h-56 lg:block" />
       </div>
     );
   }
@@ -37,7 +39,7 @@ export function CourseCatalog({ tenantId, courseHref, copy: copyOverride, classN
   }
 
   return (
-    <div className={className ? `grid gap-4 md:grid-cols-2 lg:grid-cols-3 ${className}` : "grid gap-4 md:grid-cols-2 lg:grid-cols-3"}>
+    <div className={className ? `${gridClass} ${className}` : gridClass}>
       {courses.map((course) => (
         <CourseCard key={course._id} course={course} href={courseHref(course.slug)} />
       ))}

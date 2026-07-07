@@ -44,19 +44,19 @@ export function CourseStatusActions({ courseId, status, onSetStatus, copy }: Cou
         {label}
       </span>
       {status !== "published" && (
-        <Button size="sm" disabled={busy} onClick={() => void run("published")}>
+        <Button size="sm" className="min-h-11 sm:min-h-8" disabled={busy} onClick={() => void run("published")}>
           {pending === "published" && <Spinner />}
           {copy.publish}
         </Button>
       )}
       {status === "published" && (
-        <Button size="sm" variant="outline" disabled={busy} onClick={() => void run("draft")}>
+        <Button size="sm" variant="outline" className="min-h-11 sm:min-h-8" disabled={busy} onClick={() => void run("draft")}>
           {pending === "draft" && <Spinner />}
           {copy.unpublish}
         </Button>
       )}
       {status !== "archived" && (
-        <Button size="sm" variant="ghost" disabled={busy} onClick={() => void run("archived")}>
+        <Button size="sm" variant="ghost" className="min-h-11 sm:min-h-8" disabled={busy} onClick={() => void run("archived")}>
           {pending === "archived" && <Spinner />}
           {copy.archive}
         </Button>

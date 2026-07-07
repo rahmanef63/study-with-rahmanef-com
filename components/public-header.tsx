@@ -7,9 +7,10 @@ import { MarketingHeader } from "@/features/marketing-chrome";
 import { ThemePresetSwitcher } from "@/features/theme-presets";
 import { useCurrentProfile } from "@/features/profiles";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/brand/logo";
 import { UserMenu } from "@/components/user-menu";
 
-const BRAND = { name: "belajar-with-rahmanef.com", href: "/" };
+const BRAND = { name: "", href: "/", logo: <Logo /> };
 const NAV = [
   { label: "Beranda", href: "/" },
   { label: "Komunitas", href: "/#komunitas" },

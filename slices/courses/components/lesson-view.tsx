@@ -37,14 +37,21 @@ export function LessonView({
 
   return (
     <article className={className ? `space-y-6 ${className}` : "space-y-6"}>
-      <header className="space-y-1">
-        <Button asChild variant="ghost" size="sm" className="-ml-2 text-muted-foreground">
+      <header className="space-y-3">
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="-ml-2 min-h-11 text-muted-foreground sm:min-h-9"
+        >
           <Link href={backHref}>
             <ArrowLeft aria-hidden /> {copy.backToCourse}
           </Link>
         </Button>
-        <h1 className="text-2xl font-bold tracking-tight">{lesson.title}</h1>
-        <p className="text-sm text-muted-foreground">{lesson.courseTitle}</p>
+        <div className="flex flex-col gap-1.5">
+          <span className="eyebrow">{lesson.courseTitle}</span>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl">{lesson.title}</h1>
+        </div>
       </header>
 
       {lesson.youtubeVideoId !== undefined ? (
@@ -55,9 +62,9 @@ export function LessonView({
               href={watchUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground underline-offset-4 hover:underline"
+              className="inline-flex min-h-11 items-center gap-2 text-sm text-muted-foreground underline-offset-4 hover:underline sm:min-h-0"
             >
-              <Youtube className="size-4" aria-hidden /> {copy.watchOnYoutube}
+              <Youtube className="size-4 shrink-0" aria-hidden /> {copy.watchOnYoutube}
             </Link>
           )}
         </div>
@@ -75,25 +82,25 @@ export function LessonView({
           <div className="sticky bottom-3 z-10">{completionSlot}</div>
         )}
 
-        <nav className="flex items-center justify-between gap-3 border-t border-border pt-4">
-        {lesson.prevLessonId !== null ? (
-          <Button asChild variant="outline" size="sm">
-            <Link href={lessonHref(lesson.prevLessonId)}>
-              <ArrowLeft aria-hidden /> {copy.prevLesson}
-            </Link>
-          </Button>
-        ) : (
-          <span />
-        )}
-        {lesson.nextLessonId !== null ? (
-          <Button asChild variant="outline" size="sm">
-            <Link href={lessonHref(lesson.nextLessonId)}>
-              {copy.nextLesson} <ArrowRight aria-hidden />
-            </Link>
-          </Button>
-        ) : (
-          <span />
-        )}
+        <nav className="flex items-center justify-between gap-3 border-t border-border pt-5">
+          {lesson.prevLessonId !== null ? (
+            <Button asChild variant="outline" size="sm" className="min-h-11 sm:min-h-9">
+              <Link href={lessonHref(lesson.prevLessonId)}>
+                <ArrowLeft aria-hidden /> {copy.prevLesson}
+              </Link>
+            </Button>
+          ) : (
+            <span />
+          )}
+          {lesson.nextLessonId !== null ? (
+            <Button asChild variant="outline" size="sm" className="min-h-11 sm:min-h-9">
+              <Link href={lessonHref(lesson.nextLessonId)}>
+                {copy.nextLesson} <ArrowRight aria-hidden />
+              </Link>
+            </Button>
+          ) : (
+            <span />
+          )}
         </nav>
       </div>
     </article>

@@ -35,14 +35,14 @@ export function CourseProgressBar({
   return (
     <div className={cn("space-y-2", className)}>
       <div className="flex items-center justify-between gap-3 text-sm">
-        <span className="font-medium text-foreground">{copy.progressTitle}</span>
+        <span className="min-w-0 truncate font-medium text-foreground">{copy.progressTitle}</span>
         {isComplete ? (
-          <span className="inline-flex items-center gap-1.5 font-medium text-primary">
+          <span className="inline-flex shrink-0 items-center gap-1.5 font-medium text-primary">
             <CheckCircle2 className="size-4 shrink-0" aria-hidden />
             {copy.courseCompleteBadge}
           </span>
         ) : (
-          <span className="text-muted-foreground">{countLabel}</span>
+          <span className="shrink-0 tabular-nums text-muted-foreground">{countLabel}</span>
         )}
       </div>
       <div

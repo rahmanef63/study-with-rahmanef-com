@@ -40,10 +40,13 @@ export function SuggestionBoxView({
   const { setStatus, isPending: updating } = useSetSuggestionStatus(copyOverride);
 
   return (
-    <div className={className ? `space-y-6 ${className}` : "space-y-6"}>
-      <header className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">{copy.boxTitle}</h1>
-        <p className="text-sm text-muted-foreground">{copy.boxSubtitle}</p>
+    <div className={className ? `space-y-8 ${className}` : "space-y-8"}>
+      <header className="flex flex-col gap-2 border-b pb-5">
+        <span className="eyebrow">Suara komunitas</span>
+        <h1 className="text-2xl sm:text-3xl">{copy.boxTitle}</h1>
+        <p className="max-w-2xl text-pretty text-sm text-muted-foreground sm:text-base">
+          {copy.boxSubtitle}
+        </p>
       </header>
 
       <Card id="usulkan-topik" className="scroll-mt-24">

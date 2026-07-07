@@ -22,7 +22,7 @@ export function TenantCourseGrid({
   const isMember = membership != null;
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {courses.map((course) => {
         const href = `/t/${slug}/kelas/${course.slug}`;
         return isMember ? (
