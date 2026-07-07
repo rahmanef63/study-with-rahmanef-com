@@ -17,7 +17,7 @@ import { openApp, seg } from "./_nav";
 import { recordRecentCourse } from "../recent-courses";
 import { CourseOverviewView, LessonPlayerView, useCourseOverview } from "@/features/courses";
 import { CourseProgress, LessonCompletion, useCourseProgress } from "@/features/progress";
-import { useQuizForTaking } from "@/features/quiz";
+import { useQuizForTaking, useMyAttempts } from "@/features/quiz";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Empty,
@@ -79,7 +79,14 @@ function ModuleQuizEntry({
   onOpen: () => void;
 }) {
   const quiz = useQuizForTaking(moduleId);
+  // "skip" until the quiz resolves (Rules-of-Hooks: called before the early return).
+  // Member-branch only, so this never fires for anonymous viewers.
+  const attempts = useMyAttempts(quiz?._id);
   if (quiz == null) return null; // undefined (loading) or null (no quiz)
+  // Server stores `passed` per attempt → once ANY attempt passed, the module is lulus.
+  // attempts===undefined (loading) falls through to the neutral "Kerjakan" state.
+  const passed = (attempts ?? []).some((a) => a.passed);
+  const attempted = (attempts ?? []).length > 0;
   return (
     <button
       type="button"
@@ -89,7 +96,15 @@ function ModuleQuizEntry({
       <span className="min-w-0 truncate">
         <span className="font-medium">Kuis:</span> {title}
       </span>
-      <span className="shrink-0 text-xs font-medium text-primary">Kerjakan →</span>
+      <span className="shrink-0 text-xs font-medium">
+        {passed ? (
+          <span className="text-success">Lulus ✓</span>
+        ) : attempted ? (
+          <span className="text-muted-foreground">Belum lulus →</span>
+        ) : (
+          <span className="text-primary">Kerjakan →</span>
+        )}
+      </span>
     </button>
   );
 }
