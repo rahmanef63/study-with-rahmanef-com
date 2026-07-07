@@ -12,6 +12,7 @@ import { useState } from "react";
 import { BookOpen, ListChecks, Lock, Megaphone, Users, type LucideIcon } from "lucide-react";
 import type { AppProps } from "@/features/appshell";
 import { AnnouncementsView } from "@/features/announcements";
+import { seg } from "./_nav";
 import { TenantSettingsView, useMyMembership, useTenantBySlug } from "@/features/tenants";
 import { KelolaEmpty, KelolaSkeleton } from "./kelola-parts";
 import { KelolaKelasTab } from "./kelola-kelas-tab";
@@ -27,9 +28,10 @@ const TABS: { key: TabKey; label: string; icon: LucideIcon }[] = [
 ];
 
 export default function KelolaApp(props: AppProps) {
-  const payload = props.payload as { tenantSlug: string } | undefined;
+  // Deep-link path: /kelola/<tenantSlug>
+  const [tenantSlug] = seg(props.payload);
 
-  if (!payload?.tenantSlug) {
+  if (!tenantSlug) {
     return (
       <div className="mx-auto w-full max-w-3xl p-6 sm:p-8">
         <KelolaEmpty
@@ -41,7 +43,7 @@ export default function KelolaApp(props: AppProps) {
     );
   }
 
-  return <KelolaConsole tenantSlug={payload.tenantSlug} />;
+  return <KelolaConsole tenantSlug={tenantSlug} />;
 }
 
 function KelolaConsole({ tenantSlug }: { tenantSlug: string }) {

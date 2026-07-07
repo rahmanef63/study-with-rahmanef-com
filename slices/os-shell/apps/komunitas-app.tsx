@@ -11,7 +11,8 @@
 // layout already mounts Convex). Tenant/course rendering is REUSED from the
 // tenants + courses slices — nothing about profiles/join/roles is reimplemented.
 import { useQuery } from "convex/react";
-import { openWindow, type AppProps } from "@/features/appshell";
+import { type AppProps } from "@/features/appshell";
+import { openApp } from "./_nav";
 import {
   JoinButton,
   RoleChip,
@@ -35,7 +36,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { Compass, LogIn, Settings2, Users } from "lucide-react";
+import { Compass, Library, LogIn, Megaphone, Settings2, Users } from "lucide-react";
 
 // ── Shared course tile ───────────────────────────────────────────────────────
 // Mirrors Beranda's KelasGrid item: a button (not a route Link) so a course
@@ -44,12 +45,7 @@ function CourseTile({ course, tenantSlug }: { course: CourseCardData; tenantSlug
   return (
     <button
       type="button"
-      onClick={() =>
-        openWindow("kelas", course.title, undefined, {
-          tenantSlug,
-          courseSlug: course.slug,
-        })
-      }
+      onClick={() => openApp("kelas", course.title, [tenantSlug, course.slug])}
       className="group flex min-h-11 flex-col gap-1.5 rounded-xl border bg-card p-4 text-left transition-colors hover:border-primary/40 hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <span className="min-w-0 truncate font-serif text-base font-medium text-pretty group-hover:text-primary">
@@ -81,20 +77,35 @@ function CommunityBody({ slug }: { slug: string }) {
 
   return (
     <div className="flex flex-col gap-8">
-      {canManage && tenant ? (
-        <div className="flex">
+      {/* Community sub-features — each opens its own deep-linkable window. */}
+      <div className="flex flex-wrap gap-2">
+        <Button
+          variant="outline"
+          className="min-h-11 sm:min-h-9"
+          onClick={() => openApp("resources", tenant?.name ?? "Resources", [slug])}
+        >
+          <Library aria-hidden className="size-4" />
+          Sumber &amp; usulan
+        </Button>
+        <Button
+          variant="outline"
+          className="min-h-11 sm:min-h-9"
+          onClick={() => openApp("pengumuman", tenant?.name ?? "Pengumuman", [slug])}
+        >
+          <Megaphone aria-hidden className="size-4" />
+          Pengumuman
+        </Button>
+        {canManage && tenant ? (
           <Button
             variant="outline"
             className="min-h-11 sm:min-h-9"
-            onClick={() =>
-              openWindow("kelola", tenant.name, undefined, { tenantSlug: slug })
-            }
+            onClick={() => openApp("kelola", tenant.name, [slug])}
           >
             <Settings2 aria-hidden className="size-4" />
-            Kelola komunitas
+            Kelola
           </Button>
-        </div>
-      ) : null}
+        ) : null}
+      </div>
 
       <section className="space-y-4">
         <div className="flex flex-col gap-1 border-b pb-3">
@@ -128,7 +139,7 @@ function CommunityView({ slug }: { slug: string }) {
     <div className="mx-auto w-full max-w-4xl p-6 sm:p-8">
       <TenantHomeView
         slug={slug}
-        loginHref={`/login?returnTo=/t/${slug}`}
+        loginHref="/masuk"
         className="flex flex-col gap-8"
       >
         <CommunityBody slug={slug} />
@@ -149,9 +160,7 @@ function MyCommunityRow({ community }: { community: MyCommunity }) {
     <li className="flex items-center justify-between gap-4 rounded-xl border bg-card px-5 py-4 transition-colors hover:border-primary/40 hover:bg-accent/40">
       <button
         type="button"
-        onClick={() =>
-          openWindow("komunitas", community.name, undefined, { tenantSlug: community.slug })
-        }
+        onClick={() => openApp("komunitas", community.name, [community.slug])}
         className="flex min-h-11 min-w-0 flex-1 flex-col text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
       >
         <span className="truncate font-serif font-medium">{community.name}</span>
@@ -184,7 +193,7 @@ function MyCommunitiesSection() {
               Setelah masuk, komunitas yang kamu ikuti tampil di sini.
             </EmptyDescription>
           </EmptyHeader>
-          <Button className="min-h-11" onClick={() => openWindow("masuk", "Masuk")}>
+          <Button className="min-h-11" onClick={() => openApp("masuk", "Masuk")}>
             <LogIn aria-hidden className="size-4" />
             Masuk
           </Button>
@@ -222,9 +231,7 @@ function DirectoryRow({ tenant }: { tenant: PublicTenant }) {
     <li className="flex items-center justify-between gap-4 rounded-xl border bg-card px-5 py-4 transition-colors hover:border-primary/40 hover:bg-accent/40">
       <button
         type="button"
-        onClick={() =>
-          openWindow("komunitas", tenant.name, undefined, { tenantSlug: tenant.slug })
-        }
+        onClick={() => openApp("komunitas", tenant.name, [tenant.slug])}
         className="flex min-h-11 min-w-0 flex-1 flex-col text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
       >
         <span className="truncate font-serif font-medium">{tenant.name}</span>
@@ -232,7 +239,7 @@ function DirectoryRow({ tenant }: { tenant: PublicTenant }) {
       </button>
       <JoinButton
         tenantId={tenant._id}
-        loginHref={`/login?returnTo=/t/${tenant.slug}`}
+        loginHref="/masuk"
         className="shrink-0"
       />
     </li>

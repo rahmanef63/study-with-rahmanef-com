@@ -177,3 +177,24 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
+
+/* ── OS shell follows the active theme preset ────────────────────────────────
+   The vendored appshell (appshell.css) hardcodes its glass / window / dock
+   colours and corner radii. Remap them onto the shadcn tokens that tweakcn
+   presets rewrite (--card / --foreground / --radius) so picking a preset —
+   or flipping dark mode — restyles the shell chrome too, not just the window
+   content. One :root block suffices: the tokens already flip per mode + preset,
+   and globals.css loads after appshell.css so it wins the (equal-specificity)
+   cascade, including over appshell's own `.dark` block. */
+:root {
+  --glass-bar: color-mix(in oklab, var(--card) 62%, transparent);
+  --glass-menu: color-mix(in oklab, var(--card) 88%, transparent);
+  --window-bg: color-mix(in oklab, var(--card) 92%, transparent);
+  --window-head: color-mix(in oklab, var(--card) 70%, transparent);
+  --surface: var(--muted);
+  --hover-strong: color-mix(in oklab, var(--foreground) 8%, transparent);
+  --dock-bg: color-mix(in oklab, var(--card) 42%, transparent);
+  /* Corner radii track the preset's --radius (0 = sharp, 1rem = round). */
+  --radius-win: calc(var(--radius) + 0.375rem);
+  --radius-icon: calc(var(--radius) + 0.375rem);
+}

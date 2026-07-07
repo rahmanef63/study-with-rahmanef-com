@@ -6,7 +6,8 @@
 // Already signed in → a calm confirmation with a jump into Beranda.
 import { useConvexAuth } from "convex/react";
 import { useAuthActions } from "@convex-dev/auth/react";
-import { openWindow, type AppProps } from "@/features/appshell";
+import { type AppProps } from "@/features/appshell";
+import { openApp } from "./_nav";
 import { AuthCard } from "@/features/convex-auth";
 
 const VALUE_PROP =
@@ -34,7 +35,7 @@ export default function MasukApp(_props: AppProps) {
           </header>
           <button
             type="button"
-            onClick={() => openWindow("beranda", "Beranda")}
+            onClick={() => openApp("beranda", "Beranda")}
             className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-primary px-5 font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             Buka Beranda

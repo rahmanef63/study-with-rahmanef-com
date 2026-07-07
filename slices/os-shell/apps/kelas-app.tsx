@@ -11,8 +11,9 @@
 import { useState, type MouseEvent } from "react";
 import { BookOpen, Compass } from "lucide-react";
 import type { Id } from "@convex/_generated/dataModel";
-import { openWindow, type AppProps } from "@/features/appshell";
+import { type AppProps } from "@/features/appshell";
 import { JoinButton, useTenantBySlug } from "@/features/tenants";
+import { openApp, seg } from "./_nav";
 import { CourseOverviewView, LessonPlayerView, useCourseOverview } from "@/features/courses";
 import { CourseProgress, LessonCompletion, useCourseProgress } from "@/features/progress";
 import { useQuizForTaking } from "@/features/quiz";
@@ -112,13 +113,7 @@ function MemberOverview({
         <ModuleQuizEntry
           moduleId={m._id}
           title={m.title}
-          onOpen={() =>
-            openWindow("kuis", `Kuis: ${m.title}`, undefined, {
-              tenantSlug,
-              courseSlug,
-              moduleId: m._id,
-            })
-          }
+          onOpen={() => openApp("kuis", `Kuis: ${m.title}`, [tenantSlug, courseSlug, m._id])}
         />
       )}
     />
@@ -227,9 +222,10 @@ function KelasWindow({ tenantSlug, courseSlug, initialLessonId }: KelasPayload &
 }
 
 export default function KelasApp(props: AppProps) {
-  const payload = props.payload as KelasPayload | undefined;
+  // Deep-link path: /kelas/<tenantSlug>/<courseSlug>
+  const [tenantSlug, courseSlug] = seg(props.payload);
 
-  if (!payload?.tenantSlug || !payload?.courseSlug) {
+  if (!tenantSlug || !courseSlug) {
     return (
       <div className="mx-auto w-full max-w-4xl p-6 sm:p-8">
         <Empty className="border">
@@ -247,11 +243,5 @@ export default function KelasApp(props: AppProps) {
     );
   }
 
-  return (
-    <KelasWindow
-      tenantSlug={payload.tenantSlug}
-      courseSlug={payload.courseSlug}
-      initialLessonId={payload.lessonId}
-    />
-  );
+  return <KelasWindow tenantSlug={tenantSlug} courseSlug={courseSlug} />;
 }

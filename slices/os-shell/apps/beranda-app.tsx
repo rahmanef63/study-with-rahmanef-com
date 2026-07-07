@@ -4,8 +4,9 @@
 // Kelas app in its own window (openWindow). Renders inside an appshell window,
 // so it fetches client-side via useQuery (root layout already mounts Convex).
 import { useQuery } from "convex/react";
-import { openWindow, type AppProps } from "@/features/appshell";
+import { type AppProps } from "@/features/appshell";
 import { tenantsApi, type PublicTenant } from "@/features/tenants";
+import { openApp } from "./_nav";
 import { type CourseCardData } from "@/features/courses";
 import { api } from "@convex/_generated/api";
 
@@ -30,12 +31,7 @@ function KelasGrid({ tenant }: { tenant: PublicTenant }) {
         <button
           key={course._id}
           type="button"
-          onClick={() =>
-            openWindow("kelas", course.title, undefined, {
-              tenantSlug: tenant.slug,
-              courseSlug: course.slug,
-            })
-          }
+          onClick={() => openApp("kelas", course.title, [tenant.slug, course.slug])}
           className="group flex min-h-11 flex-col gap-1.5 rounded-xl border bg-card p-4 text-left transition-colors hover:border-primary/40 hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <span className="font-serif text-base font-medium text-pretty group-hover:text-primary">

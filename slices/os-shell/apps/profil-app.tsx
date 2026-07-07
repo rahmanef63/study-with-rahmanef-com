@@ -8,8 +8,9 @@
 import type { ReactNode } from "react";
 import { LogIn, UserRound } from "lucide-react";
 import { useConvexAuth, useQuery } from "convex/react";
-import { openWindow, type AppProps } from "@/features/appshell";
+import { type AppProps } from "@/features/appshell";
 import { PublicProfileView, type CurrentProfile } from "@/features/profiles";
+import { openApp, seg } from "./_nav";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -38,7 +39,7 @@ function MemberProfil({ username }: { username: string }) {
         <span className="eyebrow">Profil anggota</span>
         <p className="truncate text-sm text-muted-foreground">@{username}</p>
       </header>
-      <PublicProfileView username={username} shareUrl={`${SITE_URL}/u/${username}`} />
+      <PublicProfileView username={username} shareUrl={`${SITE_URL}/profil/${username}`} />
     </Frame>
   );
 }
@@ -80,7 +81,7 @@ function OwnProfil() {
             <Button
               type="button"
               className="min-h-11 px-5"
-              onClick={() => openWindow("masuk", "Masuk")}
+              onClick={() => openApp("masuk", "Masuk")}
             >
               <LogIn aria-hidden="true" /> Masuk
             </Button>
@@ -108,7 +109,7 @@ function OwnProfil() {
             <Button
               type="button"
               className="min-h-11 px-5"
-              onClick={() => openWindow("pengaturan", "Pengaturan")}
+              onClick={() => openApp("pengaturan", "Pengaturan")}
             >
               Buka Pengaturan
             </Button>
@@ -128,14 +129,14 @@ function OwnProfil() {
           variant="outline"
           size="sm"
           className="min-h-11 px-4"
-          onClick={() => openWindow("pengaturan", "Pengaturan")}
+          onClick={() => openApp("pengaturan", "Pengaturan")}
         >
           Pengaturan
         </Button>
       </header>
       <PublicProfileView
         username={profile.username}
-        shareUrl={`${SITE_URL}/u/${profile.username}`}
+        shareUrl={`${SITE_URL}/profil/${profile.username}`}
       />
     </Frame>
   );
@@ -163,8 +164,8 @@ function OwnSkeleton() {
 }
 
 export default function ProfilApp(props: AppProps) {
-  const payload = props.payload as { username?: string } | undefined;
-  const username = payload?.username;
+  // Deep-link path: /profil/<username> (empty = the signed-in user's own profile)
+  const [username] = seg(props.payload);
   // Branch on which container mounts — each owns its own hooks, so no hook is
   // called conditionally.
   return username ? <MemberProfil username={username} /> : <OwnProfil />;

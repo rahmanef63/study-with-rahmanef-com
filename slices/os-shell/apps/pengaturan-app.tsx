@@ -7,7 +7,8 @@
 // The profile form itself is REUSED from @/features/profiles — this app only
 // gates it: a logged-out viewer gets an OS-native empty state that opens the
 // "masuk" (sign-in) window instead of navigating to the /login route.
-import { openWindow, type AppProps } from "@/features/appshell";
+import { type AppProps } from "@/features/appshell";
+import { openApp } from "./_nav";
 import { ThemePresetSwitcher } from "@/features/theme-presets";
 import { ProfileSettingsView, useCurrentProfile } from "@/features/profiles";
 import { Button } from "@/components/ui/button";
@@ -52,7 +53,7 @@ function ProfilSection() {
         </EmptyHeader>
         <Button
           className="min-h-11"
-          onClick={() => openWindow("masuk", "Masuk")}
+          onClick={() => openApp("masuk", "Masuk")}
         >
           <LogIn className="size-4" />
           Masuk

@@ -9,8 +9,9 @@
 // getQuizForTaking / QuizTakeView both key on Id<"modules">, not a slug.
 import { useQuery } from "convex/react";
 import { ArrowLeft, FileQuestion } from "lucide-react";
-import { openWindow, type AppProps } from "@/features/appshell";
+import { type AppProps } from "@/features/appshell";
 import { QuizTakeView } from "@/features/quiz";
+import { openApp, seg } from "./_nav";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import {
@@ -21,27 +22,24 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 
-type KuisPayload = { tenantSlug: string; courseSlug: string; moduleId: string };
-
 export default function KuisApp(props: AppProps) {
-  const payload = props.payload as KuisPayload | undefined;
+  // Deep-link path: /kuis/<tenantSlug>/<courseSlug>/<moduleId>
+  const [tenantSlug, courseSlug, moduleId] = seg(props.payload);
 
   // Resolve komunitas → kelas so the header + "kembali ke kelas" window carry
   // real names. getOverview needs a tenantId, so the tenant lookup gates it
   // ("skip" until the slug resolves — idiomatic chained Convex reads).
   const tenant = useQuery(
     api.features.tenants.queries.getPublicBySlug,
-    payload ? { slug: payload.tenantSlug } : "skip",
+    tenantSlug ? { slug: tenantSlug } : "skip",
   );
   const overview = useQuery(
     api.features.courses.queries.getOverview,
-    payload && tenant
-      ? { tenantId: tenant._id, courseSlug: payload.courseSlug }
-      : "skip",
+    tenantSlug && tenant ? { tenantId: tenant._id, courseSlug } : "skip",
   );
 
   // Invalid/absent payload (opened outside the Kelas flow): friendly empty state.
-  if (!payload?.moduleId) {
+  if (!moduleId) {
     return (
       <div className="mx-auto w-full max-w-2xl p-6 sm:p-8">
         <Empty>
@@ -66,12 +64,7 @@ export default function KuisApp(props: AppProps) {
       <header className="space-y-2">
         <button
           type="button"
-          onClick={() =>
-            openWindow("kelas", courseTitle ?? "Kelas", undefined, {
-              tenantSlug: payload.tenantSlug,
-              courseSlug: payload.courseSlug,
-            })
-          }
+          onClick={() => openApp("kelas", courseTitle ?? "Kelas", [tenantSlug, courseSlug])}
           className="-ml-1 inline-flex min-h-11 items-center gap-1.5 rounded-lg px-1 text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <ArrowLeft className="size-4 shrink-0" aria-hidden /> Kembali ke kelas
@@ -91,7 +84,7 @@ export default function KuisApp(props: AppProps) {
       {/* Reuse the quiz slice view — it owns getQuizForTaking / listMyAttempts
           reads, submitAttempt grading, its own skeleton/no-quiz states, and the
           sticky safe-area submit bar. */}
-      <QuizTakeView moduleId={payload.moduleId as Id<"modules">} />
+      <QuizTakeView moduleId={moduleId as Id<"modules">} />
     </div>
   );
 }

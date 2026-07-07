@@ -19,8 +19,10 @@ const DEFAULT_MODE = "light" as const;
 const DEFAULT_PRESET = null;
 
 // Hanken Grotesk (body/UI) + Fraunces (optical display serif). Distinctive,
-// warm, and — unlike Inter — not the generic default. Vars ride on <body> so
-// they shadow any preset's :root font tokens.
+// warm, and — unlike Inter — not the generic default. Vars ride on <html> (not
+// <body>) so they are the DEFAULT: a tweakcn preset that ships its own --font-*
+// (injected as a later <style> in <body>) overrides them, and "Default" falls
+// back here. So fonts follow the active preset, Editorial is the baseline.
 const sans = Hanken_Grotesk({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
 const serif = Fraunces({
   subsets: ["latin"],
@@ -51,8 +53,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" suppressHydrationWarning>
-      <body className={`${sans.variable} ${serif.variable} font-sans antialiased`}>
+    <html lang="id" suppressHydrationWarning className={`${sans.variable} ${serif.variable}`}>
+      <body className="font-sans antialiased">
         <ThemePresetStyle preset={DEFAULT_PRESET} />
         <ThemeProviders defaultMode={DEFAULT_MODE} defaultPreset={DEFAULT_PRESET}>
           <VersionWatcher />

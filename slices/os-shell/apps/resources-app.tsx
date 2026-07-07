@@ -8,11 +8,10 @@ import { useState } from "react";
 import { useQuery } from "convex/react";
 import { type AppProps } from "@/features/appshell";
 import { ResourceBoardView, SuggestionBoxView } from "@/features/resources";
+import { seg } from "./_nav";
 import { tenantsApi, useMyMembership, type PublicTenant } from "@/features/tenants";
 import { Empty, EmptyHeader, EmptyTitle, EmptyDescription } from "@/components/ui/empty";
 import { cn } from "@/lib/utils";
-
-type ResourcesPayload = { tenantSlug: string; view?: "board" | "usulan" };
 
 const TABS = [
   { key: "board", label: "Papan sumber" },
@@ -33,8 +32,8 @@ function ResourcesEmpty({ title, description }: { title: string; description: st
 }
 
 export default function ResourcesApp(props: AppProps) {
-  const payload = props.payload as ResourcesPayload | undefined;
-  const slug = payload?.tenantSlug;
+  // Deep-link path: /resources/<tenantSlug>/<view?> (view: board | usulan)
+  const [slug, view] = seg(props.payload);
 
   // Public tenant lookup by slug (same query the routes' useTenantBySlug wraps).
   // `undefined` = loading, `null` = not found/inactive. Skip when no slug.
@@ -49,7 +48,7 @@ export default function ResourcesApp(props: AppProps) {
   const { membership } = useMyMembership(tenant?._id);
   const canModerate = membership?.role === "instructor" || membership?.role === "owner";
 
-  const [tab, setTab] = useState<TabKey>(payload?.view === "usulan" ? "usulan" : "board");
+  const [tab, setTab] = useState<TabKey>(view === "usulan" ? "usulan" : "board");
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-8 p-6 sm:p-8">

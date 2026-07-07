@@ -10,10 +10,9 @@
 import { useQuery } from "convex/react";
 import { type AppProps } from "@/features/appshell";
 import { AnnouncementsView } from "@/features/announcements";
+import { seg } from "./_nav";
 import { tenantsApi, useMyMembership, type PublicTenant } from "@/features/tenants";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
-
-type PengumumanPayload = { tenantSlug: string };
 
 function PengumumanEmpty({ title, description }: { title: string; description: string }) {
   return (
@@ -27,8 +26,8 @@ function PengumumanEmpty({ title, description }: { title: string; description: s
 }
 
 export default function PengumumanApp(props: AppProps) {
-  const payload = props.payload as PengumumanPayload | undefined;
-  const slug = payload?.tenantSlug;
+  // Deep-link path: /pengumuman/<tenantSlug>
+  const [slug] = seg(props.payload);
 
   // Public tenant lookup by slug — the same query the route's useTenantBySlug
   // wraps. `undefined` = loading, `null` = not found/inactive. Skip with no slug.
