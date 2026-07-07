@@ -10,6 +10,7 @@ import type { CSSProperties } from "react";
 import { useCallback } from "react";
 import { useTheme } from "next-themes";
 import type { ShellAppearance, ShellCapabilities } from "@/features/appshell";
+import { useShellSearch } from "./shell-search";
 
 // Bespoke "Editorial Warmth" wallpaper — a CSS-props bag (wins over any named
 // preset). Built from the app's own tokens (var(--primary) terracotta over
@@ -40,4 +41,7 @@ const cpuNull = (): number | null => null;
 export const editorialCapabilities: ShellCapabilities = {
   useAppearance: useEditorialAppearance,
   useCpuPercent: cpuNull,
+  // Spotlight ⌘K over communities + courses (existing Convex queries, run
+  // imperatively). Hook reference — its returned fn is stable (see shell-search).
+  useSearch: useShellSearch,
 };

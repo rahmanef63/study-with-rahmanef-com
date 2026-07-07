@@ -3,12 +3,56 @@
 // Reuses the courses/tenants slice barrels for data; a course click opens the
 // Kelas app in its own window (openWindow). Renders inside an appshell window,
 // so it fetches client-side via useQuery (root layout already mounts Convex).
+import { useEffect, useState } from "react";
 import { useQuery } from "convex/react";
+import { BookOpen } from "lucide-react";
 import { type AppProps } from "@/features/appshell";
 import { tenantsApi, type PublicTenant } from "@/features/tenants";
 import { openApp } from "./_nav";
+import { getRecentCourses, type RecentCourse } from "../recent-courses";
 import { type CourseCardData } from "@/features/courses";
 import { api } from "@convex/_generated/api";
+
+/** "Lanjutkan belajar" — one-click resume of recently opened courses. Reads
+ *  localStorage, so it is client-only: we start empty and hydrate after mount
+ *  (useState + useEffect) to avoid an SSR hydration mismatch. Renders nothing
+ *  until the user has opened at least one course. */
+function LanjutkanBelajar() {
+  const [recents, setRecents] = useState<RecentCourse[]>([]);
+  useEffect(() => {
+    setRecents(getRecentCourses());
+  }, []);
+
+  if (recents.length === 0) return null;
+
+  return (
+    <section aria-labelledby="lanjutkan-belajar" className="space-y-4">
+      <div className="space-y-1">
+        <span className="eyebrow">Lanjut dari terakhir</span>
+        <h2 id="lanjutkan-belajar" className="font-serif text-2xl">
+          Lanjutkan belajar
+        </h2>
+      </div>
+      <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-1 sm:flex-wrap sm:overflow-visible">
+        {recents.map((c) => (
+          <button
+            key={`${c.tenantSlug}/${c.courseSlug}`}
+            type="button"
+            onClick={() => openApp("kelas", c.title, [c.tenantSlug, c.courseSlug])}
+            className="group flex min-h-11 max-w-xs shrink-0 items-center gap-2.5 rounded-full border bg-card py-2.5 pl-3 pr-4 text-left transition-colors hover:border-primary/40 hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <span className="grid size-7 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+              <BookOpen aria-hidden className="size-3.5" />
+            </span>
+            <span className="min-w-0 truncate text-pretty text-sm font-medium group-hover:text-primary">
+              {c.title}
+            </span>
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
 
 function KelasGrid({ tenant }: { tenant: PublicTenant }) {
   const courses = useQuery(api.features.courses.queries.listPublished, {
@@ -62,6 +106,8 @@ export default function BerandaApp(_props: AppProps) {
           Pilih komunitas, buka kelasnya, dan catat progresmu — gratis, berbahasa Indonesia.
         </p>
       </header>
+
+      <LanjutkanBelajar />
 
       {tenants === undefined ? (
         <div className="space-y-4">

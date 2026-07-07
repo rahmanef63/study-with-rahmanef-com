@@ -8,12 +8,13 @@
 // A module's quiz CTA is the exception: it spawns the "kuis" app in its own
 // window via openWindow. Runs inside an appshell window, so it fetches
 // client-side via useQuery (root layout already mounts Convex).
-import { type MouseEvent } from "react";
+import { useEffect, type MouseEvent } from "react";
 import { BookOpen, Compass } from "lucide-react";
 import type { Id } from "@convex/_generated/dataModel";
 import { type AppProps } from "@/features/appshell";
 import { JoinButton, useTenantBySlug } from "@/features/tenants";
 import { openApp, seg } from "./_nav";
+import { recordRecentCourse } from "../recent-courses";
 import { CourseOverviewView, LessonPlayerView, useCourseOverview } from "@/features/courses";
 import { CourseProgress, LessonCompletion, useCourseProgress } from "@/features/progress";
 import { useQuizForTaking } from "@/features/quiz";
@@ -134,6 +135,15 @@ function KelasCourse({
   lessonId: Id<"lessons"> | null;
 }) {
   const overview = useCourseOverview(tenantId, courseSlug);
+
+  // Remember this course for Beranda's "Lanjutkan belajar" resume row. Keyed on
+  // the tenant+course slug pair (bumps recency when re-opened) and only fires
+  // once the overview resolves, so the title is known and drafts/NOT_FOUND
+  // (overview stays undefined) never get recorded. Client-only (localStorage).
+  const courseTitle = overview?.course.title;
+  useEffect(() => {
+    if (courseTitle) recordRecentCourse({ tenantSlug, courseSlug, title: courseTitle });
+  }, [tenantSlug, courseSlug, courseTitle]);
 
   // Payload-driven in-window nav so lessons are deep-linkable: selecting a lesson
   // (or "back") re-opens this same window with a new path, which appshell mirrors
