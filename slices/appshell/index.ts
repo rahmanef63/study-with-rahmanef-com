@@ -1,0 +1,185 @@
+// Public barrel — other slices/app layer import ONLY from here.
+export { OsDesktop } from "./components/desktop";
+// Bundled single-pane cockpit shell (also self-registers as ShellId "dashboard").
+export { DashboardShell } from "./components/shells/dashboard/dashboard-shell";
+export { AppIcon } from "./components/app-icon";
+export { QuicklinkIcon } from "./components/quicklink-icon";
+// Generic app mounter (lazy-loads an app by id + payload). Used by windows AND
+// single-pane shells (e.g. the Dashboard shell) so apps mount identically.
+export { WindowContent as AppHost } from "./components/window-content";
+export { AppRegistryProvider, useApp, useApps } from "./lib/registry";
+// Window lifecycle + the shell-UI actions feature slices drive (search,
+// inspector, control-center read these instead of reaching into the store).
+export {
+  shellStore,
+  openWindow,
+  closeWindow,
+  setCloseGuard,
+  focusWindow,
+  minimizeWindow,
+  restoreWindow,
+  setLauncherOpen,
+  setSpotlightOpen,
+  setInspectorOpen,
+  toggleSpotlight,
+  toggleInspector,
+  setNotificationCenterOpen,
+  toggleNotificationCenter,
+  applyChromeInsets,
+  retileSnapped,
+  onSnap,
+  snapWindow,
+  minimizeAll,
+  closeAll,
+  serialize,
+} from "./lib/store";
+export {
+  useWindow,
+  useWindowOrder,
+  useFocused,
+  useLauncherOpen,
+  useSpotlightOpen,
+  useInspectorOpen,
+  useNotificationCenterOpen,
+  useFocusedApp,
+} from "./hooks/use-shell";
+// Reusable app-window chrome (all regions optional) + form/preview drawer, so
+// every app reads consistently: Sidebar→left Sheet, Inspector→right Sheet on
+// narrow containers; <FormDrawer> = dialog on desktop ⇄ bottom drawer on mobile.
+export { AppHeader, AppSidebar, AppInspector } from "./components/layout/app-chrome";
+export {
+  ResponsiveDialog,
+  ResponsiveDialog as FormDrawer,
+} from "./primitives/responsive-dialog";
+export {
+  toast, dismissToast, useToasts,
+  useNotifications, dismissNotification, clearNotifications, markNotificationsRead,
+} from "./lib/toast";
+export type { NotificationItem } from "./lib/toast";
+export { setActivity, clearActivity, useActivities } from "./lib/activity";
+export type { Activity } from "./lib/activity";
+// F1–F20 window-manager + productivity libs (each module exports its own
+// public surface — commands/badges/layouts/recents/window-commands/window-title/
+// spaces/window-tabs/clipboard/share/lock/profiles/shortcuts/focus-mode/dnd/quick-look).
+export * from "./lib/commands";
+export * from "./lib/badges";
+export * from "./lib/layouts";
+export * from "./lib/recents";
+export * from "./lib/window-commands";
+export * from "./lib/window-title";
+export * from "./lib/spaces";
+export * from "./lib/window-tabs";
+export * from "./lib/clipboard";
+export * from "./lib/share";
+export * from "./lib/lock";
+export * from "./lib/profiles";
+export * from "./lib/shortcuts";
+export * from "./lib/focus-mode";
+export * from "./lib/dnd";
+export * from "./lib/quick-look";
+export {
+  usePublishInspector,
+  publishInspector,
+  clearInspector,
+  useInspectorInfo,
+} from "./lib/inspector";
+export type {
+  InspectorInfo,
+  InspectorProp,
+  InspectorAction,
+} from "./lib/inspector";
+export type { Toast, ToastOptions, ToastTone } from "./lib/toast";
+export type { AppDescriptor, AppMenu, AppMenuItem, WindowState, WinId, AppProps } from "./lib/types";
+export { appshellConfig } from "./config";
+export type { AppShellConfig } from "./config";
+
+// ── Shell registry — the pluggable multi-shell seam (macOS/Windows/iOS/…) ────
+// Per-surface preference: the user picks a desktop shell AND a mobile shell; the
+// active one is resolved by form factor.
+export {
+  registerShell,
+  getShell,
+  shellList,
+  shellsForSurface,
+  resolveShell,
+  surfaceOf,
+  setShell,
+  useShellPrefs,
+} from "./registry/shells";
+export type { ShellId, ShellSurface, ShellDescriptor, ShellPrefs } from "./registry/shells";
+
+// ── Responsive: the single source of truth (provider + hook + container) ─────
+export { ResponsiveProvider } from "./responsive/responsive-provider";
+export { ResponsiveContext, useResponsive } from "./responsive/use-responsive";
+export type {
+  Responsive,
+  FormFactor,
+  DeviceMode,
+  Pane,
+  SafeArea,
+} from "./responsive/use-responsive";
+export { useContainer } from "./responsive/use-container";
+export { useIsMobile } from "./responsive/use-is-mobile";
+
+// ── DRY responsive primitives (compose these instead of per-app media queries) ─
+export { AppFrame } from "./primitives/app-frame";
+export { MasterDetail } from "./primitives/master-detail";
+export { ResponsiveToolbar } from "./primitives/responsive-toolbar";
+export type { ToolbarItem } from "./primitives/responsive-toolbar";
+export { TouchList, TouchRow } from "./primitives/touch-list";
+
+// ── Manifest-driven shell: the wrapper provider + feature/slot/brand registry ─
+export { AppShell } from "./provider/app-shell";
+export { defineFeature } from "./registry/types";
+export type {
+  ShellManifest,
+  FeatureDescriptor,
+  SlotRegion,
+  Brand,
+} from "./registry/types";
+export {
+  FeatureRegistryProvider,
+  useFeatures,
+  Slot,
+} from "./registry/feature-registry";
+export { BrandProvider, useBrand } from "./registry/brand";
+export { ShellUIProvider, useShellUI } from "./registry/shell-ui";
+export type { ShellUI } from "./registry/shell-ui";
+export { ShellConfigProvider, useShellConfig } from "./registry/shell-config";
+export type { ShellConfig } from "./registry/shell-config";
+export { UrlSync } from "./runtime/use-url-sync";
+export {
+  CapabilitiesProvider,
+  useShellAppearance,
+  useCpuPercent,
+  useShellSearch,
+  useSystemStats,
+  useShellChat,
+  useServerToggle,
+  useQuickLinks,
+} from "./registry/capabilities";
+export type {
+  ShellCapabilities,
+  ShellAppearance,
+  ThemeMode,
+  SearchHit,
+  SystemStats,
+  ChatMessage,
+  ServerToggle,
+  QuickLink,
+  QuickLinks,
+} from "./registry/capabilities";
+
+export * from "./defaults";
+
+// Mock capabilities pack — inject as `manifest.capabilities` to drive all five
+// features with realistic data and NO backend (search/stats/chat/server toggle).
+// The single switch: swap this object for your real capabilities to go live.
+export { mockCapabilities } from "./lib/mock-capabilities";
+
+// Agentic surface lives in the OPTIONAL sibling entry `./agentic` — NOT this
+// core barrel — so importing @/features/appshell never transitively resolves
+// @/shared/agentic. A consumer that runs an agent imports appshellTools +
+// AppshellAgentMount from "@/features/appshell/agentic"; a non-agent consumer
+// (no @/shared/agentic module) imports only this barrel and compiles clean.
+// The AppshellCtx type is re-exported there too.

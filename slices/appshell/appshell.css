@@ -1,0 +1,89 @@
+/**
+ * appshell theme tokens — the OS-shell look (glass bars, glossy dock, window
+ * chrome, wallpapers). The slice's components reference these CSS custom
+ * properties; they are NOT shadcn defaults, so a consumer MUST import this file
+ * once (e.g. in the root layout or the page that mounts <AppShell>):
+ *
+ *     import "@/features/appshell/appshell.css";
+ *
+ * Light values live on :root; `.dark` overrides them. Pairs with the shadcn
+ * theme tokens already in the consumer's globals (--background/--foreground/…).
+ */
+
+:root {
+  --sai-top: env(safe-area-inset-top, 0px);
+  --sai-right: env(safe-area-inset-right, 0px);
+  --sai-bottom: env(safe-area-inset-bottom, 0px);
+  --sai-left: env(safe-area-inset-left, 0px);
+  --blur: 30px;
+  --accent: #2f7bf6;
+
+  --glass-bar: rgba(250, 250, 252, 0.62);
+  --glass-menu: rgba(252, 252, 254, 0.86);
+  --window-bg: rgba(248, 248, 251, 0.86);
+  --surface: #f4f4f7;
+  --window-head: rgba(255, 255, 255, 0.55);
+  --hover-strong: rgba(0, 0, 0, 0.09);
+  --dock-bg: rgba(255, 255, 255, 0.34);
+
+  --radius-win: 12px;
+  --radius-icon: 22%;
+  --shadow-win: 0 0 0 0.5px rgba(0, 0, 0, 0.16), 0 24px 60px -12px rgba(0, 0, 0, 0.42),
+    0 8px 22px -10px rgba(0, 0, 0, 0.3);
+}
+
+.dark {
+  --glass-bar: rgba(28, 28, 32, 0.6);
+  --glass-menu: rgba(40, 40, 46, 0.86);
+  --window-bg: rgba(34, 34, 40, 0.82);
+  --surface: #1b1b20;
+  --window-head: rgba(60, 60, 68, 0.5);
+  --hover-strong: rgba(255, 255, 255, 0.14);
+  --dock-bg: rgba(40, 40, 48, 0.42);
+  --shadow-win: 0 0 0 0.5px rgba(0, 0, 0, 0.6), 0 28px 70px -12px rgba(0, 0, 0, 0.7),
+    0 8px 22px -10px rgba(0, 0, 0, 0.55);
+}
+
+/* glass helper — applied alongside theme tokens, never raw hex in components */
+.glass {
+  -webkit-backdrop-filter: blur(var(--blur)) saturate(180%);
+  backdrop-filter: blur(var(--blur)) saturate(180%);
+}
+
+/* wallpapers — the desktop background (manifest appearance picks the key) */
+.wp-aurora {
+  background:
+    radial-gradient(120% 120% at 18% 12%, #6a8dff 0%, rgba(106, 141, 255, 0) 46%),
+    radial-gradient(120% 110% at 86% 22%, #ff7ac4 0%, rgba(255, 122, 196, 0) 42%),
+    radial-gradient(120% 120% at 70% 88%, #5be0c8 0%, rgba(91, 224, 200, 0) 48%),
+    linear-gradient(160deg, #2a2f6b 0%, #1b2050 60%, #141738 100%);
+}
+.wp-dusk {
+  background:
+    radial-gradient(130% 120% at 80% 8%, #ffb066 0%, rgba(255, 176, 102, 0) 45%),
+    radial-gradient(120% 120% at 12% 30%, #ff6f91 0%, rgba(255, 111, 145, 0) 42%),
+    linear-gradient(160deg, #5a2a55 0%, #2e1b46 55%, #16122e 100%);
+}
+.wp-mist {
+  background:
+    radial-gradient(120% 120% at 22% 18%, #c9d4e6 0%, rgba(201, 212, 230, 0) 50%),
+    radial-gradient(120% 120% at 86% 80%, #aebfd6 0%, rgba(174, 191, 214, 0) 50%),
+    linear-gradient(160deg, #eef1f6 0%, #dde3ee 60%, #cfd7e6 100%);
+}
+.wp-noir {
+  background: linear-gradient(160deg, #121316 0%, #0a0a0c 100%);
+}
+.wp-graphite {
+  background:
+    radial-gradient(120% 120% at 30% 20%, #3a3f4b 0%, rgba(58, 63, 75, 0) 55%),
+    linear-gradient(160deg, #23262e 0%, #16181d 70%, #0e0f13 100%);
+}
+
+/* Per-OS flavours — the "auto" wallpaper resolves to the active shell's pick
+   (ShellDescriptor.wallpaper); these are also selectable as plain presets. */
+.wp-win11    { background: radial-gradient(90% 75% at 50% 35%, #3b82f6 0%, #1e40af 42%, #0b1f4a 100%); }
+.wp-material { background: linear-gradient(150deg, #cfe0ff 0%, #e8def8 55%, #ffd8e4 100%); }
+.dark .wp-material { background: linear-gradient(150deg, #1f2c47 0%, #322c4b 55%, #46263a 100%); }
+.wp-ios      { background: linear-gradient(165deg, #0f2a6b 0%, #5b3bb4 48%, #c84fa0 100%); }
+/* "auto" swatch in pickers — a hue ring that reads as "follows the OS". */
+.wp-auto     { background: conic-gradient(from 220deg at 50% 50%, #3b82f6, #8b5cf6, #ec4899, #f59e0b, #10b981, #3b82f6); }

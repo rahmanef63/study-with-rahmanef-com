@@ -53,7 +53,14 @@
       "addedAt": "2026-07-05"
     }
   ],
-  "slices": [],
+  "slices": [
+    {
+      "slug": "appshell",
+      "version": "1.5.1",
+      "category": "os",
+      "addedAt": "2026-07-07"
+    }
+  ],
   "skills": [],
   "auth": {
     "provider": "convex-auth"

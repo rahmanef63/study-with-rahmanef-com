@@ -5,6 +5,10 @@ import { ConvexClientProvider } from "@/components/convex-provider";
 import { VersionWatcher } from "@/components/version-watcher";
 import { ThemeProviders, ThemePresetStyle } from "@/features/theme-presets";
 import { Toaster } from "@/components/ui/sonner";
+// appshell.css first so app globals.css cascades last and wins the shared
+// `--accent` token (shadcn's warm-neutral surface, not appshell's default blue).
+// The terracotta brand still reaches the shell via --primary/--ring/--foreground.
+import "@/features/appshell/appshell.css";
 import "./globals.css";
 
 // "Editorial Warmth" identity lives in the BASE tokens (app/globals.css), so

@@ -1,0 +1,78 @@
+"use client";
+
+import { useEffect, type ComponentType, type ReactNode } from "react";
+import { OsDesktop } from "../components/desktop";
+import { configureWindowTitle, startWindowTitleSync } from "../lib/window-title";
+import { AppRegistryProvider } from "../lib/registry";
+import { ResponsiveProvider } from "../responsive/responsive-provider";
+import { BrandProvider } from "../registry/brand";
+import { FeatureRegistryProvider } from "../registry/feature-registry";
+import { ShellConfigProvider } from "../registry/shell-config";
+import { CapabilitiesProvider, useShellAppearance } from "../registry/capabilities";
+import { UrlSync } from "../runtime/use-url-sync";
+import type { ShellManifest } from "../registry/types";
+
+// ResponsiveProvider needs the appearance device override, so it mounts via a
+// child of CapabilitiesProvider (a plain hoist couldn't call the hook).
+function ResponsiveBoundary({ children }: { children: ReactNode }) {
+  const { device } = useShellAppearance();
+  return <ResponsiveProvider device={device}>{children}</ResponsiveProvider>;
+}
+
+function withProviders(
+  providers: ComponentType<{ children: ReactNode }>[],
+  node: ReactNode,
+): ReactNode {
+  return providers.reduceRight((acc, P) => <P>{acc}</P>, node);
+}
+
+/**
+ * THE wrapper provider. A project hands it one manifest (brand + apps +
+ * features) and gets the whole desktop+mobile shell. appshell core stays
+ * brand- and feature-agnostic: everything specific is injected here. Lifts to
+ * rr as the single entry point.
+ */
+export function AppShell({ manifest }: { manifest: ShellManifest }) {
+  const features = manifest.features ?? [];
+  // OPTIONAL agentic seam — a consumer that runs an agent injects a mount
+  // component (manifest.agentMount) that self-registers appshellTools via
+  // @/shared/agentic. appshell core stays brand- AND agent-free, so a consumer
+  // without that module compiles. rr passes <AppshellAgentMount/> (see
+  // appshell/agentic.tsx); a non-agent consumer (os-vps) omits it.
+  const AgentMount = manifest.agentMount;
+
+  // Tab title follows the focused window ("Files — Brand"); audit found it
+  // frozen on the SSR metadata. Opt out via manifest.titleSync: false.
+  useEffect(() => {
+    configureWindowTitle({ suffix: manifest.brand.name, enabled: manifest.titleSync !== false });
+    if (manifest.titleSync !== false) startWindowTitleSync();
+  }, [manifest.brand.name, manifest.titleSync]);
+  const providers = features
+    .map((f) => f.provider)
+    .filter((p): p is ComponentType<{ children: ReactNode }> => Boolean(p));
+
+  return (
+    <CapabilitiesProvider value={manifest.capabilities}>
+      <BrandProvider brand={manifest.brand}>
+        <ShellConfigProvider
+          value={{
+            persistKey: manifest.persistKey ?? "appshell:layout",
+            routing: manifest.routing !== false,
+          }}
+        >
+          <FeatureRegistryProvider features={features}>
+            {/* Registry + responsive mount ABOVE the feature-provider seam so a
+                FeatureDescriptor.provider can call useApps()/useResponsive(). */}
+            <AppRegistryProvider apps={manifest.apps}>
+              <ResponsiveBoundary>
+                {manifest.routing !== false && <UrlSync apps={manifest.apps} />}
+                {AgentMount ? <AgentMount /> : null}
+                {withProviders(providers, <OsDesktop />)}
+              </ResponsiveBoundary>
+            </AppRegistryProvider>
+          </FeatureRegistryProvider>
+        </ShellConfigProvider>
+      </BrandProvider>
+    </CapabilitiesProvider>
+  );
+}
