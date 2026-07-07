@@ -11,7 +11,7 @@
 import { useEffect, type MouseEvent } from "react";
 import { BookOpen, Compass } from "lucide-react";
 import type { Id } from "@convex/_generated/dataModel";
-import { type AppProps } from "@/features/appshell";
+import { type AppProps, usePublishInspector } from "@/features/appshell";
 import { JoinButton, useTenantBySlug } from "@/features/tenants";
 import { openApp, seg } from "./_nav";
 import { recordRecentCourse } from "../recent-courses";
@@ -119,6 +119,68 @@ function MemberOverview({
   );
 }
 
+/** Side-effect only (renders null): publishes the Kelas inspector (⌘I right
+ *  panel) — course progress, the next lesson, and per-module quiz shortcuts —
+ *  from data already fetched. Member-gated by its mount site, so the member-only
+ *  progress query never fires for anonymous viewers. */
+function KelasInspector({
+  overview,
+  tenantSlug,
+  courseSlug,
+}: {
+  overview: NonNullable<ReturnType<typeof useCourseOverview>>;
+  tenantSlug: string;
+  courseSlug: string;
+}) {
+  const progress = useCourseProgress(overview.course._id);
+
+  const ordered = overview.modules.flatMap((m) => m.lessons);
+  const done = new Set(progress?.completedLessonIds ?? []);
+  const next = ordered.find((l) => !done.has(l._id)) ?? null;
+  const total = progress?.totalCount ?? overview.lessonCount;
+  const completed = progress?.completedCount ?? 0;
+  const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+  usePublishInspector(
+    "kelas",
+    {
+      subject: overview.course.title,
+      props: [
+        { label: "Progress", value: `${pct}%` },
+        { label: "Selesai", value: `${completed}/${total} lesson` },
+        { label: "Berikutnya", value: next?.title ?? "Semua selesai 🎉" },
+      ],
+      actions: [
+        ...(next
+          ? [
+              {
+                id: "next-lesson",
+                label: "Lanjut ke lesson berikutnya",
+                run: () => {
+                  openApp("kelas", "Kelas", [tenantSlug, courseSlug, "lesson", next._id]);
+                },
+              },
+            ]
+          : []),
+        ...overview.modules.map((m) => ({
+          id: `quiz-${m._id}`,
+          label: `Kuis: ${m.title}`,
+          run: () => {
+            openApp("kuis", `Kuis: ${m.title}`, [tenantSlug, courseSlug, m._id]);
+          },
+        })),
+      ],
+      context: `Kelas "${overview.course.title}", ${pct}% selesai (${completed}/${total} lesson).`,
+      suggestions: next
+        ? [`Ringkas lesson "${next.title}"`, "Apa yang harus saya pelajari selanjutnya?"]
+        : [],
+    },
+    [overview.course._id, tenantSlug, courseSlug, completed, total, next?._id, overview.course.title]
+  );
+
+  return null;
+}
+
 /** The course window body: overview ⇄ lesson panes, switched by internal state.
  *  Wraps both panes in a capture-phase click handler that intercepts the reused
  *  views' in-window nav links (#lesson/… and #overview) and turns them into
@@ -184,12 +246,15 @@ function KelasCourse({
   return (
     <div onClickCapture={onNavCapture} className="mx-auto w-full max-w-4xl p-6 sm:p-8">
       {isMember ? (
-        <MemberOverview
-          tenantId={tenantId}
-          tenantSlug={tenantSlug}
-          courseSlug={courseSlug}
-          courseId={overview.course._id}
-        />
+        <>
+          <KelasInspector overview={overview} tenantSlug={tenantSlug} courseSlug={courseSlug} />
+          <MemberOverview
+            tenantId={tenantId}
+            tenantSlug={tenantSlug}
+            courseSlug={courseSlug}
+            courseId={overview.course._id}
+          />
+        </>
       ) : (
         <CourseOverviewView
           tenantId={tenantId}

@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { LogoMark } from "@/components/brand/logo";
 import { editorialCapabilities } from "./capabilities";
+import { learningWidgetsFeature } from "./learning-widgets";
 
 // Warm, distinct "Editorial Warmth" glossy dock/launcher gradients.
 const beranda: AppDescriptor = {
@@ -161,7 +162,9 @@ export const BRAND: Brand = {
 export const shellManifest: ShellManifest = {
   brand: BRAND,
   apps: APPS,
-  features: DEFAULT_FEATURES,
+  // Swap appshell's dead system-stats widgets for our learning widgets (resume
+  // courses); keep the rest of DEFAULT_FEATURES (search, notifications, …).
+  features: [...DEFAULT_FEATURES.filter((f) => f.id !== "widgets"), learningWidgetsFeature],
   persistKey: "study-with:os",
   capabilities: editorialCapabilities,
   // Full-desktop: mirror the focused app to the URL (History API). Paired with
