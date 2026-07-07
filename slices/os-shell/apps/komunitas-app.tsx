@@ -275,8 +275,12 @@ function DirectoryCard({ tenant, view }: { tenant: PublicTenant; view: "list" | 
           </span>
           <span className="line-clamp-2 text-sm text-muted-foreground">{tenant.description}</span>
         </button>
-        <div className="mt-auto border-t border-border pt-3">
-          <JoinButton tenantId={tenant._id} loginHref="/masuk" />
+        <div className="mt-auto min-w-0 border-t border-border pt-3">
+          <JoinButton
+            tenantId={tenant._id}
+            loginHref="/masuk"
+            className="h-auto min-h-9 w-full justify-center whitespace-normal py-1.5 text-center"
+          />
         </div>
       </li>
     );
@@ -303,7 +307,9 @@ function DirectoryCard({ tenant, view }: { tenant: PublicTenant; view: "list" | 
 }
 
 function ExploreSection() {
-  const tenants = useQuery(tenantsApi.listActive, { limit: 12 }) as PublicTenant[] | undefined;
+  // ponytail: load up to 48 so the client-side name search is exhaustive for realistic
+  // active-community counts; add a server-side name query if it ever exceeds this.
+  const tenants = useQuery(tenantsApi.listActive, { limit: 48 }) as PublicTenant[] | undefined;
   const [openRequest, setOpenRequest] = useState(false);
   // Presentational-only view state: search filters the loaded list by name,
   // ViewToggle switches list⇄grid. No effect on data fetching.

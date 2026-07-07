@@ -52,43 +52,53 @@ export function PublicProfileCard({
         eyebrow="Profil publik"
         title={
           <span className="flex flex-col gap-3 @sm:flex-row @sm:items-center @sm:gap-5">
-            <ProfileAvatar
-              name={profile.displayName}
-              avatarUrl={profile.avatarUrl}
-              size={96}
-              className="shadow-sm"
-            />
+            {/* decorative: the visible name text right beside it already names the heading */}
+            <span aria-hidden="true" className="shrink-0">
+              <ProfileAvatar
+                name={profile.displayName}
+                avatarUrl={profile.avatarUrl}
+                size={96}
+                className="shadow-sm"
+              />
+            </span>
             <span className="flex min-w-0 flex-col gap-1">
               <span className="break-words leading-tight">{profile.displayName}</span>
               <span className="text-sm font-normal text-muted-foreground">@{profile.username}</span>
             </span>
           </span>
         }
-        description={profile.bio || copy.bioEmpty}
       >
-        <div className="flex flex-wrap items-center gap-2">
-          <div aria-live="polite">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="min-h-11 px-4"
-              aria-label={copy.copyLabel}
-              onClick={() => void onCopy()}
-            >
-              {copied ? copy.copiedLabel : copy.copyLabel}
-            </Button>
+        <div className="space-y-4">
+          {/* real bio stays full-contrast; only the empty placeholder is muted */}
+          {profile.bio ? (
+            <p className="max-w-xl text-pretty leading-relaxed text-foreground">{profile.bio}</p>
+          ) : (
+            <p className="max-w-xl text-sm text-muted-foreground">{copy.bioEmpty}</p>
+          )}
+          <div className="flex flex-wrap items-center gap-2">
+            <div aria-live="polite">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="min-h-11 px-4"
+                aria-label={copy.copyLabel}
+                onClick={() => void onCopy()}
+              >
+                {copied ? copy.copiedLabel : copy.copyLabel}
+              </Button>
+            </div>
+            {editHref ? (
+              <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className="min-h-11 px-4 text-muted-foreground"
+              >
+                <Link href={editHref}>{copy.editLabel}</Link>
+              </Button>
+            ) : null}
           </div>
-          {editHref ? (
-            <Button
-              asChild
-              variant="ghost"
-              size="sm"
-              className="min-h-11 px-4 text-muted-foreground"
-            >
-              <Link href={editHref}>{copy.editLabel}</Link>
-            </Button>
-          ) : null}
         </div>
       </Hero>
 

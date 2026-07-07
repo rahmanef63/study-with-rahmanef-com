@@ -114,6 +114,7 @@ export function QuizTakeView({ moduleId, copy: copyOverride, className }: QuizTa
         />
         <div
           role="progressbar"
+          aria-label={`${copy.question}: ${answeredCount}/${quiz.questions.length}`}
           aria-valuenow={answeredCount}
           aria-valuemin={0}
           aria-valuemax={quiz.questions.length}

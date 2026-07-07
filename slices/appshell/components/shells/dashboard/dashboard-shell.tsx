@@ -122,6 +122,13 @@ function DashboardShell() {
             <div className="px-2.5 py-2 text-xs text-muted-foreground">No apps</div>
           )}
         </nav>
+
+        {/* [study-with fork] sidebar dock (mockup's UserDock) — anchors the rail
+            with the account control. Reuses the account feature's menuBarStatus
+            filler (the only feature in that region) so no new slot/import edge. */}
+        <div className="mt-auto flex items-center border-t border-border px-3 py-2.5">
+          <Slot region="menuBarStatus" />
+        </div>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">

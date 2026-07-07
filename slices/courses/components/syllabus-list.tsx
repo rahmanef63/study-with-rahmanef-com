@@ -100,7 +100,7 @@ export function SyllabusList({
                     )}
                     {!locked && (
                       <ChevronRight
-                        className="size-4 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                        className="hidden size-4 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 [@media(hover:hover)]:block"
                         aria-hidden
                       />
                     )}

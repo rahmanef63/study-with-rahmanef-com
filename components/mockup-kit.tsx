@@ -49,7 +49,7 @@ export function Hero({
     >
       <div className={cn("space-y-2", centered && "mx-auto flex max-w-2xl flex-col items-center")}>
         {eyebrow ? <span className="eyebrow">{eyebrow}</span> : null}
-        <h1 className="text-3xl @md:text-4xl">{title}</h1>
+        <h1 className="text-3xl @md:text-4xl [overflow-wrap:anywhere]">{title}</h1>
         {description ? (
           <p className="max-w-xl text-pretty text-muted-foreground">{description}</p>
         ) : null}
@@ -86,9 +86,9 @@ export function SectionHeader({
       <div className="min-w-0 space-y-1">
         {eyebrow ? <span className="eyebrow">{eyebrow}</span> : null}
         {As === "h2" ? (
-          <h2 className="text-xl @md:text-2xl">{title}</h2>
+          <h2 className="text-xl @md:text-2xl [overflow-wrap:anywhere]">{title}</h2>
         ) : (
-          <h3 className="font-serif text-lg font-medium tracking-tight">{title}</h3>
+          <h3 className="font-serif text-lg font-medium tracking-tight [overflow-wrap:anywhere]">{title}</h3>
         )}
       </div>
       {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
@@ -128,6 +128,7 @@ export function CommandSearch({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
+        aria-label={typeof placeholder === "string" ? placeholder : "Cari"}
         className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground"
       />
     </form>

@@ -87,8 +87,8 @@ function CoursePicker({
         title="Pilih kelas"
         as="h3"
         actions={
-          <span className="hidden text-sm text-muted-foreground @sm:block">
-            Kuis dikelola per modul.
+          <span className="text-sm text-muted-foreground">
+            Kuis dikelola per modul. Pilih kelasnya dulu.
           </span>
         }
       />
@@ -132,7 +132,7 @@ function ModulePicker({
         title={tree.course.title}
         as="h3"
         actions={
-          <span className="hidden text-sm text-muted-foreground @sm:block">
+          <span className="text-sm text-muted-foreground">
             Pilih modul untuk menyusun kuisnya.
           </span>
         }
