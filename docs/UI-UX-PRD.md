@@ -1,6 +1,6 @@
 # UI/UX PRD — belajar-with-rahmanef.com (study-with.rahmanef.com)
 
-> v3.0 · 2026-07-07 · Pemilik: alpha (integrator) · Status: **OS DESKTOP SHELL SHIPPED** (pivot dari route-based) · Editorial Warmth SHIPPED · shell features P1/P2/P3 SHIPPED
+> v3.1 · 2026-07-07 · Pemilik: alpha (integrator) · Status: **OS DESKTOP SHELL SHIPPED** · Editorial Warmth SHIPPED · shell features P1/P2/P3 SHIPPED · **enhancement arc SHIPPED** (account + sign-out kerja · Dashboard inspector · onboarding dosen G1/G2 · badge status kuis · widget "Lanjutkan belajar" di SEMUA shell dg S/M/L · Android notif-log · Windows tray)
 > Konteks produk: [PRD.md](PRD.md) · kontrak: [AGENTS.md](../AGENTS.md) · aturan UI rr: [rr-conventions.md](rr-conventions.md) §UI · arsitektur data: [DATA-MODEL.md](DATA-MODEL.md)
 > Fokus dokumen: model UX + daftar fitur & permukaan + progres. **Chrome utama sekarang = satu OS desktop berjendela** (bukan lagi route/page per-permukaan). Deskripsi "route/page" era lama ditandai *superseded* — tidak dihapus.
 
@@ -12,9 +12,9 @@ Legenda: ✅ selesai & tayang · 🟡 sebagian/poles lanjut · ⏸️ ditunda (n
 
 **Editorial Warmth (tayang, dipertahankan):** identitas bespoke (Fraunces + Hanken, token base terracotta oklch, aset code-gen). Chrome shell mengikuti preset tweakcn aktif via remap token di `app/globals.css`. tsc bersih · **276 test hijau** · tanpa hex hardcode (kecuali aset PNG/OG + `components/brand/**`).
 
-**Fitur shell (tayang):** ⌘K Spotlight search · command palette · toast + badge pengumuman · "Lanjutkan belajar" recents · inspector panel pelajaran (⌘I) · learning widgets (Today mobile) · **shell picker** (Pengaturan → "Tampilan OS") · share link pelajaran · Focus mode. Lihat §4.
+**Fitur shell (tayang):** ⌘K Spotlight search · command palette · toast + badge pengumuman · "Lanjutkan belajar" recents · inspector panel pelajaran (⌘I; juga di Dashboard) · **widget "Lanjutkan belajar" di SEMUA shell** (slot `today` + `desktopWidgets`) dg **ukuran S/M/L** (klik-kanan + tombol, warna/bentuk ikut preset) · **shell picker** (Pengaturan → "Tampilan OS") · **account + sign-out kerja** (menu-bar macOS + Pengaturan "Akun") · share link pelajaran (juga tombol di badan Kelas → reachable di mobile) · **badge status kuis** (Lulus/Belum) · Focus mode · **Android notif-log** (bell) · **Windows tray quick-settings** (Focus + tema). Lihat §4.
 
-Commit trail: OS pivot `89c4434` → deep-link + preset theming `5094760` → lesson deep-link / auto-open Beranda / prune dead code `b1a38f4` → P1 `b6479a2` → P2 + shells `510b1c0` → P3 `1cb407d`.
+Commit trail: OS pivot `89c4434` → deep-link + preset theming `5094760` → lesson deep-link / auto-open Beranda / prune dead code `b1a38f4` → P1 `b6479a2` → P2 + shells `510b1c0` → P3 `1cb407d` → docs+diagram `2dbe231` → scroll/responsive/share `9b41851` → account + sign-out kerja + Dashboard inspector `267c293` → onboarding dosen G1/G2 `383ff23` → badge status kuis `35c9d73` → widget semua-shell + S/M/L `0b26ad4` → Android notif + Windows tray.
 
 Riwayat pra-OS (masih valid sebagai fondasi visual/data): `742e078` overhaul "Editorial Warmth" (token base bespoke, Fraunces+Hanken, aset Logo/HeroBackdrop/favicon/OG, hapus foto stok 1.9MB, sweep responsif) · `fbaf19a` aktivasi ThemePresetSwitcher + Toaster theme-aware + mobile syllabus + quiz confirm + feedback simpan · Wave UI-A/B/C + G1–G6 (mount wave, quiz, profil, pengumuman).
 
@@ -131,14 +131,19 @@ Semua di-lit lewat **capabilities seam** (`manifest.capabilities`, `capabilities
 | **Command palette** | ✅ P1 | `shell-commands.tsx` → buka Beranda/Komunitas/Profil/Pengaturan |
 | **Notifikasi + badge** | ✅ P1 | `shell-activity.tsx` → toast pengumuman + badge di ikon Komunitas |
 | **"Lanjutkan belajar" recents** | ✅ P1 | `recent-courses.ts` → Beranda + widget |
-| **Inspector panel pelajaran (⌘I)** | ✅ P2 | metadata lesson di panel samping |
-| **Learning widgets (Today)** | ✅ P2 | `learning-widgets.tsx` → resume course (ganti system-stats widget) |
+| **Inspector panel pelajaran (⌘I)** | ✅ P2 | Kelas: progress/next/kuis/share; kini juga di **Dashboard** (rightPanel slot) |
+| **Widget "Lanjutkan belajar" — SEMUA shell** | ✅ | `learning-widgets.tsx` → slot `today` (iOS/Android/Dashboard) + `desktopWidgets` (macOS/Windows); ukuran **S/M/L** (klik-kanan + tombol, persist); warna+bentuk ikut preset (`--glass-menu`/`--radius-win`) |
 | **Shell picker "Tampilan OS"** | ✅ P2 | `pengaturan-app.tsx` (§2) |
-| **Share link pelajaran** | ✅ P3 | share sheet dari deep-link |
-| **Focus mode** | ✅ P3 | command |
-| **Snap / split-view** | ✅ | bawaan appshell |
-| **AI study-assistant** | ⏸️ deferred | placeholder `chatComingSoon`; LLM asli butuh API key + deploy manual (§0) |
-| Quick Look · Dynamic Island · sticky-notes | ⏸️ deferred | delight tambahan |
+| **Account + sign-out kerja** | ✅ | `account.tsx` → menu-bar macOS + Pengaturan "Akun"; benerin logout appshell yang no-op |
+| **Onboarding dosen (G1/G2)** | ✅ | G1 "Ajukan komunitas" (RequestTenantForm) · G2 kontrol peran owner di roster (member↔instructor) |
+| **Badge status kuis** | ✅ | `kelas-app` ModuleQuizEntry → Lulus ✓ / Belum lulus / Kerjakan (baca attempt tersimpan) |
+| **Share link pelajaran** | ✅ P3 | share sheet + **tombol "Bagikan" di badan Kelas** (reachable di mobile) |
+| **Focus mode** | ✅ P3 | command; toggle di Windows tray |
+| **Android notif-log** | ✅ | bell → `MobileNotifications` (log persisten) |
+| **Windows tray quick-settings** | ✅ | Focus + tema di system tray |
+| **Snap / split-view** | ✅ | bawaan appshell (⌘/Ctrl+Arrow / drag-to-edge) |
+| **AI study-assistant** | ⏸️ deferred | placeholder `chatComingSoon`; LLM asli butuh API key + deploy manual (§0 + STATUS runbook) |
+| Kuis-sebagai-GATE · Quick Look · Dynamic Island | ⏸️ deferred | gate = keputusan produk; sisanya delight (slot desktop-widget kini dipakai widget belajar) |
 
 Ringkasan plan: **P1** (make it live) ✅ · **P2** (inspector, widgets, shell picker, fix chrome invisible) ✅ · **P3** (share, focus) ✅ · **AI asli** ⏸️ blocker owner.
 

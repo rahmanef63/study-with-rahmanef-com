@@ -1,5 +1,7 @@
 # resources slice (STATUS #7, v1.1)
 
+> **OS pivot (2026-07):** view slice ini sekarang di-mount di dalam **window-app os-shell** via deep-link (mis. `/komunitas/<tenant>`, `/kelas/<tenant>/<course>`, `/profil/<username>`), BUKAN route Next. Path route Next di bawah ini **historis / ilustratif** — skema deep-link ada di AGENTS.md §0 + docs/SLICES.md. Hanya `app/admin/*` yang tetap route asli.
+
 Resource board (R8) + suggestion box (R9) for a tenant. Members submit; instructors curate.
 
 ## Mount (integrator / alpha)

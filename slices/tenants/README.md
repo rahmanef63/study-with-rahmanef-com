@@ -1,5 +1,7 @@
 # tenants slice
 
+> **OS pivot (2026-07):** view slice ini sekarang di-mount di dalam **window-app os-shell** via deep-link (mis. `/komunitas/<tenant>`, `/kelas/<tenant>/<course>`, `/profil/<username>`), BUKAN route Next. Path route Next di bawah ini **historis / ilustratif** — skema deep-link ada di AGENTS.md §0 + docs/SLICES.md. Hanya `app/admin/*` yang tetap route asli.
+
 Community profile, join flow, the membership/role data layer, and the community
 request + approval flow for the multi-tenant platform (STATUS.md #1 + #6). UI
 copy is Bahasa Indonesia, overridable via `labels` props.

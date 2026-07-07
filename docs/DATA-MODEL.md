@@ -158,7 +158,7 @@ export default defineSchema({
 
   profiles: defineTable({
     userId: v.id("users"),
-    username: v.string(),            // unik global, untuk /u/[username]
+    username: v.string(),            // unik global, deep-link /profil/<username>
     displayName: v.string(),
     bio: v.optional(v.string()),
     avatarUrl: v.optional(v.string()),
@@ -168,7 +168,7 @@ export default defineSchema({
     .index("by_username", ["username"]),
 
   tenants: defineTable({
-    slug: v.string(),                // unik global, untuk /t/[slug]
+    slug: v.string(),                // unik global, deep-link /komunitas/<tenant>
     name: v.string(),
     description: v.string(),
     track: v.optional(v.string()),   // "umum" | "kerja" | "konten" | lainnya

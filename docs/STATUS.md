@@ -70,6 +70,8 @@ _none yet_
 | OS-12 | **Onboarding dosen** — G1 "Ajukan komunitas" (`RequestTenantForm` dialog → feed antrian admin) · G2 kontrol peran owner di roster (member↔instructor via `useSetMemberRole`) | frontend | 383ff23 | done |
 | OS-13 | **P2 display** — badge status kuis (Lulus ✓ / Belum lulus / Kerjakan) di CTA modul, baca attempt tersimpan (no backend change) | frontend | 35c9d73 | done |
 | OS-15 | Widget "Lanjutkan belajar" di SEMUA shell — isi slot `today` (iOS/Android/Dashboard) + `desktopWidgets` (macOS/Windows) · ukuran S/M/L (klik-kanan + tombol header, persist localStorage) · warna+bentuk ikut theme preset (`--glass-menu` / `--radius-win`, zero hardcode) · Android + Dashboard `today`-slot = appshell fork bertanda `[study-with fork]` | frontend | 0b26ad4 | done |
+| OS-16 | Parity shell terakhir — **Android notif-log** (bell → `MobileNotifications`, log persisten; `stopPropagation` biar gak arm pull-down) + **Windows tray quick-settings** (Popover Focus + tema di system tray, reuse `toggleFocusMode`/`useShellAppearance`) · dua appshell fork `[study-with fork]` | frontend | dd2ff29 | done |
+| — | **Docs sweep** — README (auth Google) · DATA-MODEL (komentar route) · SLICES (trail arc) · UI-UX-PRD v3.1 (widget semua-shell + baris fitur baru) · BRAND.md rewrite → Editorial Warmth · 6 slice README banner pivot · **owner runbook** (B1–B4) di bawah | docs | (turn ini) | done |
 
 ### Deferred / open
 
@@ -77,7 +79,7 @@ _none yet_
 |---|---|---|---|---|
 | OS-7 | Real AI study-assistant (LLM httpAction; skarang `chatComingSoon` placeholder) | backend | **DEFERRED** | butuh `ANTHROPIC_API_KEY` di Convex self-hosted + manual `npx convex deploy` (owner) |
 | OS-8 | Sticky-notes widget · Quick Look · Dynamic Island | frontend | deferred | scope P3 sisa, non-blocking |
-| OS-14 | Kuis sebagai GATE (kunci modul/badge ke kelulusan) · "Lanjutkan belajar" backed Convex (P3) · Android today/notif + Windows tray quick-settings | mixed | deferred | P2-gate = keputusan produk (semantik belajar) · P3 = butuh query baru + Convex deploy manual self-hosted · shell-forks = ROI rendah |
+| OS-14 | Kuis sebagai GATE (kunci modul/badge ke kelulusan) · "Lanjutkan belajar" backed Convex (P3) | mixed | deferred | P2-gate = **keputusan produk** (semantik belajar; sengaja tidak dibangun — lihat runbook B4) · P3 = butuh query baru + **Convex deploy manual** self-hosted (B3). Android notif + Windows tray → **SHIPPED (OS-16).** |
 | 12 | ROTASI SECRET (admin key · JWT_PRIVATE_KEY/JWKS · AUTH_GOOGLE_SECRET) — lihat baris #12 & drift log | ops | **OPEN / URGENT** | ditahan Rahman; jalankan di VPS |
 
 Capabilities seam (`manifest.capabilities`) = **4/7 wired**: appearance (next-themes) · cpu
@@ -94,8 +96,23 @@ pie showData
 Commit trail: OS pivot `89c4434` → deep-links + preset theming `5094760` → lesson deep-link /
 auto-open Beranda / prune `b1a38f4` → P1 `b6479a2` → P2 + shells `510b1c0` → P3 `1cb407d`
 → docs+diagrams `2dbe231` → scroll/responsive/share `9b41851` → account + Dashboard inspector
-`267c293` → onboarding dosen (G1/G2) `383ff23` → P2 quiz badge `35c9d73` → widget all-shells + S/M/L `0b26ad4`.
+`267c293` → onboarding dosen (G1/G2) `383ff23` → P2 quiz badge `35c9d73` → widget all-shells + S/M/L `0b26ad4` → Android notif + Windows tray `dd2ff29`.
 
 Deploy: Dokploy webhook on `git push origin main` → build → deploy (owner auto-ship).
 Convex self-hosted TIDAK auto-deploy on push — perubahan `convex/` butuh manual
 `npx convex deploy`. Live: https://study-with.rahmanef.com.
+
+## Owner runbook — buka gerbang yang tersisa (owner-only)
+
+Sisa "remaining / bottleneck" **bukan kerja frontend** — semua butuh aksi **owner/infra**
+(set key, deploy self-hosted, rotasi rahasia di VPS, atau keputusan produk). Kode frontend
+sudah beres & `main` aman tanpa ini (placeholder/lokal yang graceful). Yang tinggal kamu jalankan:
+
+| # | Item | Langkah owner (urut) | Catatan |
+|---|---|---|---|
+| B1 | **Rotasi secret (#12) — URGENT** | Di VPS: regen Convex admin key · putar `JWT_PRIVATE_KEY` + JWKS · putar `AUTH_GOOGLE_SECRET` (Google console) · update `.env.local` · restart backend | Hanya **NAMA** env di sini — jangan pernah commit VALUE-nya. Kebocoran tercatat di drift log #12. |
+| B2 | **AI tutor asli (OS-7)** | `npx convex env set ANTHROPIC_API_KEY <key>` (self-hosted) · tulis httpAction stream Anthropic di `convex/` · `npx convex deploy` · ganti `capabilities.ts` `useChat: chatComingSoon` → hook httpAction | Sekarang placeholder "coming soon" jalan. Blocker = key (owner) + deploy manual. |
+| B3 | **P3 "Lanjutkan belajar" backed Convex (OS-14)** | Tambah query `recentActivity` atas `lessonCompletions`/last-opened di `convex/` · `npx convex deploy` · ganti recents localStorage → query | Sekarang localStorage (per-device). Push frontend **tanpa** deploy = query 404 → jangan. |
+| B4 | **Kuis sebagai GATE (OS-14)** | Keputusan produk: lulus-kuis nge-gate modul/badge? Kalau ya → implement di `slices/progress` | Sengaja **tidak** dibangun (default = badge status saja, OS-13). Butuh arahanmu. |
+
+Semua B1–B4 **di luar auto-ship**: butuh env/deploy/keputusan yang hanya owner bisa.

@@ -1,5 +1,7 @@
 # courses — kelas/modul/lesson + lesson player
 
+> **OS pivot (2026-07):** view slice ini sekarang di-mount di dalam **window-app os-shell** via deep-link (mis. `/komunitas/<tenant>`, `/kelas/<tenant>/<course>`, `/profil/<username>`), BUKAN route Next. Path route Next di bawah ini **historis / ilustratif** — skema deep-link ada di AGENTS.md §0 + docs/SLICES.md. Hanya `app/admin/*` yang tetap route asli.
+
 STATUS row **#2** (v1, R4). Backend: `convex/features/courses/`. Agent: gamma.
 
 ## Mount points (integrator)

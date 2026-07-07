@@ -1,5 +1,7 @@
 # announcements — pengumuman in-app + Discord webhook (R12)
 
+> **OS pivot (2026-07):** view slice ini sekarang di-mount di dalam **window-app os-shell** via deep-link (mis. `/komunitas/<tenant>`, `/kelas/<tenant>/<course>`, `/profil/<username>`), BUKAN route Next. Path route Next di bawah ini **historis / ilustratif** — skema deep-link ada di AGENTS.md §0 + docs/SLICES.md. Hanya `app/admin/*` yang tetap route asli.
+
 STATUS row #10 (v1.1). Owns the `announcements` table. Instructor+ post an
 announcement; members read the feed; each new post is fanned out to the
 community's Discord channel via an internal action.

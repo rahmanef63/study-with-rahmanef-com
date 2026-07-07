@@ -3,7 +3,7 @@
 > Konvensi rr berlaku penuh: `slices/<slug>/` + `convex/features/<slug>/`, metadata pair, barrel-only imports, ≤200 LOC/file, props-driven.
 > **Copy-first (P1):** katalog rr = https://resource.rahmanef.com (69 slices; JSON: `/api/knowledge`; prompt per-slice: `/agents/<slug>`). Pemetaan kebutuhan→slice yang sudah diverifikasi ada di [AGENTS.md](../AGENTS.md) §3 — `convex-auth`, `dashboard-shell`, `marketing-chrome`, `library`, `rate-limit`, dll. Copy + sanitasi, jangan greenfield. Jika sumber tidak tersedia: STOP dan tanya.
 
-> **PIVOT OS (2026-07, HEAD `1cb407d`).** Frontend chrome dirombak dari **situs multi-tenant berbasis route** menjadi **OS desktop shell**. **Backend Convex TIDAK berubah** — schema, tabel, authz, dan `convex/features/<slug>` sama persis; [DATA-MODEL.md](DATA-MODEL.md) masih valid. Yang berubah hanya *host* frontend: route asli → window-app. Domain slice tetap punya convex function + view presentasional; hanya cara memasangnya yang beda. Dua lapisan frontend baru ditambahkan: `slices/appshell` (framework OS-shell vendored) + `slices/os-shell` (lapisan integrasi). Route group lama `app/(public)`, `app/t/[slug]`, `app/u/[username]` **DIHAPUS**, diganti satu catch-all `app/[[...slug]]`. Detail di §Peta route & guard.
+> **PIVOT OS (2026-07, enhancement arc s/d `0b26ad4`+).** Frontend chrome dirombak dari **situs multi-tenant berbasis route** menjadi **OS desktop shell**. **Backend Convex TIDAK berubah** — schema, tabel, authz, dan `convex/features/<slug>` sama persis; [DATA-MODEL.md](DATA-MODEL.md) masih valid. Yang berubah hanya *host* frontend: route asli → window-app. Domain slice tetap punya convex function + view presentasional; hanya cara memasangnya yang beda. Dua lapisan frontend baru ditambahkan: `slices/appshell` (framework OS-shell vendored) + `slices/os-shell` (lapisan integrasi). Route group lama `app/(public)`, `app/t/[slug]`, `app/u/[username]` **DIHAPUS**, diganti satu catch-all `app/[[...slug]]`. Detail di §Peta route & guard.
 
 ## Daftar slice
 
@@ -127,6 +127,7 @@ Setiap window-app di-deep-link; link bisa di-share dan re-open window yang sama 
 | 8 | `profiles` publik + badge wall | v1.1 |
 | 9 | Slice `announcements` (+ webhook action) | v1.1 |
 | 10 | **Pivot OS**: vendor `appshell` + integrasi `os-shell` (catch-all, 10 window-app, deep-link, capabilities seam). Frontend-only, **tanpa perubahan convex.** Trail: `89c4434` → `5094760` → `b1a38f4` → P1 `b6479a2` → P2 `510b1c0` → P3 `1cb407d`. | OS |
+| 11 | **Enhancement arc** (semua frontend, backend UTUH): docs+diagram `2dbe231` → scroll/responsive/share `9b41851` → account + sign-out kerja + Dashboard inspector `267c293` → onboarding dosen (G1 Ajukan komunitas + G2 kontrol peran) `383ff23` → badge status kuis `35c9d73` → widget "Lanjutkan belajar" di SEMUA shell + S/M/L `0b26ad4` → Android notif-log + Windows tray. Detail per item di [STATUS.md](STATUS.md) §OS. | OS |
 
 ## Definition of done — per slice
 

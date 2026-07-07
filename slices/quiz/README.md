@@ -1,5 +1,7 @@
 # quiz — MCQ builder + attempt + auto-grade
 
+> **OS pivot (2026-07):** view slice ini sekarang di-mount di dalam **window-app os-shell** via deep-link (mis. `/komunitas/<tenant>`, `/kelas/<tenant>/<course>`, `/profil/<username>`), BUKAN route Next. Path route Next di bawah ini **historis / ilustratif** — skema deep-link ada di AGENTS.md §0 + docs/SLICES.md. Hanya `app/admin/*` yang tetap route asli.
+
 STATUS row **#8** (v1.1, R6). Backend: `convex/features/quiz/`. Agent: gamma.
 
 One quiz per module. Instructors build it (MCQ, 2–6 options, one correct key,

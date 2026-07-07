@@ -105,4 +105,4 @@ full Cloud-backed app, or leave it unset to ship the static scaffold first.
 | UI | React 19 + Tailwind 4 + shadcn |
 | Design | bespoke "Editorial Warmth" (Fraunces + Hanken, terracotta oklch tokens) |
 | Backend | Convex — **self-hosted** live (Cloud is the alt path) |
-| Auth | `@convex-dev/auth` (Password provider by default) |
+| Auth | `@convex-dev/auth` — **Google OAuth only** (tanpa opsi password; lihat DECISIONS #15) |
