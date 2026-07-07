@@ -14,7 +14,7 @@ export type BoardEmptyStateProps = {
 
 export function BoardEmptyState({ icon: Icon, message, cta }: BoardEmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border bg-muted/30 px-6 py-10 text-center">
+    <div className="flex flex-col items-center justify-center gap-3 rounded-[var(--radius-win)] border border-dashed border-border bg-muted/30 px-6 py-10 text-center">
       <span
         className="flex size-11 items-center justify-center rounded-full bg-muted text-muted-foreground"
         aria-hidden

@@ -20,9 +20,9 @@ export type SuggestionListProps = {
 export function SuggestionList({ items, emptyLabel, copy, renderActions }: SuggestionListProps) {
   if (items === undefined) {
     return (
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 @sm:grid-cols-2">
         <Skeleton className="h-32" />
-        <Skeleton className="hidden h-32 sm:block" />
+        <Skeleton className="hidden h-32 @sm:block" />
       </div>
     );
   }
@@ -36,7 +36,7 @@ export function SuggestionList({ items, emptyLabel, copy, renderActions }: Sugge
     );
   }
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <div className="grid gap-4 @sm:grid-cols-2">
       {items.map((s) => (
         <SuggestionCard
           key={s._id}

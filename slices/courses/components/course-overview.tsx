@@ -3,6 +3,7 @@
 // behind membership — the QUERY enforces it, this is presentation).
 import type { Id } from "@convex/_generated/dataModel";
 import type { ReactNode } from "react";
+import { Hero, SectionHeader, Badge } from "@/components/mockup-kit";
 import { mergeCopy, type CoursesCopyOverride } from "../config/copy";
 import type { CourseOverviewData, SyllabusModuleData } from "../types";
 import { SyllabusList } from "./syllabus-list";
@@ -43,30 +44,32 @@ export function CourseOverview({
       : course.status === "archived"
         ? copy.statusArchived
         : null;
+  const moduleCount = overview.modules.length;
+  const hasHeroSlot = statusLabel !== null || progressSlot != null || (!isMember && joinCtaSlot);
 
   return (
     <div className={className ? `space-y-10 ${className}` : "space-y-10"}>
-      <header className="space-y-4">
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <span className="eyebrow">{copy.courses}</span>
-            {statusLabel !== null && (
-              <span className="inline-flex rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-                {statusLabel}
-              </span>
-            )}
+      <Hero eyebrow={copy.courses} title={course.title} description={course.description}>
+        {hasHeroSlot ? (
+          <div className="space-y-4">
+            {statusLabel !== null ? <Badge tone="muted">{statusLabel}</Badge> : null}
+            {progressSlot}
+            {!isMember && joinCtaSlot}
           </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl">{course.title}</h1>
-        </div>
-        <p className="max-w-prose text-pretty leading-7 text-muted-foreground sm:text-lg">
-          {course.description}
-        </p>
-        {progressSlot}
-        {!isMember && joinCtaSlot}
-      </header>
+        ) : null}
+      </Hero>
 
-      <section aria-label={copy.modules} className="space-y-5">
-        <h2 className="border-b pb-3 text-xl sm:text-2xl">{copy.modules}</h2>
+      <section aria-label={copy.modules}>
+        <SectionHeader
+          title={copy.modules}
+          actions={
+            moduleCount > 0 ? (
+              <Badge tone="muted">
+                {moduleCount} {copy.modules.toLowerCase()} · {overview.lessonCount} {copy.lessons.toLowerCase()}
+              </Badge>
+            ) : null
+          }
+        />
         <SyllabusList
           modules={overview.modules}
           lessonHref={lessonHref}

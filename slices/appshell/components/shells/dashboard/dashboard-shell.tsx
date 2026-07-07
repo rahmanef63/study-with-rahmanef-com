@@ -9,7 +9,7 @@
    macOS/Windows/mobile shells. */
 import { useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Home, Activity, Search } from "lucide-react";
+import { Home, Activity, Search } from "lucide-react";
 import { registerShell } from "../../../registry/shells";
 import { useShellConfig } from "../../../registry/shell-config";
 import { useBrand } from "../../../registry/brand";
@@ -74,8 +74,11 @@ function DashboardShell() {
   return (
     <div className="absolute inset-0 z-[10] flex bg-background">
       <aside className="flex w-60 shrink-0 flex-col border-r border-border bg-card/50">
-        <div className="flex h-14 shrink-0 items-center gap-2 px-4 text-sm font-semibold">
-          <LayoutDashboard className="size-4 text-primary" /> {brand.name}
+        <div className="flex h-14 shrink-0 items-center gap-2.5 px-4">
+          <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary text-sm font-bold uppercase text-primary-foreground">
+            {brand.name.slice(0, 1)}
+          </span>
+          <span className="truncate text-sm font-semibold">{brand.name}</span>
         </div>
 
         <div className="flex flex-col gap-0.5 px-2">

@@ -41,7 +41,7 @@ export function QuizQuestionEditor({ index, question, onChange, onRemove, canRem
   };
 
   return (
-    <div className="space-y-3 rounded-lg border border-border bg-card p-4 sm:p-5">
+    <div className="space-y-3 rounded-lg border border-border bg-card p-4 @sm:p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-baseline gap-2.5">
           <span
@@ -59,12 +59,12 @@ export function QuizQuestionEditor({ index, question, onChange, onRemove, canRem
             type="button"
             variant="ghost"
             size="sm"
-            className="min-h-11 shrink-0 text-muted-foreground hover:text-destructive sm:min-h-9"
+            className="min-h-11 shrink-0 text-muted-foreground hover:text-destructive @sm:min-h-9"
             onClick={onRemove}
             aria-label={copy.removeQuestion}
           >
             <Trash2 className="size-4" aria-hidden />
-            <span className="hidden sm:inline">{copy.removeQuestion}</span>
+            <span className="hidden @sm:inline">{copy.removeQuestion}</span>
           </Button>
         )}
       </div>
@@ -110,7 +110,7 @@ export function QuizQuestionEditor({ index, question, onChange, onRemove, canRem
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="size-11 shrink-0 sm:size-9"
+                className="size-11 shrink-0 @sm:size-9"
                 onClick={() => removeOption(optionIndex)}
                 aria-label={copy.removeOption}
               >
@@ -120,7 +120,7 @@ export function QuizQuestionEditor({ index, question, onChange, onRemove, canRem
           </div>
         ))}
         {question.options.length < MAX_OPTIONS && (
-          <Button type="button" variant="outline" size="sm" className="min-h-11 sm:min-h-8" onClick={addOption}>
+          <Button type="button" variant="outline" size="sm" className="min-h-11 @sm:min-h-8" onClick={addOption}>
             <Plus className="size-4" aria-hidden /> {copy.addOption}
           </Button>
         )}

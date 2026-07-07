@@ -5,9 +5,11 @@
 // After submit it shows QuizResultCard (the only place answers/explanations
 // appear). The integrator mounts this on the lesson/module surface.
 import { useMemo, useState } from "react";
+import { Award, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge, Hero, SectionHeader, StatTile } from "@/components/mockup-kit";
 import type { Id } from "@convex/_generated/dataModel";
 import { QuizQuestionCard } from "../components/quiz-question-card";
 import { QuizResultCard } from "../components/quiz-result-card";
@@ -75,59 +77,82 @@ export function QuizTakeView({ moduleId, copy: copyOverride, className }: QuizTa
     if (graded !== null) setResult(graded);
   };
 
-  return (
-    <div className={className ? `space-y-5 ${className}` : "space-y-5"}>
-      <header className="border-b pb-4">
-        <span className="eyebrow">{copy.quizTitle}</span>
-        <h2 className="mt-1.5 text-2xl sm:text-3xl">{quiz.title}</h2>
-        <p className="mt-2 text-pretty text-sm text-muted-foreground">
-          {copy.startHint}{" "}
-          <span className="whitespace-nowrap">
-            {copy.passingScore}:{" "}
-            <span className="font-medium tabular-nums text-foreground">
-              {quiz.passingScorePct}%
-            </span>
-          </span>
-        </p>
-      </header>
+  const progressPct =
+    quiz.questions.length > 0 ? (answeredCount / quiz.questions.length) * 100 : 0;
 
-      {quiz.questions.map((question, index) => (
-        <QuizQuestionCard
-          key={index}
-          index={index}
-          total={quiz.questions.length}
-          question={question}
-          name={`q-${index}`}
-          value={answers[index] ?? null}
-          onChange={(optionIndex) => setAnswers((prev) => ({ ...prev, [index]: optionIndex }))}
-          questionLabel={copy.question}
-          ofLabel={copy.of}
-          disabled={isPending}
-        />
-      ))}
+  return (
+    <div className={className ? `space-y-6 ${className}` : "space-y-6"}>
+      <Hero eyebrow={copy.quizTitle} title={quiz.title} description={copy.startHint}>
+        <Badge tone="accent">
+          {copy.passingScore}: {quiz.passingScorePct}%
+        </Badge>
+      </Hero>
 
       {attempts !== undefined && attempts.length > 0 && (
-        <p className="text-xs text-muted-foreground">
-          {copy.previousAttempts}: <span className="tabular-nums">{attempts.length}</span> ·{" "}
-          {copy.attemptScore}{" "}
-          <span className="font-medium tabular-nums text-foreground">
-            {Math.max(...attempts.map((a) => a.scorePct))}%
-          </span>
-        </p>
+        <div className="grid gap-3 @sm:grid-cols-2">
+          <StatTile
+            icon={<History className="size-5" aria-hidden />}
+            label={copy.previousAttempts}
+            value={attempts.length}
+          />
+          <StatTile
+            icon={<Award className="size-5" aria-hidden />}
+            label={copy.attemptScore}
+            value={`${Math.max(...attempts.map((a) => a.scorePct))}%`}
+          />
+        </div>
       )}
 
-      <div className="sticky bottom-3 z-10 flex flex-col gap-3 rounded-xl border bg-background/85 p-3 shadow-sm backdrop-blur supports-[padding:max(0px)]:pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:flex-row sm:items-center">
-        <div className="min-w-0 text-xs text-muted-foreground sm:mr-auto">
+      <section className="space-y-4">
+        <SectionHeader
+          title={`${quiz.questions.length} ${copy.question}`}
+          actions={
+            <Badge tone={allAnswered ? "success" : "muted"}>
+              {answeredCount}/{quiz.questions.length}
+            </Badge>
+          }
+        />
+        <div
+          role="progressbar"
+          aria-valuenow={answeredCount}
+          aria-valuemin={0}
+          aria-valuemax={quiz.questions.length}
+          className="h-1.5 w-full overflow-hidden rounded-full bg-muted"
+        >
+          <div
+            className="h-full rounded-full bg-primary transition-all"
+            style={{ width: `${progressPct}%` }}
+          />
+        </div>
+
+        {quiz.questions.map((question, index) => (
+          <QuizQuestionCard
+            key={index}
+            index={index}
+            total={quiz.questions.length}
+            question={question}
+            name={`q-${index}`}
+            value={answers[index] ?? null}
+            onChange={(optionIndex) => setAnswers((prev) => ({ ...prev, [index]: optionIndex }))}
+            questionLabel={copy.question}
+            ofLabel={copy.of}
+            disabled={isPending}
+          />
+        ))}
+      </section>
+
+      <div className="sticky bottom-3 z-10 flex flex-col gap-3 rounded-[var(--radius-win)] border border-border bg-background/85 p-3 shadow-sm backdrop-blur supports-[padding:max(0px)]:pb-[max(0.75rem,env(safe-area-inset-bottom))] @sm:flex-row @sm:items-center">
+        <div className="min-w-0 text-xs text-muted-foreground @sm:mr-auto">
           <span className="font-medium tabular-nums text-foreground">
             {answeredCount}/{quiz.questions.length}
           </span>{" "}
           {copy.answered}
           {!allAnswered && (
-            <span className="block sm:inline"> · {copy.answerAllFirst}</span>
+            <span className="block @sm:inline"> · {copy.answerAllFirst}</span>
           )}
         </div>
         <Button
-          className="min-h-11 w-full sm:w-auto"
+          className="min-h-11 w-full @sm:w-auto"
           onClick={() => void handleSubmit()}
           disabled={!allAnswered || isPending}
         >

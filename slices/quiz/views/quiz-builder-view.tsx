@@ -14,6 +14,7 @@ import {
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SectionHeader } from "@/components/mockup-kit";
 import type { Id } from "@convex/_generated/dataModel";
 import { QuizBuilderForm, type QuizBuilderFormValues } from "../components/quiz-builder-form";
 import { mergeQuizCopy, type QuizCopyOverride } from "../config/copy";
@@ -62,46 +63,47 @@ export function QuizBuilderView({ moduleId, courseId, tenantId, copy: copyOverri
       data-course-id={courseId}
       data-tenant-id={tenantId}
     >
-      <div className="flex flex-col gap-3 border-b pb-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="min-w-0">
-          <span className="eyebrow">{copy.quizTitle}</span>
-          <h1 className="mt-1.5 text-2xl sm:text-3xl">{copy.builderTitle}</h1>
-        </div>
-        {existing && (
-          <>
+      <SectionHeader
+        eyebrow={copy.quizTitle}
+        title={copy.builderTitle}
+        actions={
+          existing ? (
             <Button
               variant="outline"
-              className="min-h-11 w-full shrink-0 sm:w-auto"
+              size="sm"
+              className="min-h-9 shrink-0"
               onClick={() => setConfirmOpen(true)}
             >
               {copy.deleteQuiz}
             </Button>
-            <ResponsiveDialog open={confirmOpen} onOpenChange={setConfirmOpen} variant="alert" size="sm">
-              <ResponsiveDialogHeader>
-                <ResponsiveDialogTitle>{copy.deleteConfirmTitle}</ResponsiveDialogTitle>
-              </ResponsiveDialogHeader>
-              <ResponsiveDialogBody>
-                <p className="text-sm text-muted-foreground">{copy.deleteConfirmBody}</p>
-              </ResponsiveDialogBody>
-              <ResponsiveDialogFooter>
-                <Button type="button" variant="outline" onClick={() => setConfirmOpen(false)}>
-                  {copy.cancel}
-                </Button>
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={async () => {
-                    await handleDelete();
-                    setConfirmOpen(false);
-                  }}
-                >
-                  {copy.deleteConfirm}
-                </Button>
-              </ResponsiveDialogFooter>
-            </ResponsiveDialog>
-          </>
-        )}
-      </div>
+          ) : undefined
+        }
+      />
+      {existing && (
+        <ResponsiveDialog open={confirmOpen} onOpenChange={setConfirmOpen} variant="alert" size="sm">
+          <ResponsiveDialogHeader>
+            <ResponsiveDialogTitle>{copy.deleteConfirmTitle}</ResponsiveDialogTitle>
+          </ResponsiveDialogHeader>
+          <ResponsiveDialogBody>
+            <p className="text-sm text-muted-foreground">{copy.deleteConfirmBody}</p>
+          </ResponsiveDialogBody>
+          <ResponsiveDialogFooter>
+            <Button type="button" variant="outline" onClick={() => setConfirmOpen(false)}>
+              {copy.cancel}
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={async () => {
+                await handleDelete();
+                setConfirmOpen(false);
+              }}
+            >
+              {copy.deleteConfirm}
+            </Button>
+          </ResponsiveDialogFooter>
+        </ResponsiveDialog>
+      )}
 
       {isLoading ? (
         <div className="space-y-3">

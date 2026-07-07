@@ -3,6 +3,7 @@
 // domains need next.config.mjs remotePatterns — an integrator surface.
 // TODO(rr): propose remotePatterns to alpha, then upgrade to next/image.
 import Link from "next/link";
+import { Badge } from "@/components/mockup-kit";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { CourseCardData } from "../types";
 
@@ -49,15 +50,18 @@ export function CourseCard({ course, href, progress, className }: CourseCardProp
         <CardContent>
           {pct !== null && progress ? (
             <div className="space-y-1.5">
-              <div
-                className="h-1.5 w-full overflow-hidden rounded-full bg-muted"
-                role="progressbar"
-                aria-valuenow={pct}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-label={`Progress: ${pct}%`}
-              >
-                <div className="h-full rounded-full bg-primary" style={{ width: `${pct}%` }} />
+              <div className="flex items-center gap-2.5">
+                <div
+                  className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-muted"
+                  role="progressbar"
+                  aria-valuenow={pct}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-label={`Progress: ${pct}%`}
+                >
+                  <div className="h-full rounded-full bg-primary" style={{ width: `${pct}%` }} />
+                </div>
+                {pct === 100 ? <Badge tone="success">Selesai ✓</Badge> : null}
               </div>
               <p className="text-xs tabular-nums text-muted-foreground">
                 {progress.completedCount}/{progress.totalCount} lesson selesai

@@ -41,7 +41,7 @@ export default function KuisApp(props: AppProps) {
   // Invalid/absent payload (opened outside the Kelas flow): friendly empty state.
   if (!moduleId) {
     return (
-      <div className="mx-auto w-full max-w-2xl p-6 sm:p-8">
+      <div className="mx-auto w-full max-w-2xl p-6 @sm:p-8">
         <Empty>
           <EmptyHeader>
             <EmptyMedia variant="icon">
@@ -60,8 +60,11 @@ export default function KuisApp(props: AppProps) {
   const courseTitle = overview?.course.title;
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-6 p-6 sm:p-8">
-      <header className="space-y-2">
+    <div className="mx-auto w-full max-w-2xl space-y-6 p-6 @sm:p-8">
+      {/* Course context strip — back link + breadcrumb. The QUIZ itself is the
+          hero (rendered as a <Hero> inside QuizTakeView), so the course reads as
+          framing here, not a competing display title. */}
+      <header className="space-y-2.5">
         <button
           type="button"
           onClick={() => openApp("kelas", courseTitle ?? "Kelas", [tenantSlug, courseSlug])}
@@ -74,9 +77,9 @@ export default function KuisApp(props: AppProps) {
             {tenant?.name ? `${tenant.name} · Kuis` : "Kuis modul"}
           </span>
           {courseTitle ? (
-            <h1 className="truncate font-serif text-2xl text-pretty sm:text-3xl">
+            <p className="truncate font-serif text-lg text-pretty text-muted-foreground">
               {courseTitle}
-            </h1>
+            </p>
           ) : null}
         </div>
       </header>

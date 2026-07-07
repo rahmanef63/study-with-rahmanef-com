@@ -1,10 +1,11 @@
 // courses slice — syllabus (modules → lessons) for the course overview.
 // Progress (#3) consumes this through the barrel: pass `completedLessonIds`
 // to render per-lesson check marks — no deep import needed.
-import { CheckCircle2, Circle, Lock, PlayCircle } from "lucide-react";
+import { CheckCircle2, ChevronRight, Circle, Lock, PlayCircle } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { Id } from "@convex/_generated/dataModel";
+import { Badge } from "@/components/mockup-kit";
 import type { SyllabusModuleData } from "../types";
 
 export type SyllabusListProps = {
@@ -34,6 +35,9 @@ export function SyllabusList({
   className,
 }: SyllabusListProps) {
   const completed = new Set(completedLessonIds ?? []);
+  // Only surface per-module completion counts once the viewer's progress is
+  // known (member branch passes the array; non-members leave it undefined).
+  const showProgress = completedLessonIds !== undefined;
   const hasLessons = modules.some((mod) => mod.lessons.length > 0);
 
   if (!hasLessons) {
@@ -58,49 +62,70 @@ export function SyllabusList({
           {lockedText}
         </p>
       )}
-      {modules.map((mod, moduleIndex) => (
-        <section key={mod._id} className="space-y-3">
-          <h3 className="flex items-baseline gap-2 font-serif text-base sm:text-lg">
-            <span className="tabular-nums text-primary/80">
-              {String(moduleIndex + 1).padStart(2, "0")}
-            </span>
-            <span className="min-w-0 text-pretty">{mod.title}</span>
-          </h3>
-          <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border">
-            {mod.lessons.map((lesson) => {
-              const isDone = completed.has(lesson._id);
-              const row = (
-                <span className="flex min-h-11 items-center gap-3 px-4 py-3 text-sm">
-                  {isDone ? (
-                    <CheckCircle2 className="size-4 shrink-0 text-primary" aria-hidden />
-                  ) : (
-                    <Circle className="size-4 shrink-0 text-muted-foreground/50" aria-hidden />
-                  )}
-                  <span className="min-w-0 flex-1 truncate font-medium">{lesson.title}</span>
-                  {lesson.hasVideo && (
-                    <PlayCircle className="size-4 shrink-0 text-muted-foreground" aria-hidden />
-                  )}
+      {modules.map((mod, moduleIndex) => {
+        const moduleTotal = mod.lessons.length;
+        const moduleDone = mod.lessons.reduce((n, l) => (completed.has(l._id) ? n + 1 : n), 0);
+        return (
+          <section key={mod._id} className="space-y-3">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+              <h3 className="flex min-w-0 items-baseline gap-2.5 font-serif text-base @sm:text-lg">
+                <span className="tabular-nums text-primary/80">
+                  {String(moduleIndex + 1).padStart(2, "0")}
                 </span>
-              );
-              return (
-                <li key={lesson._id}>
-                  {locked ? (
-                    <span className="block cursor-not-allowed opacity-60">{row}</span>
-                  ) : (
-                    <Link
-                      href={lessonHref(lesson._id)}
-                      className="block transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
-                    >
-                      {row}
-                    </Link>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-          {renderModuleFooter?.(mod)}
-        </section>
-      ))}
+                <span className="min-w-0 text-pretty">{mod.title}</span>
+              </h3>
+              {showProgress && moduleTotal > 0 ? (
+                moduleDone === moduleTotal ? (
+                  <Badge tone="success">Selesai ✓</Badge>
+                ) : (
+                  <Badge tone="muted">
+                    {moduleDone}/{moduleTotal} lesson
+                  </Badge>
+                )
+              ) : null}
+            </div>
+            <ul className="divide-y divide-border overflow-hidden rounded-[var(--radius-win)] border border-border bg-card">
+              {mod.lessons.map((lesson) => {
+                const isDone = completed.has(lesson._id);
+                const row = (
+                  <span className="flex min-h-11 items-center gap-3 px-4 py-3 text-sm">
+                    {isDone ? (
+                      <CheckCircle2 className="size-4 shrink-0 text-primary" aria-hidden />
+                    ) : (
+                      <Circle className="size-4 shrink-0 text-muted-foreground/40" aria-hidden />
+                    )}
+                    <span className="min-w-0 flex-1 truncate font-medium">{lesson.title}</span>
+                    {lesson.hasVideo && (
+                      <PlayCircle className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+                    )}
+                    {!locked && (
+                      <ChevronRight
+                        className="size-4 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                        aria-hidden
+                      />
+                    )}
+                  </span>
+                );
+                return (
+                  <li key={lesson._id}>
+                    {locked ? (
+                      <span className="block cursor-not-allowed opacity-60">{row}</span>
+                    ) : (
+                      <Link
+                        href={lessonHref(lesson._id)}
+                        className="group block transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                      >
+                        {row}
+                      </Link>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+            {renderModuleFooter?.(mod)}
+          </section>
+        );
+      })}
     </div>
   );
 }

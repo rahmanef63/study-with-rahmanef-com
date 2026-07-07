@@ -62,7 +62,7 @@ export function QuizBuilderForm({ initial, onSave, submitting, copy }: QuizBuild
         });
       }}
     >
-      <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
+      <div className="grid gap-4 @sm:grid-cols-[1fr_auto]">
         <div className="space-y-2">
           <Label htmlFor="quiz-title">{copy.fieldTitle}</Label>
           <Input
@@ -79,7 +79,7 @@ export function QuizBuilderForm({ initial, onSave, submitting, copy }: QuizBuild
           <Input
             id="quiz-passing"
             type="number"
-            className="sm:w-28"
+            className="@sm:w-28"
             value={passingScorePct}
             onChange={(e) => setPassingScorePct(Number(e.target.value))}
             required
@@ -110,17 +110,17 @@ export function QuizBuilderForm({ initial, onSave, submitting, copy }: QuizBuild
         ))}
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 @sm:flex-row @sm:items-center @sm:justify-between">
         <Button
           type="button"
           variant="outline"
-          className="min-h-11 w-full sm:w-auto"
+          className="min-h-11 w-full @sm:w-auto"
           onClick={addQuestion}
           disabled={questions.length >= MAX_QUESTIONS}
         >
           <Plus className="size-4" aria-hidden /> {copy.addQuestion}
         </Button>
-        <Button type="submit" className="min-h-11 w-full sm:w-auto" disabled={submitting}>
+        <Button type="submit" className="min-h-11 w-full @sm:w-auto" disabled={submitting}>
           {submitting ? copy.saving : copy.save}
         </Button>
       </div>

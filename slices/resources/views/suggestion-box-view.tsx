@@ -6,9 +6,11 @@
 //
 // Security note: canModerate is UX only — setStatus re-checks instructor+
 // server-side; a member who forces it still gets NOT_AUTHORIZED.
+import { MessagesSquare, UserRound } from "lucide-react";
 import type { Id } from "@convex/_generated/dataModel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SectionHeader, StatTile } from "@/components/mockup-kit";
 import { SuggestionList } from "../components/suggestion-list";
 import { SuggestionStatusActions } from "../components/suggestion-status-actions";
 import { SuggestionSubmitForm } from "../components/suggestion-submit-form";
@@ -39,17 +41,31 @@ export function SuggestionBoxView({
   const { submit, isPending: submitting } = useSubmitSuggestion(copyOverride);
   const { setStatus, isPending: updating } = useSetSuggestionStatus(copyOverride);
 
+  const openCount = open?.length;
+  const mineCount = mine?.length;
+
   return (
     <div className={className ? `space-y-8 ${className}` : "space-y-8"}>
-      <header className="flex flex-col gap-2 border-b pb-5">
-        <span className="eyebrow">Suara komunitas</span>
-        <h1 className="text-2xl sm:text-3xl">{copy.boxTitle}</h1>
-        <p className="max-w-2xl text-pretty text-sm text-muted-foreground sm:text-base">
+      <div className="space-y-5">
+        <SectionHeader eyebrow="Suara komunitas" title={copy.boxTitle} />
+        <p className="max-w-2xl text-pretty text-sm text-muted-foreground @sm:text-base">
           {copy.boxSubtitle}
         </p>
-      </header>
+        <div className="grid gap-3 @sm:grid-cols-2">
+          <StatTile
+            icon={<MessagesSquare className="size-5" aria-hidden />}
+            label={copy.tabOpen}
+            value={openCount ?? "—"}
+          />
+          <StatTile
+            icon={<UserRound className="size-5" aria-hidden />}
+            label={copy.tabMineSuggestion}
+            value={mineCount ?? "—"}
+          />
+        </div>
+      </div>
 
-      <Card id="usulkan-topik" className="scroll-mt-24">
+      <Card id="usulkan-topik" className="scroll-mt-24 rounded-[var(--radius-win)]">
         <CardHeader>
           <CardTitle className="text-lg">{copy.submitSuggestionTitle}</CardTitle>
         </CardHeader>

@@ -5,7 +5,7 @@
 // the server re-checks every gate, so the UI guards (hide owner rows + the self
 // row) are pure UX. Read-only for everyone else.
 import { ChevronDown } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SectionHeader, Badge } from "@/components/mockup-kit";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   DropdownMenu,
@@ -124,34 +124,38 @@ export function MembersList({
   const members = useTenantMembers(tenantId, limit);
 
   return (
-    <Card className={className}>
-      <CardHeader>
-        <CardTitle>{t.title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {members === undefined ? (
-          <div className="space-y-2">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-          </div>
-        ) : members.length === 0 ? (
-          <p className="text-muted-foreground text-sm">{t.empty}</p>
-        ) : (
-          <ul className="divide-border divide-y">
-            {members.map((m) => (
-              <MemberRow
-                key={m.userId}
-                member={m}
-                roleLabels={roleLabels}
-                canManageRoles={canManageRoles}
-                currentUserId={currentUserId}
-                isSettingRole={isSettingRole}
-                onSetRole={onSetRole}
-              />
-            ))}
-          </ul>
-        )}
-      </CardContent>
-    </Card>
+    <section className={className}>
+      <SectionHeader
+        eyebrow="Komunitas"
+        title={t.title}
+        actions={
+          members && members.length > 0 ? (
+            <Badge tone="muted">{members.length} anggota</Badge>
+          ) : undefined
+        }
+      />
+      {members === undefined ? (
+        <div className="space-y-2">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+      ) : members.length === 0 ? (
+        <p className="text-muted-foreground text-sm">{t.empty}</p>
+      ) : (
+        <ul className="divide-border divide-y">
+          {members.map((m) => (
+            <MemberRow
+              key={m.userId}
+              member={m}
+              roleLabels={roleLabels}
+              canManageRoles={canManageRoles}
+              currentUserId={currentUserId}
+              isSettingRole={isSettingRole}
+              onSetRole={onSetRole}
+            />
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }

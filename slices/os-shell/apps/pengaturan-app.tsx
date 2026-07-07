@@ -12,6 +12,7 @@ import { openApp } from "./_nav";
 import { AccountSettings } from "../account";
 import { ThemePresetSwitcher } from "@/features/theme-presets";
 import { ProfileSettingsView, useCurrentProfile } from "@/features/profiles";
+import { Hero, SectionHeader, Badge } from "@/components/mockup-kit";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -116,23 +117,18 @@ function ProfilSection() {
 
 export default function PengaturanApp(_props: AppProps) {
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-10 p-6 sm:p-8">
-      <header className="space-y-2">
-        <span className="eyebrow">Akun · Preferensi</span>
-        <h1 className="text-3xl sm:text-4xl">
-          <em className="italic text-primary">Pengaturan</em>
-        </h1>
-        <p className="max-w-xl text-pretty text-muted-foreground">
-          Atur tampilan aplikasi dan perbarui profil belajarmu.
-        </p>
-      </header>
+    <div className="mx-auto w-full max-w-2xl space-y-10 p-6 @md:p-8">
+      <Hero
+        eyebrow="Akun · Preferensi"
+        title={<em className="italic text-primary">Pengaturan</em>}
+        description="Atur tampilan aplikasi dan perbarui profil belajarmu."
+      />
 
       <AccountSettings />
 
-      <section className="min-w-0 space-y-4">
-        <div className="flex flex-col gap-1 border-b pb-3">
-          <span className="eyebrow">Tampilan</span>
-          <h2 className="font-serif text-2xl">Tema &amp; warna</h2>
+      <section className="min-w-0 space-y-5">
+        <div>
+          <SectionHeader eyebrow="Tampilan" title="Tema & warna" className="mb-2.5" />
           <p className="max-w-xl text-pretty text-sm text-muted-foreground">
             Pilih mode terang atau gelap dan warna aksen kesukaanmu.
           </p>
@@ -140,10 +136,14 @@ export default function PengaturanApp(_props: AppProps) {
         <ThemePresetSwitcher />
       </section>
 
-      <section className="min-w-0 space-y-4">
-        <div className="flex flex-col gap-1 border-b pb-3">
-          <span className="eyebrow">Tampilan OS</span>
-          <h2 className="font-serif text-2xl">Gaya desktop</h2>
+      <section className="min-w-0 space-y-5">
+        <div>
+          <SectionHeader
+            eyebrow="Tampilan OS"
+            title="Gaya desktop"
+            actions={<Badge tone="accent">Berlaku langsung</Badge>}
+            className="mb-2.5"
+          />
           <p className="max-w-xl text-pretty text-sm text-muted-foreground">
             Pilih chrome OS untuk layar lebar dan sentuh — boleh beda.
           </p>
@@ -151,10 +151,9 @@ export default function PengaturanApp(_props: AppProps) {
         <ShellSection />
       </section>
 
-      <section className="min-w-0 space-y-4">
-        <div className="flex flex-col gap-1 border-b pb-3">
-          <span className="eyebrow">Profil</span>
-          <h2 className="font-serif text-2xl">Profil belajar</h2>
+      <section className="min-w-0 space-y-5">
+        <div>
+          <SectionHeader eyebrow="Profil" title="Profil belajar" className="mb-2.5" />
           <p className="max-w-xl text-pretty text-sm text-muted-foreground">
             Nama tampilan, username, dan bio yang dilihat komunitas.
           </p>

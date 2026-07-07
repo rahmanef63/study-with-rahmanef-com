@@ -3,6 +3,7 @@
 // mutation). Shown only to instructor+ (the view gates on canManage; the real
 // guard is the server authz on create). Resets on a successful submit.
 import { useState, type FormEvent } from "react";
+import { PencilLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,9 +37,23 @@ export function AnnouncementForm({ onSubmit, isPending, copy, className }: Annou
   return (
     <form
       onSubmit={handleSubmit}
-      className={cn("flex flex-col gap-4 rounded-xl border bg-muted/20 p-4 sm:p-5", className)}
+      className={cn(
+        "flex flex-col gap-4 rounded-[var(--radius-win)] border bg-muted/20 p-4 @md:p-5",
+        className,
+      )}
     >
-      <h2 className="text-lg">{t.formTitle}</h2>
+      <div className="flex items-center gap-2.5">
+        <span
+          aria-hidden
+          className="grid size-8 shrink-0 place-items-center rounded-[var(--radius-win)] bg-primary/10 text-primary"
+        >
+          <PencilLine className="size-4" />
+        </span>
+        <div className="min-w-0">
+          <span className="eyebrow">{t.formEyebrow}</span>
+          <h2 className="text-lg leading-tight">{t.formTitle}</h2>
+        </div>
+      </div>
       <div className="flex flex-col gap-2">
         <Label htmlFor="announcement-title">{t.titleLabel}</Label>
         <Input
@@ -64,7 +79,7 @@ export function AnnouncementForm({ onSubmit, isPending, copy, className }: Annou
         />
       </div>
 
-      <Button type="submit" disabled={isPending} className="min-h-11 w-full sm:min-h-9 sm:w-fit">
+      <Button type="submit" disabled={isPending} className="min-h-11 w-full @md:min-h-9 @md:w-fit">
         {isPending ? t.submitting : t.submit}
       </Button>
     </form>

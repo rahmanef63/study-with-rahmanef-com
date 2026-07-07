@@ -7,9 +7,11 @@
 // Security note: `canModerate` only toggles UX — the pending query itself
 // requires instructor+ server-side, and curate re-checks the role. A member who
 // forces canModerate still gets NOT_AUTHORIZED from Convex.
+import { BookMarked, Inbox, Send } from "lucide-react";
 import type { Id } from "@convex/_generated/dataModel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SectionHeader, StatTile } from "@/components/mockup-kit";
 import { ResourceGrid } from "../components/resource-grid";
 import { ResourceReviewList } from "../components/resource-review-list";
 import { ResourceSubmitForm } from "../components/resource-submit-form";
@@ -43,18 +45,38 @@ export function ResourceBoardView({
   const { curate, isPending: curating } = useCurateResource(copyOverride);
 
   const pendingCount = pending?.length ?? 0;
+  const approvedCount = approved?.length;
+  const mineCount = mine?.length;
 
   return (
     <div className={className ? `space-y-8 ${className}` : "space-y-8"}>
-      <header className="flex flex-col gap-2 border-b pb-5">
-        <span className="eyebrow">Kurasi komunitas</span>
-        <h1 className="text-2xl sm:text-3xl">{copy.boardTitle}</h1>
-        <p className="max-w-2xl text-pretty text-sm text-muted-foreground sm:text-base">
+      <div className="space-y-5">
+        <SectionHeader eyebrow="Kurasi komunitas" title={copy.boardTitle} />
+        <p className="max-w-2xl text-pretty text-sm text-muted-foreground @sm:text-base">
           {copy.boardSubtitle}
         </p>
-      </header>
+        <div className="grid gap-3 @sm:grid-cols-2 @lg:grid-cols-3">
+          <StatTile
+            icon={<BookMarked className="size-5" aria-hidden />}
+            label={copy.tabApproved}
+            value={approvedCount ?? "—"}
+          />
+          <StatTile
+            icon={<Send className="size-5" aria-hidden />}
+            label={copy.tabMine}
+            value={mineCount ?? "—"}
+          />
+          {canModerate ? (
+            <StatTile
+              icon={<Inbox className="size-5" aria-hidden />}
+              label={copy.tabPending}
+              value={pendingCount}
+            />
+          ) : null}
+        </div>
+      </div>
 
-      <Card id="bagikan-sumber" className="scroll-mt-24">
+      <Card id="bagikan-sumber" className="scroll-mt-24 rounded-[var(--radius-win)]">
         <CardHeader>
           <CardTitle className="text-lg">{copy.submitResourceTitle}</CardTitle>
         </CardHeader>

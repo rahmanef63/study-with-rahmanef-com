@@ -9,8 +9,9 @@
 // window via openWindow. Runs inside an appshell window, so it fetches
 // client-side via useQuery (root layout already mounts Convex).
 import { useEffect, type MouseEvent } from "react";
-import { BookOpen, Compass, Share2 } from "lucide-react";
+import { BookOpen, Compass, GraduationCap, Share2 } from "lucide-react";
 import type { Id } from "@convex/_generated/dataModel";
+import { Badge } from "@/components/mockup-kit";
 import { type AppProps, usePublishInspector, share } from "@/features/appshell";
 import { JoinButton, useTenantBySlug } from "@/features/tenants";
 import { openApp, seg } from "./_nav";
@@ -42,7 +43,7 @@ function shareCourse(tenantSlug: string, courseSlug: string, title: string) {
 
 function KelasEmpty({ title, description }: { title: string; description: string }) {
   return (
-    <div className="mx-auto w-full max-w-4xl p-6 sm:p-8">
+    <div className="mx-auto w-full max-w-4xl p-6 @sm:p-8">
       <Empty className="border">
         <EmptyHeader>
           <EmptyMedia variant="icon">
@@ -58,7 +59,7 @@ function KelasEmpty({ title, description }: { title: string; description: string
 
 function KelasSkeleton() {
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-6 p-6 sm:p-8">
+    <div className="mx-auto w-full max-w-4xl space-y-6 p-6 @sm:p-8">
       <Skeleton className="h-10 w-2/3" />
       <Skeleton className="h-20 w-full" />
       <Skeleton className="h-64 w-full" />
@@ -91,18 +92,24 @@ function ModuleQuizEntry({
     <button
       type="button"
       onClick={onOpen}
-      className="flex min-h-11 w-full items-center justify-between gap-3 rounded-lg border bg-card px-4 py-3 text-left text-sm transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="group flex min-h-11 w-full items-center justify-between gap-3 rounded-[var(--radius-win)] border bg-card px-4 py-3 text-left text-sm transition-colors hover:border-primary/30 hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <span className="min-w-0 truncate">
-        <span className="font-medium">Kuis:</span> {title}
+      <span className="flex min-w-0 items-center gap-2.5">
+        <GraduationCap
+          className="size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary"
+          aria-hidden
+        />
+        <span className="min-w-0 truncate">
+          <span className="font-medium">Kuis:</span> {title}
+        </span>
       </span>
-      <span className="shrink-0 text-xs font-medium">
+      <span className="shrink-0">
         {passed ? (
-          <span className="text-success">Lulus ✓</span>
+          <Badge tone="success">Lulus ✓</Badge>
         ) : attempted ? (
-          <span className="text-muted-foreground">Belum lulus →</span>
+          <Badge tone="muted">Belum lulus</Badge>
         ) : (
-          <span className="text-primary">Kerjakan →</span>
+          <Badge tone="accent">Kerjakan →</Badge>
         )}
       </span>
     </button>
@@ -260,7 +267,7 @@ function KelasCourse({
   // can't select a lesson anyway (locked syllabus), so gate the pane on it.
   if (lessonId !== null && isMember) {
     return (
-      <div onClickCapture={onNavCapture} className="mx-auto w-full max-w-4xl p-6 sm:p-8">
+      <div onClickCapture={onNavCapture} className="mx-auto w-full max-w-4xl p-6 @sm:p-8">
         <LessonPlayerView
           lessonId={lessonId}
           lessonHref={lessonHref}
@@ -272,14 +279,14 @@ function KelasCourse({
   }
 
   return (
-    <div onClickCapture={onNavCapture} className="mx-auto w-full max-w-4xl p-6 sm:p-8">
+    <div onClickCapture={onNavCapture} className="mx-auto w-full max-w-4xl p-6 @sm:p-8">
       {/* Body share trigger — on mobile the inspector (its twin) never renders, so
           without this "Bagikan kelas" would be unreachable on the phone shells. */}
       <div className="mb-4 flex justify-end">
         <button
           type="button"
           onClick={() => shareCourse(tenantSlug, courseSlug, overview.course.title)}
-          className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border bg-card px-3 py-1.5 text-xs font-medium transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <Share2 className="size-3.5" aria-hidden />
           Bagikan
@@ -347,7 +354,7 @@ export default function KelasApp(props: AppProps) {
 
   if (!tenantSlug || !courseSlug) {
     return (
-      <div className="mx-auto w-full max-w-4xl p-6 sm:p-8">
+      <div className="mx-auto w-full max-w-4xl p-6 @sm:p-8">
         <Empty className="border">
           <EmptyHeader>
             <EmptyMedia variant="icon">

@@ -4,6 +4,7 @@
 import { ArrowLeft, ArrowRight, Youtube } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { Badge } from "@/components/mockup-kit";
 import { Button } from "@/components/ui/button";
 import { mergeCopy, type CoursesCopyOverride } from "../config/copy";
 import { buildYoutubeWatchUrl } from "../lib/youtube";
@@ -42,15 +43,20 @@ export function LessonView({
           asChild
           variant="ghost"
           size="sm"
-          className="-ml-2 min-h-11 text-muted-foreground sm:min-h-9"
+          className="-ml-2 min-h-11 text-muted-foreground @sm:min-h-9"
         >
           <Link href={backHref}>
             <ArrowLeft aria-hidden /> {copy.backToCourse}
           </Link>
         </Button>
         <div className="flex flex-col gap-1.5">
-          <span className="eyebrow">{lesson.courseTitle}</span>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl">{lesson.title}</h1>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="eyebrow">{lesson.courseTitle}</span>
+            <Badge tone="accent">
+              {lesson.youtubeVideoId !== undefined ? "Video" : "Bacaan"}
+            </Badge>
+          </div>
+          <h1 className="text-2xl @sm:text-3xl @lg:text-4xl">{lesson.title}</h1>
         </div>
       </header>
 
@@ -62,7 +68,7 @@ export function LessonView({
               href={watchUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-11 items-center gap-2 text-sm text-muted-foreground underline-offset-4 hover:underline sm:min-h-0"
+              className="inline-flex min-h-11 items-center gap-2 text-sm text-muted-foreground underline-offset-4 hover:underline @sm:min-h-0"
             >
               <Youtube className="size-4 shrink-0" aria-hidden /> {copy.watchOnYoutube}
             </Link>
@@ -84,7 +90,7 @@ export function LessonView({
 
         <nav className="flex items-center justify-between gap-3 border-t border-border pt-5">
           {lesson.prevLessonId !== null ? (
-            <Button asChild variant="outline" size="sm" className="min-h-11 sm:min-h-9">
+            <Button asChild variant="outline" size="sm" className="min-h-11 @sm:min-h-9">
               <Link href={lessonHref(lesson.prevLessonId)}>
                 <ArrowLeft aria-hidden /> {copy.prevLesson}
               </Link>
@@ -93,7 +99,7 @@ export function LessonView({
             <span />
           )}
           {lesson.nextLessonId !== null ? (
-            <Button asChild variant="outline" size="sm" className="min-h-11 sm:min-h-9">
+            <Button asChild variant="outline" size="sm" className="min-h-11 @sm:min-h-9">
               <Link href={lessonHref(lesson.nextLessonId)}>
                 {copy.nextLesson} <ArrowRight aria-hidden />
               </Link>

@@ -8,7 +8,10 @@ export const ANNOUNCEMENTS_COPY = {
   empty: "Belum ada pengumuman",
   emptyManage: "Belum ada pengumuman — buat yang pertama di bawah",
   postedToDiscord: "Terkirim ke Discord",
+  countLabel: "kabar",
+  newBadge: "Baru",
   // create form
+  formEyebrow: "Moderator",
   formTitle: "Buat pengumuman",
   titleLabel: "Judul",
   titlePlaceholder: "Judul pengumuman",

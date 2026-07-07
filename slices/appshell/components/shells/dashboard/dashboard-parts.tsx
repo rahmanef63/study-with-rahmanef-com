@@ -1,10 +1,14 @@
 "use client";
-/* Dashboard shell pieces — sidebar rows + the Home overview (host stats + app
-   grid). Split from dashboard-shell.tsx to keep both under the 200-line rule;
-   only the Dashboard shell composes these. Stats cards read the optional
-   useSystemStats capability and simply don't render without it. */
+/* Dashboard shell pieces — sidebar rows + the Home overview. Split from
+   dashboard-shell.tsx to keep both under the 200-line rule; only the Dashboard
+   shell composes these. The Home overview follows the "Design Platform Wireframe"
+   IA — centered hero + command search + quick-action row + a right rail — rebuilt
+   in this app's tokens (mockup-kit). Stats cards read the optional useSystemStats
+   capability and simply don't render without it. */
+import { useMemo, useState } from "react";
 import { X, Cpu, MemoryStick, HardDrive } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Hero, CommandSearch, QuickActionRow, SectionHeader, StatTile } from "@/components/mockup-kit";
 import { cn } from "@/lib/utils";
 import { useApps } from "../../../lib/registry";
 import { useWindow } from "../../../hooks/use-shell";
@@ -17,6 +21,12 @@ import { Slot } from "../../../registry/feature-registry"; // [study-with fork] 
 export function DashboardHome({ apps, onOpenApp }: { apps: AppDescriptor[]; onOpenApp: (app: AppDescriptor) => void }) {
   const stats = useSystemStats();
   const monitor = apps.find((a) => a.id === "system-monitor");
+  const [q, setQ] = useState("");
+  const filtered = useMemo(
+    () => (q ? apps.filter((a) => a.title.toLowerCase().includes(q.toLowerCase())) : apps),
+    [apps, q],
+  );
+  const quick = apps.slice(0, 8);
   const cards = stats
     ? [
         { icon: Cpu, label: "CPU", value: `${Math.round(stats.cpu.pct)}%`, hint: `${stats.cpu.cores} cores` },
@@ -26,53 +36,78 @@ export function DashboardHome({ apps, onOpenApp }: { apps: AppDescriptor[]; onOp
     : [];
 
   return (
-    <div className="mx-auto h-full max-w-6xl overflow-auto px-8 py-7">
-      <h1 className="mb-1 text-xl font-semibold tracking-tight">Welcome back</h1>
-      <p className="mb-8 text-sm text-muted-foreground">Everything in one pane.</p>
+    <div className="mx-auto h-full max-w-6xl overflow-auto p-5 @md:p-8">
+      <Hero
+        align="center"
+        eyebrow="Ruang belajarmu"
+        title="Mau belajar apa hari ini?"
+        description="Semua komunitas, kelas, dan progresmu dalam satu panel."
+      >
+        <CommandSearch
+          value={q}
+          onChange={setQ}
+          onSubmit={() => filtered.length === 1 && onOpenApp(filtered[0])}
+          placeholder="Cari aplikasi & ruang…"
+        />
+        <div className="mt-5">
+          <QuickActionRow
+            items={quick.map((a) => ({
+              id: a.id,
+              icon: <span className="size-6"><AppIcon app={a} /></span>,
+              label: a.title,
+              onClick: () => onOpenApp(a),
+            }))}
+          />
+        </div>
+      </Hero>
 
-      {/* [study-with fork] the learning "today" widget, in-flow (dashboard has no floating layer) */}
-      <div className="mb-9 max-w-sm">
-        <Slot region="today" />
-      </div>
-
-      {cards.length > 0 && (
-        <Section title="Host">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {cards.map((c) => (
+      {/* content + right rail (the mockup's docked panel — real content, not a fake AI box) */}
+      <div className="mt-8 grid gap-8 @4xl:grid-cols-[minmax(0,1fr)_300px]">
+        <section className="min-w-0">
+          <SectionHeader title="Semua aplikasi" />
+          <div className="grid grid-cols-2 gap-4 @sm:grid-cols-3 @lg:grid-cols-4">
+            {filtered.map((a) => (
               <Button
-                key={c.label}
+                key={a.id}
                 type="button"
                 variant="ghost"
-                onClick={() => monitor && onOpenApp(monitor)}
-                className="flex h-auto items-center justify-start gap-3.5 rounded-xl border border-border bg-card p-4 text-left transition-all hover:-translate-y-0.5 hover:border-foreground/20 hover:bg-card hover:shadow-md"
+                onClick={() => onOpenApp(a)}
+                className="flex h-auto flex-col items-start gap-1.5 rounded-[var(--radius-win)] border border-border bg-card p-4 text-left transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:bg-card hover:shadow-md"
               >
-                <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><c.icon className="size-5" /></span>
-                <span className="min-w-0">
-                  <span className="block text-sm font-medium">{c.label} · {c.value}</span>
-                  <span className="block truncate text-xs text-muted-foreground">{c.hint}</span>
-                </span>
+                <span className="size-10"><AppIcon app={a} /></span>
+                <span className="mt-1.5 w-full truncate text-sm font-medium">{a.title}</span>
               </Button>
             ))}
+            {filtered.length === 0 && (
+              <p className="col-span-full rounded-[var(--radius-win)] border border-dashed border-border bg-muted/30 px-4 py-6 text-center text-sm text-muted-foreground">
+                Tidak ada aplikasi cocok “{q}”.
+              </p>
+            )}
           </div>
-        </Section>
-      )}
+        </section>
 
-      <Section title="Apps">
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {apps.map((a) => (
-            <Button
-              key={a.id}
-              type="button"
-              variant="ghost"
-              onClick={() => onOpenApp(a)}
-              className="flex h-auto flex-col items-start gap-1.5 rounded-xl border border-border bg-card p-4 text-left transition-all hover:-translate-y-0.5 hover:border-foreground/20 hover:bg-card hover:shadow-md"
-            >
-              <span className="size-10"><AppIcon app={a} /></span>
-              <span className="mt-1.5 w-full truncate text-sm font-medium">{a.title}</span>
-            </Button>
-          ))}
-        </div>
-      </Section>
+        <aside className="space-y-6">
+          {/* [study-with fork] the learning "today" widget, in the right rail (dashboard has no floating layer) */}
+          <Slot region="today" />
+          {cards.length > 0 && (
+            <section className="space-y-3">
+              <SectionHeader as="h3" title="Host" className="mb-3" />
+              <div className="flex flex-col gap-3">
+                {cards.map((c) => (
+                  <StatTile
+                    key={c.label}
+                    icon={<c.icon className="size-5" />}
+                    label={c.label}
+                    value={c.value}
+                    hint={c.hint}
+                    onClick={monitor ? () => onOpenApp(monitor) : undefined}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+        </aside>
+      </div>
     </div>
   );
 }
@@ -146,15 +181,6 @@ export function SidebarLabel({ children }: { children: React.ReactNode }) {
     <div className="px-4 pb-1.5 pt-4 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
       {children}
     </div>
-  );
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="mb-9">
-      <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{title}</h2>
-      {children}
-    </section>
   );
 }
 

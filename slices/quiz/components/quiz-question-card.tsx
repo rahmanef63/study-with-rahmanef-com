@@ -34,10 +34,10 @@ export function QuizQuestionCard({
   return (
     <Card>
       <CardHeader>
-        <div className="flex gap-3 sm:gap-4">
+        <div className="flex gap-3 @sm:gap-4">
           <span
             aria-hidden
-            className="font-serif text-2xl leading-none tabular-nums text-primary/70 sm:text-3xl"
+            className="font-serif text-2xl leading-none tabular-nums text-primary/70 @sm:text-3xl"
           >
             {String(index + 1).padStart(2, "0")}
           </span>

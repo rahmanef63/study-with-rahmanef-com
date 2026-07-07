@@ -38,6 +38,15 @@ import { api } from "@convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  Badge,
+  CommandSearch,
+  Hero,
+  QuickActionRow,
+  SectionHeader,
+  ViewToggle,
+  type QuickAction,
+} from "@/components/mockup-kit";
+import {
   Empty,
   EmptyDescription,
   EmptyHeader,
@@ -83,43 +92,45 @@ function CommunityBody({ slug }: { slug: string }) {
 
   const canManage = membership?.role === "owner" || membership?.role === "instructor";
 
+  // Community sub-features — each opens its own deep-linkable window. Rendered as
+  // the mockup's quick-action strip (icon tiles) instead of a button row.
+  const quickActions: QuickAction[] = [
+    {
+      id: "resources",
+      icon: <Library aria-hidden className="size-5" />,
+      label: "Sumber & usulan",
+      onClick: () => openApp("resources", tenant?.name ?? "Resources", [slug]),
+    },
+    {
+      id: "pengumuman",
+      icon: <Megaphone aria-hidden className="size-5" />,
+      label: "Pengumuman",
+      onClick: () => openApp("pengumuman", tenant?.name ?? "Pengumuman", [slug]),
+    },
+  ];
+  if (canManage && tenant) {
+    quickActions.push({
+      id: "kelola",
+      icon: <Settings2 aria-hidden className="size-5" />,
+      label: "Kelola",
+      onClick: () => openApp("kelola", tenant.name, [slug]),
+    });
+  }
+
   return (
     <div className="flex flex-col gap-8">
-      {/* Community sub-features — each opens its own deep-linkable window. */}
-      <div className="flex flex-wrap gap-2">
-        <Button
-          variant="outline"
-          className="min-h-11 sm:min-h-9"
-          onClick={() => openApp("resources", tenant?.name ?? "Resources", [slug])}
-        >
-          <Library aria-hidden className="size-4" />
-          Sumber &amp; usulan
-        </Button>
-        <Button
-          variant="outline"
-          className="min-h-11 sm:min-h-9"
-          onClick={() => openApp("pengumuman", tenant?.name ?? "Pengumuman", [slug])}
-        >
-          <Megaphone aria-hidden className="size-4" />
-          Pengumuman
-        </Button>
-        {canManage && tenant ? (
-          <Button
-            variant="outline"
-            className="min-h-11 sm:min-h-9"
-            onClick={() => openApp("kelola", tenant.name, [slug])}
-          >
-            <Settings2 aria-hidden className="size-4" />
-            Kelola
-          </Button>
-        ) : null}
-      </div>
+      <QuickActionRow items={quickActions} />
 
       <section className="space-y-4">
-        <div className="flex flex-col gap-1 border-b pb-3">
-          <span className="eyebrow">Kelas</span>
-          <h2 className="font-serif text-2xl">Mulai belajar di sini.</h2>
-        </div>
+        <SectionHeader
+          eyebrow="Kelas"
+          title="Mulai belajar di sini."
+          actions={
+            courses && courses.length > 0 ? (
+              <Badge tone="muted">{courses.length} kelas</Badge>
+            ) : undefined
+          }
+        />
         {tenant === undefined || courses === undefined ? (
           <div className="grid gap-3 @sm:grid-cols-2 @xl:grid-cols-3">
             {[0, 1].map((i) => (
@@ -148,7 +159,7 @@ function CommunityView({ slug }: { slug: string }) {
   // the id is supplied here at the integration layer, not fetched inside it.
   const { profile } = useCurrentProfile();
   return (
-    <div className="mx-auto w-full max-w-4xl p-6 sm:p-8">
+    <div className="mx-auto w-full max-w-4xl p-6 @md:p-8">
       <TenantHomeView
         slug={slug}
         loginHref="/masuk"
@@ -190,10 +201,15 @@ function MyCommunitiesSection() {
 
   return (
     <section className="space-y-4">
-      <div className="flex flex-col gap-1 border-b pb-3">
-        <span className="eyebrow">Komunitas saya</span>
-        <h2 className="font-serif text-2xl">Yang kamu ikuti.</h2>
-      </div>
+      <SectionHeader
+        eyebrow="Komunitas saya"
+        title="Yang kamu ikuti."
+        actions={
+          communities && communities.length > 0 ? (
+            <Badge tone="accent">{communities.length} komunitas</Badge>
+          ) : undefined
+        }
+      />
 
       {!isAuthenticated && !isLoading ? (
         <Empty className="border">
@@ -237,24 +253,51 @@ function MyCommunitiesSection() {
   );
 }
 
-// One etalase row: the name opens this app scoped to that tenant; the reused
-// JoinButton renders the correct join affordance (login / join / role) beside it.
-function DirectoryRow({ tenant }: { tenant: PublicTenant }) {
+// One etalase item: the name opens this app scoped to that tenant; the reused
+// JoinButton renders the correct join affordance (login / join / role). Rows and
+// grid cards are siblings-not-nested to avoid nested interactive elements.
+function DirectoryCard({ tenant, view }: { tenant: PublicTenant; view: "list" | "grid" }) {
+  const open = () => openApp("komunitas", tenant.name, [tenant.slug]);
+
+  if (view === "grid") {
+    return (
+      <li className="group flex flex-col gap-3 rounded-[var(--radius-win)] border border-border bg-card p-5 transition-colors hover:border-primary/40 hover:bg-accent/40">
+        <button
+          type="button"
+          onClick={open}
+          className="flex min-w-0 flex-col gap-1.5 rounded-md text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <span className="flex flex-wrap items-center gap-2">
+            <span className="min-w-0 truncate font-serif text-base font-medium group-hover:text-primary">
+              {tenant.name}
+            </span>
+            {tenant.track ? <Badge tone="muted">{tenant.track}</Badge> : null}
+          </span>
+          <span className="line-clamp-2 text-sm text-muted-foreground">{tenant.description}</span>
+        </button>
+        <div className="mt-auto border-t border-border pt-3">
+          <JoinButton tenantId={tenant._id} loginHref="/masuk" />
+        </div>
+      </li>
+    );
+  }
+
   return (
-    <li className="flex items-center justify-between gap-4 rounded-xl border bg-card px-5 py-4 transition-colors hover:border-primary/40 hover:bg-accent/40">
+    <li className="group flex items-center justify-between gap-4 rounded-[var(--radius-win)] border border-border bg-card px-5 py-4 transition-colors hover:border-primary/40 hover:bg-accent/40">
       <button
         type="button"
-        onClick={() => openApp("komunitas", tenant.name, [tenant.slug])}
+        onClick={open}
         className="flex min-h-11 min-w-0 flex-1 flex-col text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
       >
-        <span className="truncate font-serif font-medium">{tenant.name}</span>
+        <span className="flex min-w-0 items-center gap-2">
+          <span className="min-w-0 flex-1 truncate font-serif font-medium group-hover:text-primary">
+            {tenant.name}
+          </span>
+          {tenant.track ? <Badge tone="muted">{tenant.track}</Badge> : null}
+        </span>
         <span className="truncate text-sm text-muted-foreground">{tenant.description}</span>
       </button>
-      <JoinButton
-        tenantId={tenant._id}
-        loginHref="/masuk"
-        className="shrink-0"
-      />
+      <JoinButton tenantId={tenant._id} loginHref="/masuk" className="shrink-0" />
     </li>
   );
 }
@@ -262,23 +305,45 @@ function DirectoryRow({ tenant }: { tenant: PublicTenant }) {
 function ExploreSection() {
   const tenants = useQuery(tenantsApi.listActive, { limit: 12 }) as PublicTenant[] | undefined;
   const [openRequest, setOpenRequest] = useState(false);
+  // Presentational-only view state: search filters the loaded list by name,
+  // ViewToggle switches list⇄grid. No effect on data fetching.
+  const [query, setQuery] = useState("");
+  const [view, setView] = useState<"list" | "grid">("list");
+
+  const q = query.trim().toLowerCase();
+  const visible = tenants?.filter((t) => t.name.toLowerCase().includes(q));
+  const gridClass =
+    view === "grid" ? "grid gap-3 @sm:grid-cols-2 @xl:grid-cols-3" : "grid gap-3";
 
   return (
     <section className="space-y-4">
-      <div className="flex flex-wrap items-end justify-between gap-3 border-b pb-3">
-        <div className="flex min-w-0 flex-col gap-1">
-          <span className="eyebrow">Jelajahi</span>
-          <h2 className="font-serif text-2xl">Komunitas aktif.</h2>
-        </div>
-        <Button
-          variant="outline"
-          className="min-h-11 shrink-0 gap-1.5 sm:min-h-9"
-          onClick={() => setOpenRequest(true)}
-        >
-          <Plus className="size-4" aria-hidden />
-          Ajukan komunitas
-        </Button>
-      </div>
+      <SectionHeader
+        eyebrow="Jelajahi"
+        title="Komunitas aktif."
+        actions={
+          <>
+            {visible && visible.length > 0 ? (
+              <ViewToggle value={view} onChange={setView} />
+            ) : null}
+            <Button
+              variant="outline"
+              className="min-h-11 shrink-0 gap-1.5 @sm:min-h-9"
+              onClick={() => setOpenRequest(true)}
+            >
+              <Plus className="size-4" aria-hidden />
+              Ajukan komunitas
+            </Button>
+          </>
+        }
+      />
+
+      {tenants && tenants.length > 0 ? (
+        <CommandSearch
+          value={query}
+          onChange={setQuery}
+          placeholder="Cari komunitas…"
+        />
+      ) : null}
 
       {tenants === undefined ? (
         <div className="grid gap-3">
@@ -298,10 +363,14 @@ function ExploreSection() {
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
+      ) : visible && visible.length === 0 ? (
+        <p className="rounded-[var(--radius-win)] border border-dashed bg-muted/30 px-4 py-6 text-center text-sm text-muted-foreground">
+          Tidak ada komunitas yang cocok dengan “{query}”.
+        </p>
       ) : (
-        <ul className="grid gap-3">
-          {tenants.map((tenant) => (
-            <DirectoryRow key={tenant._id} tenant={tenant} />
+        <ul className={gridClass}>
+          {visible?.map((tenant) => (
+            <DirectoryCard key={tenant._id} tenant={tenant} view={view} />
           ))}
         </ul>
       )}
@@ -322,17 +391,16 @@ function ExploreSection() {
 
 function CommunityDirectory() {
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-10 p-6 sm:p-8">
-      <header className="space-y-2">
-        <span className="eyebrow">Komunitas belajar AI · Bahasa Indonesia</span>
-        <h1 className="text-3xl sm:text-4xl">
-          Temukan <em className="italic text-primary">komunitasmu</em>.
-        </h1>
-        <p className="max-w-xl text-pretty text-muted-foreground">
-          Gabung komunitas belajar, buka kelasnya, dan catat progresmu — gratis, berbahasa
-          Indonesia.
-        </p>
-      </header>
+    <div className="mx-auto w-full max-w-4xl space-y-10 p-6 @md:p-8">
+      <Hero
+        eyebrow="Komunitas belajar AI · Bahasa Indonesia"
+        title={
+          <>
+            Temukan <em className="italic text-primary">komunitasmu</em>.
+          </>
+        }
+        description="Gabung komunitas belajar, buka kelasnya, dan catat progresmu — gratis, berbahasa Indonesia."
+      />
 
       <MyCommunitiesSection />
       <ExploreSection />

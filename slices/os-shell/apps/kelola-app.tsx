@@ -14,17 +14,23 @@ import type { AppProps } from "@/features/appshell";
 import { AnnouncementsView } from "@/features/announcements";
 import { seg } from "./_nav";
 import { TenantSettingsView, useMyMembership, useTenantBySlug } from "@/features/tenants";
+import { Hero, SectionHeader } from "@/components/mockup-kit";
 import { KelolaEmpty, KelolaSkeleton } from "./kelola-parts";
 import { KelolaKelasTab } from "./kelola-kelas-tab";
 import { KelolaKuisTab } from "./kelola-kuis-tab";
 
 type TabKey = "kelas" | "kuis" | "komunitas" | "pengumuman";
 
-const TABS: { key: TabKey; label: string; icon: LucideIcon }[] = [
-  { key: "kelas", label: "Kelas", icon: BookOpen },
-  { key: "kuis", label: "Kuis", icon: ListChecks },
-  { key: "komunitas", label: "Komunitas", icon: Users },
-  { key: "pengumuman", label: "Pengumuman", icon: Megaphone },
+const TABS: { key: TabKey; label: string; icon: LucideIcon; blurb: string }[] = [
+  { key: "kelas", label: "Kelas", icon: BookOpen, blurb: "Susun kelas, modul, dan materi." },
+  { key: "kuis", label: "Kuis", icon: ListChecks, blurb: "Bangun bank soal per modul." },
+  { key: "komunitas", label: "Komunitas", icon: Users, blurb: "Atur profil & identitas komunitas." },
+  {
+    key: "pengumuman",
+    label: "Pengumuman",
+    icon: Megaphone,
+    blurb: "Kirim kabar ke seluruh anggota.",
+  },
 ];
 
 export default function KelolaApp(props: AppProps) {
@@ -33,7 +39,7 @@ export default function KelolaApp(props: AppProps) {
 
   if (!tenantSlug) {
     return (
-      <div className="mx-auto w-full max-w-3xl p-6 sm:p-8">
+      <div className="mx-auto w-full max-w-3xl p-6 @md:p-8">
         <KelolaEmpty
           icon={Lock}
           title="Komunitas tak dikenal"
@@ -53,7 +59,7 @@ function KelolaConsole({ tenantSlug }: { tenantSlug: string }) {
 
   if (tenant === undefined || isAuthLoading || membership === undefined) {
     return (
-      <div className="mx-auto w-full max-w-5xl space-y-6 p-6 sm:p-8">
+      <div className="mx-auto w-full max-w-5xl space-y-6 p-6 @md:p-8">
         <KelolaSkeleton lines={4} />
       </div>
     );
@@ -61,7 +67,7 @@ function KelolaConsole({ tenantSlug }: { tenantSlug: string }) {
 
   if (tenant === null) {
     return (
-      <div className="mx-auto w-full max-w-3xl p-6 sm:p-8">
+      <div className="mx-auto w-full max-w-3xl p-6 @md:p-8">
         <KelolaEmpty
           icon={Lock}
           title="Komunitas tak ditemukan"
@@ -74,7 +80,7 @@ function KelolaConsole({ tenantSlug }: { tenantSlug: string }) {
   const canManage = membership?.role === "instructor" || membership?.role === "owner";
   if (!canManage) {
     return (
-      <div className="mx-auto w-full max-w-3xl p-6 sm:p-8">
+      <div className="mx-auto w-full max-w-3xl p-6 @md:p-8">
         <KelolaEmpty
           icon={Lock}
           title="Khusus pengelola"
@@ -84,48 +90,58 @@ function KelolaConsole({ tenantSlug }: { tenantSlug: string }) {
     );
   }
 
+  const active = TABS.find((t) => t.key === tab) ?? TABS[0];
+
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-8 p-6 sm:p-8">
-      <header className="space-y-2">
-        <span className="eyebrow">Konsol pengelola · {tenant.name}</span>
-        <h1 className="text-3xl sm:text-4xl">
-          Kelola <em className="italic text-primary">komunitas</em>.
-        </h1>
-        <p className="max-w-xl text-pretty text-muted-foreground">
-          Atur kelas, kuis, profil komunitas, dan pengumuman dari satu tempat.
-        </p>
-      </header>
+    <div className="mx-auto w-full max-w-5xl space-y-6 p-6 @md:p-8">
+      <Hero
+        eyebrow={<>Konsol pengelola · {tenant.name}</>}
+        title={
+          <>
+            Kelola <em className="italic text-primary">komunitas</em>.
+          </>
+        }
+        description="Atur kelas, kuis, profil komunitas, dan pengumuman dari satu tempat."
+      >
+        <div role="tablist" aria-label="Menu kelola" className="flex flex-wrap gap-2">
+          {TABS.map(({ key, label, icon: Icon }) => {
+            const isActive = tab === key;
+            return (
+              <button
+                key={key}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => setTab(key)}
+                className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                  isActive
+                    ? "border-primary/40 bg-primary/10 text-primary"
+                    : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"
+                }`}
+              >
+                <Icon className="size-4" aria-hidden /> {label}
+              </button>
+            );
+          })}
+        </div>
+      </Hero>
 
-      <div role="tablist" aria-label="Menu kelola" className="flex flex-wrap gap-2 border-b pb-3">
-        {TABS.map(({ key, label, icon: Icon }) => {
-          const active = tab === key;
-          return (
-            <button
-              key={key}
-              type="button"
-              role="tab"
-              aria-selected={active}
-              onClick={() => setTab(key)}
-              className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                active
-                  ? "border-primary/40 bg-primary/10 text-primary"
-                  : "border-transparent text-muted-foreground hover:bg-accent/50 hover:text-foreground"
-              }`}
-            >
-              <Icon className="size-4" aria-hidden /> {label}
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="min-w-0">
-        {tab === "kelas" ? <KelolaKelasTab tenantId={tenant._id} /> : null}
-        {tab === "kuis" ? <KelolaKuisTab tenantId={tenant._id} /> : null}
-        {tab === "komunitas" ? <TenantSettingsView slug={tenant.slug} /> : null}
-        {tab === "pengumuman" ? (
-          <AnnouncementsView tenantId={tenant._id} canManage />
-        ) : null}
-      </div>
+      <section className="min-w-0 space-y-5">
+        <SectionHeader
+          title={active.label}
+          actions={
+            <span className="hidden max-w-xs truncate text-sm text-muted-foreground @md:block">
+              {active.blurb}
+            </span>
+          }
+        />
+        <div className="min-w-0">
+          {tab === "kelas" ? <KelolaKelasTab tenantId={tenant._id} /> : null}
+          {tab === "kuis" ? <KelolaKuisTab tenantId={tenant._id} /> : null}
+          {tab === "komunitas" ? <TenantSettingsView slug={tenant.slug} /> : null}
+          {tab === "pengumuman" ? <AnnouncementsView tenantId={tenant._id} canManage /> : null}
+        </div>
+      </section>
     </div>
   );
 }

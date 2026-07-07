@@ -11,6 +11,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge, SectionHeader } from "@/components/mockup-kit";
 import { cn } from "@/lib/utils";
 import { AnnouncementCard } from "../components/announcement-card";
 import { AnnouncementForm } from "../components/announcement-form";
@@ -38,11 +39,21 @@ export function AnnouncementsView({
 
   return (
     <div className={cn("flex flex-col gap-6", className)}>
-      <header className="flex flex-col gap-2 border-b pb-5">
-        <span className="eyebrow">Komunitas</span>
-        <h1 className="text-2xl sm:text-3xl">{t.title}</h1>
+      <div className="min-w-0">
+        <SectionHeader
+          eyebrow="Komunitas"
+          title={t.title}
+          className="mb-2"
+          actions={
+            announcements !== undefined ? (
+              <Badge tone="muted">
+                {announcements.length} {t.countLabel}
+              </Badge>
+            ) : null
+          }
+        />
         <p className="text-pretty text-sm text-muted-foreground">{t.subtitle}</p>
-      </header>
+      </div>
 
       {canManage ? (
         <AnnouncementForm
@@ -54,8 +65,8 @@ export function AnnouncementsView({
 
       {announcements === undefined ? (
         <div className="flex flex-col gap-3">
-          <Skeleton className="h-28 w-full rounded-xl" />
-          <Skeleton className="h-28 w-full rounded-xl" />
+          <Skeleton className="h-28 w-full rounded-[var(--radius-win)]" />
+          <Skeleton className="h-28 w-full rounded-[var(--radius-win)]" />
         </div>
       ) : announcements.length === 0 ? (
         <Empty>

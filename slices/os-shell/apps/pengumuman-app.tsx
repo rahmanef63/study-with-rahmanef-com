@@ -12,6 +12,7 @@ import { type AppProps } from "@/features/appshell";
 import { AnnouncementsView } from "@/features/announcements";
 import { seg } from "./_nav";
 import { tenantsApi, useMyMembership, type PublicTenant } from "@/features/tenants";
+import { Hero } from "@/components/mockup-kit";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 
 function PengumumanEmpty({ title, description }: { title: string; description: string }) {
@@ -44,15 +45,16 @@ export default function PengumumanApp(props: AppProps) {
   const canManage = membership?.role === "instructor" || membership?.role === "owner";
 
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-8 p-6 sm:p-8">
-      <header className="min-w-0 space-y-1">
-        <span className="eyebrow">Pengumuman komunitas</span>
-        {tenant ? (
-          <p className="min-w-0 truncate font-serif text-2xl text-pretty sm:text-3xl">
-            {tenant.name}
-          </p>
-        ) : null}
-      </header>
+    <div className="mx-auto w-full max-w-3xl space-y-8 p-6 @md:p-8">
+      <Hero
+        eyebrow="Pengumuman komunitas"
+        title={tenant ? tenant.name : "Papan pengumuman"}
+        description={
+          tenant
+            ? "Kabar terbaru, jadwal, dan info penting yang dibagikan komunitas ini."
+            : undefined
+        }
+      />
 
       {!slug ? (
         <PengumumanEmpty
@@ -61,8 +63,8 @@ export default function PengumumanApp(props: AppProps) {
         />
       ) : tenant === undefined ? (
         <div className="space-y-4" aria-busy="true">
-          <div className="h-28 w-full animate-pulse rounded-2xl bg-muted/50" />
-          <div className="h-28 w-full animate-pulse rounded-2xl bg-muted/50" />
+          <div className="h-28 w-full animate-pulse rounded-[var(--radius-win)] bg-muted/50" />
+          <div className="h-28 w-full animate-pulse rounded-[var(--radius-win)] bg-muted/50" />
         </div>
       ) : tenant === null ? (
         <PengumumanEmpty

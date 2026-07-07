@@ -28,7 +28,7 @@ export function ResourceReviewRow({
 }: ResourceReviewRowProps) {
   return (
     <Card>
-      <CardContent className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
+      <CardContent className="flex flex-col gap-3 py-4 @sm:flex-row @sm:items-center @sm:justify-between">
         <div className="min-w-0 space-y-1">
           <p className="truncate font-medium">{item.title}</p>
           {item.note && <p className="line-clamp-2 text-sm text-muted-foreground">{item.note}</p>}
@@ -55,12 +55,12 @@ export function ResourceReviewRow({
             <ExternalLink className="size-3 shrink-0 opacity-60" aria-hidden />
           </a>
         </div>
-        <div className="flex w-full shrink-0 gap-2 sm:w-auto">
+        <div className="flex w-full shrink-0 gap-2 @sm:w-auto">
           <Button
             size="sm"
             onClick={() => onApprove()}
             disabled={pending}
-            className="min-h-11 flex-1 sm:flex-none"
+            className="min-h-11 flex-1 @sm:flex-none"
           >
             <Check className="size-4" aria-hidden />
             {copy.approve}
@@ -70,7 +70,7 @@ export function ResourceReviewRow({
             variant="outline"
             onClick={() => onReject()}
             disabled={pending}
-            className="min-h-11 flex-1 sm:flex-none"
+            className="min-h-11 flex-1 @sm:flex-none"
           >
             <X className="size-4" aria-hidden />
             {copy.reject}

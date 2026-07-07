@@ -17,7 +17,7 @@ export type SuggestionCardProps = {
 
 export function SuggestionCard({ suggestion, copy, actions }: SuggestionCardProps) {
   return (
-    <Card className="h-full">
+    <Card className="h-full rounded-[var(--radius-win)] transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:bg-accent/30 hover:shadow-md">
       <CardHeader>
         <div className="flex items-start justify-between gap-2">
           <CardTitle className="line-clamp-2 text-base">{suggestion.title}</CardTitle>

@@ -11,6 +11,7 @@ import { ResourceBoardView, SuggestionBoxView } from "@/features/resources";
 import { seg } from "./_nav";
 import { tenantsApi, useMyMembership, type PublicTenant } from "@/features/tenants";
 import { Empty, EmptyHeader, EmptyTitle, EmptyDescription } from "@/components/ui/empty";
+import { Hero } from "@/components/mockup-kit";
 import { cn } from "@/lib/utils";
 
 const TABS = [
@@ -51,16 +52,16 @@ export default function ResourcesApp(props: AppProps) {
   const [tab, setTab] = useState<TabKey>(view === "usulan" ? "usulan" : "board");
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-8 p-6 sm:p-8">
-      <header className="space-y-2">
-        <span className="eyebrow">Sumber &amp; usulan · Komunitas</span>
-        <h1 className="text-3xl sm:text-4xl">
-          Papan sumber <em className="italic text-primary">komunitas</em>.
-        </h1>
-        <p className="max-w-xl text-pretty text-muted-foreground">
-          Kurasi tautan bermanfaat dan usulkan topik berikutnya — pilih tab di bawah.
-        </p>
-      </header>
+    <div className="mx-auto w-full max-w-4xl space-y-8 p-6 @sm:p-8">
+      <Hero
+        eyebrow="Sumber & usulan · Komunitas"
+        title={
+          <>
+            Papan sumber <em className="italic text-primary">komunitas</em>.
+          </>
+        }
+        description="Kurasi tautan bermanfaat dan usulkan topik berikutnya — pilih tab di bawah."
+      />
 
       {!slug ? (
         <ResourcesEmpty
@@ -69,8 +70,8 @@ export default function ResourcesApp(props: AppProps) {
         />
       ) : tenant === undefined ? (
         <div className="space-y-4">
-          <div className="h-11 w-64 animate-pulse rounded-lg bg-muted/50" />
-          <div className="h-64 animate-pulse rounded-2xl bg-muted/50" />
+          <div className="h-10 w-64 max-w-full animate-pulse rounded-full bg-muted/50" />
+          <div className="h-64 animate-pulse rounded-[var(--radius-win)] bg-muted/50" />
         </div>
       ) : tenant === null ? (
         <ResourcesEmpty
@@ -79,7 +80,11 @@ export default function ResourcesApp(props: AppProps) {
         />
       ) : (
         <div className="space-y-8">
-          <div role="tablist" aria-label="Papan sumber atau kotak usulan" className="flex gap-1 border-b">
+          <div
+            role="tablist"
+            aria-label="Papan sumber atau kotak usulan"
+            className="flex flex-wrap gap-2"
+          >
             {TABS.map((t) => {
               const active = tab === t.key;
               return (
@@ -90,10 +95,10 @@ export default function ResourcesApp(props: AppProps) {
                   aria-selected={active}
                   onClick={() => setTab(t.key)}
                   className={cn(
-                    "-mb-px min-h-11 min-w-0 truncate border-b-2 px-4 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    "inline-flex min-h-11 min-w-0 items-center justify-center truncate rounded-full border px-4 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     active
-                      ? "border-primary text-primary"
-                      : "border-transparent text-muted-foreground hover:text-foreground",
+                      ? "border-primary/40 bg-primary/10 text-primary"
+                      : "border-border text-muted-foreground hover:border-primary/30 hover:text-foreground",
                   )}
                 >
                   {t.label}

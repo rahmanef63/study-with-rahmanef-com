@@ -5,7 +5,7 @@
 import type { ReactNode } from "react";
 import { ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Hero, Badge } from "@/components/mockup-kit";
 import { DEFAULT_TENANT_LABELS } from "../config/labels";
 import type { PublicTenant, TenantLabels } from "../types";
 
@@ -25,30 +25,34 @@ export function TenantProfileCard({
 }: TenantProfileCardProps) {
   const t = { ...DEFAULT_TENANT_LABELS.home, ...labels };
   return (
-    <section className={cn("border-b pb-8", className)}>
-      <span className="eyebrow">Komunitas belajar</span>
-      <h1 className="mt-2 text-balance break-words text-3xl sm:text-4xl">{tenant.name}</h1>
-      {tenant.track ? (
-        <span className="mt-3 inline-flex w-fit items-center rounded-full bg-accent px-2.5 py-0.5 text-xs font-medium text-accent-foreground">
-          {t.trackPrefix}: {tenant.track}
-        </span>
-      ) : null}
-      <p className="mt-4 max-w-2xl whitespace-pre-line text-pretty text-base leading-relaxed text-muted-foreground">
-        {tenant.description}
-      </p>
-      {actions || tenant.discordInviteUrl ? (
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-          {actions}
-          {tenant.discordInviteUrl ? (
-            <Button variant="outline" asChild className="min-h-11 sm:min-h-9">
-              <a href={tenant.discordInviteUrl} target="_blank" rel="noopener noreferrer">
-                {t.discordCta}
-                <ExternalLink aria-hidden className="size-4" />
-              </a>
-            </Button>
-          ) : null}
-        </div>
-      ) : null}
-    </section>
+    <Hero
+      eyebrow="Komunitas belajar"
+      title={<span className="break-words">{tenant.name}</span>}
+      description={<span className="whitespace-pre-line">{tenant.description}</span>}
+      className={className}
+    >
+      <div className="flex flex-col gap-4">
+        {tenant.track ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge tone="accent">
+              {t.trackPrefix}: {tenant.track}
+            </Badge>
+          </div>
+        ) : null}
+        {actions || tenant.discordInviteUrl ? (
+          <div className="flex flex-col gap-3 @sm:flex-row @sm:items-center">
+            {actions}
+            {tenant.discordInviteUrl ? (
+              <Button variant="outline" asChild className="min-h-11 @sm:min-h-9">
+                <a href={tenant.discordInviteUrl} target="_blank" rel="noopener noreferrer">
+                  {t.discordCta}
+                  <ExternalLink aria-hidden className="size-4" />
+                </a>
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
+    </Hero>
   );
 }
