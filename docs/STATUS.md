@@ -64,6 +64,11 @@ _none yet_
 | OS-4 | **P1 make-it-live** — ⌘K search · command palette · announcement toasts+badge (Komunitas dock) · "Lanjutkan belajar" recents | frontend | b6479a2 | done |
 | OS-5 | **P2** — lesson inspector (⌘I) · learning widgets (mobile Today) · shell picker (Pengaturan → "Tampilan OS") · fix invisible chrome (`--info/--success/--warning` tokens) | frontend | 510b1c0 | done |
 | OS-6 | **P3** — share lesson link (share sheet) · Focus mode command (snap/split-view sudah jalan) | frontend | 1cb407d | done |
+| OS-9 | Docs overhaul — README + docs/ ke realita OS + 8 diagram Mermaid (arsitektur · ER · slice-graph · app-map · URL-sync · capability-pie) | docs | 2dbe231 | done |
+| OS-10 | Scroll + responsive + share — window scroll area (`AppScroll`/`scrollize` + minimalis `.scroll-minimal`) · narrow-window `@container` reflow · mobile "Bagikan kelas" · divalidasi audit 7-agent per-shell | frontend | 9b41851 | done |
+| OS-11 | Account + Dashboard inspector — account control + sign-out BENERAN (`menuBarStatus` slot + Pengaturan "Akun"; benerin logout appshell yang no-op) · Dashboard `rightPanel` slot (appshell fork bertanda `[study-with fork]`) | frontend | 267c293 | done |
+| OS-12 | **Onboarding dosen** — G1 "Ajukan komunitas" (`RequestTenantForm` dialog → feed antrian admin) · G2 kontrol peran owner di roster (member↔instructor via `useSetMemberRole`) | frontend | 383ff23 | done |
+| OS-13 | **P2 display** — badge status kuis (Lulus ✓ / Belum lulus / Kerjakan) di CTA modul, baca attempt tersimpan (no backend change) | frontend | 35c9d73 | done |
 
 ### Deferred / open
 
@@ -71,6 +76,7 @@ _none yet_
 |---|---|---|---|---|
 | OS-7 | Real AI study-assistant (LLM httpAction; skarang `chatComingSoon` placeholder) | backend | **DEFERRED** | butuh `ANTHROPIC_API_KEY` di Convex self-hosted + manual `npx convex deploy` (owner) |
 | OS-8 | Sticky-notes widget · Quick Look · Dynamic Island | frontend | deferred | scope P3 sisa, non-blocking |
+| OS-14 | Kuis sebagai GATE (kunci modul/badge ke kelulusan) · "Lanjutkan belajar" backed Convex (P3) · Android today/notif + Windows tray quick-settings | mixed | deferred | P2-gate = keputusan produk (semantik belajar) · P3 = butuh query baru + Convex deploy manual self-hosted · shell-forks = ROI rendah |
 | 12 | ROTASI SECRET (admin key · JWT_PRIVATE_KEY/JWKS · AUTH_GOOGLE_SECRET) — lihat baris #12 & drift log | ops | **OPEN / URGENT** | ditahan Rahman; jalankan di VPS |
 
 Capabilities seam (`manifest.capabilities`) = **4/7 wired**: appearance (next-themes) · cpu
@@ -85,7 +91,9 @@ pie showData
 ```
 
 Commit trail: OS pivot `89c4434` → deep-links + preset theming `5094760` → lesson deep-link /
-auto-open Beranda / prune `b1a38f4` → P1 `b6479a2` → P2 + shells `510b1c0` → P3 `1cb407d`.
+auto-open Beranda / prune `b1a38f4` → P1 `b6479a2` → P2 + shells `510b1c0` → P3 `1cb407d`
+→ docs+diagrams `2dbe231` → scroll/responsive/share `9b41851` → account + Dashboard inspector
+`267c293` → onboarding dosen (G1/G2) `383ff23` → P2 quiz badge `35c9d73`.
 
 Deploy: Dokploy webhook on `git push origin main` → build → deploy (owner auto-ship).
 Convex self-hosted TIDAK auto-deploy on push — perubahan `convex/` butuh manual
