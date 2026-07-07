@@ -22,9 +22,9 @@ export default function LoginPage() {
   const { signIn } = useAuthActions();
 
   return (
-    <div className="mx-auto grid min-h-[70dvh] max-w-5xl items-center gap-10 px-6 py-16 md:grid-cols-2">
-      <section className="hidden flex-col gap-6 md:flex">
-        <h1 className="text-3xl font-bold tracking-tight">
+    <div className="mx-auto grid min-h-[70dvh] max-w-5xl items-center gap-8 px-6 py-10 md:grid-cols-2 md:gap-10 md:py-16">
+      <section className="flex flex-col gap-4 md:gap-6">
+        <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
           Belajar pakai AI, bareng-bareng.
         </h1>
         <ul className="flex flex-col gap-3">

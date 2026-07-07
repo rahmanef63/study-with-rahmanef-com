@@ -35,6 +35,7 @@ export function QuizTakeView({ moduleId, copy: copyOverride, className }: QuizTa
     () => quiz != null && Object.keys(answers).length === quiz.questions.length,
     [answers, quiz]
   );
+  const answeredCount = Object.keys(answers).length;
 
   if (quiz === undefined) {
     return (
@@ -107,7 +108,10 @@ export function QuizTakeView({ moduleId, copy: copyOverride, className }: QuizTa
         </p>
       )}
 
-      <div className="flex items-center justify-end gap-3">
+      <div className="sticky bottom-3 z-10 flex flex-wrap items-center justify-end gap-3 rounded-xl border bg-background/80 px-3 py-2 backdrop-blur">
+        <span className="mr-auto text-xs text-muted-foreground">
+          {answeredCount}/{quiz.questions.length} {copy.answered}
+        </span>
         {!allAnswered && <span className="text-xs text-muted-foreground">{copy.answerAllFirst}</span>}
         <Button className="min-h-11" onClick={() => void handleSubmit()} disabled={!allAnswered || isPending}>
           {isPending ? copy.submitting : copy.submit}

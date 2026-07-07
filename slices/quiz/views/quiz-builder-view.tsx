@@ -5,16 +5,12 @@
 // integrator mounts this behind /t/[slug]/kelola/… — it does NOT edit the
 // course editor itself (integration points listed in README).
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+  ResponsiveDialog,
+  ResponsiveDialogBody,
+  ResponsiveDialogFooter,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/features/responsive-dialog";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -42,6 +38,7 @@ export function QuizBuilderView({ moduleId, courseId, tenantId, copy: copyOverri
   const { createQuiz, updateQuiz, deleteQuiz } = useQuizBuilderMutations(copyOverride);
   const isLoading = existing === undefined;
   const [submitting, setSubmitting] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const handleSave = async (values: QuizBuilderFormValues) => {
     setSubmitting(true);
@@ -68,23 +65,34 @@ export function QuizBuilderView({ moduleId, courseId, tenantId, copy: copyOverri
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-2xl font-bold tracking-tight">{copy.builderTitle}</h1>
         {existing && (
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="outline">{copy.deleteQuiz}</Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>{copy.deleteConfirmTitle}</AlertDialogTitle>
-                <AlertDialogDescription>{copy.deleteConfirmBody}</AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>{copy.cancel}</AlertDialogCancel>
-                <AlertDialogAction onClick={() => void handleDelete()}>
+          <>
+            <Button variant="outline" onClick={() => setConfirmOpen(true)}>
+              {copy.deleteQuiz}
+            </Button>
+            <ResponsiveDialog open={confirmOpen} onOpenChange={setConfirmOpen} variant="alert" size="sm">
+              <ResponsiveDialogHeader>
+                <ResponsiveDialogTitle>{copy.deleteConfirmTitle}</ResponsiveDialogTitle>
+              </ResponsiveDialogHeader>
+              <ResponsiveDialogBody>
+                <p className="text-sm text-muted-foreground">{copy.deleteConfirmBody}</p>
+              </ResponsiveDialogBody>
+              <ResponsiveDialogFooter>
+                <Button type="button" variant="outline" onClick={() => setConfirmOpen(false)}>
+                  {copy.cancel}
+                </Button>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={async () => {
+                    await handleDelete();
+                    setConfirmOpen(false);
+                  }}
+                >
                   {copy.deleteConfirm}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+                </Button>
+              </ResponsiveDialogFooter>
+            </ResponsiveDialog>
+          </>
         )}
       </div>
 

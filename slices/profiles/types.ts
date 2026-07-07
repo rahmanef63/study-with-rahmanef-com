@@ -48,6 +48,8 @@ export type PublicProfileLabels = {
   copyLabel: string;
   /** Transient confirmation after copying. */
   copiedLabel: string;
+  /** Owner-only "Edit profil" action shown next to the copy button. */
+  editLabel: string;
 };
 
 /** Own-profile shape returned by getCurrentProfile (full doc — self read). */
@@ -79,7 +81,11 @@ export type ProfileLabels = {
   save: string;
   saving: string;
   saved: string;
+  /** Subtle footer link to the public /u/[username] page. */
+  viewPublicProfile: string;
   signInPrompt: string;
+  /** CTA on the signed-out settings dead-end (routes to /login). */
+  signInAction: string;
   preparingProfile: string;
   errors: Record<import("@convex/features/profiles/types").ProfileErrorCode, string>;
   errorFallback: string;

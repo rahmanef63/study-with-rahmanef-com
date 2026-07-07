@@ -12,6 +12,7 @@ export const QUIZ_COPY = {
   submit: "Kirim jawaban",
   submitting: "Menilai…",
   answerAllFirst: "Jawab semua soal dulu sebelum mengirim",
+  answered: "terjawab",
   yourScore: "Nilaimu",
   passed: "Lulus",
   failed: "Belum lulus",

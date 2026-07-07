@@ -3,9 +3,17 @@ import Image from "next/image";
 import { cacheLife, cacheTag } from "next/cache";
 import { fetchQuery } from "convex/nextjs";
 import { Button } from "@/components/ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { CourseCard, type CourseCardData } from "@/features/courses";
 import { tenantsApi, type PublicTenant } from "@/features/tenants";
 import { api } from "@convex/_generated/api";
+import { HeroCta } from "./hero-cta";
 
 const convexOptions = { skipConvexDeploymentUrlCheck: true } as const;
 
@@ -26,15 +34,19 @@ const STEPS = [
 
 function CatalogEmpty() {
   return (
-    <div className="mx-auto max-w-md rounded-xl border border-dashed bg-muted/30 px-6 py-12 text-center">
-      <p className="font-medium">Belum ada komunitas aktif</p>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Komunitas pertama sedang dikurasi. Mau memulai satu?
-      </p>
-      <Button asChild variant="outline" size="sm" className="mt-4">
-        <Link href="/buka-komunitas">Buka komunitas</Link>
-      </Button>
-    </div>
+    <Empty className="mx-auto max-w-md">
+      <EmptyHeader>
+        <EmptyTitle>Belum ada komunitas aktif</EmptyTitle>
+        <EmptyDescription>
+          Komunitas pertama sedang dikurasi. Mau memulai satu?
+        </EmptyDescription>
+      </EmptyHeader>
+      <EmptyContent>
+        <Button asChild variant="outline" size="sm">
+          <Link href="/buka-komunitas">Buka komunitas</Link>
+        </Button>
+      </EmptyContent>
+    </Empty>
   );
 }
 
@@ -118,23 +130,16 @@ export default function HomePage() {
           sizes="100vw"
           className="object-cover object-center"
         />
-        <div className="absolute inset-0 bg-background/75" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/80 to-background/60" />
         <div className="relative mx-auto flex w-full max-w-6xl flex-col items-start gap-6 px-6 py-20 text-left">
           <h1 className="max-w-2xl text-4xl font-bold tracking-tight md:text-5xl">
             Belajar pakai AI, bareng-bareng, gratis.
           </h1>
-          <p className="max-w-xl text-lg text-foreground/80">
+          <p className="max-w-xl text-lg text-foreground">
             Kelas praktis pengaplikasian AI untuk sehari-hari, kerja, dan usaha —
             berbahasa Indonesia, dipandu komunitas, tanpa biaya.
           </p>
-          <div className="flex flex-wrap gap-3">
-            <Button asChild size="lg">
-              <Link href="/login">Mulai belajar</Link>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link href="/#komunitas">Lihat komunitas</Link>
-            </Button>
-          </div>
+          <HeroCta />
         </div>
       </section>
 

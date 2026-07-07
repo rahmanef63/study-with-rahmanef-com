@@ -7,6 +7,7 @@ import type { ReactNode } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CourseOverview } from "../components/course-overview";
 import type { CoursesCopyOverride } from "../config/copy";
+import type { SyllabusModuleData } from "../types";
 
 import { useCourseOverview } from "../hooks/use-courses";
 
@@ -19,6 +20,8 @@ export type CourseOverviewViewProps = {
   /** From progress (#3) via barrel. */
   completedLessonIds?: ReadonlyArray<string>;
   progressSlot?: ReactNode;
+  /** Per-module slot forwarded to the syllabus (e.g. the module's quiz CTA). */
+  renderModuleFooter?: (module: SyllabusModuleData) => ReactNode;
   copy?: CoursesCopyOverride;
   className?: string;
 };
@@ -30,6 +33,7 @@ export function CourseOverviewView({
   joinCtaSlot,
   completedLessonIds,
   progressSlot,
+  renderModuleFooter,
   copy,
   className,
 }: CourseOverviewViewProps) {
@@ -53,6 +57,7 @@ export function CourseOverviewView({
       joinCtaSlot={joinCtaSlot}
       completedLessonIds={completedLessonIds}
       progressSlot={progressSlot}
+      renderModuleFooter={renderModuleFooter}
       copy={copy}
       className={className}
     />

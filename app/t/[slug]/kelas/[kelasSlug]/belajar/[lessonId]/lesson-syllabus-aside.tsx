@@ -8,7 +8,7 @@ import { Check } from "lucide-react";
 import type { Id } from "@convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
 import { useCourseOverview } from "@/features/courses";
-import { useCourseProgress } from "@/features/progress";
+import { CourseProgressBar, useCourseProgress } from "@/features/progress";
 import { useTenantBySlug } from "@/features/tenants";
 
 export function LessonSyllabusAside({
@@ -16,11 +16,14 @@ export function LessonSyllabusAside({
   courseSlug,
   currentLessonId,
   className,
+  hideLabel = false,
 }: {
   slug: string;
   courseSlug: string;
   currentLessonId: Id<"lessons">;
   className?: string;
+  /** Suppress the "Silabus" caption when a parent (e.g. the mobile panel) already labels it. */
+  hideLabel?: boolean;
 }) {
   const tenant = useTenantBySlug(slug);
   const overview = useCourseOverview(tenant?._id, courseSlug);
@@ -34,9 +37,19 @@ export function LessonSyllabusAside({
 
   return (
     <aside className={cn("self-start lg:sticky lg:top-6", className)}>
-      <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-        Silabus
-      </p>
+      {isMember && progress ? (
+        <CourseProgressBar
+          completedCount={progress.completedCount}
+          totalCount={progress.totalCount}
+          isComplete={progress.isComplete}
+          className="mb-4"
+        />
+      ) : null}
+      {!hideLabel ? (
+        <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          Silabus
+        </p>
+      ) : null}
       <nav className="space-y-4 text-sm">
         {overview.modules.map((m) => (
           <div key={m._id}>

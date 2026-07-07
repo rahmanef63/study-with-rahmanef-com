@@ -3,6 +3,7 @@
 // to render per-lesson check marks — no deep import needed.
 import { CheckCircle2, Circle, Lock, PlayCircle } from "lucide-react";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import type { Id } from "@convex/_generated/dataModel";
 import type { SyllabusModuleData } from "../types";
 
@@ -16,6 +17,9 @@ export type SyllabusListProps = {
   locked?: boolean;
   emptyText: string;
   lockedText?: string;
+  /** Optional slot rendered right after each module's lessons — e.g. that
+   *  module's quiz CTA. Omitted callers are unaffected (backward-compatible). */
+  renderModuleFooter?: (module: SyllabusModuleData) => ReactNode;
   className?: string;
 };
 
@@ -26,13 +30,24 @@ export function SyllabusList({
   locked = false,
   emptyText,
   lockedText,
+  renderModuleFooter,
   className,
 }: SyllabusListProps) {
   const completed = new Set(completedLessonIds ?? []);
   const hasLessons = modules.some((mod) => mod.lessons.length > 0);
 
   if (!hasLessons) {
-    return <p className="text-sm text-muted-foreground">{emptyText}</p>;
+    // Still surface per-module footers (e.g. quiz CTAs) so they aren't lost on a
+    // course whose modules have no lessons yet — the footer moved here from a
+    // formerly-independent flat block.
+    return (
+      <div className="space-y-4">
+        <p className="text-sm text-muted-foreground">{emptyText}</p>
+        {renderModuleFooter
+          ? modules.map((mod) => <div key={mod._id}>{renderModuleFooter(mod)}</div>)
+          : null}
+      </div>
+    );
   }
 
   return (
@@ -80,6 +95,7 @@ export function SyllabusList({
               );
             })}
           </ul>
+          {renderModuleFooter?.(mod)}
         </section>
       ))}
     </div>

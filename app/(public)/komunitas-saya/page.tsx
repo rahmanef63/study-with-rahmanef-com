@@ -2,6 +2,13 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCurrentProfile } from "@/features/profiles";
 import { RoleChip, useMyCommunities } from "@/features/tenants";
@@ -31,20 +38,24 @@ export default function KomunitasSayaPage() {
             <Skeleton className="h-20 w-full rounded-xl" />
           </div>
         ) : communities.length === 0 ? (
-          <div className="rounded-xl border border-dashed bg-muted/30 px-6 py-12 text-center">
-            <p className="font-medium">Belum ikut komunitas apa pun 🌱</p>
-            <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">
-              Jelajahi komunitas yang ada, atau ajukan komunitasmu sendiri.
-            </p>
-            <div className="mt-4 flex flex-wrap justify-center gap-2">
-              <Button asChild variant="outline">
-                <Link href="/#komunitas">Jelajahi komunitas</Link>
-              </Button>
-              <Button asChild>
-                <Link href="/buka-komunitas">Buka komunitas</Link>
-              </Button>
-            </div>
-          </div>
+          <Empty>
+            <EmptyHeader>
+              <EmptyTitle>Belum ikut komunitas apa pun 🌱</EmptyTitle>
+              <EmptyDescription>
+                Jelajahi komunitas yang ada, atau ajukan komunitasmu sendiri.
+              </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+              <div className="flex flex-wrap justify-center gap-2">
+                <Button asChild variant="outline">
+                  <Link href="/#komunitas">Jelajahi komunitas</Link>
+                </Button>
+                <Button asChild>
+                  <Link href="/buka-komunitas">Buka komunitas</Link>
+                </Button>
+              </div>
+            </EmptyContent>
+          </Empty>
         ) : (
           <ul className="grid gap-3">
             {communities.map((c) => (

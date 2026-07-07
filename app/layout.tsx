@@ -4,7 +4,7 @@ import { Inter, Lora } from "next/font/google";
 import { ConvexClientProvider } from "@/components/convex-provider";
 import { VersionWatcher } from "@/components/version-watcher";
 import { ThemeProviders, ThemePresetStyle } from "@/features/theme-presets";
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 // "Akademik & Tenang" build-time look (UI-UX-PRD §1). One source of truth for
@@ -47,8 +47,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Suspense fallback={null}>
             <ConvexClientProvider>{children}</ConvexClientProvider>
           </Suspense>
+          {/* Inside ThemeProviders so the theme-aware Toaster's useTheme()
+              tracks the in-app light/dark toggle, not the OS media query. */}
+          <Toaster position="bottom-right" />
         </ThemeProviders>
-        <Toaster position="bottom-right" />
       </body>
     </html>
   );

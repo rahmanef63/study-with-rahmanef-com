@@ -8,6 +8,7 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/u
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { DEFAULT_PUBLIC_PROFILE_LABELS } from "../config/public-labels";
+import { useCurrentProfile } from "../hooks/use-current-profile";
 import { usePublicProfile } from "../hooks/use-public-profile";
 import type { PublicProfileLabels } from "../types";
 import { PublicProfileBoundary } from "./public-profile-boundary";
@@ -48,13 +49,17 @@ type ContentProps = {
 
 function PublicProfileContent({ username, shareUrl, labels }: ContentProps) {
   const { profile, badges, isLoading } = usePublicProfile(username);
+  // Signed-out viewers skip the query (hook returns null) → isOwner stays false.
+  const { profile: currentProfile } = useCurrentProfile();
   if (isLoading) return <ProfileSkeleton />;
   if (!profile) return null; // unreachable: an unknown handle throws → boundary
+  const isOwner = currentProfile?.username === profile.username;
   return (
     <PublicProfileCard
       profile={profile}
       badges={badges}
       shareValue={shareUrl ?? `@${profile.username}`}
+      editHref={isOwner ? "/pengaturan/profil" : undefined}
       labels={labels}
     />
   );

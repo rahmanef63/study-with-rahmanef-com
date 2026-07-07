@@ -43,6 +43,7 @@ export function ManageCourseEditorView({ courseId, backHref, copy: copyOverride,
   const lessonMutations = useLessonMutations(copyOverride);
   const [editOpen, setEditOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [reordering, setReordering] = useState(false);
   const [lessonDialog, setLessonDialog] = useState<LessonDialogState>(null);
   const [confirmDelete, setConfirmDelete] = useState<ConfirmState>(null);
 
@@ -62,7 +63,8 @@ export function ManageCourseEditorView({ courseId, backHref, copy: copyOverride,
     const to = from + direction;
     if (from < 0 || to < 0 || to >= ids.length) return;
     [ids[from], ids[to]] = [ids[to], ids[from]];
-    void moduleMutations.reorderModules(tree.course._id, ids);
+    setReordering(true);
+    void moduleMutations.reorderModules(tree.course._id, ids).finally(() => setReordering(false));
   };
 
   const moveLesson = (moduleId: Id<"modules">, lessonId: Id<"lessons">, direction: -1 | 1) => {
@@ -73,7 +75,8 @@ export function ManageCourseEditorView({ courseId, backHref, copy: copyOverride,
     const to = from + direction;
     if (from < 0 || to < 0 || to >= ids.length) return;
     [ids[from], ids[to]] = [ids[to], ids[from]];
-    void lessonMutations.reorderLessons(moduleId, ids);
+    setReordering(true);
+    void lessonMutations.reorderLessons(moduleId, ids).finally(() => setReordering(false));
   };
 
   const handleEditCourse = async (values: CourseFormValues) => {
@@ -127,6 +130,7 @@ export function ManageCourseEditorView({ courseId, backHref, copy: copyOverride,
             onEditLesson={(lessonId) => setLessonDialog({ lessonId })}
             onDeleteLesson={(id) => setConfirmDelete({ kind: "lesson", id })}
             onMoveLesson={moveLesson}
+            reorderDisabled={reordering}
           />
         ))}
         <AddModuleForm

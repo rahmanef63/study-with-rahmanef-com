@@ -3,11 +3,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import type { Id } from "@convex/_generated/dataModel";
-import {
-  CourseOverviewView,
-  useCourseOverview,
-  type SyllabusModuleData,
-} from "@/features/courses";
+import { CourseOverviewView, useCourseOverview } from "@/features/courses";
 import { CourseProgress, useCourseProgress } from "@/features/progress";
 import { useQuizForTaking } from "@/features/quiz";
 import { JoinButton } from "@/features/tenants";
@@ -40,7 +36,6 @@ export function CourseOverviewClient({ tenantId, tenantSlug, courseSlug }: Props
         tenantId={tenantId}
         courseSlug={courseSlug}
         courseId={overview.course._id}
-        modules={overview.modules}
         lessonHref={lessonHref}
         quizHref={quizHref}
         joinCtaSlot={joinCtaSlot}
@@ -62,7 +57,6 @@ function MemberCourseOverview({
   tenantId,
   courseSlug,
   courseId,
-  modules,
   lessonHref,
   quizHref,
   joinCtaSlot,
@@ -70,7 +64,6 @@ function MemberCourseOverview({
   tenantId: Id<"tenants">;
   courseSlug: string;
   courseId: Id<"courses">;
-  modules: SyllabusModuleData[];
   lessonHref: (lessonId: string) => string;
   quizHref: (moduleId: string) => string;
   joinCtaSlot: ReactNode;
@@ -78,26 +71,18 @@ function MemberCourseOverview({
   const progress = useCourseProgress(courseId);
 
   return (
-    <>
-      <CourseOverviewView
-        tenantId={tenantId}
-        courseSlug={courseSlug}
-        lessonHref={lessonHref}
-        joinCtaSlot={joinCtaSlot}
-        completedLessonIds={progress?.completedLessonIds}
-        progressSlot={<CourseProgress courseId={courseId} />}
-      />
-      <div className="mt-6 space-y-2">
-        {modules.map((m) => (
-          <ModuleQuizEntry
-            key={m._id}
-            moduleId={m._id}
-            title={m.title}
-            href={quizHref(m._id)}
-          />
-        ))}
-      </div>
-    </>
+    <CourseOverviewView
+      tenantId={tenantId}
+      courseSlug={courseSlug}
+      lessonHref={lessonHref}
+      joinCtaSlot={joinCtaSlot}
+      completedLessonIds={progress?.completedLessonIds}
+      progressSlot={<CourseProgress courseId={courseId} />}
+      // Each module's quiz CTA now sits directly under that module's lessons.
+      renderModuleFooter={(m) => (
+        <ModuleQuizEntry moduleId={m._id} title={m.title} href={quizHref(m._id)} />
+      )}
+    />
   );
 }
 

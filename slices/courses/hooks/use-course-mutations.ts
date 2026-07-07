@@ -61,7 +61,10 @@ export function useCourseMutations(copyOverride?: CoursesCopyOverride) {
   const setCourseStatus = useCallback(
     async (courseId: Id<"courses">, status: CourseStatus) => {
       try {
-        return (await setStatusRaw({ courseId, status })) as Id<"courses">;
+        const id = (await setStatusRaw({ courseId, status })) as Id<"courses">;
+        if (status === "published") toast.success(copy.publishSuccess);
+        else if (status === "archived") toast.success(copy.archiveSuccess);
+        return id;
       } catch (error) {
         toast.error(coursesErrorMessage(error, copy));
         return null;
@@ -99,7 +102,11 @@ export function useModuleMutations(copyOverride?: CoursesCopyOverride) {
     renameModule: (moduleId: Id<"modules">, title: string) =>
       run(() => renameRaw({ moduleId, title })),
     reorderModules: (courseId: Id<"courses">, orderedModuleIds: Id<"modules">[]) =>
-      run(() => reorderRaw({ courseId, orderedModuleIds })),
+      run(async () => {
+        const res = await reorderRaw({ courseId, orderedModuleIds });
+        toast.success(copy.reorderSuccess);
+        return res;
+      }),
     deleteModule: (moduleId: Id<"modules">) => run(() => deleteRaw({ moduleId })),
   };
 }

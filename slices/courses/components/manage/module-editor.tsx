@@ -2,7 +2,7 @@
 // courses slice — one module card in the course editor: rename inline,
 // move up/down (parent owns reorder), delete (only when empty — server
 // enforces), lesson rows with edit/delete/move controls.
-import { ChevronDown, ChevronUp, GripVertical, Link2, Pencil, PlayCircle, Plus, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Link2, Pencil, PlayCircle, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import type { Id } from "@convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,9 @@ export type ModuleEditorProps = {
   onEditLesson: (lessonId: Id<"lessons">) => void;
   onDeleteLesson: (lessonId: Id<"lessons">) => void;
   onMoveLesson: (moduleId: Id<"modules">, lessonId: Id<"lessons">, direction: -1 | 1) => void;
+  /** True while any reorder is in flight — freezes the ▲▼ controls so
+   *  rapid clicks can't race concurrent reorders off stale ordering. */
+  reorderDisabled?: boolean;
 };
 
 export function ModuleEditor({
@@ -37,6 +40,7 @@ export function ModuleEditor({
   onEditLesson,
   onDeleteLesson,
   onMoveLesson,
+  reorderDisabled = false,
 }: ModuleEditorProps) {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(mod.title);
@@ -61,8 +65,6 @@ export function ModuleEditor({
           </form>
         ) : (
           <>
-            {/* drag handle placeholder — reorder ships in fase 2 (use ▲▼ for now) */}
-            <GripVertical className="size-4 shrink-0 text-muted-foreground/50" aria-hidden />
             <div className="flex min-w-0 flex-1 flex-col">
               <h3 className="truncate font-semibold">
                 {index + 1}. {mod.title}
@@ -74,10 +76,10 @@ export function ModuleEditor({
             <Button variant="ghost" size="icon" aria-label={copy.renameModule} onClick={() => setEditing(true)}>
               <Pencil aria-hidden />
             </Button>
-            <Button variant="ghost" size="icon" aria-label={copy.moveUp} disabled={index === 0} onClick={() => onMove(mod._id, -1)}>
+            <Button variant="ghost" size="icon" aria-label={copy.moveUp} disabled={index === 0 || reorderDisabled} onClick={() => onMove(mod._id, -1)}>
               <ChevronUp aria-hidden />
             </Button>
-            <Button variant="ghost" size="icon" aria-label={copy.moveDown} disabled={index === total - 1} onClick={() => onMove(mod._id, 1)}>
+            <Button variant="ghost" size="icon" aria-label={copy.moveDown} disabled={index === total - 1 || reorderDisabled} onClick={() => onMove(mod._id, 1)}>
               <ChevronDown aria-hidden />
             </Button>
             <Button
@@ -93,11 +95,10 @@ export function ModuleEditor({
         )}
       </CardHeader>
       <CardContent className="space-y-2">
-        {/* lessons nest under the module: tinted panel + grip-indented rows */}
+        {/* lessons nest under the module: tinted panel */}
         <ul className="divide-y divide-border rounded-lg border border-border bg-muted/20">
           {mod.lessons.map((lesson, lessonIndex) => (
             <li key={lesson._id} className="flex items-center gap-2 p-2 text-sm">
-              <GripVertical className="size-4 shrink-0 text-muted-foreground/40" aria-hidden />
               <span className="min-w-0 flex-1 truncate font-medium">{lesson.title}</span>
               {lesson.hasVideo && <PlayCircle className="size-4 shrink-0 text-muted-foreground" aria-hidden />}
               {lesson.linkCount > 0 && (
@@ -105,10 +106,10 @@ export function ModuleEditor({
                   <Link2 className="size-3.5" aria-hidden /> {lesson.linkCount}
                 </span>
               )}
-              <Button variant="ghost" size="icon" aria-label={`${copy.moveUp} — ${lesson.title}`} disabled={lessonIndex === 0} onClick={() => onMoveLesson(mod._id, lesson._id, -1)}>
+              <Button variant="ghost" size="icon" aria-label={`${copy.moveUp} — ${lesson.title}`} disabled={lessonIndex === 0 || reorderDisabled} onClick={() => onMoveLesson(mod._id, lesson._id, -1)}>
                 <ChevronUp aria-hidden />
               </Button>
-              <Button variant="ghost" size="icon" aria-label={`${copy.moveDown} — ${lesson.title}`} disabled={lessonIndex === mod.lessons.length - 1} onClick={() => onMoveLesson(mod._id, lesson._id, 1)}>
+              <Button variant="ghost" size="icon" aria-label={`${copy.moveDown} — ${lesson.title}`} disabled={lessonIndex === mod.lessons.length - 1 || reorderDisabled} onClick={() => onMoveLesson(mod._id, lesson._id, 1)}>
                 <ChevronDown aria-hidden />
               </Button>
               <Button variant="ghost" size="icon" aria-label={`${copy.editLesson} — ${lesson.title}`} onClick={() => onEditLesson(lesson._id)}>

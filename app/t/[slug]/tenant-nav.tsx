@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useCurrentProfile } from "@/features/profiles";
+import { ThemePresetSwitcher } from "@/features/theme-presets";
 import { useMyMembership, useTenantBySlug } from "@/features/tenants";
 import { UserMenu } from "@/components/user-menu";
 
@@ -63,6 +64,7 @@ export function TenantNav({ slug }: { slug: string }) {
           </Link>
         ))}
       </nav>
+      <ThemePresetSwitcher size="mobile" />
       {isAuthenticated ? (
         <UserMenu />
       ) : (

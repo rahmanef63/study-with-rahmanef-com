@@ -4,7 +4,7 @@
 import type { Id } from "@convex/_generated/dataModel";
 import type { ReactNode } from "react";
 import { mergeCopy, type CoursesCopyOverride } from "../config/copy";
-import type { CourseOverviewData } from "../types";
+import type { CourseOverviewData, SyllabusModuleData } from "../types";
 import { SyllabusList } from "./syllabus-list";
 
 export type CourseOverviewProps = {
@@ -18,6 +18,8 @@ export type CourseOverviewProps = {
   completedLessonIds?: ReadonlyArray<string>;
   /** From progress (#3): e.g. a course progress bar under the header. */
   progressSlot?: ReactNode;
+  /** Per-module slot forwarded to the syllabus (e.g. the module's quiz CTA). */
+  renderModuleFooter?: (module: SyllabusModuleData) => ReactNode;
   copy?: CoursesCopyOverride;
   className?: string;
 };
@@ -29,6 +31,7 @@ export function CourseOverview({
   joinCtaSlot,
   completedLessonIds,
   progressSlot,
+  renderModuleFooter,
   copy: copyOverride,
   className,
 }: CourseOverviewProps) {
@@ -63,6 +66,7 @@ export function CourseOverview({
           locked={!isMember}
           emptyText={copy.emptySyllabus}
           lockedText={copy.lockedLesson}
+          renderModuleFooter={renderModuleFooter}
         />
       </section>
     </div>

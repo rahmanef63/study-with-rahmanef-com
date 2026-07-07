@@ -3,6 +3,8 @@
 // Container the integrator mounts at /pengaturan/profil (SLICES.md). Wires
 // slice hooks to the presentational form; also runs the ensure-on-first-login
 // bootstrap when a signed-in user has no profile row yet (PRD R1).
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -59,6 +61,11 @@ export function ProfileSettingsView({ labels }: ProfileSettingsViewProps) {
           <CardTitle>{copy.title}</CardTitle>
           <CardDescription>{copy.signInPrompt}</CardDescription>
         </CardHeader>
+        <CardContent>
+          <Button asChild>
+            <Link href="/login?returnTo=/pengaturan/profil">{copy.signInAction}</Link>
+          </Button>
+        </CardContent>
       </Card>
     );
   }

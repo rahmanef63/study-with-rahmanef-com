@@ -50,6 +50,9 @@ export const COURSES_COPY = {
   publish: "Terbitkan",
   unpublish: "Jadikan draft",
   archive: "Arsipkan",
+  publishSuccess: "Kelas diterbitkan",
+  archiveSuccess: "Kelas diarsipkan",
+  reorderSuccess: "Urutan modul diperbarui",
   moveUp: "Naikkan",
   moveDown: "Turunkan",
   // errors (ConvexError.code → user copy; VALIDATION_FAILED uses server msg)

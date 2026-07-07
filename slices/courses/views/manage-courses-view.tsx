@@ -7,6 +7,14 @@ import { useState } from "react";
 import type { Id } from "@convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   ResponsiveDialog,
@@ -72,18 +80,20 @@ export function ManageCoursesView({
           <Skeleton className="h-24 w-full" />
         </div>
       ) : courses.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border bg-muted/30 px-6 py-14 text-center">
-          <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
-            <GraduationCap className="size-6" aria-hidden />
-          </div>
-          <h2 className="mt-4 text-base font-semibold">{copy.emptyManageTitle}</h2>
-          <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">
-            {copy.emptyManageBody}
-          </p>
-          <Button className="mt-5" onClick={() => setCreateOpen(true)}>
-            <Plus aria-hidden /> {copy.newCourse}
-          </Button>
-        </div>
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <GraduationCap aria-hidden />
+            </EmptyMedia>
+            <EmptyTitle>{copy.emptyManageTitle}</EmptyTitle>
+            <EmptyDescription>{copy.emptyManageBody}</EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <Button onClick={() => setCreateOpen(true)}>
+              <Plus aria-hidden /> {copy.newCourse}
+            </Button>
+          </EmptyContent>
+        </Empty>
       ) : (
         <ul className="space-y-3">
           {courses.map((course) => (

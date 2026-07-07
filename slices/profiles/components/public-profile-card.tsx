@@ -5,6 +5,7 @@
 // copy/URLs — so it stays portable and unit-testable. The container
 // (PublicProfileView) fetches and feeds it.
 import { useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { DEFAULT_PUBLIC_PROFILE_LABELS } from "../config/public-labels";
@@ -17,6 +18,8 @@ export type PublicProfileCardProps = {
   badges: Badge[];
   /** Text the copy button writes — a full share URL when the host supplies one, else the handle. */
   shareValue: string;
+  /** When set (viewer owns this profile), an "Edit profil" link renders next to the copy button. */
+  editHref?: string;
   labels?: Partial<PublicProfileLabels>;
   className?: string;
 };
@@ -25,6 +28,7 @@ export function PublicProfileCard({
   profile,
   badges,
   shareValue,
+  editHref,
   labels,
   className,
 }: PublicProfileCardProps) {
@@ -58,16 +62,23 @@ export function PublicProfileCard({
           ) : (
             <p className="text-sm text-muted-foreground">{copy.bioEmpty}</p>
           )}
-          <div className="mt-1" aria-live="polite">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              aria-label={copy.copyLabel}
-              onClick={() => void onCopy()}
-            >
-              {copied ? copy.copiedLabel : copy.copyLabel}
-            </Button>
+          <div className="mt-1 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+            <div aria-live="polite">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                aria-label={copy.copyLabel}
+                onClick={() => void onCopy()}
+              >
+                {copied ? copy.copiedLabel : copy.copyLabel}
+              </Button>
+            </div>
+            {editHref ? (
+              <Button asChild variant="outline" size="sm">
+                <Link href={editHref}>{copy.editLabel}</Link>
+              </Button>
+            ) : null}
           </div>
         </div>
       </header>

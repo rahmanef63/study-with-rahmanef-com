@@ -3,6 +3,7 @@
 // Presentational settings form — props-driven (no hardcoded copy/URLs), all
 // side effects arrive via onSubmit/onCheckUsername so the form stays portable.
 import { useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -16,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DEFAULT_PROFILE_LABELS } from "../config/labels";
 import type { ProfileFormValues, ProfileLabels, UsernameCheck } from "../types";
+import { ProfileAvatar } from "./profile-avatar";
 import { Textarea } from "./textarea";
 
 export type ProfileSettingsFormProps = {
@@ -122,20 +124,35 @@ export function ProfileSettingsForm({
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="profil-avatar-url">{copy.avatarUrlLabel}</Label>
-            <Input
-              id="profil-avatar-url"
-              value={values.avatarUrl}
-              onChange={set("avatarUrl")}
-              inputMode="url"
-              placeholder="https://"
-            />
-            <p className="text-sm text-muted-foreground">{copy.avatarUrlHelp}</p>
+            <div className="flex items-start gap-3">
+              <ProfileAvatar
+                name={values.displayName}
+                avatarUrl={values.avatarUrl || undefined}
+                size={64}
+                className="mt-0.5"
+              />
+              <div className="flex min-w-0 flex-1 flex-col gap-2">
+                <Input
+                  id="profil-avatar-url"
+                  value={values.avatarUrl}
+                  onChange={set("avatarUrl")}
+                  inputMode="url"
+                  placeholder="https://"
+                />
+                <p className="text-sm text-muted-foreground">{copy.avatarUrlHelp}</p>
+              </div>
+            </div>
           </div>
         </CardContent>
-        <CardFooter>
+        <CardFooter className="gap-3">
           <Button type="submit" disabled={isSaving}>
             {isSaving ? copy.saving : copy.save}
           </Button>
+          {initial.username ? (
+            <Button asChild variant="link" className="text-muted-foreground">
+              <Link href={`/u/${initial.username}`}>{copy.viewPublicProfile}</Link>
+            </Button>
+          ) : null}
         </CardFooter>
       </Card>
     </form>

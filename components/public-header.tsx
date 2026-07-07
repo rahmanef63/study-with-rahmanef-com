@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Link from "next/link";
 import { toast } from "sonner";
 import { MarketingHeader } from "@/features/marketing-chrome";
+import { ThemePresetSwitcher } from "@/features/theme-presets";
 import { useCurrentProfile } from "@/features/profiles";
+import { Button } from "@/components/ui/button";
 import { UserMenu } from "@/components/user-menu";
 
 const BRAND = { name: "belajar-with-rahmanef.com", href: "/" };
@@ -38,7 +41,18 @@ export function PublicHeader() {
       brand={BRAND}
       nav={NAV}
       cta={isAuthenticated ? undefined : { label: "Masuk", href: "/login" }}
-      actions={isAuthenticated ? <UserMenu /> : undefined}
+      actions={
+        <div className="flex items-center gap-1">
+          <ThemePresetSwitcher size="mobile" />
+          {isAuthenticated ? (
+            <UserMenu />
+          ) : (
+            <Button asChild size="sm" className="hidden md:inline-flex">
+              <Link href="/login">Masuk</Link>
+            </Button>
+          )}
+        </div>
+      }
       sticky
     />
   );

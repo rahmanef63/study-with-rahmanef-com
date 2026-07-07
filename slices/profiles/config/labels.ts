@@ -21,7 +21,9 @@ export const DEFAULT_PROFILE_LABELS: ProfileLabels = {
   save: "Simpan",
   saving: "Menyimpan…",
   saved: "Profil tersimpan",
+  viewPublicProfile: "Lihat profil publik",
   signInPrompt: "Silakan login dulu untuk mengatur profilmu.",
+  signInAction: "Masuk",
   preparingProfile: "Menyiapkan profilmu…",
   errors: {
     NOT_AUTHENTICATED: "Silakan login dulu",

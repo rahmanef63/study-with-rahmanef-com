@@ -15,4 +15,5 @@ export const DEFAULT_PUBLIC_PROFILE_LABELS: PublicProfileLabels = {
   badgeEarnedPrefix: "Diselesaikan",
   copyLabel: "Salin tautan profil",
   copiedLabel: "Tersalin!",
+  editLabel: "Edit profil",
 };
