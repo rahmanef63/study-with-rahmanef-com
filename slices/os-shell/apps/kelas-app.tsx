@@ -43,7 +43,7 @@ function shareCourse(tenantSlug: string, courseSlug: string, title: string) {
 
 function KelasEmpty({ title, description }: { title: string; description: string }) {
   return (
-    <div className="mx-auto w-full max-w-4xl p-6 @sm:p-8">
+    <div className="w-full p-6 @sm:p-8">
       <Empty className="border">
         <EmptyHeader>
           <EmptyMedia variant="icon">
@@ -59,7 +59,7 @@ function KelasEmpty({ title, description }: { title: string; description: string
 
 function KelasSkeleton() {
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-6 p-6 @sm:p-8">
+    <div className="w-full space-y-6 p-6 @sm:p-8">
       <Skeleton className="h-10 w-2/3" />
       <Skeleton className="h-20 w-full" />
       <Skeleton className="h-64 w-full" />
@@ -267,7 +267,7 @@ function KelasCourse({
   // can't select a lesson anyway (locked syllabus), so gate the pane on it.
   if (lessonId !== null && isMember) {
     return (
-      <div onClickCapture={onNavCapture} className="mx-auto w-full max-w-4xl p-6 @sm:p-8">
+      <div onClickCapture={onNavCapture} className="w-full p-6 @sm:p-8">
         <LessonPlayerView
           lessonId={lessonId}
           lessonHref={lessonHref}
@@ -279,7 +279,7 @@ function KelasCourse({
   }
 
   return (
-    <div onClickCapture={onNavCapture} className="mx-auto w-full max-w-4xl p-6 @sm:p-8">
+    <div onClickCapture={onNavCapture} className="w-full p-6 @sm:p-8">
       {/* Body share trigger — on mobile the inspector (its twin) never renders, so
           without this "Bagikan kelas" would be unreachable on the phone shells. */}
       <div className="mb-4 flex justify-end">
@@ -354,7 +354,7 @@ export default function KelasApp(props: AppProps) {
 
   if (!tenantSlug || !courseSlug) {
     return (
-      <div className="mx-auto w-full max-w-4xl p-6 @sm:p-8">
+      <div className="w-full p-6 @sm:p-8">
         <Empty className="border">
           <EmptyHeader>
             <EmptyMedia variant="icon">

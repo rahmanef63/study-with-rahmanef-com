@@ -92,7 +92,7 @@ function CoursePicker({
           </span>
         }
       />
-      <ul className="space-y-2">
+      <ul className="grid gap-2 @2xl:grid-cols-2 @4xl:grid-cols-3">
         {courses.map((course) => (
           <li key={course._id}>
             <button type="button" onClick={() => onSelect(course._id)} className={rowClass}>
@@ -144,7 +144,7 @@ function ModulePicker({
           body="Tambahkan modul di editor kelas dulu, lalu susun kuisnya di sini."
         />
       ) : (
-        <ul className="space-y-2">
+        <ul className="grid gap-2 @2xl:grid-cols-2 @4xl:grid-cols-3">
           {tree.modules.map((mod) => (
             <li key={mod._id}>
               <button type="button" onClick={() => onSelect(mod._id)} className={rowClass}>

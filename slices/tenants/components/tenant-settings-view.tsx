@@ -60,7 +60,7 @@ export function TenantSettingsView({ slug, labels, className }: TenantSettingsVi
     <section className={cn("space-y-6", className)}>
       <div className="border-b pb-5">
         <span className="eyebrow">Kelola</span>
-        <h2 className="mt-1 text-2xl sm:text-3xl">{t.title}</h2>
+        <h2 className="mt-1 text-2xl @sm:text-3xl">{t.title}</h2>
         <p className="mt-2 max-w-2xl text-pretty text-sm text-muted-foreground">
           {t.description}
         </p>

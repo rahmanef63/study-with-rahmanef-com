@@ -22,7 +22,7 @@ export function CourseCatalog({ tenantId, courseHref, copy: copyOverride, classN
   const copy = mergeCopy(copyOverride);
   const courses = usePublishedCourses(tenantId);
 
-  const gridClass = "grid gap-4 @sm:grid-cols-2 @lg:grid-cols-3";
+  const gridClass = "grid gap-4 @sm:grid-cols-2 @lg:grid-cols-3 @2xl:grid-cols-4 @4xl:grid-cols-5";
 
   if (courses === undefined) {
     return (
@@ -30,6 +30,8 @@ export function CourseCatalog({ tenantId, courseHref, copy: copyOverride, classN
         <Skeleton className="h-56" />
         <Skeleton className="hidden h-56 @sm:block" />
         <Skeleton className="hidden h-56 @lg:block" />
+        <Skeleton className="hidden h-56 @2xl:block" />
+        <Skeleton className="hidden h-56 @4xl:block" />
       </div>
     );
   }

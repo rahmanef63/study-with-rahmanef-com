@@ -78,7 +78,7 @@ export function BadgeWall({ badges, labels, className }: BadgeWallProps) {
 
           {/* Polished card grid — bordered tiles with a hover lift, 2-up on the
               narrowest window, more columns as the window widens. */}
-          <ul className="grid grid-cols-2 gap-3 @sm:grid-cols-3 @lg:grid-cols-4">
+          <ul className="grid grid-cols-2 gap-3 @sm:grid-cols-3 @lg:grid-cols-4 @2xl:grid-cols-5 @4xl:grid-cols-6">
             {badges.map((badge) => (
               <li
                 key={`${badge.tenantSlug}/${badge.courseSlug}`}

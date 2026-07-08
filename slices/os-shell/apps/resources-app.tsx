@@ -52,7 +52,7 @@ export default function ResourcesApp(props: AppProps) {
   const [tab, setTab] = useState<TabKey>(view === "usulan" ? "usulan" : "board");
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-8 p-6 @sm:p-8">
+    <div className="w-full space-y-8 p-6 @sm:p-8">
       <Hero
         eyebrow="Sumber & usulan · Komunitas"
         title={

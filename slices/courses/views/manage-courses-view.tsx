@@ -67,15 +67,15 @@ export function ManageCoursesView({
 
   return (
     <div className={className ? `space-y-6 ${className}` : "space-y-6"}>
-      <header className="flex flex-col gap-4 border-b pb-5 sm:flex-row sm:items-end sm:justify-between">
+      <header className="flex flex-col gap-4 border-b pb-5 @sm:flex-row @sm:items-end @sm:justify-between">
         <div className="min-w-0 space-y-2">
           <span className="eyebrow">Studio kelas</span>
-          <h1 className="text-2xl sm:text-3xl">{copy.manageTitle}</h1>
+          <h1 className="text-2xl @sm:text-3xl">{copy.manageTitle}</h1>
           <p className="max-w-prose text-pretty text-sm text-muted-foreground">
             Susun kelas, modul, dan lesson untuk komunitasmu.
           </p>
         </div>
-        <Button className="min-h-11 shrink-0 sm:min-h-9" onClick={() => setCreateOpen(true)}>
+        <Button className="min-h-11 shrink-0 @sm:min-h-9" onClick={() => setCreateOpen(true)}>
           <Plus aria-hidden /> {copy.newCourse}
         </Button>
       </header>

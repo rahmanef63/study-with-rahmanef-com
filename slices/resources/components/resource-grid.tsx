@@ -18,10 +18,12 @@ export type ResourceGridProps = {
 export function ResourceGrid({ items, emptyLabel, copy, showStatus }: ResourceGridProps) {
   if (items === undefined) {
     return (
-      <div className="grid gap-4 @sm:grid-cols-2 @lg:grid-cols-3">
+      <div className="grid gap-4 @sm:grid-cols-2 @lg:grid-cols-3 @2xl:grid-cols-4 @4xl:grid-cols-5">
         <Skeleton className="h-36" />
         <Skeleton className="hidden h-36 @sm:block" />
         <Skeleton className="hidden h-36 @lg:block" />
+        <Skeleton className="hidden h-36 @2xl:block" />
+        <Skeleton className="hidden h-36 @4xl:block" />
       </div>
     );
   }
@@ -35,7 +37,7 @@ export function ResourceGrid({ items, emptyLabel, copy, showStatus }: ResourceGr
     );
   }
   return (
-    <div className="grid gap-4 @sm:grid-cols-2 @lg:grid-cols-3">
+    <div className="grid gap-4 @sm:grid-cols-2 @lg:grid-cols-3 @2xl:grid-cols-4 @4xl:grid-cols-5">
       {items.map((r) => (
         <ResourceCard key={r._id} resource={r} copy={copy} showStatus={showStatus} />
       ))}

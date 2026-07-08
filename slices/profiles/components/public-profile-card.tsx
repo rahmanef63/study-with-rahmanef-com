@@ -47,7 +47,7 @@ export function PublicProfileCard({
   };
 
   return (
-    <div className={cn("mx-auto flex w-full max-w-2xl flex-col gap-10 @sm:gap-12", className)}>
+    <div className={cn("flex w-full flex-col gap-10 @sm:gap-12", className)}>
       <Hero
         eyebrow="Profil publik"
         title={

@@ -36,7 +36,7 @@ export function DashboardHome({ apps, onOpenApp }: { apps: AppDescriptor[]; onOp
     : [];
 
   return (
-    <div className="mx-auto h-full max-w-6xl overflow-auto p-5 @md:p-8">
+    <div className="h-full w-full overflow-auto p-5 @md:p-8">
       <Hero
         align="center"
         eyebrow="Ruang belajarmu"
@@ -65,7 +65,7 @@ export function DashboardHome({ apps, onOpenApp }: { apps: AppDescriptor[]; onOp
       <div className="mt-8 grid gap-8 @4xl:grid-cols-[minmax(0,1fr)_300px]">
         <section className="min-w-0">
           <SectionHeader title="Semua aplikasi" />
-          <div className="grid grid-cols-2 gap-4 @sm:grid-cols-3 @lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 @sm:grid-cols-3 @lg:grid-cols-4 @2xl:grid-cols-5">
             {filtered.map((a) => (
               <Button
                 key={a.id}
@@ -120,14 +120,14 @@ export function RunningRow({ id, active, onPick }: { id: string; active: boolean
   if (!win) return null;
   const app = apps.find((a) => a.id === win.app);
   return (
-    <div className={cn("group flex items-center rounded-md", active ? "bg-sidebar-accent" : "hover:bg-sidebar-accent/60")}>
+    <div className={cn("group flex items-center rounded-md", active ? "bg-primary/15" : "hover:bg-sidebar-accent")}>
       <Button
         type="button"
         variant="ghost"
         onClick={onPick}
         className={cn(
           "h-auto min-w-0 flex-1 justify-start gap-2.5 px-2.5 py-2 text-sm font-normal hover:bg-transparent",
-          active ? "font-medium text-sidebar-accent-foreground" : "text-sidebar-foreground/70 hover:text-sidebar-foreground",
+          active ? "font-semibold text-primary" : "text-sidebar-foreground hover:text-foreground",
         )}
       >
         {app && <span className="size-5 shrink-0"><AppIcon app={app} /></span>}
@@ -168,8 +168,8 @@ export function NavItem({ active, onClick, icon, label, inline }: {
       className={cn(
         "h-auto w-full justify-start gap-2.5 rounded-md px-2.5 py-2 text-sm font-normal",
         active
-          ? "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
-          : "text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
+          ? "bg-primary/15 font-semibold text-primary"
+          : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-foreground",
       )}
     >
       {icon}

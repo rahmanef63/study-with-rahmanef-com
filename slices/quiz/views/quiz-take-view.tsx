@@ -88,77 +88,81 @@ export function QuizTakeView({ moduleId, copy: copyOverride, className }: QuizTa
         </Badge>
       </Hero>
 
-      {attempts !== undefined && attempts.length > 0 && (
-        <div className="grid gap-3 @sm:grid-cols-2">
-          <StatTile
-            icon={<History className="size-5" aria-hidden />}
-            label={copy.previousAttempts}
-            value={attempts.length}
-          />
-          <StatTile
-            icon={<Award className="size-5" aria-hidden />}
-            label={copy.attemptScore}
-            value={`${Math.max(...attempts.map((a) => a.scorePct))}%`}
-          />
-        </div>
-      )}
+      {/* Reading column — comfortable measure for the quiz body (stats,
+          questions, submit) while the Hero above spans the full window. */}
+      <div className="mx-auto w-full max-w-2xl space-y-6">
+        {attempts !== undefined && attempts.length > 0 && (
+          <div className="grid gap-3 @sm:grid-cols-2">
+            <StatTile
+              icon={<History className="size-5" aria-hidden />}
+              label={copy.previousAttempts}
+              value={attempts.length}
+            />
+            <StatTile
+              icon={<Award className="size-5" aria-hidden />}
+              label={copy.attemptScore}
+              value={`${Math.max(...attempts.map((a) => a.scorePct))}%`}
+            />
+          </div>
+        )}
 
-      <section className="space-y-4">
-        <SectionHeader
-          title={`${quiz.questions.length} ${copy.question}`}
-          actions={
-            <Badge tone={allAnswered ? "success" : "muted"}>
-              {answeredCount}/{quiz.questions.length}
-            </Badge>
-          }
-        />
-        <div
-          role="progressbar"
-          aria-label={`${copy.question}: ${answeredCount}/${quiz.questions.length}`}
-          aria-valuenow={answeredCount}
-          aria-valuemin={0}
-          aria-valuemax={quiz.questions.length}
-          className="h-1.5 w-full overflow-hidden rounded-full bg-muted"
-        >
+        <section className="space-y-4">
+          <SectionHeader
+            title={`${quiz.questions.length} ${copy.question}`}
+            actions={
+              <Badge tone={allAnswered ? "success" : "muted"}>
+                {answeredCount}/{quiz.questions.length}
+              </Badge>
+            }
+          />
           <div
-            className="h-full rounded-full bg-primary transition-all"
-            style={{ width: `${progressPct}%` }}
-          />
-        </div>
+            role="progressbar"
+            aria-label={`${copy.question}: ${answeredCount}/${quiz.questions.length}`}
+            aria-valuenow={answeredCount}
+            aria-valuemin={0}
+            aria-valuemax={quiz.questions.length}
+            className="h-1.5 w-full overflow-hidden rounded-full bg-muted"
+          >
+            <div
+              className="h-full rounded-full bg-primary transition-all"
+              style={{ width: `${progressPct}%` }}
+            />
+          </div>
 
-        {quiz.questions.map((question, index) => (
-          <QuizQuestionCard
-            key={index}
-            index={index}
-            total={quiz.questions.length}
-            question={question}
-            name={`q-${index}`}
-            value={answers[index] ?? null}
-            onChange={(optionIndex) => setAnswers((prev) => ({ ...prev, [index]: optionIndex }))}
-            questionLabel={copy.question}
-            ofLabel={copy.of}
-            disabled={isPending}
-          />
-        ))}
-      </section>
+          {quiz.questions.map((question, index) => (
+            <QuizQuestionCard
+              key={index}
+              index={index}
+              total={quiz.questions.length}
+              question={question}
+              name={`q-${index}`}
+              value={answers[index] ?? null}
+              onChange={(optionIndex) => setAnswers((prev) => ({ ...prev, [index]: optionIndex }))}
+              questionLabel={copy.question}
+              ofLabel={copy.of}
+              disabled={isPending}
+            />
+          ))}
+        </section>
 
-      <div className="sticky bottom-3 z-10 flex flex-col gap-3 rounded-[var(--radius-win)] border border-border bg-background/85 p-3 shadow-sm backdrop-blur supports-[padding:max(0px)]:pb-[max(0.75rem,env(safe-area-inset-bottom))] @sm:flex-row @sm:items-center">
-        <div className="min-w-0 text-xs text-muted-foreground @sm:mr-auto">
-          <span className="font-medium tabular-nums text-foreground">
-            {answeredCount}/{quiz.questions.length}
-          </span>{" "}
-          {copy.answered}
-          {!allAnswered && (
-            <span className="block @sm:inline"> · {copy.answerAllFirst}</span>
-          )}
+        <div className="sticky bottom-3 z-10 flex flex-col gap-3 rounded-[var(--radius-win)] border border-border bg-background/85 p-3 shadow-sm backdrop-blur supports-[padding:max(0px)]:pb-[max(0.75rem,env(safe-area-inset-bottom))] @sm:flex-row @sm:items-center">
+          <div className="min-w-0 text-xs text-muted-foreground @sm:mr-auto">
+            <span className="font-medium tabular-nums text-foreground">
+              {answeredCount}/{quiz.questions.length}
+            </span>{" "}
+            {copy.answered}
+            {!allAnswered && (
+              <span className="block @sm:inline"> · {copy.answerAllFirst}</span>
+            )}
+          </div>
+          <Button
+            className="min-h-11 w-full @sm:w-auto"
+            onClick={() => void handleSubmit()}
+            disabled={!allAnswered || isPending}
+          >
+            {isPending ? copy.submitting : copy.submit}
+          </Button>
         </div>
-        <Button
-          className="min-h-11 w-full @sm:w-auto"
-          onClick={() => void handleSubmit()}
-          disabled={!allAnswered || isPending}
-        >
-          {isPending ? copy.submitting : copy.submit}
-        </Button>
       </div>
     </div>
   );

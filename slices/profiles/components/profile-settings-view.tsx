@@ -27,7 +27,7 @@ export type ProfileSettingsViewProps = { labels?: Partial<ProfileLabels> };
 
 function SettingsSkeleton({ hint }: { hint?: string }) {
   return (
-    <Card aria-busy="true">
+    <Card className="mx-auto w-full max-w-2xl" aria-busy="true">
       <CardHeader>
         <Skeleton className="h-6 w-48" />
         <Skeleton className="h-4 w-72" />
@@ -56,7 +56,7 @@ export function ProfileSettingsView({ labels }: ProfileSettingsViewProps) {
 
   if (!isAuthenticated) {
     return (
-      <Card>
+      <Card className="mx-auto w-full max-w-2xl">
         <CardHeader>
           <CardTitle>{copy.title}</CardTitle>
           <CardDescription>{copy.signInPrompt}</CardDescription>

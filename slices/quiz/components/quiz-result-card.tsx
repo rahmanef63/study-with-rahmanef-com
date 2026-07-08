@@ -24,7 +24,13 @@ export function QuizResultCard({ result, questions, copy: copyOverride, onRetry,
   const toneText = result.passed ? "text-success" : "text-destructive";
 
   return (
-    <div className={className ? `space-y-5 ${className}` : "space-y-5"}>
+    <div
+      className={
+        className
+          ? `mx-auto w-full max-w-2xl space-y-5 ${className}`
+          : "mx-auto w-full max-w-2xl space-y-5"
+      }
+    >
       <Card>
         <CardHeader className="gap-4">
           <div className="flex flex-wrap items-center justify-between gap-3">

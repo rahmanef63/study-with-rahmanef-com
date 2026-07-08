@@ -104,9 +104,9 @@ export function ManageCourseEditorView({ courseId, backHref, copy: copyOverride,
         <div className="flex flex-wrap items-end gap-3">
           <div className="min-w-0 flex-1">
             <span className="eyebrow">Editor kelas</span>
-            <h1 className="mt-1 truncate text-2xl sm:text-3xl">{tree.course.title}</h1>
+            <h1 className="mt-1 truncate text-2xl @sm:text-3xl">{tree.course.title}</h1>
           </div>
-          <Button variant="outline" size="sm" className="min-h-11 shrink-0 sm:min-h-8" onClick={() => setEditOpen(true)}>
+          <Button variant="outline" size="sm" className="min-h-11 shrink-0 @sm:min-h-8" onClick={() => setEditOpen(true)}>
             <Pencil aria-hidden /> {copy.editCourse}
           </Button>
         </div>

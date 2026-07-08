@@ -67,7 +67,7 @@ function PublicProfileContent({ username, shareUrl, labels }: ContentProps) {
 
 function ProfileSkeleton() {
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-10 @sm:gap-12" aria-busy="true">
+    <div className="flex w-full flex-col gap-10 @sm:gap-12" aria-busy="true">
       <div className="rounded-[var(--radius-win)] bg-gradient-to-b from-primary/[0.08] to-transparent to-90% px-5 py-8 @md:px-8 @md:py-10 dark:from-primary/[0.14]">
         <div className="flex flex-col gap-3 @sm:flex-row @sm:items-center @sm:gap-5">
           <Skeleton className="size-24 shrink-0 rounded-full" />
@@ -80,7 +80,7 @@ function ProfileSkeleton() {
         <Skeleton className="mt-5 h-4 w-full max-w-md" />
         <Skeleton className="mt-5 h-11 w-40 rounded-md" />
       </div>
-      <div className="grid grid-cols-2 gap-3 @sm:grid-cols-3 @lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 @sm:grid-cols-3 @lg:grid-cols-4 @2xl:grid-cols-5 @4xl:grid-cols-6">
         <Skeleton className="h-28 w-full" />
         <Skeleton className="h-28 w-full" />
         <Skeleton className="h-28 w-full" />

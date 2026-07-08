@@ -45,7 +45,11 @@ export default function PengumumanApp(props: AppProps) {
   const canManage = membership?.role === "instructor" || membership?.role === "owner";
 
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-8 p-6 @md:p-8">
+    // Full-width root: the view fills its window (macOS/Windows/mobile shell or
+    // dashboard pane). The Hero spans full-width; the feed/form/state column
+    // below keeps an internal readable cap (max-w-3xl) so announcement bodies
+    // never stretch edge-to-edge in a wide window.
+    <div className="w-full space-y-8 p-6 @md:p-8">
       <Hero
         eyebrow="Pengumuman komunitas"
         title={tenant ? tenant.name : "Papan pengumuman"}
@@ -56,26 +60,28 @@ export default function PengumumanApp(props: AppProps) {
         }
       />
 
-      {!slug ? (
-        <PengumumanEmpty
-          title="Komunitas belum dipilih"
-          description="Buka pengumuman ini dari sebuah komunitas untuk melihat kabarnya."
-        />
-      ) : tenant === undefined ? (
-        <div className="space-y-4" aria-busy="true">
-          <div className="h-28 w-full animate-pulse rounded-[var(--radius-win)] bg-muted/50" />
-          <div className="h-28 w-full animate-pulse rounded-[var(--radius-win)] bg-muted/50" />
-        </div>
-      ) : tenant === null ? (
-        <PengumumanEmpty
-          title="Komunitas tidak ditemukan"
-          description="Komunitas ini tidak aktif atau tautannya sudah tidak berlaku."
-        />
-      ) : (
-        <div className="min-w-0">
-          <AnnouncementsView tenantId={tenant._id} canManage={canManage} />
-        </div>
-      )}
+      <div className="mx-auto w-full max-w-3xl">
+        {!slug ? (
+          <PengumumanEmpty
+            title="Komunitas belum dipilih"
+            description="Buka pengumuman ini dari sebuah komunitas untuk melihat kabarnya."
+          />
+        ) : tenant === undefined ? (
+          <div className="space-y-4" aria-busy="true">
+            <div className="h-28 w-full animate-pulse rounded-[var(--radius-win)] bg-muted/50" />
+            <div className="h-28 w-full animate-pulse rounded-[var(--radius-win)] bg-muted/50" />
+          </div>
+        ) : tenant === null ? (
+          <PengumumanEmpty
+            title="Komunitas tidak ditemukan"
+            description="Komunitas ini tidak aktif atau tautannya sudah tidak berlaku."
+          />
+        ) : (
+          <div className="min-w-0">
+            <AnnouncementsView tenantId={tenant._id} canManage={canManage} />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

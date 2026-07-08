@@ -28,7 +28,7 @@ import { api } from "@convex/_generated/api";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://study-with.rahmanef.com";
 
 function Frame({ children }: { children: ReactNode }) {
-  return <div className="mx-auto w-full max-w-2xl space-y-8 p-6 @md:p-8">{children}</div>;
+  return <div className="w-full space-y-8 p-6 @md:p-8">{children}</div>;
 }
 
 /** Foreign profile: a `username` payload → the reused anonymous public view. */
@@ -154,7 +154,7 @@ function OwnSkeleton() {
         </div>
       </div>
       <Skeleton className="h-4 w-full max-w-md" />
-      <div className="grid grid-cols-2 gap-3 @sm:grid-cols-3 @lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 @sm:grid-cols-3 @lg:grid-cols-4 @2xl:grid-cols-5 @4xl:grid-cols-6">
         <Skeleton className="h-28 w-full" />
         <Skeleton className="h-28 w-full" />
         <Skeleton className="h-28 w-full" />

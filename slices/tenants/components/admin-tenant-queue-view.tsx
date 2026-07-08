@@ -79,7 +79,7 @@ export function AdminTenantQueueView({ labels, className }: AdminTenantQueueView
       <div className="mb-6 flex items-start justify-between gap-3 border-b pb-5">
         <div className="min-w-0">
           <span className="eyebrow">Moderasi</span>
-          <h2 className="mt-1 text-2xl sm:text-3xl">{t.title}</h2>
+          <h2 className="mt-1 text-2xl @sm:text-3xl">{t.title}</h2>
           <p className="mt-2 max-w-xl text-pretty text-sm text-muted-foreground">{t.subtitle}</p>
         </div>
         {requests.length > 0 ? (

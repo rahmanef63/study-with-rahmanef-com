@@ -132,7 +132,7 @@ function CommunityBody({ slug }: { slug: string }) {
           }
         />
         {tenant === undefined || courses === undefined ? (
-          <div className="grid gap-3 @sm:grid-cols-2 @xl:grid-cols-3">
+          <div className="grid gap-3 @sm:grid-cols-2 @xl:grid-cols-3 @4xl:grid-cols-4">
             {[0, 1].map((i) => (
               <Skeleton key={i} className="h-24 w-full rounded-xl" />
             ))}
@@ -142,7 +142,7 @@ function CommunityBody({ slug }: { slug: string }) {
             Kelas pertama sedang disiapkan 🌱
           </p>
         ) : (
-          <div className="grid gap-3 @sm:grid-cols-2 @xl:grid-cols-3">
+          <div className="grid gap-3 @sm:grid-cols-2 @xl:grid-cols-3 @4xl:grid-cols-4">
             {courses.map((course) => (
               <CourseTile key={course._id} course={course} tenantSlug={slug} />
             ))}
@@ -159,7 +159,7 @@ function CommunityView({ slug }: { slug: string }) {
   // the id is supplied here at the integration layer, not fetched inside it.
   const { profile } = useCurrentProfile();
   return (
-    <div className="mx-auto w-full max-w-4xl p-6 @md:p-8">
+    <div className="w-full p-6 @md:p-8">
       <TenantHomeView
         slug={slug}
         loginHref="/masuk"
@@ -243,7 +243,7 @@ function MyCommunitiesSection() {
           </EmptyHeader>
         </Empty>
       ) : (
-        <ul className="grid gap-3">
+        <ul className="grid gap-3 @3xl:grid-cols-2">
           {communities.map((c) => (
             <MyCommunityRow key={c._id} community={c} />
           ))}
@@ -319,7 +319,9 @@ function ExploreSection() {
   const q = query.trim().toLowerCase();
   const visible = tenants?.filter((t) => t.name.toLowerCase().includes(q));
   const gridClass =
-    view === "grid" ? "grid gap-3 @sm:grid-cols-2 @xl:grid-cols-3" : "grid gap-3";
+    view === "grid"
+      ? "grid gap-3 @sm:grid-cols-2 @xl:grid-cols-3 @4xl:grid-cols-4"
+      : "grid gap-3 @3xl:grid-cols-2";
 
   return (
     <section className="space-y-4">
@@ -397,7 +399,7 @@ function ExploreSection() {
 
 function CommunityDirectory() {
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-10 p-6 @md:p-8">
+    <div className="w-full space-y-10 p-6 @md:p-8">
       <Hero
         eyebrow="Komunitas belajar AI · Bahasa Indonesia"
         title={

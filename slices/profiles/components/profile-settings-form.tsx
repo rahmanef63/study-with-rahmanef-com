@@ -76,7 +76,7 @@ export function ProfileSettingsForm({
         void onSubmit(values);
       }}
     >
-      <Card>
+      <Card className="mx-auto w-full max-w-2xl">
         <CardHeader>
           <CardTitle>{copy.title}</CardTitle>
           <CardDescription>{copy.subtitle}</CardDescription>

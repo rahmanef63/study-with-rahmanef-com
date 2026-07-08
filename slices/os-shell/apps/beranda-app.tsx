@@ -70,7 +70,7 @@ function KelasGrid({ tenant }: { tenant: PublicTenant }) {
     );
   }
   return (
-    <div className="grid gap-3 @sm:grid-cols-2 @xl:grid-cols-3">
+    <div className="grid gap-3 @sm:grid-cols-2 @xl:grid-cols-3 @4xl:grid-cols-4">
       {courses.map((course) => (
         <button
           key={course._id}
@@ -105,7 +105,7 @@ export default function BerandaApp(_props: AppProps) {
     | undefined;
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-10 p-6 @sm:p-8">
+    <div className="w-full space-y-10 p-6 @sm:p-8">
       <Hero
         align="center"
         eyebrow="Komunitas belajar AI · Bahasa Indonesia"

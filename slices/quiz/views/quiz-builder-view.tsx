@@ -106,7 +106,7 @@ export function QuizBuilderView({ moduleId, courseId, tenantId, copy: copyOverri
       )}
 
       {isLoading ? (
-        <div className="space-y-3">
+        <div className="mx-auto w-full max-w-3xl space-y-3">
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-40 w-full" />
         </div>

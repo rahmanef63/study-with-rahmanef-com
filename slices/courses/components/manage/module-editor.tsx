@@ -45,7 +45,7 @@ export function ModuleEditor({
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(mod.title);
   // Comfortable 44px tap target on phones, compact on ≥sm (editorial density).
-  const iconBtn = "size-11 sm:size-9";
+  const iconBtn = "size-11 @sm:size-9";
 
   return (
     <Card>
@@ -65,10 +65,10 @@ export function ModuleEditor({
               minLength={3}
               maxLength={120}
               required
-              className="min-w-0 flex-1 basis-full sm:basis-0"
+              className="min-w-0 flex-1 basis-full @sm:basis-0"
             />
-            <Button type="submit" size="sm" className="min-h-11 sm:min-h-8">{copy.save}</Button>
-            <Button type="button" size="sm" variant="ghost" className="min-h-11 sm:min-h-8" onClick={() => { setTitle(mod.title); setEditing(false); }}>
+            <Button type="submit" size="sm" className="min-h-11 @sm:min-h-8">{copy.save}</Button>
+            <Button type="button" size="sm" variant="ghost" className="min-h-11 @sm:min-h-8" onClick={() => { setTitle(mod.title); setEditing(false); }}>
               {copy.cancel}
             </Button>
           </form>
@@ -82,7 +82,7 @@ export function ModuleEditor({
                 {mod.lessons.length === 0 ? "Belum ada lesson" : `${mod.lessons.length} lesson`}
               </p>
             </div>
-            <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
+            <div className="flex shrink-0 items-center gap-0.5 @sm:gap-1">
               <Button variant="ghost" size="icon" className={iconBtn} aria-label={copy.renameModule} onClick={() => setEditing(true)}>
                 <Pencil aria-hidden />
               </Button>
@@ -112,7 +112,7 @@ export function ModuleEditor({
           {mod.lessons.map((lesson, lessonIndex) => (
             <li
               key={lesson._id}
-              className="flex flex-col gap-1 p-2 text-sm sm:flex-row sm:items-center sm:gap-2"
+              className="flex flex-col gap-1 p-2 text-sm @sm:flex-row @sm:items-center @sm:gap-2"
             >
               <div className="flex min-w-0 items-center gap-2">
                 <span className="min-w-0 flex-1 truncate font-medium">{lesson.title}</span>
@@ -123,7 +123,7 @@ export function ModuleEditor({
                   </span>
                 )}
               </div>
-              <div className="flex shrink-0 items-center gap-0.5 sm:ml-auto sm:gap-1">
+              <div className="flex shrink-0 items-center gap-0.5 @sm:ml-auto @sm:gap-1">
                 <Button variant="ghost" size="icon" className={iconBtn} aria-label={`${copy.moveUp} — ${lesson.title}`} disabled={lessonIndex === 0 || reorderDisabled} onClick={() => onMoveLesson(mod._id, lesson._id, -1)}>
                   <ChevronUp aria-hidden />
                 </Button>
@@ -143,7 +143,7 @@ export function ModuleEditor({
             <li className="px-3 py-4 text-center text-sm text-muted-foreground">{copy.emptySyllabus}</li>
           )}
         </ul>
-        <Button variant="outline" size="sm" className="min-h-11 sm:min-h-8" onClick={() => onAddLesson(mod._id)}>
+        <Button variant="outline" size="sm" className="min-h-11 @sm:min-h-8" onClick={() => onAddLesson(mod._id)}>
           <Plus aria-hidden /> {copy.newLesson}
         </Button>
       </CardContent>

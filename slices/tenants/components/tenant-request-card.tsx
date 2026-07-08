@@ -48,9 +48,9 @@ export function TenantRequestCard({
         <p className="text-muted-foreground text-xs">
           {t.ownerLabel}: {owner}
         </p>
-        <div className="flex flex-col gap-2 pt-1 sm:flex-row">
+        <div className="flex flex-col gap-2 pt-1 @sm:flex-row">
           <Button
-            className="min-h-11 flex-1 sm:min-h-9 sm:flex-none"
+            className="min-h-11 flex-1 @sm:min-h-9 @sm:flex-none"
             disabled={disabled}
             onClick={onApprove}
           >
@@ -58,7 +58,7 @@ export function TenantRequestCard({
           </Button>
           <Button
             variant="outline"
-            className="min-h-11 flex-1 sm:min-h-9 sm:flex-none"
+            className="min-h-11 flex-1 @sm:min-h-9 @sm:flex-none"
             disabled={disabled}
             onClick={onReject}
           >

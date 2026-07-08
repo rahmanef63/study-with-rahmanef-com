@@ -41,7 +41,7 @@ function ShellSection() {
             <span className="text-sm font-medium">{label}</span>
             <span className="eyebrow">{hint}</span>
           </div>
-          <div className="grid grid-cols-2 gap-2 @md:grid-cols-3">
+          <div className="grid grid-cols-2 gap-2 @md:grid-cols-3 @xl:grid-cols-4 @2xl:grid-cols-5">
             {shellsForSurface(surface).map((s) => {
               const active = prefs[surface] === s.id;
               return (
@@ -117,7 +117,7 @@ function ProfilSection() {
 
 export default function PengaturanApp(_props: AppProps) {
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-10 p-6 @md:p-8">
+    <div className="w-full space-y-10 p-6 @md:p-8">
       <Hero
         eyebrow="Akun · Preferensi"
         title={<em className="italic text-primary">Pengaturan</em>}
@@ -158,7 +158,9 @@ export default function PengaturanApp(_props: AppProps) {
             Nama tampilan, username, dan bio yang dilihat komunitas.
           </p>
         </div>
-        <ProfilSection />
+        <div className="w-full max-w-2xl">
+          <ProfilSection />
+        </div>
       </section>
     </div>
   );

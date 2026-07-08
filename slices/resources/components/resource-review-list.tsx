@@ -21,7 +21,7 @@ export type ResourceReviewListProps = {
 export function ResourceReviewList({ items, onCurate, pending, copy }: ResourceReviewListProps) {
   if (items === undefined) {
     return (
-      <div className="space-y-3">
+      <div className="grid gap-3 @4xl:grid-cols-2">
         <Skeleton className="h-20" />
         <Skeleton className="h-20" />
       </div>
@@ -31,7 +31,7 @@ export function ResourceReviewList({ items, onCurate, pending, copy }: ResourceR
     return <BoardEmptyState icon={Inbox} message={copy.emptyPending} />;
   }
   return (
-    <div className="space-y-3">
+    <div className="grid gap-3 @4xl:grid-cols-2">
       {items.map((item) => (
         <ResourceReviewRow
           key={item._id}

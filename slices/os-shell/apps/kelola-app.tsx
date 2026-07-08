@@ -39,7 +39,7 @@ export default function KelolaApp(props: AppProps) {
 
   if (!tenantSlug) {
     return (
-      <div className="mx-auto w-full max-w-3xl p-6 @md:p-8">
+      <div className="w-full p-6 @md:p-8">
         <KelolaEmpty
           icon={Lock}
           title="Komunitas tak dikenal"
@@ -59,7 +59,7 @@ function KelolaConsole({ tenantSlug }: { tenantSlug: string }) {
 
   if (tenant === undefined || isAuthLoading || membership === undefined) {
     return (
-      <div className="mx-auto w-full max-w-5xl space-y-6 p-6 @md:p-8">
+      <div className="w-full space-y-6 p-6 @md:p-8">
         <KelolaSkeleton lines={4} />
       </div>
     );
@@ -67,7 +67,7 @@ function KelolaConsole({ tenantSlug }: { tenantSlug: string }) {
 
   if (tenant === null) {
     return (
-      <div className="mx-auto w-full max-w-3xl p-6 @md:p-8">
+      <div className="w-full p-6 @md:p-8">
         <KelolaEmpty
           icon={Lock}
           title="Komunitas tak ditemukan"
@@ -80,7 +80,7 @@ function KelolaConsole({ tenantSlug }: { tenantSlug: string }) {
   const canManage = membership?.role === "instructor" || membership?.role === "owner";
   if (!canManage) {
     return (
-      <div className="mx-auto w-full max-w-3xl p-6 @md:p-8">
+      <div className="w-full p-6 @md:p-8">
         <KelolaEmpty
           icon={Lock}
           title="Khusus pengelola"
@@ -93,7 +93,7 @@ function KelolaConsole({ tenantSlug }: { tenantSlug: string }) {
   const active = TABS.find((t) => t.key === tab) ?? TABS[0];
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-6 p-6 @md:p-8">
+    <div className="w-full space-y-6 p-6 @md:p-8">
       <Hero
         eyebrow={<>Konsol pengelola · {tenant.name}</>}
         title={

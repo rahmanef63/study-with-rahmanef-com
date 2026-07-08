@@ -41,7 +41,7 @@ export default function KuisApp(props: AppProps) {
   // Invalid/absent payload (opened outside the Kelas flow): friendly empty state.
   if (!moduleId) {
     return (
-      <div className="mx-auto w-full max-w-2xl p-6 @sm:p-8">
+      <div className="w-full p-6 @sm:p-8">
         <Empty>
           <EmptyHeader>
             <EmptyMedia variant="icon">
@@ -60,7 +60,7 @@ export default function KuisApp(props: AppProps) {
   const courseTitle = overview?.course.title;
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-6 p-6 @sm:p-8">
+    <div className="w-full space-y-6 p-6 @sm:p-8">
       {/* Course context strip — back link + breadcrumb. The QUIZ itself is the
           hero (rendered as a <Hero> inside QuizTakeView), so the course reads as
           framing here, not a competing display title. */}

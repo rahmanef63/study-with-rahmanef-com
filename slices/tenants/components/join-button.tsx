@@ -39,7 +39,7 @@ export function JoinButton({
 
   if (!isAuthenticated) {
     return (
-      <Button asChild className={cn("min-h-11 sm:min-h-9", className)}>
+      <Button asChild className={cn("min-h-11 @sm:min-h-9", className)}>
         <Link href={loginHref}>{t.loginFirst}</Link>
       </Button>
     );
@@ -56,7 +56,7 @@ export function JoinButton({
 
   return (
     <Button
-      className={cn("min-h-11 sm:min-h-9", className)}
+      className={cn("min-h-11 @sm:min-h-9", className)}
       disabled={isPending}
       onClick={() => void join({ tenantId })}
     >

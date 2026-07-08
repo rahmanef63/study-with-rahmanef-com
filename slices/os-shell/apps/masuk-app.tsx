@@ -18,14 +18,14 @@ export default function MasukApp(_props: AppProps) {
   const { signIn } = useAuthActions();
 
   return (
-    <div className="mx-auto flex w-full max-w-sm flex-col items-center gap-6 p-6 text-center sm:p-8">
+    <div className="mx-auto flex w-full max-w-sm flex-col items-center gap-6 p-6 text-center @sm:p-8">
       {isLoading ? (
         <div className="h-64 w-full animate-pulse rounded-2xl bg-muted/50" />
       ) : isAuthenticated ? (
         <>
           <header className="space-y-2">
             <span className="eyebrow">Sudah masuk</span>
-            <h1 className="font-serif text-3xl sm:text-4xl">
+            <h1 className="font-serif text-3xl @sm:text-4xl">
               Kamu sudah <em className="italic text-primary">masuk</em>.
             </h1>
             <p className="text-pretty text-muted-foreground">
@@ -45,7 +45,7 @@ export default function MasukApp(_props: AppProps) {
         <>
           <header className="space-y-2">
             <span className="eyebrow">Masuk · Gratis selamanya</span>
-            <h1 className="font-serif text-3xl sm:text-4xl">
+            <h1 className="font-serif text-3xl @sm:text-4xl">
               Belajar pakai AI,{" "}
               <em className="italic text-primary">bareng-bareng.</em>
             </h1>

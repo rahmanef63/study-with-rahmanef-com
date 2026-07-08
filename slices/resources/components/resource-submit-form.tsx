@@ -30,7 +30,7 @@ export function ResourceSubmitForm({ onSubmit, submitting, copy }: ResourceSubmi
 
   return (
     <form
-      className="space-y-4"
+      className="mx-auto w-full max-w-3xl space-y-4"
       onSubmit={(e) => {
         e.preventDefault();
         if (!canSubmit) return;

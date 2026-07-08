@@ -47,7 +47,7 @@ export function QuizBuilderForm({ initial, onSave, submitting, copy }: QuizBuild
 
   return (
     <form
-      className="space-y-5"
+      className="mx-auto w-full max-w-3xl space-y-5"
       onSubmit={(e) => {
         e.preventDefault();
         void onSave({
