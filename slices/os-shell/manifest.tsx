@@ -27,6 +27,7 @@ import { LogoMark } from "@/components/brand/logo";
 import { editorialCapabilities } from "./capabilities";
 import { learningWidgetsFeature } from "./learning-widgets";
 import { accountFeature } from "./account";
+import { shellSwitchFeature } from "./shell-switch";
 import { scrollize } from "./app-scroll";
 
 // Warm, distinct "Editorial Warmth" glossy dock/launcher gradients.
@@ -171,6 +172,7 @@ export const shellManifest: ShellManifest = {
     ...DEFAULT_FEATURES.filter((f) => f.id !== "widgets"),
     learningWidgetsFeature,
     accountFeature,
+    shellSwitchFeature,
   ],
   persistKey: "study-with:os",
   capabilities: editorialCapabilities,

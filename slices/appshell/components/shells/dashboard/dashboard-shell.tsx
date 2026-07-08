@@ -25,7 +25,10 @@ import { DashboardHome, NavItem, RunningRow, SidebarLabel } from "./dashboard-pa
 function DashboardShell() {
   const brand = useBrand();
   const allApps = useApps();
-  const apps = allApps.filter((a) => !a.noDock);
+  // Show EVERY feature in the Dashboard (like the macOS Launchpad / iOS home) —
+  // only the auth flow (masuk) is hidden (it's reached via the account control).
+  // Contextual (noDock) apps open to a friendly "pick a community/class" state.
+  const apps = allApps.filter((a) => a.id !== "masuk");
   const [q, setQ] = useState("");
   const filtered = useMemo(
     () => apps.filter((a) => a.title.toLowerCase().includes(q.toLowerCase())),
@@ -126,7 +129,7 @@ function DashboardShell() {
         {/* [study-with fork] sidebar dock (mockup's UserDock) — anchors the rail
             with the account control. Reuses the account feature's menuBarStatus
             filler (the only feature in that region) so no new slot/import edge. */}
-        <div className="mt-auto flex items-center border-t border-sidebar-border px-3 py-2.5">
+        <div className="mt-auto flex items-center gap-2 border-t border-sidebar-border px-3 py-2.5">
           <Slot region="menuBarStatus" />
         </div>
       </aside>

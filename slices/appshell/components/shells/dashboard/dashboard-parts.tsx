@@ -26,7 +26,9 @@ export function DashboardHome({ apps, onOpenApp }: { apps: AppDescriptor[]; onOp
     () => (q ? apps.filter((a) => a.title.toLowerCase().includes(q.toLowerCase())) : apps),
     [apps, q],
   );
-  const quick = apps.slice(0, 8);
+  const pinned = filtered.filter((a) => !a.noDock);
+  const contextual = filtered.filter((a) => a.noDock);
+  const quick = apps.filter((a) => !a.noDock).slice(0, 8);
   const cards = stats
     ? [
         { icon: Cpu, label: "CPU", value: `${Math.round(stats.cpu.pct)}%`, hint: `${stats.cpu.cores} cores` },
@@ -63,27 +65,27 @@ export function DashboardHome({ apps, onOpenApp }: { apps: AppDescriptor[]; onOp
 
       {/* content + right rail (the mockup's docked panel — real content, not a fake AI box) */}
       <div className="mt-8 grid gap-8 @4xl:grid-cols-[minmax(0,1fr)_300px]">
-        <section className="min-w-0">
-          <SectionHeader title="Semua aplikasi" />
-          <div className="grid grid-cols-2 gap-4 @sm:grid-cols-3 @lg:grid-cols-4 @2xl:grid-cols-5">
-            {filtered.map((a) => (
-              <Button
-                key={a.id}
-                type="button"
-                variant="ghost"
-                onClick={() => onOpenApp(a)}
-                className="flex h-auto flex-col items-start gap-1.5 rounded-[var(--radius-win)] border border-border bg-card p-4 text-left transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:bg-card hover:shadow-md"
-              >
-                <span className="size-10"><AppIcon app={a} /></span>
-                <span className="mt-1.5 w-full truncate text-sm font-medium">{a.title}</span>
-              </Button>
-            ))}
-            {filtered.length === 0 && (
-              <p className="col-span-full rounded-[var(--radius-win)] border border-dashed border-border bg-muted/30 px-4 py-6 text-center text-sm text-muted-foreground">
-                Tidak ada aplikasi cocok “{q}”.
-              </p>
-            )}
-          </div>
+        <section className="min-w-0 space-y-8">
+          {pinned.length > 0 && (
+            <div>
+              <SectionHeader title="Aplikasi" />
+              <AppGrid apps={pinned} onOpenApp={onOpenApp} />
+            </div>
+          )}
+          {contextual.length > 0 && (
+            <div>
+              <SectionHeader
+                title="Fitur lain"
+                actions={<span className="text-xs text-muted-foreground">Dibuka dari komunitas atau kelas</span>}
+              />
+              <AppGrid apps={contextual} onOpenApp={onOpenApp} />
+            </div>
+          )}
+          {filtered.length === 0 && (
+            <p className="rounded-[var(--radius-win)] border border-dashed border-border bg-muted/30 px-4 py-6 text-center text-sm text-muted-foreground">
+              Tidak ada aplikasi cocok “{q}”.
+            </p>
+          )}
         </section>
 
         <aside className="space-y-6">
@@ -108,6 +110,26 @@ export function DashboardHome({ apps, onOpenApp }: { apps: AppDescriptor[]; onOp
           )}
         </aside>
       </div>
+    </div>
+  );
+}
+
+/* A grid of app launch tiles — shared by the Home "Aplikasi" + "Fitur lain" groups. */
+function AppGrid({ apps, onOpenApp }: { apps: AppDescriptor[]; onOpenApp: (app: AppDescriptor) => void }) {
+  return (
+    <div className="grid grid-cols-2 gap-4 @sm:grid-cols-3 @lg:grid-cols-4 @2xl:grid-cols-5">
+      {apps.map((a) => (
+        <Button
+          key={a.id}
+          type="button"
+          variant="ghost"
+          onClick={() => onOpenApp(a)}
+          className="flex h-auto flex-col items-start gap-1.5 rounded-[var(--radius-win)] border border-border bg-card p-4 text-left transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:bg-card hover:shadow-md"
+        >
+          <span className="size-10"><AppIcon app={a} /></span>
+          <span className="mt-1.5 w-full truncate text-sm font-medium">{a.title}</span>
+        </Button>
+      ))}
     </div>
   );
 }

@@ -14,6 +14,9 @@ import {
   useShellUI,
   useShellAppearance,
   useServerToggle,
+  useShellPrefs, // [study-with fork] mobile shell switch tile
+  setShell,
+  shellsForSurface,
 } from "@/features/appshell";
 
 // iPhone Control Center — pulls down from the top. Only REAL toggles (this is a
@@ -28,6 +31,12 @@ export function ControlCenter() {
   const focus = useFocusMode();
   const dark = theme === "dark";
   const close = () => onOpenChange(false);
+
+  // [study-with fork] mobile shell switch — tap to swap iOS ⇄ Android.
+  const prefs = useShellPrefs();
+  const mobileShells = shellsForSurface("mobile");
+  const currentMobile = mobileShells.find((s) => s.id === prefs.mobile);
+  const otherMobile = mobileShells.find((s) => s.id !== prefs.mobile);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -71,6 +80,15 @@ export function ControlCenter() {
             disabled={openCount === 0}
             onClick={() => { closeAll(); close(); }}
           />
+          {/* [study-with fork] switch the mobile OS look (iOS ⇄ Android) */}
+          {currentMobile && otherMobile && (
+            <Tile
+              icon={currentMobile.icon}
+              label="Tampilan OS"
+              value={currentMobile.label}
+              onClick={() => { setShell("mobile", otherMobile.id); close(); }}
+            />
+          )}
         </div>
       </SheetContent>
     </Sheet>

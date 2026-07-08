@@ -15,6 +15,7 @@ import { useShellAppearance } from "../../../registry/capabilities";
 import { AppIcon } from "../../app-icon";
 import { ContextMenu, useContextMenu } from "../context-menu";
 import { StartMenu } from "./start-menu";
+import { Slot } from "../../../registry/feature-registry"; // [study-with fork] tray status cluster (account + shell switch)
 
 export const TASKBAR_H = 48;
 
@@ -55,7 +56,9 @@ export function Taskbar({ onTaskView }: { onTaskView?: () => void }) {
             <TaskButton key={id} id={id} />
           ))}
         </div>
-        <div className="ml-auto flex items-center">
+        <div className="ml-auto flex items-center gap-1">
+          {/* [study-with fork] shared desktop status cluster: account + "Tampilan OS" switch */}
+          <Slot region="menuBarStatus" />
           <QuickSettings />
           <Clock />
         </div>
