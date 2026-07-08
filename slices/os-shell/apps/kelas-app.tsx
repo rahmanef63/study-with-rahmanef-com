@@ -19,7 +19,7 @@ import { openApp, seg } from "./_nav";
 import { recordRecentCourse } from "../recent-courses";
 import { CourseOverviewView, LessonPlayerView, useCourseOverview } from "@/features/courses";
 import { CourseProgress, LessonCompletion, useCourseProgress } from "@/features/progress";
-import { CourseRoadmap } from "@/features/roadmap";
+import { CourseRoadmap, CourseNav } from "@/features/roadmap";
 import { useQuizForTaking, useMyAttempts } from "@/features/quiz";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -268,15 +268,52 @@ function KelasCourse({
 
   // Lesson content is member-only (getLesson throws for outsiders); non-members
   // can't select a lesson anyway (locked syllabus), so gate the pane on it.
+  // Layout: the lesson is the content SHEET, with the course nav (Silabus ⇄ Roadmap)
+  // as a secondary sidebar — a sticky rail on wide windows, a collapsible disclosure
+  // on narrow ones. Both nav copies share the `view` state, so they stay in sync.
   if (lessonId !== null && isMember) {
+    const nav = (
+      <CourseNav
+        tenantId={tenantId}
+        courseSlug={courseSlug}
+        lessonHref={lessonHref}
+        overviewHref={OVERVIEW_HREF}
+        currentLessonId={lessonId}
+        view={view}
+        onViewChange={setView}
+      />
+    );
     return (
-      <div onClickCapture={onNavCapture} className="w-full p-6 @sm:p-8">
-        <LessonPlayerView
-          lessonId={lessonId}
-          lessonHref={lessonHref}
-          backHref={OVERVIEW_HREF}
-          completionSlot={<LessonCompletion lessonId={lessonId} />}
-        />
+      <div
+        onClickCapture={onNavCapture}
+        className="w-full p-4 @sm:p-6 @3xl:grid @3xl:grid-cols-[minmax(15rem,17rem)_1fr] @3xl:gap-8 @3xl:p-8"
+      >
+        {/* secondary sidebar — nav rail on wide windows. ponytail: flows in the
+            single app scroll (AppScroll owns the scroll), NOT independently pinned.
+            A `sticky` + own-scroll rail assumed the viewport height (100dvh) but the
+            app scrolls within the WINDOW, not the viewport — that clipped lower nav
+            items in a wide-but-short window. A truly pinned+scrollable rail needs a
+            size-container/nested-scroll refactor; skip until asked. */}
+        <aside className="hidden @3xl:block">
+          <div className="pr-1">{nav}</div>
+        </aside>
+        {/* secondary sidebar — collapsible disclosure on narrow windows */}
+        <details className="mb-4 rounded-[var(--radius-win)] border border-border bg-card @3xl:hidden">
+          <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-2.5 text-sm font-medium [&::-webkit-details-marker]:hidden">
+            <List className="size-4 text-muted-foreground" aria-hidden />
+            Daftar materi
+          </summary>
+          <div className="border-t border-border px-4 py-3">{nav}</div>
+        </details>
+        {/* content sheet — the lesson */}
+        <div className="min-w-0">
+          <LessonPlayerView
+            lessonId={lessonId}
+            lessonHref={lessonHref}
+            backHref={OVERVIEW_HREF}
+            completionSlot={<LessonCompletion lessonId={lessonId} />}
+          />
+        </div>
       </div>
     );
   }
@@ -324,6 +361,13 @@ function KelasCourse({
         <>
           {isMember && (
             <KelasInspector overview={overview} tenantSlug={tenantSlug} courseSlug={courseSlug} />
+          )}
+          {/* Anon sees a locked map ("Gabung untuk membuka") — give them the join
+              affordance here too, else Roadmap is a dead-end vs Silabus. */}
+          {!isMember && (
+            <div className="mb-5">
+              <JoinButton tenantId={tenantId} loginHref="/masuk" />
+            </div>
           )}
           <CourseRoadmap tenantId={tenantId} courseSlug={courseSlug} lessonHref={lessonHref} />
         </>

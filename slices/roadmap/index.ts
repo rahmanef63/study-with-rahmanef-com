@@ -9,8 +9,10 @@ export { roadmapFeature } from "./config";
 // presentational (props-driven, portable)
 export { RoadmapNode, type RoadmapNodeProps } from "./components/roadmap-node";
 
-// connected view (drops into the Kelas overview seam)
+// connected views (drop into the Kelas seams)
 export { CourseRoadmap, type CourseRoadmapProps } from "./views/course-roadmap";
+// compact secondary-sidebar rail shown beside a lesson sheet
+export { CourseNav, type CourseNavProps, type CourseNavView } from "./components/roadmap-nav";
 
 // types
 export type { RoadmapLesson, RoadmapModule, RoadmapNodeStatus } from "./types";

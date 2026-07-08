@@ -1,7 +1,7 @@
 {
   "$schema": "https://resource.rahmanef.com/slice-schema.json",
   "slug": "roadmap",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "category": "lms",
   "kind": "frontend",
   "title": "Roadmap — visual learning path per class",
@@ -16,11 +16,12 @@
   },
   "contract": {
     "barrel": {
-      "components": ["RoadmapNode"],
+      "components": ["RoadmapNode", "CourseNav"],
       "views": ["CourseRoadmap"],
       "consumerSeams": {
         "kelas": [
-          "KelasCourse overview: a Silabus ⇄ Roadmap toggle renders <CourseRoadmap tenantId courseSlug lessonHref>"
+          "KelasCourse overview (no lesson): a Silabus ⇄ Roadmap toggle renders <CourseRoadmap tenantId courseSlug lessonHref> as the full-width game-map",
+          "KelasCourse lesson open: <CourseNav> is the secondary-sidebar rail beside the LessonPlayerView sheet (Silabus list ⇄ Roadmap mini-trail, current lesson highlighted)"
         ]
       }
     }

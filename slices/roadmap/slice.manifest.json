@@ -1,7 +1,7 @@
 {
   "$schema": "../../docs/slice.manifest.schema.json",
   "name": "roadmap",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Visual learning-path presentation of a course (modules→lessons + completion status), derived client-side from the courses + progress slices — no new tables/convex, no routes. Ported from CareerPack's dependency-free skill-roadmap renderer.",
   "category": "lms",
   "stability": "beta",
@@ -26,5 +26,5 @@
     "tailwind": "4",
     "auth": "convex-auth"
   },
-  "notes": "0.1.0 (2026-07-08): ported the roadmap VISUAL from CareerPack frontend/slices/skill-roadmap (a dependency-free flex+lucide recursive node renderer) and REBUILT the data layer onto this app's courses/progress queries. Deliberately did NOT port convex/roadmap — CareerPack's template/seed model solves a 'many career templates, one active roadmap doc' problem this app doesn't have; here the source of truth is already courses→modules→lessons + lessonCompletions, so the roadmap is a pure derived presentation. Reads the courses + progress BARRELS only (P1)."
+  "notes": "0.2.0 (2026-07-08): (1) redrew CourseRoadmap as a game-style QUEST TRAIL — chapter 'world' bands, big circular stations on a two-tone progress spine (walked=success, ahead=muted), 'kamu di sini' beacon + legend — so it reads distinctly from the syllabus list; (2) added CourseNav, a compact secondary-sidebar rail (Silabus list ⇄ Roadmap mini-trail, current lesson highlighted) shown beside the lesson sheet in Kelas. Both remain pure derived presentations (no new convex/tables). 0.1.0 (2026-07-08): ported the roadmap VISUAL from CareerPack frontend/slices/skill-roadmap (a dependency-free flex+lucide node renderer) and REBUILT the data layer onto this app's courses/progress queries. Deliberately did NOT port convex/roadmap — the source of truth is already courses→modules→lessons + lessonCompletions. Reads the courses + progress BARRELS only (P1)."
 }

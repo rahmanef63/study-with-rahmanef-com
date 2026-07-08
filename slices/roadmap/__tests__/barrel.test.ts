@@ -13,6 +13,7 @@ describe("roadmap barrel type contract (compile-time, enforced by tsc)", () => {
   test("exports the component, connected view, feature, and types", () => {
     expectTypeOf<typeof Barrel.RoadmapNode>().toBeFunction();
     expectTypeOf<typeof Barrel.CourseRoadmap>().toBeFunction();
+    expectTypeOf<typeof Barrel.CourseNav>().toBeFunction();
     expectTypeOf<typeof Barrel.roadmapFeature>().toMatchTypeOf<{ slug: string }>();
     expectTypeOf<Barrel.RoadmapLesson>().toBeObject();
     expectTypeOf<Barrel.RoadmapModule>().toBeObject();
