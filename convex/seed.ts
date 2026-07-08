@@ -14,6 +14,7 @@
 // Idempotent: safe to re-run; existing rows are kept.
 import { v } from "convex/values";
 import { internalMutation } from "./_generated/server";
+import type { Id } from "./_generated/dataModel";
 
 export const bootstrap = internalMutation({
   args: {
@@ -423,5 +424,339 @@ Buka tab **Kelas**, pilih satu, dan catat progresmu. Selamat belajar — bareng-
     }
 
     return { note: "content seed complete (idempotent)", ...made };
+  },
+});
+
+// ── world seed: MORE communities (STATUS: "seed more data") ──────────────────
+// Adds extra communities (each owned by the same owner) with covers + courses +
+// a welcome post + a couple of approved resources, and back-fills a cover on the
+// flagship. Internal-only; run AFTER seed:bootstrap + seed:seedContent:
+//
+//   npx convex run seed:seedWorld '{"ownerEmail":"rahmanef63@gmail.com"}'
+//
+// Idempotent: tenants by slug, courses by slug, announcements/resources by title.
+
+type SeedCommunity = {
+  slug: string;
+  name: string;
+  description: string;
+  track?: string;
+  coverImageUrl?: string;
+  courses: SeedCourse[];
+  announcement: { title: string; bodyMd: string };
+  resources?: { title: string; url: string; note?: string }[];
+};
+
+const EXTRA_COMMUNITIES: SeedCommunity[] = [
+  {
+    slug: "karier-digital",
+    name: "Karier Digital bareng Rahman",
+    description:
+      "Bangun karier digital dari nol — portofolio, freelance, dan skill yang dicari pasar. Berbahasa Indonesia.",
+    track: "kerja",
+    coverImageUrl: "https://picsum.photos/seed/karier-digital/1200/400",
+    courses: [
+      {
+        slug: "portofolio-dilirik",
+        title: "Portofolio yang Dilirik",
+        description: "Susun portofolio yang bikin recruiter & klien berhenti scroll.",
+        modules: [
+          {
+            title: "Fondasi Portofolio",
+            lessons: [
+              {
+                title: "Portofolio mengalahkan CV",
+                contentMd: `## Kenapa portofolio menang
+
+CV cuma klaim; portofolio itu **bukti**. Recruiter & klien percaya yang bisa mereka lihat.
+
+- Tunjukkan hasil nyata, bukan daftar skill.
+- 3 proyek fokus > 10 proyek asal.
+
+## Belum punya proyek?
+
+Bikin proyek latihan yang menyelesaikan masalah nyata — redesign, studi kasus, atau otomasi kecil.`,
+              },
+              {
+                title: "3 proyek yang wajib ada",
+                contentMd: `## Formula 3 proyek
+
+1. **Proyek unggulan** — paling niche, paling dalam.
+2. **Proyek proses** — tunjukkan cara berpikirmu (before → after).
+3. **Proyek kolaborasi** — bukti bisa kerja tim.
+
+Tiap proyek: **masalah → yang kamu lakukan → hasil terukur.**`,
+              },
+            ],
+            quiz: {
+              title: "Kuis: Portofolio",
+              passingScorePct: 60,
+              questions: [
+                { prompt: "Portofolio unggul dari CV karena…", options: ["Lebih panjang", "Menunjukkan bukti nyata", "Lebih formal", "Wajib PDF"], correctIndex: 1 },
+                { prompt: "Idealnya portofolio berisi…", options: ["Sebanyak mungkin proyek", "3 proyek fokus & dalam", "Hanya sertifikat", "Screenshot acak"], correctIndex: 1 },
+                { prompt: "Tiap proyek sebaiknya menampilkan…", options: ["Harga jasa", "Masalah → aksi → hasil", "Riwayat pendidikan", "Hobi"], correctIndex: 1 },
+              ],
+            },
+          },
+        ],
+      },
+      {
+        slug: "freelance-nol",
+        title: "Freelance dari Nol",
+        description: "Dapat klien pertama tanpa koneksi orang dalam.",
+        modules: [
+          {
+            title: "Mulai Freelance",
+            lessons: [
+              {
+                title: "Pilih niche & skill",
+                contentMd: `## Niche bikin kamu dicari
+
+Generalis susah dibedakan; spesialis gampang direkomendasikan.
+
+- Pilih irisan: **skill yang kamu bisa × masalah yang dibayar orang.**
+- Contoh: "desain feed IG untuk UMKM kuliner".`,
+              },
+              {
+                title: "Cari klien pertama",
+                contentMd: `## Tempat berburu
+
+- **Jaringan terdekat** (teman, komunitas) — konversi tertinggi.
+- **Marketplace** (Fiverr, Sribu) untuk isi portofolio awal.
+- **Outbound**: DM bernilai, bukan spam "nawarin jasa".
+
+## Tawaran yang menang
+
+Fokus ke **hasil untuk klien**, bukan daftar fitur jasamu.`,
+              },
+            ],
+            quiz: {
+              title: "Kuis: Freelance",
+              passingScorePct: 60,
+              questions: [
+                { prompt: "Kenapa memilih niche?", options: ["Biar sempit", "Biar mudah dibedakan & direkomendasikan", "Biar mahal", "Karena wajib"], correctIndex: 1 },
+                { prompt: "Sumber klien pertama dengan konversi tertinggi biasanya…", options: ["Iklan berbayar", "Jaringan terdekat", "Cold email massal", "SEO"], correctIndex: 1 },
+                { prompt: "Tawaran yang kuat menekankan…", options: ["Fitur jasa", "Hasil untuk klien", "Harga termurah", "Portofolio panjang"], correctIndex: 1 },
+              ],
+            },
+          },
+        ],
+      },
+    ],
+    announcement: {
+      title: "Selamat datang di Karier Digital! 💼",
+      bodyMd: `Komunitas ini fokus ke **karier digital yang nyata**. Mulai dari dua kelas:
+
+- **Portofolio yang Dilirik** — bukti > klaim.
+- **Freelance dari Nol** — dapat klien pertama.
+
+Buka tab **Kelas** dan kerjakan langkah demi langkah.`,
+    },
+    resources: [
+      { title: "Template studi kasus portofolio", url: "https://www.notion.so", note: "Kerangka before → after untuk tiap proyek." },
+    ],
+  },
+  {
+    slug: "kreator-konten",
+    name: "Kreator Konten AI",
+    description:
+      "Bikin konten konsisten pakai bantuan AI — ide, skrip, dan caption tanpa buntu.",
+    track: "konten",
+    coverImageUrl: "https://picsum.photos/seed/kreator-konten/1200/400",
+    courses: [
+      {
+        slug: "ide-konten",
+        title: "Ide Konten Tanpa Buntu",
+        description: "Sistem sederhana biar nggak pernah kehabisan ide.",
+        modules: [
+          {
+            title: "Sistem Ide",
+            lessons: [
+              {
+                title: "Pancing ide dengan AI",
+                contentMd: `## AI = partner brainstorming
+
+Jangan cuma minta "kasih ide konten". Beri konteks: audiens, niche, tujuan.
+
+Contoh prompt: *"10 ide Reels untuk pemula belajar AI, format tips singkat, gaya santai."*
+
+AI memancing, **kamu yang menyaring** sesuai selera.`,
+              },
+              {
+                title: "Kalender konten 30 hari",
+                contentMd: `## Batch, jangan harian
+
+Sisihkan 1 hari untuk merencanakan 30 hari. Pilih 3–4 **pilar konten** lalu rotasi:
+
+- Edukasi · Cerita · Promosi · Interaksi
+
+Konsistensi mengalahkan viral sesekali.`,
+              },
+            ],
+            quiz: {
+              title: "Kuis: Ide Konten",
+              passingScorePct: 60,
+              questions: [
+                { prompt: "Prompt ide yang baik memberi AI…", options: ["Satu kata", "Konteks: audiens/niche/tujuan", "Hanya emoji", "Tanpa arahan"], correctIndex: 1 },
+                { prompt: "Cara menjaga konsistensi konten?", options: ["Bikin harian dadakan", "Batch & pakai pilar konten", "Tunggu mood", "Hanya pas viral"], correctIndex: 1 },
+              ],
+            },
+          },
+        ],
+      },
+      {
+        slug: "skrip-caption",
+        title: "Skrip & Caption Cepat",
+        description: "Nulis hook & caption yang ngajak aksi, cepat.",
+        modules: [
+          {
+            title: "Nulis Cepat",
+            lessons: [
+              {
+                title: "Rumus hook 3 detik",
+                contentMd: `## 3 detik pertama menentukan
+
+Hook = **janji + rasa penasaran.**
+
+Pola: *"Berhenti lakukan X"*, *"3 kesalahan Y"*, *"Cara Z tanpa W"*.
+
+Uji beberapa hook, pertahankan yang paling menahan tontonan.`,
+              },
+              {
+                title: "Caption yang ngajak aksi",
+                contentMd: `## Struktur caption
+
+1. **Hook** (baris pertama).
+2. **Nilai** (1–3 poin).
+3. **CTA** (komentar / simpan / bagikan).
+
+Cukup **satu ajakan** per caption.`,
+              },
+            ],
+            quiz: {
+              title: "Kuis: Skrip & Caption",
+              passingScorePct: 60,
+              questions: [
+                { prompt: "Hook yang kuat berisi…", options: ["Salam panjang", "Janji + rasa penasaran", "Deretan hashtag", "Tag teman"], correctIndex: 1 },
+                { prompt: "Caption sebaiknya punya berapa CTA utama?", options: ["Sebanyak mungkin", "Satu", "Nol", "Lima"], correctIndex: 1 },
+              ],
+            },
+          },
+        ],
+      },
+    ],
+    announcement: {
+      title: "Selamat datang di Kreator Konten AI! 🎬",
+      bodyMd: `Buat kamu yang bikin konten: **ide, skrip, caption** jadi lebih cepat dengan AI.
+
+- **Ide Konten Tanpa Buntu** — sistem ide 30 hari.
+- **Skrip & Caption Cepat** — hook & CTA yang bekerja.
+
+Selamat berkarya!`,
+    },
+    resources: [
+      { title: "Bank hook siap pakai", url: "https://claude.ai", note: "Minta variasi hook ke Claude pakai konteksmu." },
+    ],
+  },
+];
+
+export const seedWorld = internalMutation({
+  args: { ownerEmail: v.string() },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("email", (q) => q.eq("email", args.ownerEmail))
+      .unique();
+    if (user === null) {
+      throw new Error(`No user with email ${args.ownerEmail} — run seed:bootstrap first.`);
+    }
+    const createdBy = user._id;
+    const made = { tenants: 0, courses: 0, modules: 0, lessons: 0, quizzes: 0, announcements: 0, resources: 0, covers: 0 };
+
+    // Seed a course tree into a tenant (idempotent by course slug).
+    async function seedCourse(tenantId: Id<"tenants">, c: SeedCourse) {
+      const existing = await ctx.db
+        .query("courses")
+        .withIndex("by_tenant_slug", (q) => q.eq("tenantId", tenantId).eq("slug", c.slug))
+        .unique();
+      if (existing !== null) return;
+      const courseId = await ctx.db.insert("courses", {
+        tenantId, slug: c.slug, title: c.title, description: c.description, status: "published", createdBy,
+      });
+      made.courses++;
+      for (let mi = 0; mi < c.modules.length; mi++) {
+        const m = c.modules[mi];
+        const moduleId = await ctx.db.insert("modules", { tenantId, courseId, title: m.title, order: mi });
+        made.modules++;
+        for (let li = 0; li < m.lessons.length; li++) {
+          const l = m.lessons[li];
+          await ctx.db.insert("lessons", {
+            tenantId, courseId, moduleId, title: l.title, contentMd: l.contentMd, links: l.links ?? [], order: li,
+          });
+          made.lessons++;
+        }
+        if (m.quiz) {
+          await ctx.db.insert("quizzes", {
+            tenantId, courseId, moduleId, title: m.quiz.title, passingScorePct: m.quiz.passingScorePct,
+            questions: m.quiz.questions.map((q) => ({
+              prompt: q.prompt, options: q.options, correctIndex: q.correctIndex,
+              ...(q.explanation ? { explanation: q.explanation } : {}),
+            })),
+          });
+          made.quizzes++;
+        }
+      }
+    }
+
+    // Back-fill a cover on the flagship community if it has none.
+    const flagship = await ctx.db.query("tenants").withIndex("by_slug", (q) => q.eq("slug", "belajar-ai")).unique();
+    if (flagship && !flagship.coverImageUrl) {
+      await ctx.db.patch(flagship._id, { coverImageUrl: "https://picsum.photos/seed/belajar-ai/1200/400" });
+      made.covers++;
+    }
+
+    for (const co of EXTRA_COMMUNITIES) {
+      let tenant = await ctx.db.query("tenants").withIndex("by_slug", (q) => q.eq("slug", co.slug)).unique();
+      if (tenant === null) {
+        const newId = await ctx.db.insert("tenants", {
+          slug: co.slug, name: co.name, description: co.description, status: "active", ownerId: createdBy,
+          ...(co.track ? { track: co.track } : {}),
+          ...(co.coverImageUrl ? { coverImageUrl: co.coverImageUrl } : {}),
+        });
+        await ctx.db.insert("memberships", { tenantId: newId, userId: createdBy, role: "owner" });
+        tenant = await ctx.db.get(newId);
+        made.tenants++;
+      } else if (!tenant.coverImageUrl && co.coverImageUrl) {
+        await ctx.db.patch(tenant._id, { coverImageUrl: co.coverImageUrl });
+        made.covers++;
+      }
+      if (tenant === null) continue;
+      const tenantId = tenant._id;
+
+      for (const c of co.courses) await seedCourse(tenantId, c);
+
+      const anns = await ctx.db.query("announcements").withIndex("by_tenant", (q) => q.eq("tenantId", tenantId)).collect();
+      if (!anns.some((a) => a.title === co.announcement.title)) {
+        await ctx.db.insert("announcements", {
+          tenantId, title: co.announcement.title, bodyMd: co.announcement.bodyMd, createdBy, postedToDiscord: false,
+        });
+        made.announcements++;
+      }
+
+      const approved = await ctx.db
+        .query("resources")
+        .withIndex("by_tenant_status", (q) => q.eq("tenantId", tenantId).eq("status", "approved"))
+        .collect();
+      for (const r of co.resources ?? []) {
+        if (!approved.some((x) => x.title === r.title)) {
+          await ctx.db.insert("resources", {
+            tenantId, title: r.title, url: r.url, ...(r.note ? { note: r.note } : {}), submittedBy: createdBy, status: "approved",
+          });
+          made.resources++;
+        }
+      }
+    }
+
+    return { note: "world seed complete (idempotent)", ...made };
   },
 });

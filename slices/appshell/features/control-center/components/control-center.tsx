@@ -1,6 +1,6 @@
 "use client";
 
-import { type LucideIcon, Bell, Moon, MoonStar, Sun, Server, Cloud, Sparkles, Layers, Search } from "lucide-react";
+import { type LucideIcon, Bell, Moon, MoonStar, Sun, Server, Cloud, Sparkles, Layers, Search, Smartphone } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -32,11 +32,9 @@ export function ControlCenter() {
   const dark = theme === "dark";
   const close = () => onOpenChange(false);
 
-  // [study-with fork] mobile shell switch — tap to swap iOS ⇄ Android.
+  // [study-with fork] mobile shell switch — a labeled 2-option control.
   const prefs = useShellPrefs();
   const mobileShells = shellsForSurface("mobile");
-  const currentMobile = mobileShells.find((s) => s.id === prefs.mobile);
-  const otherMobile = mobileShells.find((s) => s.id !== prefs.mobile);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -80,14 +78,33 @@ export function ControlCenter() {
             disabled={openCount === 0}
             onClick={() => { closeAll(); close(); }}
           />
-          {/* [study-with fork] switch the mobile OS look (iOS ⇄ Android) */}
-          {currentMobile && otherMobile && (
-            <Tile
-              icon={currentMobile.icon}
-              label="Tampilan OS"
-              value={currentMobile.label}
-              onClick={() => { setShell("mobile", otherMobile.id); close(); }}
-            />
+          {/* [study-with fork] switch the mobile OS look — both options always visible */}
+          {mobileShells.length >= 2 && (
+            <div className="col-span-2 rounded-2xl border border-border bg-background/60 p-3">
+              <div className="mb-2 flex items-center gap-2 text-[13px] font-semibold">
+                <Smartphone className="size-4" aria-hidden /> Tampilan OS
+              </div>
+              <div className="grid grid-cols-2 gap-1.5">
+                {mobileShells.map((s) => {
+                  const active = s.id === prefs.mobile;
+                  const SIcon = s.icon;
+                  return (
+                    <button
+                      key={s.id}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => { setShell("mobile", s.id); if (!active) close(); }}
+                      className={cn(
+                        "flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-3 text-sm font-medium transition-colors",
+                        active ? "bg-primary text-primary-foreground" : "bg-muted text-foreground hover:bg-muted/70",
+                      )}
+                    >
+                      <SIcon className="size-4" aria-hidden /> {s.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           )}
         </div>
       </SheetContent>

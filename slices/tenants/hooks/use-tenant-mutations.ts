@@ -66,6 +66,7 @@ export function useUpdateTenantProfile(labels?: {
       tenantId: Id<"tenants">;
       name?: string;
       description?: string;
+      coverImageUrl?: string;
       track?: string;
       discordInviteUrl?: string;
       discordWebhookUrl?: string;

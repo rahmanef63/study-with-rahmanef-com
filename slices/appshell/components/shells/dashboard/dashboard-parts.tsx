@@ -6,7 +6,7 @@
    in this app's tokens (mockup-kit). Stats cards read the optional useSystemStats
    capability and simply don't render without it. */
 import { useMemo, useState } from "react";
-import { X, Cpu, MemoryStick, HardDrive } from "lucide-react";
+import { X, Cpu, MemoryStick, HardDrive, Pin, PinOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Hero, CommandSearch, QuickActionRow, SectionHeader, StatTile } from "@/components/mockup-kit";
 import { cn } from "@/lib/utils";
@@ -17,6 +17,8 @@ import { useSystemStats } from "../../../registry/capabilities";
 import type { AppDescriptor } from "../../../lib/types";
 import { AppIcon } from "../../app-icon";
 import { Slot } from "../../../registry/feature-registry"; // [study-with fork] today widget below
+import { ContextMenu, useContextMenu } from "../context-menu"; // [study-with fork] pin toggle
+import { usePins, togglePin } from "@/features/os-shell/pins";
 
 export function DashboardHome({ apps, onOpenApp }: { apps: AppDescriptor[]; onOpenApp: (app: AppDescriptor) => void }) {
   const stats = useSystemStats();
@@ -114,8 +116,13 @@ export function DashboardHome({ apps, onOpenApp }: { apps: AppDescriptor[]; onOp
   );
 }
 
-/* A grid of app launch tiles — shared by the Home "Aplikasi" + "Fitur lain" groups. */
+/* A grid of app launch tiles — shared by the Home "Aplikasi" + "Fitur lain" groups.
+   Right-click a tile to pin/unpin it ([study-with fork]: pinned apps become desktop
+   icons on macOS/Windows + a Favorit rail row). */
 function AppGrid({ apps, onOpenApp }: { apps: AppDescriptor[]; onOpenApp: (app: AppDescriptor) => void }) {
+  const menu = useContextMenu();
+  const [target, setTarget] = useState<AppDescriptor | null>(null);
+  const pinned = usePins();
   return (
     <div className="grid grid-cols-2 gap-4 @sm:grid-cols-3 @lg:grid-cols-4 @2xl:grid-cols-5">
       {apps.map((a) => (
@@ -124,12 +131,26 @@ function AppGrid({ apps, onOpenApp }: { apps: AppDescriptor[]; onOpenApp: (app: 
           type="button"
           variant="ghost"
           onClick={() => onOpenApp(a)}
+          onContextMenu={(e) => { setTarget(a); menu.open(e); }}
           className="flex h-auto flex-col items-start gap-1.5 rounded-[var(--radius-win)] border border-border bg-card p-4 text-left transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:bg-card hover:shadow-md"
         >
           <span className="size-10"><AppIcon app={a} /></span>
           <span className="mt-1.5 w-full truncate text-sm font-medium">{a.title}</span>
         </Button>
       ))}
+      <ContextMenu
+        pos={menu.pos}
+        items={
+          target
+            ? [{
+                label: pinned.includes(target.id) ? "Lepas dari favorit" : "Sematkan",
+                icon: pinned.includes(target.id) ? PinOff : Pin,
+                onClick: () => { togglePin(target.id); menu.close(); },
+              }]
+            : []
+        }
+        onClose={menu.close}
+      />
     </div>
   );
 }

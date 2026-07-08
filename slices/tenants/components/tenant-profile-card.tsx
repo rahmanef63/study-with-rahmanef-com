@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Hero, Badge } from "@/components/mockup-kit";
+import { cn } from "@/lib/utils";
 import { DEFAULT_TENANT_LABELS } from "../config/labels";
 import type { PublicTenant, TenantLabels } from "../types";
 
@@ -14,6 +15,8 @@ export type TenantProfileCardProps = {
   labels?: Partial<TenantLabels["home"]>;
   /** Slot for the join CTA (kept separate so this stays presentational). */
   actions?: ReactNode;
+  /** Owner-only "add/change cover" control, shown on the banner corner. */
+  coverAction?: ReactNode;
   className?: string;
 };
 
@@ -21,16 +24,34 @@ export function TenantProfileCard({
   tenant,
   labels,
   actions,
+  coverAction,
   className,
 }: TenantProfileCardProps) {
   const t = { ...DEFAULT_TENANT_LABELS.home, ...labels };
   return (
-    <Hero
-      eyebrow="Komunitas belajar"
-      title={<span className="break-words">{tenant.name}</span>}
-      description={<span className="whitespace-pre-line">{tenant.description}</span>}
-      className={className}
-    >
+    <div className={cn("space-y-4", className)}>
+      {tenant.coverImageUrl ? (
+        <div className="relative">
+          {/* eslint-disable-next-line @next/next/no-img-element -- external cover URL, no next/image */}
+          <img
+            src={tenant.coverImageUrl}
+            alt=""
+            className="h-32 w-full rounded-[var(--radius-win)] border border-border object-cover @md:h-44"
+            onError={(e) => { e.currentTarget.style.display = "none"; }}
+          />
+          {coverAction ? <div className="absolute right-3 top-3">{coverAction}</div> : null}
+        </div>
+      ) : coverAction ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-win)] border border-dashed border-border bg-muted/30 px-4 py-3">
+          <span className="text-sm text-muted-foreground">Belum ada sampul komunitas.</span>
+          {coverAction}
+        </div>
+      ) : null}
+      <Hero
+        eyebrow="Komunitas belajar"
+        title={<span className="break-words">{tenant.name}</span>}
+        description={<span className="whitespace-pre-line">{tenant.description}</span>}
+      >
       <div className="flex flex-col gap-4">
         {tenant.track ? (
           <div className="flex flex-wrap items-center gap-2">
@@ -53,6 +74,7 @@ export function TenantProfileCard({
           </div>
         ) : null}
       </div>
-    </Hero>
+      </Hero>
+    </div>
   );
 }

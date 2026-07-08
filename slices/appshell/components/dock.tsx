@@ -30,7 +30,7 @@ type Slot =
   | { kind: "plain"; id: string; label: string; onClick: () => void; node: React.ReactNode };
 
 export function Dock({ onMissionControl }: { onMissionControl?: () => void }) {
-  const apps = useApps().filter((a) => !a.noDock);
+  const apps = useApps().filter((a) => a.id !== "masuk");
   const order = useWindowOrder();
   const focused = useFocused();
   const { items: links, open: openLink } = useQuickLinks();

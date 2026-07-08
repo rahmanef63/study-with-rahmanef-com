@@ -21,6 +21,7 @@ import { AppIcon } from "../../app-icon";
 import { WindowContent } from "../../window-content";
 import { Slot } from "../../../registry/feature-registry"; // [study-with fork] rightPanel below
 import { DashboardHome, NavItem, RunningRow, SidebarLabel } from "./dashboard-parts";
+import { usePinnedApps } from "@/features/os-shell/pins"; // [study-with fork] Favorit rail section
 
 function DashboardShell() {
   const brand = useBrand();
@@ -74,6 +75,8 @@ function DashboardShell() {
     setHome(true);
   };
 
+  const favs = usePinnedApps(); // [study-with fork] pinned apps → Favorit section
+
   return (
     <div className="absolute inset-0 z-[10] flex bg-background">
       <aside className="flex w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
@@ -87,6 +90,24 @@ function DashboardShell() {
         <div className="flex flex-col gap-0.5 px-2">
           <NavItem active={!pane} onClick={goHome} icon={<Home className="size-4" />} label="Home" />
         </div>
+
+        {/* [study-with fork] Favorit — pinned apps (right-click an app tile → Sematkan). */}
+        {favs.length > 0 && (
+          <>
+            <SidebarLabel>Favorit</SidebarLabel>
+            <div className="flex flex-col gap-0.5 px-2">
+              {favs.map((a) => (
+                <NavItem
+                  key={a.id}
+                  active={pane?.app === a.id}
+                  onClick={() => launch(a)}
+                  icon={<span className="size-5"><AppIcon app={a} /></span>}
+                  label={a.title}
+                />
+              ))}
+            </div>
+          </>
+        )}
 
         {order.length > 0 && (
           <>

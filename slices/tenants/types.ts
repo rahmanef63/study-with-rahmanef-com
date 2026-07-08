@@ -17,6 +17,7 @@ export type PublicTenant = {
   slug: string;
   name: string;
   description: string;
+  coverImageUrl?: string;
   track?: string;
   discordInviteUrl?: string;
 };

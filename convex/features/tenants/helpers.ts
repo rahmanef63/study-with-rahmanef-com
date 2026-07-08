@@ -10,6 +10,7 @@ export type PublicTenant = {
   slug: string;
   name: string;
   description: string;
+  coverImageUrl?: string;
   track?: string;
   discordInviteUrl?: string;
 };
@@ -27,6 +28,7 @@ export function toPublicTenant(t: Doc<"tenants">): PublicTenant {
     slug: t.slug,
     name: t.name,
     description: t.description,
+    coverImageUrl: t.coverImageUrl,
     track: t.track,
     discordInviteUrl: t.discordInviteUrl,
   };
@@ -65,9 +67,15 @@ export function isValidDiscordWebhookUrl(url: string): boolean {
   return /^https:\/\/(discord|discordapp)\.com\/api\/webhooks\/\d+\/[\w-]+$/.test(url);
 }
 
+/** Cover banner: any http(s) URL up to 2000 chars (no upload; mirrors courses). */
+export function isValidCoverImageUrl(url: string): boolean {
+  return /^https?:\/\/.+/.test(url) && url.length <= 2000;
+}
+
 export type TenantProfilePatch = {
   name?: string;
   description?: string;
+  coverImageUrl?: string;
   track?: string;
   discordInviteUrl?: string;
   discordWebhookUrl?: string;
@@ -102,6 +110,12 @@ export function buildProfilePatch(input: TenantProfilePatch): {
     } else {
       patch.description = description;
     }
+  }
+  if (input.coverImageUrl !== undefined) {
+    const url = input.coverImageUrl.trim();
+    if (url === "") patch.coverImageUrl = undefined;
+    else if (isValidCoverImageUrl(url)) patch.coverImageUrl = url;
+    else errors.push("coverImageUrl");
   }
   if (input.track !== undefined) {
     const track = input.track.trim();

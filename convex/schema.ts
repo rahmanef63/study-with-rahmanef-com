@@ -40,6 +40,7 @@ export default defineSchema({
     slug: v.string(), // globally unique — /t/[slug]
     name: v.string(),
     description: v.string(),
+    coverImageUrl: v.optional(v.string()), // banner image — external https URL (no upload)
     track: v.optional(v.string()), // "umum" | "kerja" | "konten" | other
     discordInviteUrl: v.optional(v.string()),
     // SECRET — must never be returned by any public query (AGENTS.md §6).

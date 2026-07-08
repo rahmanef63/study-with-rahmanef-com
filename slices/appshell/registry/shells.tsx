@@ -74,7 +74,7 @@ export function shellList(): ShellDescriptor[] {
 const KEY = "sv:shell";
 
 export type ShellPrefs = { desktop: ShellId; mobile: ShellId };
-const DEFAULTS: ShellPrefs = { desktop: "macos", mobile: "ios" };
+const DEFAULTS: ShellPrefs = { desktop: "dashboard", mobile: "ios" };
 const DESKTOP_IDS: ShellId[] = ["macos", "windows", "dashboard"];
 const MOBILE_IDS: ShellId[] = ["ios", "android"];
 
@@ -142,5 +142,5 @@ export function resolveShell(surface: ShellSurface, p: ShellPrefs): ShellDescrip
   const id = surface === "mobile" ? p.mobile : p.desktop;
   const d = REGISTRY.get(id);
   if (d && d.surface === surface) return d;
-  return REGISTRY.get(surface === "mobile" ? "ios" : "macos") ?? shellList().find((s) => s.surface === surface)!;
+  return REGISTRY.get(surface === "mobile" ? "ios" : "dashboard") ?? shellList().find((s) => s.surface === surface)!;
 }

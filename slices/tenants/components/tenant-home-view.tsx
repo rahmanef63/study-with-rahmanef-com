@@ -21,6 +21,7 @@ import type { TenantLabels } from "../types";
 import { JoinButton } from "./join-button";
 import { MembersList } from "./members-list";
 import { TenantProfileCard } from "./tenant-profile-card";
+import { TenantCoverEditor } from "./tenant-cover-editor";
 
 export type TenantHomeViewProps = {
   slug: string;
@@ -84,6 +85,11 @@ export function TenantHomeView({
       <TenantProfileCard
         tenant={tenant}
         labels={labels?.home}
+        coverAction={
+          canManageRoles ? (
+            <TenantCoverEditor tenantId={tenant._id} currentUrl={tenant.coverImageUrl} />
+          ) : undefined
+        }
         actions={
           <JoinButton
             tenantId={tenant._id}

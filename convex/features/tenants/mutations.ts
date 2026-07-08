@@ -46,6 +46,7 @@ export const updateProfile = mutation({
     tenantId: v.id("tenants"),
     name: v.optional(v.string()),
     description: v.optional(v.string()),
+    coverImageUrl: v.optional(v.string()),
     track: v.optional(v.string()),
     discordInviteUrl: v.optional(v.string()),
     discordWebhookUrl: v.optional(v.string()),
