@@ -22,7 +22,7 @@ export const TWEAKCN_PRESET_GROUPS: ReadonlyArray<{
     id: "refined",
     label: "Profesional",
     presets: [
-      "modern-minimal", "vercel", "claude", "supabase",
+      "modern-minimal", "emerald", "vercel", "claude", "supabase",
       "mono", "graphite", "clean-slate", "amber-minimal",
     ],
   },

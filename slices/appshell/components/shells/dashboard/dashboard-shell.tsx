@@ -73,7 +73,7 @@ function DashboardShell() {
 
   return (
     <div className="absolute inset-0 z-[10] flex bg-background">
-      <aside className="flex w-60 shrink-0 flex-col border-r border-border bg-card/50">
+      <aside className="flex w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
         <div className="flex h-14 shrink-0 items-center gap-2.5 px-4">
           <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary text-sm font-bold uppercase text-primary-foreground">
             {brand.name.slice(0, 1)}
@@ -98,7 +98,7 @@ function DashboardShell() {
 
         <SidebarLabel>Apps</SidebarLabel>
         <div className="px-2 pb-1.5">
-          <div className="flex items-center gap-2 rounded-md border border-border bg-background px-2.5 py-1.5">
+          <div className="flex items-center gap-2 rounded-md border border-sidebar-border bg-background px-2.5 py-1.5">
             <Search className="size-3.5 shrink-0 text-muted-foreground" />
             <input
               value={q}
@@ -126,7 +126,7 @@ function DashboardShell() {
         {/* [study-with fork] sidebar dock (mockup's UserDock) — anchors the rail
             with the account control. Reuses the account feature's menuBarStatus
             filler (the only feature in that region) so no new slot/import edge. */}
-        <div className="mt-auto flex items-center border-t border-border px-3 py-2.5">
+        <div className="mt-auto flex items-center border-t border-sidebar-border px-3 py-2.5">
           <Slot region="menuBarStatus" />
         </div>
       </aside>

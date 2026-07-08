@@ -120,14 +120,14 @@ export function RunningRow({ id, active, onPick }: { id: string; active: boolean
   if (!win) return null;
   const app = apps.find((a) => a.id === win.app);
   return (
-    <div className={cn("group flex items-center rounded-md", active ? "bg-primary/10" : "hover:bg-muted")}>
+    <div className={cn("group flex items-center rounded-md", active ? "bg-sidebar-accent" : "hover:bg-sidebar-accent/60")}>
       <Button
         type="button"
         variant="ghost"
         onClick={onPick}
         className={cn(
           "h-auto min-w-0 flex-1 justify-start gap-2.5 px-2.5 py-2 text-sm font-normal hover:bg-transparent",
-          active ? "font-medium text-foreground" : "text-muted-foreground hover:text-foreground",
+          active ? "font-medium text-sidebar-accent-foreground" : "text-sidebar-foreground/70 hover:text-sidebar-foreground",
         )}
       >
         {app && <span className="size-5 shrink-0"><AppIcon app={app} /></span>}
@@ -167,7 +167,9 @@ export function NavItem({ active, onClick, icon, label, inline }: {
       onClick={onClick}
       className={cn(
         "h-auto w-full justify-start gap-2.5 rounded-md px-2.5 py-2 text-sm font-normal",
-        active ? "bg-primary/10 font-medium text-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground",
+        active
+          ? "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
+          : "text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
       )}
     >
       {icon}
