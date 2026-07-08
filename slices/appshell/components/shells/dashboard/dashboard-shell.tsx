@@ -22,6 +22,7 @@ import { WindowContent } from "../../window-content";
 import { Slot } from "../../../registry/feature-registry"; // [study-with fork] rightPanel below
 import { DashboardHome, NavItem, RunningRow, SidebarLabel } from "./dashboard-parts";
 import { usePinnedApps } from "@/features/os-shell/pins"; // [study-with fork] Favorit rail section
+import { ThemePresetSwitcher } from "@/features/theme-presets"; // [study-with fork] header theme button
 
 function DashboardShell() {
   const brand = useBrand();
@@ -164,6 +165,10 @@ function DashboardShell() {
               <span className="font-medium">{pane.title}</span>
             </>
           )}
+          {/* [study-with fork] quick theme + preset control in the header */}
+          <div className="ml-auto flex items-center">
+            <ThemePresetSwitcher />
+          </div>
         </header>
         {/* container context is REQUIRED: app @container styles never match without it */}
         <main className="min-h-0 flex-1 overflow-hidden [container-type:inline-size]">

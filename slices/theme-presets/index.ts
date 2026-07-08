@@ -10,6 +10,7 @@ export {
   DEFAULT_PRESET_NAME,
 } from "./components/ThemePresetProvider";
 export { ThemePresetSwitcher } from "./components/ThemePresetSwitcher";
+export { ThemePresetGallery } from "./components/ThemePresetGallery"; // [study-with fork] settings preview-card gallery
 export { SaveSiteDefaultButton } from "./components/SaveSiteDefaultButton";
 export { ThemeColorSync } from "./components/ThemeColorSync";
 export { ThemeProviders } from "./components/ThemeProviders";

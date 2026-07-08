@@ -31,14 +31,17 @@ import { shellSwitchFeature } from "./shell-switch";
 import { pinsFeature } from "./pins";
 import { scrollize } from "./app-scroll";
 
-// Distinct per-feature hues so icons are recognizable at a glance (the app chrome
-// stays Editorial Warmth; icon tiles vary like any real OS icon set).
+// Feature-icon tints ride the active theme preset's --chart-1..5 ramp — DYNAMIC:
+// switch preset (rupa/modern-minimal/emerald/…) and every icon re-skins. Each app
+// gets a distinct chart hue; the gradient darkens the base for the glossy tile.
+const CHART = (n: 1 | 2 | 3 | 4 | 5) =>
+  `linear-gradient(160deg, var(--chart-${n}), color-mix(in oklab, var(--chart-${n}) 68%, #000))`;
 const beranda: AppDescriptor = {
   id: "beranda",
   slug: "beranda",
   title: "Beranda",
   icon: Home,
-  gradient: "linear-gradient(160deg, #d98a5c 0%, #b3552f 100%)",
+  gradient: CHART(1),
   load: scrollize(() => import("./apps/beranda-app")),
   defaultSize: { w: 960, h: 640 },
   pinned: true,
@@ -49,7 +52,7 @@ const komunitas: AppDescriptor = {
   slug: "komunitas",
   title: "Komunitas",
   icon: Users,
-  gradient: "linear-gradient(160deg, #d76b7f 0%, #a83f56 100%)",
+  gradient: CHART(2),
   load: scrollize(() => import("./apps/komunitas-app")),
   defaultSize: { w: 940, h: 660 },
   pinned: true,
@@ -60,7 +63,7 @@ const kelas: AppDescriptor = {
   slug: "kelas",
   title: "Kelas",
   icon: GraduationCap,
-  gradient: "linear-gradient(160deg, #e0a63f 0%, #b3781a 100%)",
+  gradient: CHART(3),
   load: scrollize(() => import("./apps/kelas-app")),
   defaultSize: { w: 1000, h: 680 },
   noDock: true,
@@ -71,7 +74,7 @@ const kuis: AppDescriptor = {
   slug: "kuis",
   title: "Kuis",
   icon: ListChecks,
-  gradient: "linear-gradient(160deg, #4fae74 0%, #2f8551 100%)",
+  gradient: CHART(4),
   load: scrollize(() => import("./apps/kuis-app")),
   defaultSize: { w: 720, h: 640 },
   noDock: true,
@@ -82,7 +85,7 @@ const resources: AppDescriptor = {
   slug: "resources",
   title: "Resources",
   icon: Library,
-  gradient: "linear-gradient(160deg, #4a9fb0 0%, #2f7385 100%)",
+  gradient: CHART(5),
   load: scrollize(() => import("./apps/resources-app")),
   defaultSize: { w: 900, h: 640 },
   noDock: true,
@@ -93,7 +96,7 @@ const pengumuman: AppDescriptor = {
   slug: "pengumuman",
   title: "Pengumuman",
   icon: Megaphone,
-  gradient: "linear-gradient(160deg, #e07a4a 0%, #c04a2a 100%)",
+  gradient: CHART(1),
   load: scrollize(() => import("./apps/pengumuman-app")),
   defaultSize: { w: 740, h: 640 },
   noDock: true,
@@ -104,7 +107,7 @@ const kelola: AppDescriptor = {
   slug: "kelola",
   title: "Kelola",
   icon: SlidersHorizontal,
-  gradient: "linear-gradient(160deg, #6b7aa8 0%, #45507a 100%)",
+  gradient: CHART(2),
   load: scrollize(() => import("./apps/kelola-app")),
   defaultSize: { w: 1060, h: 700 },
   noDock: true,
@@ -115,7 +118,7 @@ const profil: AppDescriptor = {
   slug: "profil",
   title: "Profil",
   icon: UserRound,
-  gradient: "linear-gradient(160deg, #a86bb0 0%, #7a3f85 100%)",
+  gradient: CHART(3),
   load: scrollize(() => import("./apps/profil-app")),
   defaultSize: { w: 820, h: 660 },
   pinned: true,
@@ -126,7 +129,7 @@ const pengaturan: AppDescriptor = {
   slug: "pengaturan",
   title: "Pengaturan",
   icon: Settings,
-  gradient: "linear-gradient(160deg, #8a8a8a 0%, #565656 100%)",
+  gradient: CHART(4),
   load: scrollize(() => import("./apps/pengaturan-app")),
   defaultSize: { w: 640, h: 620 },
   pinned: true,
@@ -137,7 +140,7 @@ const masuk: AppDescriptor = {
   slug: "masuk",
   title: "Masuk",
   icon: LogIn,
-  gradient: "linear-gradient(160deg, #6b74c0 0%, #454a92 100%)",
+  gradient: CHART(5),
   load: scrollize(() => import("./apps/masuk-app")),
   defaultSize: { w: 460, h: 560 },
   noDock: true,

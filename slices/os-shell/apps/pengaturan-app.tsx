@@ -10,7 +10,7 @@
 import { type AppProps, shellsForSurface, useShellPrefs, setShell } from "@/features/appshell";
 import { openApp } from "./_nav";
 import { AccountSettings } from "../account";
-import { ThemePresetSwitcher } from "@/features/theme-presets";
+import { ThemePresetGallery } from "@/features/theme-presets";
 import { ProfileSettingsView, useCurrentProfile } from "@/features/profiles";
 import { Hero, SectionHeader, Badge } from "@/components/mockup-kit";
 import { cn } from "@/lib/utils";
@@ -133,7 +133,7 @@ export default function PengaturanApp(_props: AppProps) {
             Pilih mode terang atau gelap dan warna aksen kesukaanmu.
           </p>
         </div>
-        <ThemePresetSwitcher />
+        <ThemePresetGallery />
       </section>
 
       <section className="min-w-0 space-y-5">
