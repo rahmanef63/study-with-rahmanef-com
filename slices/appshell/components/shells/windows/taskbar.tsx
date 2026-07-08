@@ -16,6 +16,7 @@ import { AppIcon } from "../../app-icon";
 import { ContextMenu, useContextMenu } from "../context-menu";
 import { StartMenu } from "./start-menu";
 import { Slot } from "../../../registry/feature-registry"; // [study-with fork] tray status cluster (account + shell switch)
+import { ThemePresetSwitcher } from "@/features/theme-presets"; // [study-with fork] theme + preset picker in the tray
 
 export const TASKBAR_H = 48;
 
@@ -57,8 +58,9 @@ export function Taskbar({ onTaskView }: { onTaskView?: () => void }) {
           ))}
         </div>
         <div className="ml-auto flex items-center gap-1">
-          {/* [study-with fork] shared desktop status cluster: account + "Tampilan OS" switch */}
+          {/* [study-with fork] shared desktop status cluster: account + "Tampilan OS" switch + theme */}
           <Slot region="menuBarStatus" />
+          <ThemePresetSwitcher triggerClassName="h-8 gap-0.5 px-1.5" />
           <QuickSettings />
           <Clock />
         </div>

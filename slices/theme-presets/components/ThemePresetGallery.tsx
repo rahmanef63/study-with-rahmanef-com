@@ -19,6 +19,7 @@ const DEFAULT_ITEM: TweakcnPresetItem = {
   name: "",
   title: "Default · Editorial",
   cssVars: {
+    theme: { "font-sans": "'Hanken Grotesk', ui-sans-serif, system-ui, sans-serif", radius: "0.5rem" },
     light: {
       background: "#f4f1eb", foreground: "#2b2620", card: "#fbfaf6", primary: "#b65d38",
       "primary-foreground": "#faf6ef", border: "#e3ddd2", "muted-foreground": "#78706a",
@@ -35,10 +36,14 @@ const DEFAULT_ITEM: TweakcnPresetItem = {
 type Preview = {
   background: string; foreground: string; card: string; primary: string;
   primaryForeground: string; border: string; mutedForeground: string; charts: string[];
+  // STATIC per theme — the preset's own font + radius, NOT the active theme's,
+  // so a card never restyles when you pick another preset.
+  fontSans: string; radius: string;
 };
 
 function extract(p: TweakcnPresetItem, dark: boolean): Preview {
   const v = (dark ? p.cssVars?.dark : p.cssVars?.light) ?? p.cssVars?.light ?? p.cssVars?.dark ?? {};
+  const theme = p.cssVars?.theme ?? {};
   const primary = v.primary ?? "#888";
   return {
     background: v.background ?? "#ffffff",
@@ -49,6 +54,8 @@ function extract(p: TweakcnPresetItem, dark: boolean): Preview {
     border: v.border ?? "#cccccc",
     mutedForeground: v["muted-foreground"] ?? v.foreground ?? "#666666",
     charts: [1, 2, 3, 4, 5].map((n) => v[`chart-${n}`] ?? primary),
+    fontSans: theme["font-sans"] ?? "ui-sans-serif, system-ui, sans-serif",
+    radius: theme.radius ?? "0.5rem",
   };
 }
 
@@ -65,23 +72,25 @@ function PresetCard({
       aria-pressed={selected}
       title={item.title}
       className={cn(
-        "flex flex-col overflow-hidden rounded-xl border text-left transition-all hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "flex flex-col overflow-hidden border text-left transition-transform hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         selected && "ring-2 ring-primary",
       )}
-      style={{ background: c.background, borderColor: selected ? c.primary : c.border }}
+      // radius + font are the PRESET'S own (static) — not the active theme's — so
+      // the card is a faithful, stable preview no matter what's selected.
+      style={{ background: c.background, borderColor: selected ? c.primary : c.border, borderRadius: c.radius, fontFamily: c.fontSans }}
     >
       <div className="space-y-2 p-3">
         <div className="flex items-center justify-between gap-2">
           <span className="truncate text-sm font-semibold" style={{ color: c.foreground }}>{item.title}</span>
           {selected ? <Check className="size-4 shrink-0" style={{ color: c.primary }} aria-hidden /> : null}
         </div>
-        <div className="rounded-lg p-2" style={{ background: c.card, border: `1px solid ${c.border}` }}>
+        <div className="p-2" style={{ background: c.card, border: `1px solid ${c.border}`, borderRadius: c.radius }}>
           <p className="mb-1.5 text-[11px] leading-snug" style={{ color: c.mutedForeground }}>
             Belajar bareng, catat progres.
           </p>
           <span
-            className="inline-flex rounded-md px-2 py-0.5 text-[11px] font-medium"
-            style={{ background: c.primary, color: c.primaryForeground }}
+            className="inline-flex px-2 py-0.5 text-[11px] font-medium"
+            style={{ background: c.primary, color: c.primaryForeground, borderRadius: c.radius }}
           >
             Aksen
           </span>
@@ -110,11 +119,10 @@ export function ThemePresetGallery() {
   );
 
   return (
-    <div className="space-y-5">
-      <div className="max-w-xs">
-        <ModeTabs activeMode={activeMode} onPick={setTheme} />
-      </div>
+    <div className="space-y-4">
+      <ModeTabs activeMode={activeMode} onPick={setTheme} />
 
+      <div className="scroll-minimal max-h-[62vh] space-y-5 overflow-y-auto rounded-xl border border-border p-3">
       <div className="space-y-1.5">
         <span className="eyebrow">Bawaan</span>
         <div className="grid grid-cols-2 gap-3 @sm:grid-cols-3 @lg:grid-cols-4 @2xl:grid-cols-5">
@@ -142,6 +150,7 @@ export function ThemePresetGallery() {
           </div>
         ))
       )}
+      </div>
     </div>
   );
 }

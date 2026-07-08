@@ -1,16 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Sun, Moon, Activity, Search, Sparkles } from "lucide-react";
+import { Activity, Search, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useShellAppearance, useCpuPercent } from "../registry/capabilities";
+import { useCpuPercent } from "../registry/capabilities";
 import { toggleSpotlight, toggleInspector, toggleNotificationCenter } from "../lib/store";
 import { useNotifications } from "../lib/toast";
 import { Slot } from "../registry/feature-registry";
+import { ThemePresetSwitcher } from "@/features/theme-presets"; // [study-with fork] theme + preset picker in the menu bar
 
 // Right cluster of the menu bar: cpu · spotlight · inspector · theme · clock.
 export function StatusCluster() {
-  const { theme, setTheme } = useShellAppearance();
   const cpu = useCpuPercent();
   const clock = useClock();
   const unread = useNotifications().some((n) => !n.read);
@@ -43,16 +43,9 @@ export function StatusCluster() {
       >
         <Sparkles className="size-4" />
       </Button>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        aria-label="Toggle theme"
-        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-        className="h-auto grid size-6 place-items-center rounded-md hover:bg-[var(--hover-strong)]"
-      >
-        {theme === "dark" ? <Moon className="size-4" /> : <Sun className="size-4" />}
-      </Button>
+      {/* [study-with fork] theme mode + color-preset picker (replaces the plain
+          light/dark toggle — the popover has mode tabs + all presets). */}
+      <ThemePresetSwitcher triggerClassName="h-6 gap-0.5 px-1" />
       {/* Host-contributed trailing items (e.g. macOS Control Center). */}
       <Slot region="menuBarStatus" />
       {/* Clock → Notification Center; dot = unread. */}
