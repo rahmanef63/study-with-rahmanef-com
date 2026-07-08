@@ -1,0 +1,32 @@
+{
+  "$schema": "https://resource.rahmanef.com/slice-schema.json",
+  "slug": "roadmap",
+  "version": "0.1.0",
+  "category": "lms",
+  "kind": "frontend",
+  "title": "Roadmap — visual learning path per class",
+  "description": "A second presentation of a course's modules→lessons as a roadmap (learning path) with per-lesson completion status. Ported from CareerPack's dependency-free skill-roadmap node renderer, rebuilt onto this app's data. No new tables and no new convex — DERIVED client-side from courses.getOverview + progress.getCourseProgress. No routes: fills the Kelas overview via a Silabus ⇄ Roadmap toggle.",
+  "namespace": "@/features/roadmap",
+  "frontend": { "slicePath": "slices/roadmap", "configExport": "roadmapFeature" },
+  "deps": {
+    "npm": [],
+    "shadcn": ["skeleton"],
+    "env": [],
+    "peers": ["courses", "progress"]
+  },
+  "contract": {
+    "barrel": {
+      "components": ["RoadmapNode"],
+      "views": ["CourseRoadmap"],
+      "consumerSeams": {
+        "kelas": [
+          "KelasCourse overview: a Silabus ⇄ Roadmap toggle renders <CourseRoadmap tenantId courseSlug lessonHref>"
+        ]
+      }
+    }
+  },
+  "registers": [],
+  "license": "MIT",
+  "tags": ["lms", "roadmap", "learning-path", "multi-tenant"],
+  "providers": []
+}

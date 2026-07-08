@@ -1,0 +1,30 @@
+{
+  "$schema": "../../docs/slice.manifest.schema.json",
+  "name": "roadmap",
+  "version": "0.1.0",
+  "description": "Visual learning-path presentation of a course (modules→lessons + completion status), derived client-side from the courses + progress slices — no new tables/convex, no routes. Ported from CareerPack's dependency-free skill-roadmap renderer.",
+  "category": "lms",
+  "stability": "beta",
+  "deps": {
+    "shared": ["features/defineFeature"],
+    "slices": ["courses", "progress"],
+    "convexFeatures": [],
+    "npm": {},
+    "env": []
+  },
+  "files": {
+    "include": ["**/*"],
+    "exclude": ["__tests__/**", "*.test.ts", "*.test.tsx"]
+  },
+  "convexFiles": { "include": [], "exclude": [] },
+  "permissions": [],
+  "schemaTables": [],
+  "compatibility": {
+    "next": ">=15 <17",
+    "react": "^19",
+    "convex": "^1.16",
+    "tailwind": "4",
+    "auth": "convex-auth"
+  },
+  "notes": "0.1.0 (2026-07-08): ported the roadmap VISUAL from CareerPack frontend/slices/skill-roadmap (a dependency-free flex+lucide recursive node renderer) and REBUILT the data layer onto this app's courses/progress queries. Deliberately did NOT port convex/roadmap — CareerPack's template/seed model solves a 'many career templates, one active roadmap doc' problem this app doesn't have; here the source of truth is already courses→modules→lessons + lessonCompletions, so the roadmap is a pure derived presentation. Reads the courses + progress BARRELS only (P1)."
+}

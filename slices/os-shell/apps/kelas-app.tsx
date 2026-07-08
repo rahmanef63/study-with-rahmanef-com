@@ -8,9 +8,10 @@
 // A module's quiz CTA is the exception: it spawns the "kuis" app in its own
 // window via openWindow. Runs inside an appshell window, so it fetches
 // client-side via useQuery (root layout already mounts Convex).
-import { useEffect, type MouseEvent } from "react";
-import { BookOpen, Compass, GraduationCap, Share2 } from "lucide-react";
+import { useEffect, useState, type MouseEvent } from "react";
+import { BookOpen, Compass, GraduationCap, List, Route, Share2 } from "lucide-react";
 import type { Id } from "@convex/_generated/dataModel";
+import { cn } from "@/lib/utils";
 import { Badge } from "@/components/mockup-kit";
 import { type AppProps, usePublishInspector, share } from "@/features/appshell";
 import { JoinButton, useTenantBySlug } from "@/features/tenants";
@@ -18,6 +19,7 @@ import { openApp, seg } from "./_nav";
 import { recordRecentCourse } from "../recent-courses";
 import { CourseOverviewView, LessonPlayerView, useCourseOverview } from "@/features/courses";
 import { CourseProgress, LessonCompletion, useCourseProgress } from "@/features/progress";
+import { CourseRoadmap } from "@/features/roadmap";
 import { useQuizForTaking, useMyAttempts } from "@/features/quiz";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -232,6 +234,7 @@ function KelasCourse({
   lessonId: Id<"lessons"> | null;
 }) {
   const overview = useCourseOverview(tenantId, courseSlug);
+  const [view, setView] = useState<"silabus" | "roadmap">("silabus");
 
   // Remember this course for Beranda's "Lanjutkan belajar" resume row. Keyed on
   // the tenant+course slug pair (bumps recency when re-opened) and only fires
@@ -282,7 +285,32 @@ function KelasCourse({
     <div onClickCapture={onNavCapture} className="w-full p-6 @sm:p-8">
       {/* Body share trigger — on mobile the inspector (its twin) never renders, so
           without this "Bagikan kelas" would be unreachable on the phone shells. */}
-      <div className="mb-4 flex justify-end">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        {/* Silabus ⇄ Roadmap — same modules/lessons, two presentations */}
+        <div className="inline-flex rounded-lg border border-border p-0.5">
+          <button
+            type="button"
+            onClick={() => setView("silabus")}
+            aria-pressed={view === "silabus"}
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+              view === "silabus" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <List className="size-4" aria-hidden /> Silabus
+          </button>
+          <button
+            type="button"
+            onClick={() => setView("roadmap")}
+            aria-pressed={view === "roadmap"}
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+              view === "roadmap" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <Route className="size-4" aria-hidden /> Roadmap
+          </button>
+        </div>
         <button
           type="button"
           onClick={() => shareCourse(tenantSlug, courseSlug, overview.course.title)}
@@ -292,7 +320,14 @@ function KelasCourse({
           Bagikan
         </button>
       </div>
-      {isMember ? (
+      {view === "roadmap" ? (
+        <>
+          {isMember && (
+            <KelasInspector overview={overview} tenantSlug={tenantSlug} courseSlug={courseSlug} />
+          )}
+          <CourseRoadmap tenantId={tenantId} courseSlug={courseSlug} lessonHref={lessonHref} />
+        </>
+      ) : isMember ? (
         <>
           <KelasInspector overview={overview} tenantSlug={tenantSlug} courseSlug={courseSlug} />
           <MemberOverview
