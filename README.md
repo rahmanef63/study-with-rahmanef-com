@@ -106,3 +106,11 @@ full Cloud-backed app, or leave it unset to ship the static scaffold first.
 | Design | bespoke "Editorial Warmth" (Fraunces + Hanken, terracotta oklch tokens) |
 | Backend | Convex — **self-hosted** live (Cloud is the alt path) |
 | Auth | `@convex-dev/auth` — **Google OAuth only** (tanpa opsi password; lihat DECISIONS #15) |
+
+## Related projects
+
+Part of the Rahman web-OS family:
+
+- **[Rahman OS](https://shell.rahmanef.com)** — manifest-driven desktop/mobile web-OS shell. ([`shell-rahmanef-com`](https://github.com/rahmanef63/shell-rahmanef-com))
+- **[Topside](https://os.rahmanef.com)** — mobile-first web cockpit for a headless Linux VPS. ([`os-vps`](https://github.com/rahmanef63/os-vps))
+- **[Rahman Resources](https://resource.rahmanef.com)** — the slice & component library these UIs are built from. ([`resource-site`](https://github.com/rahmanef63/resource-site))
