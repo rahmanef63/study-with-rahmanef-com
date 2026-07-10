@@ -865,9 +865,10 @@ export const seedEngagement = internalMutation({
       .unique();
     if (tenant === null) throw new Error(`No tenant "${args.tenantSlug}" — run seed:bootstrap first.`);
     const tenantId = tenant._id;
-    const made = { members: 0, resources: 0, comments: 0, suggestions: 0, votes: 0, skipped: 0 };
+    const made = { members: 0, memberships: 0, resources: 0, comments: 0, suggestions: 0, votes: 0, skipped: 0 };
 
     // 1. members (idempotent by email) → author username map, seeded with owner.
+    // Each also joins the tenant as `member` so the roster/count reflects them.
     const byUsername: Record<string, Id<"users">> = { rahman: owner._id };
     for (const m of SEED_MEMBERS) {
       let u = await ctx.db.query("users").withIndex("email", (q) => q.eq("email", m.email)).unique();
@@ -877,7 +878,17 @@ export const seedEngagement = internalMutation({
         u = await ctx.db.get(uid);
         made.members++;
       }
-      if (u) byUsername[m.username] = u._id;
+      if (u) {
+        byUsername[m.username] = u._id;
+        const membership = await ctx.db
+          .query("memberships")
+          .withIndex("by_tenant_user", (q) => q.eq("tenantId", tenantId).eq("userId", u!._id))
+          .unique();
+        if (membership === null) {
+          await ctx.db.insert("memberships", { tenantId, userId: u._id, role: "member" });
+          made.memberships++;
+        }
+      }
     }
     const resolve = (username: string): Id<"users"> | null => byUsername[username] ?? null;
 
