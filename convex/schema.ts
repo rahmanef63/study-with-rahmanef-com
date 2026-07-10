@@ -168,6 +168,29 @@ export default defineSchema({
     ),
   }).index("by_tenant_status", ["tenantId", "status"]),
 
+  comments: defineTable({
+    // fase-2 (#16): diskusi per lesson, 1-level reply (root -> replies only).
+    tenantId: v.id("tenants"),
+    lessonId: v.id("lessons"),
+    userId: v.id("users"),
+    bodyMd: v.string(),
+    parentId: v.optional(v.id("comments")), // reply target; depth-1 enforced in mutation
+    deletedAt: v.optional(v.number()), // soft delete (author or instructor+)
+  })
+    .index("by_lesson", ["lessonId"])
+    .index("by_parent", ["parentId"])
+    .index("by_user", ["userId"]),
+
+  suggestionVotes: defineTable({
+    // fase-2 (#18): one vote per user per suggestion; count derived, never stored.
+    tenantId: v.id("tenants"),
+    suggestionId: v.id("suggestions"),
+    userId: v.id("users"),
+  })
+    .index("by_suggestion", ["suggestionId"])
+    .index("by_suggestion_user", ["suggestionId", "userId"])
+    .index("by_user", ["userId"]),
+
   announcements: defineTable({
     tenantId: v.id("tenants"),
     title: v.string(),

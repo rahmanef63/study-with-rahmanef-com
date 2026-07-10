@@ -1,149 +1,124 @@
-# Agent Prompts — Wave v1.1 (CURRENT) · Execution Mode & Ready-to-Paste Prompts
+# Agent Prompts — Wave v1.2 (CURRENT) · fase-2 opening
 
-> Contract: [AGENTS.md](../AGENTS.md). Claim board: [STATUS.md](STATUS.md).
-> Wave 1 (#0–#5, #11) selesai — v1 LIVE di https://study-with.rahmanef.com.
->
-> **Frontend pivot (2026-07-07 — after v1.1).** The route-based mount points in the prompts below are now HISTORICAL. The app was rebuilt into a windowed **OS desktop**: one catch-all `app/[[...slug]]/page.tsx` mounts `slices/appshell` via `slices/os-shell/`, and every surface these prompts describe as a route (`/t/[slug]/…`, `/u/[username]`, `/buka-komunitas`, `/admin/…`) now opens as a **window-app** reachable by a deep-link URL (`/komunitas/<tenant>`, `/kelas/<tenant>/<course>`, `/profil/<username>`, `/kelola/<tenant>`, `/resources/<tenant>`, `/pengumuman/<tenant>`, `/pengaturan`, `/masuk`). Convex backend UNCHANGED; the worker assignments/logic stay valid — only the mount points moved from routes → `slices/os-shell/apps/`. See AGENTS.md §0.
+> Contract: [AGENTS.md](../AGENTS.md) · Board: [STATUS.md](STATUS.md) · UI brief: [UI-UX-PRD.md](UI-UX-PRD.md)
+> Wave 1 (#0–#5, #11) & wave v1.1 (#6–#10, #14) done — LIVE: https://study-with.rahmanef.com
+> **Frontend = OS desktop shell** (pivot 2026-07-07): satu catch-all mount `slices/appshell` via `slices/os-shell/`; semua permukaan adalah window-app dengan deep-link (`/komunitas/<tenant>`, `/kelas/<tenant>/<course>`, `/profil/<username>`, `/kelola/<tenant>`, …). Convex backend tidak berubah.
 
-## EXECUTION MODE: Cowork parallel (same folder) — unchanged
+## EXECUTION MODE: Cowork parallel (same folder)
 
-All five v1.1 workers run **simultaneously** as separate Claude Cowork sessions on the **same project folder**. The absolute rules:
+1. **Zero shared-file writes.** Worker menulis HANYA di dua direktorinya: `slices/<slug>/` + `convex/features/<slug>/`. Tidak menyentuh `docs/**`, `app/**`, `package.json`, **`slices/os-shell/`**, **`slices/appshell/`**, atau slice lain (termasuk yang kamu bangun di wave lalu untuk assignment berbeda).
+2. **The board is alpha's.** Baris sudah di-pre-claim; STATUS.md read-only bagi worker; lapor via chat.
+3. **No git.** Alpha verifikasi + commit dengan kredit `Agent: <name>`; Rahman push.
+4. Proposals/blockers → final report + `// TODO(rr): ...` di call site.
+5. **Tests wajib DITULIS** (DoD §5). Menjalankan: salin folder ke sandbox `/tmp/w` (exclude node_modules), `npm install --legacy-peer-deps` (retry saat timeout), `npx vitest run` + `npx tsc --noEmit`. Gagal install → kirim tests + tandai "not executed".
+6. **Selesai = laporan terstruktur di chat**: (a) files, (b) barrel exports, (c) hasil test, (d) proposals/integration points untuk alpha, (e) TODO(rr).
+7. Pola referensi: `convex/seed.test.ts` · `convex/features/courses/test.helpers.ts` (fixture role) · `convex/features/courses/authz-order.test.ts` (dangling-id, auth-before-read).
+8. **Tulis file di FOLDER PROJECT, bukan /tmp.** /tmp hanya untuk MENJALANKAN test. VERIFIKASI file ada di folder project sebelum lapor.
+9. **Schema wave v1.2 SUDAH ditambahkan alpha**: tabel `comments` + `suggestionVotes` ada di `convex/schema.ts` + docs/DATA-MODEL.md. Implement PERSIS; deviasi = ubah DATA-MODEL via alpha DULU.
+10. **Convex module naming: camelCase untuk modul non-test di `convex/**`** (Convex melarang `-`; `*.test.ts` bebas). File frontend slice tetap kebab-case.
+11. UI copy Bahasa Indonesia; anonymous reads hanya via §6 etalase (`public*` / whitelist). Integrasi window-app/OS = urusan alpha — deliver lewat barrel.
 
-1. **Zero shared-file writes.** A worker writes ONLY inside its own two directories: `slices/<slug>/` and `convex/features/<slug>/`. Nothing else — not `docs/STATUS.md`, not `docs/**`, not app/, not package.json, not another slice (even one you built in wave 1 under a different assignment).
-2. **The board is alpha's.** Rows are pre-claimed; workers treat STATUS.md as READ-ONLY and report via chat.
-3. **Workers never run git.** The integrator (alpha) verifies, commits with `Agent: <name>` credit; Rahman pushes.
-4. **Proposals & blockers go in your final report** + `// TODO(rr): ...` markers — never into shared files.
-5. **Tests are mandatory to WRITE** (DoD §5). To RUN: copy the folder to sandbox `/tmp/w` (exclude node_modules), `npm install --legacy-peer-deps` (retry on timeout), then `npx vitest run` + `npx tsc --noEmit`. If install won't complete: ship tests + mark "not executed" — alpha executes at review.
-6. **Finish = structured final report in chat**: (a) files, (b) barrel exports, (c) test results, (d) proposals/integration points for alpha, (e) TODO(rr) list. Then stop.
-7. Reference test pattern: `convex/seed.test.ts` + `convex/features/courses/test.helpers.ts` (role fixture) + `convex/features/courses/authz-order.test.ts` (denied-path & auth-order discipline).
-8. **Author files in THE PROJECT FOLDER, never in /tmp.** /tmp is for RUNNING tests only. VERIFY your files exist in the project folder before reporting.
-9. **Schema is already deployed** — all v1.1 tables (`resources`, `suggestions`, `quizzes`, `quizAttempts`, `announcements`) exist in `convex/schema.ts` since day 1. Implement EXACTLY against docs/DATA-MODEL.md; any deviation needs a DATA-MODEL change via alpha FIRST.
-10. **UI copy Bahasa Indonesia**; anonymous reads only via the §6 etalase exception (`public*` name or declared whitelist).
+## Assignments — wave v1.2
 
-## Names & assignments — wave v1.1
+| Agent | Row | Tugas | Dirs |
+|---|---|---|---|
+| **beta** | #16 | komentar per lesson (fase-2) | `slices/comments/`, `convex/features/comments/` |
+| **gamma** | #17 | analytics instruktur per kelas | `slices/analytics/`, `convex/features/analytics/` |
+| **epsilon** | #18 | vote pada usulan | `slices/resources/`, `convex/features/resources/` |
+| **zeta** | #13 | e2e smoke Playwright | `e2e/`, `playwright.config.ts` |
+| **vps** | #19 | FINAL: deploy v1.2 + **EKSEKUSI ROTASI #12** | server runtime only |
 
-| Name | Assignment | Slice dirs |
-|---|---|---|
-| **alpha** | integrator: reviews, commits, mounts all routes (/admin, /u/[username], /t/[slug]/resources·usulan·pengumuman, quiz integration) | app/, shared surfaces |
-| **beta** | #6 request komunitas + antrian approval admin | `slices/tenants/`, `convex/features/tenants/` |
-| **epsilon** | #7 resource board + suggestion box | `slices/resources/`, `convex/features/resources/` |
-| **gamma** | #8 quiz MCQ builder + attempt + auto-grade | `slices/quiz/`, `convex/features/quiz/` |
-| **delta** | #9 profil publik /u/[username] + badge wall | `slices/profiles/`, `convex/features/profiles/` |
-| **zeta** | #10 pengumuman + Discord webhook | `slices/announcements/`, `convex/features/announcements/` |
-| **vps** | FINAL: deploy v1.1 (#14) + eksekusi rotasi secret (#12) | server runtime only |
-
-Order: kelima worker paralel → alpha review+merge semua → Rahman push → **vps terakhir** (deploy + credentials + seed verification).
+Urutan: 4 worker paralel → alpha review + integrasi window-app + commit → Rahman push → **vps finale**.
 
 ---
 
-## Prompt — beta (#6 request komunitas + approval)
+## Prompt — beta (#16 komentar per lesson)
 
 ```
-You are agent "beta", one of five Cowork sessions working IN PARALLEL on this same project folder. Isolation: write ONLY inside slices/tenants/ and convex/features/tenants/ — no other file, ever. No git. docs/STATUS.md is read-only (row #6 pre-claimed for you; verify rows #1 and #11 are done, else STOP).
+You are agent "beta", one of four parallel Cowork sessions on this same project folder. Isolation: write ONLY inside slices/comments/ and convex/features/comments/. No git. STATUS.md read-only (row #16 pre-claimed; verify #2 and #14 done, else STOP).
 
-Onboarding: CLAUDE.md → AGENTS.md (§1 read order) → mode rules atop docs/AGENT-PROMPTS.md (they override claim/git instructions elsewhere).
+Onboarding: CLAUDE.md → AGENTS.md (§1 read order) → mode rules atop docs/AGENT-PROMPTS.md (rule 9: schema `comments` already exists — implement EXACTLY per docs/DATA-MODEL.md).
 
-Your assignment — #6, v1.1 scope:
-- requestTenant mutation: requireUser first; args slug/name/description/track?/requestMessage?; slug lowercase-kebab + globally unique via by_slug (VALIDATION_FAILED on collision); inserts tenants row status "pending" with ownerId = ctx user. Anti-spam: max 1 pending request per user (check via index + take, RATE_LIMITED).
-- Platform-admin surface: listPending (requirePlatformAdmin; via by_status index), approve (requirePlatformAdmin; status → "active" + ensure owner membership, idempotent), reject (requirePlatformAdmin; status → "suspended" — schema has no "rejected" literal; keep requestMessage; document this semantic in code comment + README).
-- Approved-by-request owner must NOT be auto-instructor of anything beyond their own new tenant.
-- UI via barrel: RequestTenantForm (public, authenticated) + AdminTenantQueueView (list + approve/reject with ResponsiveDialog confirm). Alpha mounts them at /buka-komunitas and /admin/komunitas.
-- P0s: validators + authz-first everywhere; discordWebhookUrl never in any query result; auth BEFORE any protected by-ID read (pattern: convex/features/courses/access.ts).
+Assignment — #16, diskusi per lesson:
+- Copy-first: study rr `comments` slice (https://resource.rahmanef.com/agents/comments) — threaded pattern, adapter seams; ADAPT to our simpler model, don't lift wholesale.
+- Mutations: addComment (member of the lesson's tenant; auth BEFORE the lesson read — pattern courses/access.ts; bodyMd 1..2000 chars; parentId must reference a ROOT comment of the SAME lesson — depth-1 enforced, VALIDATION_FAILED otherwise), softDelete (author OR instructor+; sets deletedAt — never hard-delete).
+- Query: listByLesson (member; via by_lesson, bounded take + newest-root-first with replies nested client-side; deleted comments return a placeholder shape {deleted: true} — bodyMd NEVER leaks after deletion, asserted in a test). Join author display via profiles (shared-table read, sanctioned).
+- Anti-spam: max 10 comments per user per lesson per session-window is overkill — simple guard: reject if user has >20 comments on the lesson (bounded count via by_lesson take + filter).
+- UI via barrel: LessonComments({ lessonId }) — list + form + reply + delete (ResponsiveDialog confirm), Bahasa Indonesia, empty state ramah. Alpha integrates it into the lesson window-app.
+- P0s: validators + authz-first; auth-before-read; tenantId always from the LESSON row, never from args.
 
-Done = AGENTS.md §5 (tests: denied paths for both roles, slug collision, 1-pending rate limit, approve idempotency). Structured final report, then stop.
+Done = AGENTS.md §5 (tests: denied paths, depth-1 rejection, soft-delete placeholder shape, cross-tenant rejection). Structured final report, then stop.
 ```
 
-## Prompt — epsilon (#7 resources + suggestion box)
+## Prompt — gamma (#17 analytics instruktur)
 
 ```
-You are agent "epsilon", one of five Cowork sessions working IN PARALLEL on this same project folder. Isolation: write ONLY inside slices/resources/ and convex/features/resources/ — no other file, ever. No git. docs/STATUS.md read-only (row #7 pre-claimed; verify #1 done, else STOP).
+You are agent "gamma", one of four parallel Cowork sessions on this same project folder. Isolation: write ONLY inside slices/analytics/ and convex/features/analytics/. No git. STATUS.md read-only (row #17 pre-claimed; verify #3 and #8 done, else STOP).
 
-Onboarding: CLAUDE.md → AGENTS.md (§1 read order) → mode rules atop docs/AGENT-PROMPTS.md.
+Onboarding: CLAUDE.md → AGENTS.md (§1 read order) → mode rules atop docs/AGENT-PROMPTS.md. NO new tables — this feature is read-only aggregates over shared tables (sanctioned precedent: progress/profiles).
 
-Your assignment — #7, v1.1 scope (tables `resources` + `suggestions`, EXACTLY per docs/DATA-MODEL.md):
-- resources: submit (member; url http(s) validated; status "pending"), curate approve/reject (instructor+; reviewedBy recorded), listApproved (member), listPending (instructor+; submitter sees own pending via listMine).
-- suggestions: submit (member), setStatus open→planned/done/rejected (instructor+), listOpen (member), listMine.
-- Anti-spam (both tables): >5 pending/open items per user per tenant → RATE_LIMITED, counted via by_tenant_status index + bounded take then filter by submittedBy — no bare .collect(), no new dependency (do NOT install rr rate-limit; DATA-MODEL's simple guard is the design).
-- Copy-first: study rr `library` (https://resource.rahmanef.com/agents/library) for the board/card shapes; adapt, don't import.
-- UI via barrel: ResourceBoardView (approved grid + submit form + pending tab for instructor+) and SuggestionBoxView. Alpha mounts at /t/[slug]/resources and /t/[slug]/usulan.
-- P0s: validators + authz-first; auth BEFORE protected reads; pending items never visible to plain members other than the submitter — enforced IN THE QUERY.
+Assignment — #17, analytics per kelas untuk instructor+ (deferred from #3: "agregat instructor+"):
+- Query getCourseAnalytics (requireUser → course read → requireTenantRole(instructor) — auth-before-read): per lesson completion counts (lessonCompletions.by_course, bounded take ≤5000 + aggregate in-handler), courseCompletions count, member count of tenant (memberships.by_tenant bounded), quiz stats per module (attempts via by_quiz: attempts count, pass count → rate).
+- Query listCourseSummaries (instructor+; per tenant: course → {completions, memberCount} ringkas untuk kelola list).
+- All counts derived — never stored; document the bounded-take ceilings as consts with rationale.
+- UI via barrel: CourseAnalyticsView({ courseId }) — angka ringkas + bar sederhana per lesson (tanpa lib chart baru — pakai div/progress shadcn), Bahasa Indonesia. Alpha mounts into the kelola window-app.
+- P0s: validators; instructor+ only — a member calling any analytics fn gets NOT_AUTHORIZED (tested); no PII beyond displayName in outputs.
 
-Done = AGENTS.md §5 (tests: denied paths, rate-limit path, submitter-sees-own-pending, member-cannot-see-others-pending). Structured final report, then stop.
+Done = AGENTS.md §5 (tests: denied paths, aggregate correctness on seeded fixture, empty-course zeroes). Structured final report, then stop.
 ```
 
-## Prompt — gamma (#8 quiz)
+## Prompt — epsilon (#18 vote usulan)
 
 ```
-You are agent "gamma", one of five Cowork sessions working IN PARALLEL on this same project folder. Isolation: write ONLY inside slices/quiz/ and convex/features/quiz/ — no other file, ever (NOT slices/courses even though you built it in wave 1). No git. docs/STATUS.md read-only (row #8 pre-claimed; verify #2 done, else STOP).
+You are agent "epsilon", one of four parallel Cowork sessions on this same project folder. Isolation: write ONLY inside slices/resources/ and convex/features/resources/ (your wave-1.1 dirs). No git. STATUS.md read-only (row #18 pre-claimed; verify #7 and #14 done, else STOP).
 
-Onboarding: CLAUDE.md → AGENTS.md (§1 read order) → mode rules atop docs/AGENT-PROMPTS.md.
+Onboarding: CLAUDE.md → AGENTS.md (§1 read order) → mode rules atop docs/AGENT-PROMPTS.md (rule 9: table `suggestionVotes` already in schema — implement EXACTLY per docs/DATA-MODEL.md).
 
-Your assignment — #8, v1.1 scope (tables `quizzes` + `quizAttempts`, EXACTLY per docs/DATA-MODEL.md):
-- Builder (instructor+ on the quiz's own tenant): createQuiz (ONE quiz per module for v1 — check by_module first, VALIDATION_FAILED if exists), updateQuiz, deleteQuiz (only if no attempts). 2–6 options per question, correctIndex in range, passingScorePct 0–100 — validate in the mutation.
-- Taking (member): getQuizForTaking — MUST strip correctIndex AND explanation from every question (P0: answers never reach the client pre-submit; assert this in a test by inspecting the returned shape). submitAttempt — grades server-side, stores answers/scorePct/passed, returns score + per-question correctness + explanations AFTER submission. listMyAttempts (own attempts only, userId from ctx).
-- Draft-course quizzes invisible to plain members (mirror courses/progress guard).
-- UI via barrel: QuizBuilderView({ moduleId, courseId, tenantId }) standalone + QuizTakeView({ moduleId }) + QuizResultCard. Do NOT edit the course editor — list integration points for alpha in your report.
-- P0s: validators + authz-first; auth BEFORE protected by-ID reads (pattern: convex/features/courses/access.ts).
+Assignment — #18, voting pada usulan:
+- Mutation toggleVote({ suggestionId }): requireUser → suggestion read (auth-before-read) → requireTenantRole(member) on the suggestion's tenant; idempotent toggle via by_suggestion_user (vote ada → hapus; belum → insert). tenantId from the suggestion row.
+- Extend listOpen/listMine results with { voteCount, myVote } — count via by_suggestion bounded take (cap + document; sort by voteCount desc then newest, computed in-handler atas list bounded).
+- UI: upvote control pada SuggestionCard (angka + tombol, optimistic via hook), Bahasa Indonesia. Update barrel + metadata pair version bump.
+- P0s: validators; anon/non-member ditolak (tested); double-vote impossible (unique index path tested).
 
-Done = AGENTS.md §5 (tests: denied paths, answer-stripping shape assertion, grading correctness incl. passed boundary, one-quiz-per-module). Structured final report, then stop.
+Done = AGENTS.md §5 (tests: denied paths, toggle idempotency, count correctness, cross-tenant rejection). Structured final report, then stop.
 ```
 
-## Prompt — delta (#9 profil publik + badges)
+## Prompt — zeta (#13 e2e smoke Playwright)
 
 ```
-You are agent "delta", one of five Cowork sessions working IN PARALLEL on this same project folder. Isolation: write ONLY inside slices/profiles/ and convex/features/profiles/ — no other file, ever. No git. docs/STATUS.md read-only (row #9 pre-claimed; verify #3 and #4 done, else STOP).
+You are agent "zeta", one of four parallel Cowork sessions on this same project folder. Isolation: write ONLY inside e2e/ and playwright.config.ts (root config file — granted for this assignment ONLY). No git. STATUS.md read-only (row #13 pre-claimed; verify #14 done, else STOP). Dependency @playwright/test is ALREADY installed by alpha — do not touch package.json; propose script additions ("e2e", "e2e:staging") in your report for alpha.
 
-Onboarding: CLAUDE.md → AGENTS.md (§1 read order) → mode rules atop docs/AGENT-PROMPTS.md.
+Onboarding: CLAUDE.md → AGENTS.md (§1 read order) → mode rules atop docs/AGENT-PROMPTS.md. The frontend is an OS desktop shell — read docs/UI-UX-PRD.md + slices/os-shell/README* to learn the deep-links before writing selectors.
 
-Your assignment — #9, v1.1 scope:
-- publicGetByUsername query — ANONYMOUS via AGENTS.md §6 etalase exception (public* name): resolves profiles.by_username, returns SAFE projection only (username, displayName, bio, avatarUrl — never userId internals, never isPlatformAdmin).
-- publicListBadges query — anonymous, same exception: courseCompletions via by_user + join course titles. Reading the shared `courseCompletions`/`courses` tables directly is sanctioned (precedent: progress feature; table access ≠ code import). Badge shape: courseTitle, courseSlug, tenantSlug, earned date from _creationTime.
-- UI via barrel: PublicProfileView({ username }) + BadgeWall — shareable, mobile-first, ID copy. Alpha mounts /u/[username].
-- Settings form (wave-1) stays as-is unless a small fix is needed inside your dirs.
-- P0s: validators everywhere; the two public* queries are the ONLY anonymous surface; safe projection asserted in a test (returned object keys exactly match the contract).
+Assignment — #13, smoke suite (anon-first, auth-ready):
+- playwright.config.ts: baseURL from env E2E_BASE_URL (default http://localhost:3000), projects: chromium only (hemat), retries 1, trace on-first-retry.
+- e2e/smoke.anon.spec.ts: (1) desktop shell boots (catch-all renders, no console errors), (2) deep-link /komunitas/belajar-ai opens the community window with etalase content, (3) deep-link kelas menampilkan silabus anon, (4) /masuk shows the Google sign-in affordance, (5) /profil/rahman renders public profile + badges, (6) protected window (kelola) as anon shows login gate — NEVER a crash.
+- e2e/auth.setup.ts SKELETON: storageState pattern for a future authenticated run (document how Rahman records state once via `npx playwright codegen`; do NOT attempt real Google OAuth in CI).
+- e2e/README.md: cara jalan lokal vs staging/prod (E2E_BASE_URL=https://study-with.rahmanef.com), kebijakan data (read-only anon; never mutate prod).
+- Selectors: role/text-based (getByRole), tahan-perubahan; Bahasa Indonesia copy.
 
-Done = AGENTS.md §5 (tests: unknown username NOT_FOUND, projection-shape assertion, badges join correctness). Structured final report, then stop.
+Done: config + specs + README ada di folder project; specs runnable (jalankan lokal via /tmp recipe kalau bisa — `npx playwright install chromium` boleh di /tmp copy; kalau browser download gagal di sandbox, tandai "not executed" — alpha/Rahman jalankan lokal). Structured final report, then stop.
 ```
 
-## Prompt — zeta (#10 pengumuman + Discord)
+## Prompt — vps (#19 FINAL: deploy v1.2 + ROTASI #12 — jalankan SETELAH alpha merge & Rahman push)
 
 ```
-You are agent "zeta", one of five Cowork sessions working IN PARALLEL on this same project folder. Isolation: write ONLY inside slices/announcements/ and convex/features/announcements/ — no other file, ever. No git. docs/STATUS.md read-only (row #10 pre-claimed; verify #1 and #11 done, else STOP).
+You are agent "vps" on the production VPS, inside ~/projects/study-with-rahmanef-com. Contract: AGENTS.md §4 ops bullet (pull --ff-only only; secrets = NAMES only; destructive ops need Rahman's explicit yes; deploy-blocking mechanical hotfix exception with mandatory alpha post-review).
 
-Onboarding: CLAUDE.md → AGENTS.md (§1 read order) → mode rules atop docs/AGENT-PROMPTS.md.
+Assignments: STATUS rows #19 (deploy v1.2) and #12 (ROTATION — no more deferral; Rahman is standing by this session).
 
-Your assignment — #10, v1.1 scope (table `announcements`, EXACTLY per docs/DATA-MODEL.md):
-- create mutation (instructor+ via requireTenantRole on args.tenantId): insert with postedToDiscord=false, then ctx.scheduler.runAfter(0, internal.features.announcements.discord.postToDiscord, { announcementId }).
-- internal action postToDiscord: loads announcement + tenant, reads tenants.discordWebhookUrl INSIDE the action only (P0: the webhook URL must never be an arg, a return value, or reachable from ANY public function). POST fetch to Discord; on success patch postedToDiscord=true via an internalMutation; on failure console.error("[announcements:postToDiscord]", <no PII, no URL>) and leave the announcement intact.
-- list query (member of the tenant; by_tenant index, newest first, bounded take).
-- Copy-first: evaluate rr `notifications-center` (https://resource.rahmanef.com/agents/notifications-center) for the list UI before hand-rolling.
-- UI via barrel: AnnouncementsView (list + create form for instructor+). Alpha mounts /t/[slug]/pengumuman.
-
-Done = AGENTS.md §5 (tests: denied paths, webhook-URL-never-in-results shape assertion, create schedules the action — convex-test finishInProgressScheduledFunctions, failure leaves announcement saved). Structured final report, then stop.
+Work loop:
+1. git pull --ff-only origin main — confirm wave v1.2 commits (comments, analytics, votes, e2e) present.
+2. npx convex deploy — schema adds `comments` + `suggestionVotes` (additive, safe) + new feature functions. Regen typed api; if committed api.d.ts is stale, apply the mechanical-hotfix exception (commit fix(ops), flag for alpha).
+3. Verify Dokploy rebuild; smoke deep-links: /, /komunitas/belajar-ai, /kelas/belajar-ai/dasar-ai, /profil/rahman, /masuk (200s, no 5xx).
+4. EXECUTE #12 NOW, in order, guiding Rahman: (a) JWT keypair regen + set (sessions logged out — Rahman re-logins), (b) AUTH_GOOGLE_SECRET reset in Google Cloud Console → npx convex env set → verify login end-to-end, (c) Convex admin key + INSTANCE_SECRET rotation (needs backend restart — schedule the ~1min blip with Rahman's yes), update local CLI env; remind Rahman to delete any laptop .env.local holding the old key.
+5. Post-rotation checks: login works, seed:bootstrap idempotent OK, row counts (numbers only), one announcement→Discord test if webhook is configured.
+6. Final report: per-step status, env var NAMES touched, smoke table, proposals. No secret values, ever.
 ```
 
-## Prompt — vps (FINAL: #14 deploy v1.1 + #12 rotasi — jalankan SETELAH alpha merge semua & Rahman push)
+## Template — re-assignment (tetap)
 
 ```
-You are agent "vps" on the production VPS, inside ~/projects/study-with-rahmanef-com. Your contract: AGENTS.md §4 "Ops agent (vps)" — runtime only, `git pull --ff-only origin main` is your only git verb, secret VALUES never appear in chat/reports/files (env var NAMES only), destructive ops need Rahman's explicit yes.
-
-Assignments: docs/STATUS.md rows #14 (deploy v1.1) and #12 (secret rotation — URGENT, still open).
-
-Work loop, in order:
-1. git pull --ff-only origin main. Confirm the v1.1 commits are present.
-2. npx convex deploy (pushes new feature functions; schema unchanged since day 1) + commit-ready typed codegen note for alpha if api.d.ts drifts (deploy-blocking-hotfix exception applies).
-3. Verify Dokploy rebuilt the Next app; smoke-check deep-link URLs (post-OS-pivot — see banner atop this file): /, /komunitas/belajar-ai, /resources/belajar-ai, /pengumuman/belajar-ai, /kelas/belajar-ai/<course>, /profil/<username>, /pengaturan, /masuk, /admin/komunitas (every path 200s — the catch-all renders the OS desktop; auth-gated windows redirect to sign-in as appropriate).
-4. EXECUTE ROTATION (#12), with Rahman standing by to re-login afterwards:
-   a. JWT keypair (JWT_PRIVATE_KEY + JWKS) — regenerate, set on the Convex deployment; active sessions will be logged out.
-   b. AUTH_GOOGLE_SECRET — Rahman creates the new secret in Google Cloud Console (guide him: APIs & Services → Credentials → the OAuth client → reset secret); set it via npx convex env set; verify login end-to-end.
-   c. Convex admin key — rotate against the container (generate_admin_key flow); update your local CLI env; remind Rahman to delete the laptop .env.local that held the old key.
-5. Seed & data check: npx convex run seed:bootstrap (idempotent — confirms tenant/admin intact post-rotation). Report row counts for tenants/courses/announcements (numbers only, no content).
-6. Final report: per-step status, env var NAMES touched, route smoke table, blockers/proposals for alpha. No secret values, ever.
-```
-
-## Template — re-assignment (unchanged)
-
-```
-Agent "<name>": your previous assignment is merged. Re-read the mode rules at the top of docs/AGENT-PROMPTS.md.
-Your next assignment is row #<n> — <area>; alpha has claimed it for you (verify READ-ONLY in docs/STATUS.md, incl. its "Depends on" rows). Same contract: only your two slice directories, no git, structured final report.
+Agent "<name>": your previous assignment is merged. Re-read the mode rules atop docs/AGENT-PROMPTS.md.
+Your next assignment is row #<n> — <area>; alpha pre-claimed it (verify READ-ONLY di STATUS.md + baris "Depends on"). Kontrak sama: dua direktorimu saja, no git, laporan terstruktur.
 ```

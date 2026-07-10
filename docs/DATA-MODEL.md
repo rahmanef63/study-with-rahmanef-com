@@ -287,6 +287,29 @@ export default defineSchema({
     status: v.union(v.literal("open"), v.literal("planned"), v.literal("done"), v.literal("rejected")),
   }).index("by_tenant_status", ["tenantId", "status"]),
 
+  comments: defineTable({
+    // fase-2 (#16): diskusi per lesson, reply 1-level (root -> replies).
+    tenantId: v.id("tenants"),
+    lessonId: v.id("lessons"),
+    userId: v.id("users"),
+    bodyMd: v.string(),
+    parentId: v.optional(v.id("comments")),
+    deletedAt: v.optional(v.number()),
+  })
+    .index("by_lesson", ["lessonId"])
+    .index("by_parent", ["parentId"])
+    .index("by_user", ["userId"]),
+
+  suggestionVotes: defineTable({
+    // fase-2 (#18): satu vote per user per usulan; count DIHITUNG, tidak disimpan.
+    tenantId: v.id("tenants"),
+    suggestionId: v.id("suggestions"),
+    userId: v.id("users"),
+  })
+    .index("by_suggestion", ["suggestionId"])
+    .index("by_suggestion_user", ["suggestionId", "userId"])
+    .index("by_user", ["userId"]),
+
   announcements: defineTable({
     tenantId: v.id("tenants"),
     title: v.string(),
@@ -320,6 +343,8 @@ Kontrak P0 untuk **setiap** query/mutation publik: (1) `args` dengan validator `
 | quizAttempts | user sendiri | user sendiri; penilaian server-side |
 | resources/suggestions | approved/open: member; pending: instructor+ & pengusul | submit: member; kurasi: instructor+ |
 | announcements | member tenant | instructor+ |
+| comments (fase-2 #16) | member tenant (lesson yang bisa ia akses); deleted → placeholder | tulis: member; soft-delete: author atau instructor+ |
+| suggestionVotes (fase-2 #18) | count agregat: member tenant | toggle: user sendiri (unik via by_suggestion_user) |
 
 ## Catatan keamanan (P0)
 
@@ -336,3 +361,4 @@ Kontrak P0 untuk **setiap** query/mutation publik: (1) `args` dengan validator `
 - **Slug unik:** `tenants.slug` global (`by_slug`); `courses.slug` per tenant (`by_tenant_slug`) — cek sebelum insert, tolak `VALIDATION_FAILED`.
 - **Hapus lesson/module** hanya boleh jika belum ada completion terkait; jika sudah ada → arsipkan course, jangan hapus. Menjaga progress member tidak korup.
 - **`youtubeVideoId`** divalidasi format ID (11 char) di mutation — bukan URL penuh, mencegah embed sembarang domain.
+\n\n> **Fase-2 additions (2026-07-07, wave v1.2):** `comments` (reply 1-level; depth dijaga di mutation — parentId harus root; soft delete `deletedAt`, body diganti placeholder di query) dan `suggestionVotes` (idempotent toggle; jumlah vote = count via `by_suggestion`, tak pernah disimpan). Keduanya mengikuti seluruh P0 (validators, authz-first, auth-before-read, bounded reads).\n
