@@ -1,20 +1,16 @@
 "use client";
 // roadmap slice — the compact COURSE NAV rail. The secondary sidebar shown beside a
-// lesson sheet: same derived module→lesson path as CourseRoadmap, but slim, with the
-// current lesson highlighted so you can hop stations without leaving the lesson. Two
-// densities via the shared Silabus⇄Roadmap toggle: "silabus" = flat grouped list,
-// "roadmap" = a connected mini-trail. Self-contained (derives from courses+progress,
-// like CourseRoadmap); nav is plain #lesson/<id> anchors the Kelas window intercepts.
+// lesson sheet: a flat grouped module→lesson list with the current lesson highlighted,
+// so you can hop between lessons without leaving the sheet. Self-contained (derives
+// from courses+progress); nav is plain #lesson/<id> anchors the Kelas window intercepts.
 import { useMemo } from "react";
-import { Check, ChevronLeft, List, Lock, Play, Route } from "lucide-react";
+import { Check, ChevronLeft, Lock, Play } from "lucide-react";
 import type { Id } from "@convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
 import { useCourseOverview } from "@/features/courses";
 import { useCourseProgress, toPercent } from "@/features/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { RoadmapModule, RoadmapNodeStatus } from "../types";
-
-export type CourseNavView = "silabus" | "roadmap";
 
 // Screen-reader status label — the StatusDot icons are aria-hidden (color/shape only),
 // so this is the only status signal AT gets per row.
@@ -34,8 +30,6 @@ export type CourseNavProps = {
   overviewHref: string;
   /** The lesson currently open in the sheet — highlighted in the rail. */
   currentLessonId?: string | null;
-  view: CourseNavView;
-  onViewChange: (v: CourseNavView) => void;
 };
 
 function StatusDot({ status, current }: { status: RoadmapNodeStatus; current: boolean }) {
@@ -72,8 +66,6 @@ export function CourseNav({
   lessonHref,
   overviewHref,
   currentLessonId,
-  view,
-  onViewChange,
 }: CourseNavProps) {
   const overview = useCourseOverview(tenantId, courseSlug);
   const isMember = overview?.viewerRole != null;
@@ -136,32 +128,6 @@ export function CourseNav({
         </div>
       )}
 
-      {/* Density toggle — Silabus (flat list) ⇄ Roadmap (mini-trail) */}
-      <div className="inline-flex self-start rounded-lg border border-border p-0.5">
-        <button
-          type="button"
-          onClick={() => onViewChange("silabus")}
-          aria-pressed={view === "silabus"}
-          className={cn(
-            "inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
-            view === "silabus" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
-          )}
-        >
-          <List className="size-3.5" aria-hidden /> Silabus
-        </button>
-        <button
-          type="button"
-          onClick={() => onViewChange("roadmap")}
-          aria-pressed={view === "roadmap"}
-          className={cn(
-            "inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
-            view === "roadmap" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
-          )}
-        >
-          <Route className="size-3.5" aria-hidden /> Roadmap
-        </button>
-      </div>
-
       {/* Nav tree */}
       <nav aria-label="Daftar materi" className="flex flex-col gap-4">
         {groups.map((g, gi) => (
@@ -170,7 +136,7 @@ export function CourseNav({
               <span className="tabular-nums">{gi + 1}.</span>
               <span className="min-w-0 truncate">{g.title}</span>
             </p>
-            <ul className={cn(view === "roadmap" && "relative ml-2.5 border-l border-dashed border-border pl-3")}>
+            <ul>
               {g.lessons.map((l) => {
                 const current = l.id === currentLessonId;
                 const row = (

@@ -1,8 +1,8 @@
 {
   "$schema": "../../docs/slice.manifest.schema.json",
   "name": "roadmap",
-  "version": "0.2.0",
-  "description": "Visual learning-path presentation of a course (modules→lessons + completion status), derived client-side from the courses + progress slices — no new tables/convex, no routes. Ported from CareerPack's dependency-free skill-roadmap renderer.",
+  "version": "0.3.0",
+  "description": "CourseNav rail — the compact secondary-sidebar syllabus nav (modules→lessons + per-lesson completion) shown beside the Kelas lesson sheet, derived client-side from the courses + progress slices. No new tables/convex, no routes.",
   "category": "lms",
   "stability": "beta",
   "deps": {
@@ -26,5 +26,5 @@
     "tailwind": "4",
     "auth": "convex-auth"
   },
-  "notes": "0.2.0 (2026-07-08): (1) redrew CourseRoadmap as a game-style QUEST TRAIL — chapter 'world' bands, big circular stations on a two-tone progress spine (walked=success, ahead=muted), 'kamu di sini' beacon + legend — so it reads distinctly from the syllabus list; (2) added CourseNav, a compact secondary-sidebar rail (Silabus list ⇄ Roadmap mini-trail, current lesson highlighted) shown beside the lesson sheet in Kelas. Both remain pure derived presentations (no new convex/tables). 0.1.0 (2026-07-08): ported the roadmap VISUAL from CareerPack frontend/slices/skill-roadmap (a dependency-free flex+lucide node renderer) and REBUILT the data layer onto this app's courses/progress queries. Deliberately did NOT port convex/roadmap — the source of truth is already courses→modules→lessons + lessonCompletions. Reads the courses + progress BARRELS only (P1)."
+  "notes": "0.3.0 (2026-07-10): REMOVED the Silabus⇄Roadmap toggle + the CourseRoadmap 'quest trail' view + RoadmapNode — they were a SECOND presentation of the same modules→lessons+completion data as the Silabus overview (DRY). The slice now exports only CourseNav, slimmed to a single flat nav rail (its density toggle dropped). Import path @/features/roadmap kept for stability; a future rename to a course-nav slice is the only remaining cosmetic debt. 0.2.0/0.1.0 (2026-07-08): ported the roadmap VISUAL from CareerPack skill-roadmap and rebuilt it as a quest trail + CourseNav rail on this app's courses/progress queries (now superseded). Reads the courses + progress BARRELS only (P1)."
 }

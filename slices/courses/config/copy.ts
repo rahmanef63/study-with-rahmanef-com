@@ -16,6 +16,14 @@ export const COURSES_COPY = {
   nextLesson: "Berikutnya",
   backToCourse: "Kembali ke kelas",
   videoUnavailable: "Lesson ini belum punya video",
+  videos: "Video",
+  // "Tentang kelas ini" + biaya — derived from data already in hand (no schema/deploy)
+  costLabel: "Biaya sampai selesai",
+  costFree: "Gratis",
+  costFreeSub: "Semua materi kelas ini gratis — kamu cukup punya koneksi internet.",
+  costMore: "Selengkapnya",
+  costDetail:
+    "Study with Rahman adalah gerakan sukarela, jadi semua kelas gratis selamanya. Materi memakai YouTube dan tool yang umumnya punya paket gratis. Kalau ada lesson yang menyarankan tool berbayar, itu opsional dan selalu disebutkan alternatif gratisnya.",
   // manage surface
   manageTitle: "Kelola Kelas",
   newCourse: "Kelas baru",

@@ -1,18 +1,13 @@
 // roadmap slice — public barrel (THE contract; barrel-only cross-slice imports,
-// rr P1). No routes: it adds a "Roadmap" presentation of a course to the Kelas
-// overview (Silabus ⇄ Roadmap toggle). It owns NO data — the roadmap is DERIVED
-// client-side from courses.getOverview (module→lesson tree) + progress
-// .getCourseProgress (completion). No convex/roadmap tables (unlike the CareerPack
-// skill-roadmap this was ported from — our source of truth is modules/lessons).
+// rr P1). No routes: it provides the compact CourseNav rail for the Kelas lesson
+// sheet — a flat module→lesson nav DERIVED client-side from courses.getOverview +
+// progress.getCourseProgress (owns NO data, no convex/roadmap tables). The former
+// Silabus⇄Roadmap "quest trail" presentation was removed: it re-drew the same
+// modules→lessons+completion as the Silabus overview (DRY).
 export { roadmapFeature } from "./config";
 
-// presentational (props-driven, portable)
-export { RoadmapNode, type RoadmapNodeProps } from "./components/roadmap-node";
-
-// connected views (drop into the Kelas seams)
-export { CourseRoadmap, type CourseRoadmapProps } from "./views/course-roadmap";
 // compact secondary-sidebar rail shown beside a lesson sheet
-export { CourseNav, type CourseNavProps, type CourseNavView } from "./components/roadmap-nav";
+export { CourseNav, type CourseNavProps } from "./components/roadmap-nav";
 
 // types
-export type { RoadmapLesson, RoadmapModule, RoadmapNodeStatus } from "./types";
+export type { RoadmapModule, RoadmapNodeStatus } from "./types";

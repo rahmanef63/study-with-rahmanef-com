@@ -8,10 +8,9 @@
 // A module's quiz CTA is the exception: it spawns the "kuis" app in its own
 // window via openWindow. Runs inside an appshell window, so it fetches
 // client-side via useQuery (root layout already mounts Convex).
-import { useEffect, useState, type MouseEvent } from "react";
-import { BookOpen, Compass, GraduationCap, List, Route, Share2 } from "lucide-react";
+import { useEffect, type MouseEvent } from "react";
+import { BookOpen, ChevronRight, Compass, GraduationCap, Library, List, Share2 } from "lucide-react";
 import type { Id } from "@convex/_generated/dataModel";
-import { cn } from "@/lib/utils";
 import { Badge } from "@/components/mockup-kit";
 import { type AppProps, usePublishInspector, share } from "@/features/appshell";
 import { JoinButton, useTenantBySlug } from "@/features/tenants";
@@ -19,7 +18,7 @@ import { openApp, seg } from "./_nav";
 import { recordRecentCourse } from "../recent-courses";
 import { CourseOverviewView, LessonPlayerView, useCourseOverview } from "@/features/courses";
 import { CourseProgress, LessonCompletion, useCourseProgress } from "@/features/progress";
-import { CourseRoadmap, CourseNav } from "@/features/roadmap";
+import { CourseNav } from "@/features/roadmap";
 import { useQuizForTaking, useMyAttempts } from "@/features/quiz";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -41,6 +40,33 @@ const OVERVIEW_HREF = "#overview";
 function shareCourse(tenantSlug: string, courseSlug: string, title: string) {
   const url = `${window.location.origin}/kelas/${encodeURIComponent(tenantSlug)}/${encodeURIComponent(courseSlug)}`;
   share(`${title} — ${url}`);
+}
+
+/** "Sumber belajar" card for the Silabus — deep-links to the community resource
+ *  board (existing `resources` app) instead of re-rendering it here (DRY). One
+ *  click from the course page → all curated links/tools. */
+function SumberBelajarCard({ tenantSlug }: { tenantSlug: string }) {
+  return (
+    <button
+      type="button"
+      onClick={() => openApp("resources", "Sumber belajar", [tenantSlug])}
+      className="group flex h-full w-full items-center gap-3 rounded-[var(--radius-win)] border border-border bg-card p-4 text-left transition-colors hover:border-primary/30 hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+        <Library className="size-4" aria-hidden />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          Sumber belajar
+        </span>
+        <span className="block text-sm text-foreground">Tautan, tool &amp; referensi pilihan komunitas</span>
+      </span>
+      <ChevronRight
+        className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5"
+        aria-hidden
+      />
+    </button>
+  );
 }
 
 function KelasEmpty({ title, description }: { title: string; description: string }) {
@@ -140,6 +166,7 @@ function MemberOverview({
       lessonHref={lessonHref}
       completedLessonIds={progress?.completedLessonIds}
       progressSlot={<CourseProgress courseId={courseId} />}
+      aboveSyllabusSlot={<SumberBelajarCard tenantSlug={tenantSlug} />}
       renderModuleFooter={(m) => (
         <ModuleQuizEntry
           moduleId={m._id}
@@ -234,7 +261,6 @@ function KelasCourse({
   lessonId: Id<"lessons"> | null;
 }) {
   const overview = useCourseOverview(tenantId, courseSlug);
-  const [view, setView] = useState<"silabus" | "roadmap">("silabus");
 
   // Remember this course for Beranda's "Lanjutkan belajar" resume row. Keyed on
   // the tenant+course slug pair (bumps recency when re-opened) and only fires
@@ -268,9 +294,8 @@ function KelasCourse({
 
   // Lesson content is member-only (getLesson throws for outsiders); non-members
   // can't select a lesson anyway (locked syllabus), so gate the pane on it.
-  // Layout: the lesson is the content SHEET, with the course nav (Silabus ⇄ Roadmap)
-  // as a secondary sidebar — a sticky rail on wide windows, a collapsible disclosure
-  // on narrow ones. Both nav copies share the `view` state, so they stay in sync.
+  // Layout: the lesson is the content SHEET, with the course nav as a secondary
+  // sidebar — a sticky rail on wide windows, a collapsible disclosure on narrow ones.
   if (lessonId !== null && isMember) {
     const nav = (
       <CourseNav
@@ -279,8 +304,6 @@ function KelasCourse({
         lessonHref={lessonHref}
         overviewHref={OVERVIEW_HREF}
         currentLessonId={lessonId}
-        view={view}
-        onViewChange={setView}
       />
     );
     return (
@@ -322,32 +345,7 @@ function KelasCourse({
     <div onClickCapture={onNavCapture} className="w-full p-6 @sm:p-8">
       {/* Body share trigger — on mobile the inspector (its twin) never renders, so
           without this "Bagikan kelas" would be unreachable on the phone shells. */}
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        {/* Silabus ⇄ Roadmap — same modules/lessons, two presentations */}
-        <div className="inline-flex rounded-lg border border-border p-0.5">
-          <button
-            type="button"
-            onClick={() => setView("silabus")}
-            aria-pressed={view === "silabus"}
-            className={cn(
-              "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
-              view === "silabus" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
-            )}
-          >
-            <List className="size-4" aria-hidden /> Silabus
-          </button>
-          <button
-            type="button"
-            onClick={() => setView("roadmap")}
-            aria-pressed={view === "roadmap"}
-            className={cn(
-              "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
-              view === "roadmap" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
-            )}
-          >
-            <Route className="size-4" aria-hidden /> Roadmap
-          </button>
-        </div>
+      <div className="mb-4 flex items-center justify-end">
         <button
           type="button"
           onClick={() => shareCourse(tenantSlug, courseSlug, overview.course.title)}
@@ -357,21 +355,10 @@ function KelasCourse({
           Bagikan
         </button>
       </div>
-      {view === "roadmap" ? (
-        <>
-          {isMember && (
-            <KelasInspector overview={overview} tenantSlug={tenantSlug} courseSlug={courseSlug} />
-          )}
-          {/* Anon sees a locked map ("Gabung untuk membuka") — give them the join
-              affordance here too, else Roadmap is a dead-end vs Silabus. */}
-          {!isMember && (
-            <div className="mb-5">
-              <JoinButton tenantId={tenantId} loginHref="/masuk" />
-            </div>
-          )}
-          <CourseRoadmap tenantId={tenantId} courseSlug={courseSlug} lessonHref={lessonHref} />
-        </>
-      ) : isMember ? (
+      {/* One overview: the Silabus (course info + biaya + sumber belajar + syllabus).
+          The old Silabus⇄Roadmap toggle was dropped — Roadmap re-drew the same
+          modules→lessons+completion data (DRY). */}
+      {isMember ? (
         <>
           <KelasInspector overview={overview} tenantSlug={tenantSlug} courseSlug={courseSlug} />
           <MemberOverview
@@ -387,6 +374,7 @@ function KelasCourse({
           courseSlug={courseSlug}
           lessonHref={lessonHref}
           joinCtaSlot={<JoinButton tenantId={tenantId} loginHref="/masuk" />}
+          aboveSyllabusSlot={<SumberBelajarCard tenantSlug={tenantSlug} />}
         />
       )}
     </div>

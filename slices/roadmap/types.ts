@@ -1,5 +1,5 @@
-// roadmap slice — public types. A roadmap is a SECOND presentation of a course's
-// modules→lessons + completion (no new data): a learning path.
+// roadmap slice — public types for the CourseNav rail: a course's modules→lessons
+// + per-lesson completion status (derived, no new data).
 import type { Id } from "@convex/_generated/dataModel";
 
 export type RoadmapNodeStatus = "done" | "next" | "available" | "locked";

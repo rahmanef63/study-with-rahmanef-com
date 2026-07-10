@@ -10,12 +10,9 @@ import sliceJson from "../slice.json";
 import manifest from "../slice.manifest.json";
 
 describe("roadmap barrel type contract (compile-time, enforced by tsc)", () => {
-  test("exports the component, connected view, feature, and types", () => {
-    expectTypeOf<typeof Barrel.RoadmapNode>().toBeFunction();
-    expectTypeOf<typeof Barrel.CourseRoadmap>().toBeFunction();
+  test("exports the CourseNav rail, feature, and types", () => {
     expectTypeOf<typeof Barrel.CourseNav>().toBeFunction();
     expectTypeOf<typeof Barrel.roadmapFeature>().toMatchTypeOf<{ slug: string }>();
-    expectTypeOf<Barrel.RoadmapLesson>().toBeObject();
     expectTypeOf<Barrel.RoadmapModule>().toBeObject();
     expectTypeOf<Barrel.RoadmapNodeStatus>().toEqualTypeOf<"done" | "next" | "available" | "locked">();
   });

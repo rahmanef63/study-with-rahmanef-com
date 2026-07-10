@@ -22,6 +22,8 @@ export type CourseOverviewViewProps = {
   progressSlot?: ReactNode;
   /** Per-module slot forwarded to the syllabus (e.g. the module's quiz CTA). */
   renderModuleFooter?: (module: SyllabusModuleData) => ReactNode;
+  /** Slot between the "Tentang kelas ini" row and the syllabus (e.g. Sumber belajar). */
+  aboveSyllabusSlot?: ReactNode;
   copy?: CoursesCopyOverride;
   className?: string;
 };
@@ -34,6 +36,7 @@ export function CourseOverviewView({
   completedLessonIds,
   progressSlot,
   renderModuleFooter,
+  aboveSyllabusSlot,
   copy,
   className,
 }: CourseOverviewViewProps) {
@@ -58,6 +61,7 @@ export function CourseOverviewView({
       completedLessonIds={completedLessonIds}
       progressSlot={progressSlot}
       renderModuleFooter={renderModuleFooter}
+      aboveSyllabusSlot={aboveSyllabusSlot}
       copy={copy}
       className={className}
     />

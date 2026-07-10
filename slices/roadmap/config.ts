@@ -1,9 +1,9 @@
 // roadmap slice — feature descriptor (pattern: slices/progress/config.ts).
-// No standalone route: it fills the Kelas overview via a Silabus ⇄ Roadmap toggle.
+// No standalone route: it provides the CourseNav rail beside the Kelas lesson sheet.
 import { defineFeature } from "@/shared/features/defineFeature";
 
 export const roadmapFeature = defineFeature({
   slug: "roadmap",
-  title: "Roadmap — peta belajar per kelas",
+  title: "Nav materi — sidebar lesson per kelas",
   category: "lms",
 });
