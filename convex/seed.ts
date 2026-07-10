@@ -760,3 +760,222 @@ export const seedWorld = internalMutation({
     return { note: "world seed complete (idempotent)", ...made };
   },
 });
+
+// ── engagement seed: the flagship comes ALIVE (STATUS: "seed features lain") ──
+// Fills the flagship belajar-ai tenant with community life so no board lands
+// empty: a few starter members (users + profiles), a curated "Sumber belajar"
+// resources board (the Silabus card deep-links here), starter lesson
+// discussions, and a suggestion box with votes. Internal-only; run AFTER
+// seed:bootstrap + seed:seedContent:
+//
+//   npx convex run seed:seedEngagement '{"ownerEmail":"rahmanef63@gmail.com","tenantSlug":"belajar-ai"}'
+//
+// Idempotent: members by email, resources/suggestions by title, comments by
+// (lesson + author + body), votes by (suggestion + user). Safe to re-run.
+
+type SeedMember = { email: string; username: string; displayName: string; bio: string };
+type SeedResource = { title: string; url: string; note?: string; courseSlug?: string };
+type SeedThread = {
+  courseSlug: string;
+  root: { author: string; bodyMd: string };
+  reply?: { author: string; bodyMd: string };
+};
+type SeedSuggestion = {
+  title: string;
+  detail?: string;
+  status: "open" | "planned" | "done";
+  submittedBy: string;
+  votedBy: string[];
+};
+
+// Starter community members. Owner ("rahman") is added to the author map at
+// runtime; these three give the boards a human, non-owner voice.
+const SEED_MEMBERS: SeedMember[] = [
+  { email: "sari.seed@belajar-ai.local", username: "sari", displayName: "Sari Wulandari", bio: "Ibu rumah tangga, lagi belajar pakai AI buat bantu usaha kecil." },
+  { email: "budi.seed@belajar-ai.local", username: "budi", displayName: "Budi Santoso", bio: "Fresh grad yang lagi banting setir ke dunia digital." },
+  { email: "dewi.seed@belajar-ai.local", username: "dewi_a", displayName: "Dewi Anjani", bio: "Freelance content creator, mau kerja lebih cepat pakai AI." },
+];
+
+const SEED_RESOURCES: SeedResource[] = [
+  { title: "Claude (Anthropic)", url: "https://claude.ai", note: `Asisten AI dari Anthropic dengan paket gratis; enak buat ngobrol, menulis, dan merapikan pekerjaan sehari-hari dalam bahasa Indonesia.` },
+  { title: "ChatGPT (OpenAI)", url: "https://chatgpt.com", note: `Chatbot AI populer yang bisa dipakai gratis untuk tanya-jawab, bikin draf tulisan, sampai cari ide jualan.` },
+  { title: "Google Gemini", url: "https://gemini.google.com", note: `AI gratis dari Google yang terhubung dengan Search; cocok buat cari info dan bantuan tugas cepat.` },
+  { title: "Pengantar AI Generatif — Google (Bahasa Indonesia)", url: "https://www.coursera.org/learn/introduction-to-generative-ai---bahasa-indonesia", note: `Kelas pengantar AI dari Google, full bahasa Indonesia dan bisa diikuti gratis, pas banget buat pemula total.`, courseSlug: "dasar-ai" },
+  { title: "Elements of AI", url: "https://www.elementsofai.com/", note: `Kursus online gratis dari Universitas Helsinki yang menjelaskan apa itu AI tanpa rumus, ramah untuk yang bukan orang teknis (bahasa Inggris).`, courseSlug: "dasar-ai" },
+  { title: "3Blue1Brown — Neural Networks (YouTube)", url: "https://www.youtube.com/@3blue1brown", note: `Channel YouTube gratis dengan seri 'Neural Networks' yang menjelaskan cara AI 'berpikir' lewat animasi yang gampang dicerna.`, courseSlug: "dasar-ai" },
+  { title: "Panduan Prompt Engineering — Anthropic", url: "https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview", note: `Dokumentasi resmi Anthropic soal cara menyusun prompt yang jelas dan efektif; rujukan utama saat mendalami teknik prompting.`, courseSlug: "prompt-engineering" },
+  { title: "Tutorial Interaktif Prompt Engineering — Anthropic", url: "https://github.com/anthropics/prompt-eng-interactive-tutorial", note: `Tutorial interaktif gratis 9 bab dari Anthropic: dari struktur prompt, pakai contoh (few-shot), sampai menghindari halusinasi.`, courseSlug: "prompt-engineering" },
+  { title: "Learn Prompting", url: "https://learnprompting.org/", note: `Panduan prompt engineering gratis dan terstruktur untuk pemula, dari dasar sampai teknik lanjutan seperti chain-of-thought.`, courseSlug: "prompt-engineering" },
+];
+
+const SEED_THREADS: SeedThread[] = [
+  {
+    courseSlug: "dasar-ai",
+    root: { author: "sari", bodyMd: `Maaf nanya polos ya 🙏 Saya cuma jualan online kecil-kecilan dari rumah. Buat mulai pakai AI, apa saya harus bisa **coding** dulu? Takutnya kadung ribet duluan.` },
+    reply: { author: "rahman", bodyMd: `Sama sekali nggak perlu coding kok, Bu Sari 🙂 AI sekarang dipakainya lewat **ngobrol pakai bahasa biasa**, persis kayak chat WA. Ibu tinggal ketik apa yang diinginkan, nanti kita latihan pelan-pelan bareng.` },
+  },
+  {
+    courseSlug: "dasar-ai",
+    root: { author: "budi", bodyMd: `Aku masih bingung bedanya **AI, Machine Learning, sama LLM**. Ini tiga hal beda, atau kayak lingkaran di dalam lingkaran gitu?` },
+    reply: { author: "rahman", bodyMd: `Tebakanmu udah pas, Budi 👍 Anggap **AI** payung besarnya, **Machine Learning** salah satu cara bikin AI belajar dari data, dan **LLM** (kayak ChatGPT) jenis ML yang khusus jago olah bahasa. Jadi memang lingkaran di dalam lingkaran, nggak usah overthinking dulu ya.` },
+  },
+  {
+    courseSlug: "dasar-ai",
+    root: { author: "dewi_a", bodyMd: `Alat AI sekarang banyak banget: ChatGPT, Gemini, Claude, dll. Buat mulai belajar mending fokus satu dulu atau coba semua sekalian?` },
+    reply: { author: "budi", bodyMd: `Aku kemarin mulai dari satu tool aja, dan bener sih jadi nggak kebanyakan mikir. Pas udah lumayan lancar, nyoba yang lain malah gampang. Fokus satu dulu deh, Dewi 😄` },
+  },
+  {
+    courseSlug: "prompt-engineering",
+    root: { author: "sari", bodyMd: `Saya coba minta AI bikin caption jualan, tapi hasilnya kaku dan lebay 😅 Padahal produk saya cuma **keripik pisang** rumahan. Salah saya di mana ya?` },
+    reply: { author: "rahman", bodyMd: `Biasanya karena promptnya masih terlalu umum, Bu 🙂 Coba kasih **konteks + gaya bahasa**, misal: *"Buatkan caption singkat, santai, bahasa sehari-hari untuk keripik pisang buatan rumah, target ibu-ibu, ada ajakan beli."* Makin jelas konteksnya, makin pas hasilnya.` },
+  },
+  {
+    courseSlug: "prompt-engineering",
+    root: { author: "budi", bodyMd: `Kemarin aku tanya data ke AI, dijawab yakin banget tapi ternyata **salah/ngarang**. Ini yang namanya halusinasi ya? Cara ngindarinnya gimana?` },
+    reply: { author: "rahman", bodyMd: `Betul, itu **halusinasi** 👍 AI kadang 'pede' walau keliru. Triknya: minta dia sebutkan sumber, jangan andalkan buat angka/fakta penting tanpa dicek ulang, dan pancing dengan *"kalau nggak tahu, bilang tidak tahu"*. Kita kupas tuntas di materi ini.` },
+  },
+  {
+    courseSlug: "prompt-engineering",
+    root: { author: "dewi_a", bodyMd: `Aku pengin hasil AI konsisten sesuai **gaya tulisanku** biar nggak edit banyak tiap kali. Ada cara selain jelasin panjang lebar terus-terusan?` },
+    reply: { author: "rahman", bodyMd: `Ada, namanya **few-shot**, Dewi 🙌 Kasih 2-3 contoh tulisan gaya kamu di dalam prompt, terus minta *"tiru gaya di atas"*. AI jauh lebih nurut belajar dari contoh ketimbang dijelasin panjang. Simpan contoh favoritmu biar tinggal tempel.` },
+  },
+];
+
+const SEED_SUGGESTIONS: SeedSuggestion[] = [
+  { title: "Bikin chatbot WhatsApp sederhana pakai AI", status: "planned", submittedBy: "budi", votedBy: ["rahman", "sari", "budi", "dewi_a"], detail: `Banyak yang pengen balas chat pelanggan otomatis tanpa harus ngoding. Rahman udah masukin ke rencana kelas lanjutan setelah Prompt Engineering.` },
+  { title: "AI untuk bikin konten & caption jualan olshop", status: "open", submittedBy: "sari", votedBy: ["sari", "budi", "dewi_a"], detail: `Bantu nulis deskripsi produk dan caption promo yang menarik biar dagangan di warung sama olshop makin dilirik.` },
+  { title: "Bikin gambar produk & template feed pakai AI", status: "open", submittedBy: "dewi_a", votedBy: ["dewi_a", "sari"], detail: `Foto produk seadanya bisa jadi rapi, plus bikin template feed Instagram tanpa perlu jago desain.` },
+  { title: "Keamanan & privasi: data apa yang aman dikasih ke AI", status: "done", submittedBy: "budi", votedBy: ["rahman", "budi", "dewi_a"], detail: `Udah dibahas di sesi bonus kelas Dasar AI — mana yang boleh dan yang jangan sampai dishare ke chatbot.` },
+  { title: "AI untuk guru: bikin soal, RPP, dan materi ajar", status: "open", submittedBy: "budi", votedBy: ["rahman", "budi"], detail: `Beberapa guru di grup pengen mempersingkat waktu nyiapin bahan ngajar tiap minggu.` },
+  { title: "AI bantu catat pemasukan & stok warung", status: "open", submittedBy: "sari", votedBy: ["sari", "budi"], detail: `Rekap penjualan harian dan ingatkan stok yang mau habis lewat obrolan sederhana.` },
+  { title: "Ngobrol & tanya AI pakai suara (bahasa Indonesia)", status: "open", submittedBy: "sari", votedBy: ["sari"], detail: `Buat yang kurang nyaman ngetik, biar bisa tanya AI sambil ngerjain hal lain di rumah.` },
+];
+
+export const seedEngagement = internalMutation({
+  args: { ownerEmail: v.string(), tenantSlug: v.string() },
+  handler: async (ctx, args) => {
+    const owner = await ctx.db
+      .query("users")
+      .withIndex("email", (q) => q.eq("email", args.ownerEmail))
+      .unique();
+    if (owner === null) throw new Error(`No user with email ${args.ownerEmail} — run seed:bootstrap first.`);
+    const tenant = await ctx.db
+      .query("tenants")
+      .withIndex("by_slug", (q) => q.eq("slug", args.tenantSlug))
+      .unique();
+    if (tenant === null) throw new Error(`No tenant "${args.tenantSlug}" — run seed:bootstrap first.`);
+    const tenantId = tenant._id;
+    const made = { members: 0, resources: 0, comments: 0, suggestions: 0, votes: 0, skipped: 0 };
+
+    // 1. members (idempotent by email) → author username map, seeded with owner.
+    const byUsername: Record<string, Id<"users">> = { rahman: owner._id };
+    for (const m of SEED_MEMBERS) {
+      let u = await ctx.db.query("users").withIndex("email", (q) => q.eq("email", m.email)).unique();
+      if (u === null) {
+        const uid = await ctx.db.insert("users", { email: m.email, name: m.displayName });
+        await ctx.db.insert("profiles", { userId: uid, username: m.username, displayName: m.displayName, bio: m.bio });
+        u = await ctx.db.get(uid);
+        made.members++;
+      }
+      if (u) byUsername[m.username] = u._id;
+    }
+    const resolve = (username: string): Id<"users"> | null => byUsername[username] ?? null;
+
+    // course slug → { courseId, firstLessonId } (first lesson = module.order 0, lesson.order 0).
+    async function courseCtx(slug: string) {
+      const course = await ctx.db
+        .query("courses")
+        .withIndex("by_tenant_slug", (q) => q.eq("tenantId", tenantId).eq("slug", slug))
+        .unique();
+      if (course === null) return null;
+      const modules = await ctx.db.query("modules").withIndex("by_course", (q) => q.eq("courseId", course._id)).collect();
+      modules.sort((a, b) => a.order - b.order);
+      const first = modules[0];
+      if (!first) return { courseId: course._id, firstLessonId: null as Id<"lessons"> | null };
+      const lessons = await ctx.db.query("lessons").withIndex("by_module", (q) => q.eq("moduleId", first._id)).collect();
+      lessons.sort((a, b) => a.order - b.order);
+      return { courseId: course._id, firstLessonId: lessons[0]?._id ?? null };
+    }
+    const courseCache = new Map<string, Awaited<ReturnType<typeof courseCtx>>>();
+    const getCourse = async (slug: string) => {
+      if (!courseCache.has(slug)) courseCache.set(slug, await courseCtx(slug));
+      return courseCache.get(slug) ?? null;
+    };
+
+    // 2. resources (owner-curated, approved; idempotent by title).
+    const existingRes = await ctx.db
+      .query("resources")
+      .withIndex("by_tenant_status", (q) => q.eq("tenantId", tenantId).eq("status", "approved"))
+      .collect();
+    for (const r of SEED_RESOURCES) {
+      if (existingRes.some((x) => x.title === r.title)) { made.skipped++; continue; }
+      const cc = r.courseSlug ? await getCourse(r.courseSlug) : null;
+      await ctx.db.insert("resources", {
+        tenantId, title: r.title, url: r.url,
+        ...(r.note ? { note: r.note } : {}),
+        ...(cc?.courseId ? { courseId: cc.courseId } : {}),
+        submittedBy: owner._id, status: "approved",
+      });
+      made.resources++;
+    }
+
+    // 3. comments — starter discussion on each course's first lesson (idempotent
+    // by lesson+author+body; depth-1: reply.parentId = root).
+    for (const t of SEED_THREADS) {
+      const cc = await getCourse(t.courseSlug);
+      if (!cc?.firstLessonId) { made.skipped++; continue; }
+      const lessonId = cc.firstLessonId;
+      const rootAuthor = resolve(t.root.author);
+      if (!rootAuthor) { made.skipped++; continue; }
+      const existing = await ctx.db.query("comments").withIndex("by_lesson", (q) => q.eq("lessonId", lessonId)).collect();
+      let rootId = existing.find((c) => c.userId === rootAuthor && c.bodyMd === t.root.bodyMd)?._id ?? null;
+      if (rootId === null) {
+        rootId = await ctx.db.insert("comments", { tenantId, lessonId, userId: rootAuthor, bodyMd: t.root.bodyMd });
+        made.comments++;
+      }
+      if (t.reply) {
+        const replyAuthor = resolve(t.reply.author);
+        if (replyAuthor && !existing.some((c) => c.userId === replyAuthor && c.bodyMd === t.reply!.bodyMd)) {
+          await ctx.db.insert("comments", { tenantId, lessonId, userId: replyAuthor, bodyMd: t.reply.bodyMd, parentId: rootId });
+          made.comments++;
+        }
+      }
+    }
+
+    // 4. suggestions + votes (idempotent by title, votes by suggestion+user).
+    const existingSug = await ctx.db
+      .query("suggestions")
+      .withIndex("by_tenant_status", (q) => q.eq("tenantId", tenantId).eq("status", "open"))
+      .collect();
+    for (const s of SEED_SUGGESTIONS) {
+      const submitter = resolve(s.submittedBy);
+      if (!submitter) { made.skipped++; continue; }
+      // title may already exist under any status → scan all statuses once.
+      const all = await ctx.db.query("suggestions").withIndex("by_tenant_status", (q) => q.eq("tenantId", tenantId)).collect();
+      let sug = all.find((x) => x.title === s.title) ?? existingSug.find((x) => x.title === s.title) ?? null;
+      let sugId: Id<"suggestions">;
+      if (sug === null) {
+        sugId = await ctx.db.insert("suggestions", {
+          tenantId, title: s.title, ...(s.detail ? { detail: s.detail } : {}), submittedBy: submitter, status: s.status,
+        });
+        made.suggestions++;
+      } else {
+        sugId = sug._id;
+      }
+      for (const voter of s.votedBy) {
+        const vid = resolve(voter);
+        if (!vid) continue;
+        const has = await ctx.db
+          .query("suggestionVotes")
+          .withIndex("by_suggestion_user", (q) => q.eq("suggestionId", sugId).eq("userId", vid))
+          .unique();
+        if (has === null) {
+          await ctx.db.insert("suggestionVotes", { tenantId, suggestionId: sugId, userId: vid });
+          made.votes++;
+        }
+      }
+    }
+
+    return { note: "engagement seed complete (idempotent)", ...made };
+  },
+});
