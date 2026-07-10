@@ -1,0 +1,46 @@
+{
+  "$schema": "https://resource.rahmanef.com/slice-schema.json",
+  "slug": "analytics",
+  "version": "0.1.0",
+  "category": "lms",
+  "kind": "fullstack",
+  "title": "Analytics — agregat instruktur per kelas",
+  "description": "Instructor+ analytics for belajar-with-rahmanef.com (STATUS #17, deferred from #3 'agregat instructor+'): per-lesson completion counts, course-completion (badge) count, tenant member count, and quiz attempt/pass stats per module. READ-ONLY aggregates over shared tables — no new tables, no mutations, every number derived on read with documented bounded takes (no bare .collect(), P1). Outputs carry no user identifiers (no PII). No routes: alpha mounts CourseAnalyticsView inside the kelola window-app; useCourseSummaries feeds the kelola course list.",
+  "namespace": "@/features/analytics",
+  "convex": {
+    "tablesExport": "",
+    "schemaPath": "convex/schema.ts",
+    "rootPaths": ["convex/features/analytics"]
+  },
+  "frontend": { "slicePath": "slices/analytics", "configExport": "analyticsFeature" },
+  "deps": {
+    "npm": [],
+    "shadcn": ["card", "skeleton"],
+    "env": [],
+    "peers": ["progress"]
+  },
+  "contract": {
+    "barrel": {
+      "components": ["StatCard", "LessonCompletionBars", "QuizStatList"],
+      "views": ["CourseAnalyticsView"],
+      "hooks": ["useCourseAnalytics", "useCourseSummaries"],
+      "lib": ["analyticsErrorMessage", "extractAnalyticsError"],
+      "consumerSeams": {
+        "kelola window-app (alpha #17)": [
+          "CourseAnalyticsView ← courseId dari kelola course editor",
+          "useCourseSummaries(tenantId) ← angka {completionCount, memberCount} di daftar kelas kelola"
+        ]
+      }
+    },
+    "convexFunctions": {
+      "instructor": [
+        "features/analytics/queries:getCourseAnalytics",
+        "features/analytics/queries:listCourseSummaries"
+      ]
+    }
+  },
+  "registers": [],
+  "license": "MIT",
+  "tags": ["lms", "analytics", "instructor", "aggregates", "multi-tenant"],
+  "providers": []
+}

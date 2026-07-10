@@ -8,9 +8,10 @@
 //
 // Convex surface (not re-exported; call via api.features.resources.*):
 //   resources:submit · resources:curate · suggestions:submit ·
-//   suggestions:setStatus · queries:listApprovedResources ·
+//   suggestions:setStatus · votes:toggleVote · queries:listApprovedResources ·
 //   queries:listPendingResources · queries:listMineResources ·
 //   queries:listOpenSuggestions · queries:listMineSuggestions
+//   (both suggestion lists return { voteCount, myVote } per card since #18)
 
 // feature descriptor
 export { resourcesFeature } from "./config";
@@ -29,6 +30,7 @@ export { SuggestionCard, type SuggestionCardProps } from "./components/suggestio
 export { SuggestionList, type SuggestionListProps } from "./components/suggestion-list";
 export { SuggestionStatusActions, type SuggestionStatusActionsProps } from "./components/suggestion-status-actions";
 export { SuggestionSubmitForm, type SuggestionSubmitFormProps, type SuggestionSubmitValues } from "./components/suggestion-submit-form";
+export { SuggestionVoteButton, type SuggestionVoteButtonProps } from "./components/suggestion-vote-button";
 export { StatusBadge, type StatusBadgeProps } from "./components/status-badge";
 
 // hooks (reads + writes)
@@ -40,6 +42,7 @@ export {
   useSetSuggestionStatus,
   type SubmitSuggestionInput,
 } from "./hooks/use-suggestion-mutations";
+export { useToggleSuggestionVote } from "./hooks/use-suggestion-votes";
 
 // lib (pure — safe for server or client)
 export { resourcesErrorMessage, extractResourcesError } from "./lib/errors";
@@ -64,6 +67,7 @@ export type {
   ResourceCard as ResourceCardData,
   ResourceReviewItem,
   SuggestionCard as SuggestionCardData,
+  SuggestionCardWithVotes,
   ResourcesErrorCode,
   ResourceStatus,
   SuggestionStatus,

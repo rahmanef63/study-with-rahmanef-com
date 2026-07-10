@@ -55,6 +55,21 @@ export async function requireInstructorForSuggestion(
 }
 
 /**
+ * Member-tier authz for vote actions (#18): auth FIRST, then resolve the
+ * suggestion and require membership on the suggestion's OWN tenantId — the
+ * tenant always comes from the row, never from client args.
+ */
+export async function requireMemberForSuggestion(
+  ctx: Ctx,
+  suggestionId: Id<"suggestions">
+): Promise<{ userId: Id<"users">; suggestion: Doc<"suggestions"> }> {
+  await requireUser(ctx); // auth BEFORE read (no existence oracle)
+  const suggestion = await getSuggestionOrFail(ctx, suggestionId);
+  const { userId } = await requireTenantRole(ctx, suggestion.tenantId, "member");
+  return { userId, suggestion };
+}
+
+/**
  * Optional `courseId` on a resource must belong to the SAME tenant — prevents
  * cross-tenant linking. Reading the shared `courses` table directly is
  * sanctioned (table access ≠ code import; precedent: progress reads courses).

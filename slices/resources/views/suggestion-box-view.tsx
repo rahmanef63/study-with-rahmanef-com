@@ -14,12 +14,15 @@ import { SectionHeader, StatTile } from "@/components/mockup-kit";
 import { SuggestionList } from "../components/suggestion-list";
 import { SuggestionStatusActions } from "../components/suggestion-status-actions";
 import { SuggestionSubmitForm } from "../components/suggestion-submit-form";
+import { SuggestionVoteButton } from "../components/suggestion-vote-button";
 import { mergeResourcesCopy, type ResourcesCopyOverride } from "../config/copy";
 import { useMySuggestions, useOpenSuggestions } from "../hooks/use-suggestions";
 import {
   useSetSuggestionStatus,
   useSubmitSuggestion,
 } from "../hooks/use-suggestion-mutations";
+import { useToggleSuggestionVote } from "../hooks/use-suggestion-votes";
+import type { SuggestionCardWithVotes } from "../types";
 
 export type SuggestionBoxViewProps = {
   tenantId: Id<"tenants">;
@@ -40,6 +43,17 @@ export function SuggestionBoxView({
   const mine = useMySuggestions(tenantId);
   const { submit, isPending: submitting } = useSubmitSuggestion(copyOverride);
   const { setStatus, isPending: updating } = useSetSuggestionStatus(copyOverride);
+  const { toggle: toggleVote } = useToggleSuggestionVote(tenantId, copyOverride);
+
+  // Upvote control per card (#18) — optimistic via the hook, so no pending lock.
+  const renderVote = (s: SuggestionCardWithVotes) => (
+    <SuggestionVoteButton
+      voteCount={s.voteCount}
+      myVote={s.myVote}
+      onToggle={() => void toggleVote(s._id)}
+      copy={copy}
+    />
+  );
 
   const openCount = open?.length;
   const mineCount = mine?.length;
@@ -89,6 +103,7 @@ export function SuggestionBoxView({
             items={open}
             emptyLabel={copy.emptyOpen}
             copy={copy}
+            renderVote={renderVote}
             renderActions={
               canModerate
                 ? (s) => (
@@ -105,7 +120,12 @@ export function SuggestionBoxView({
         </TabsContent>
 
         <TabsContent value="mine" className="pt-4">
-          <SuggestionList items={mine} emptyLabel={copy.emptyMineSuggestion} copy={copy} />
+          <SuggestionList
+            items={mine}
+            emptyLabel={copy.emptyMineSuggestion}
+            copy={copy}
+            renderVote={renderVote}
+          />
         </TabsContent>
       </Tabs>
     </div>

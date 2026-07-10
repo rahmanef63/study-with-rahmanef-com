@@ -8,6 +8,7 @@ export type {
   ResourceCard,
   ResourceReviewItem,
   SuggestionCard,
+  SuggestionCardWithVotes,
 } from "@convex/features/resources/projections";
 
 /** Typed error union thrown by the resources feature. */

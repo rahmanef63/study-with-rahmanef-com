@@ -36,3 +36,12 @@ export function toSuggestionCard(s: Doc<"suggestions">) {
 export type ResourceCard = ReturnType<typeof toResourceCard>;
 export type ResourceReviewItem = ReturnType<typeof toResourceReviewItem>;
 export type SuggestionCard = ReturnType<typeof toSuggestionCard>;
+
+/**
+ * Suggestion card enriched with derived vote data (#18): voteCount is computed
+ * from `suggestionVotes` at read time (never stored); myVote is the caller's.
+ */
+export type SuggestionCardWithVotes = SuggestionCard & {
+  voteCount: number;
+  myVote: boolean;
+};

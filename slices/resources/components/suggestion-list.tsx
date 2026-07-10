@@ -10,14 +10,22 @@ import type { SuggestionCard as SuggestionCardData } from "../types";
 import { BoardEmptyState } from "./board-empty-state";
 import { SuggestionCard } from "./suggestion-card";
 
-export type SuggestionListProps = {
-  items: SuggestionCardData[] | undefined;
+export type SuggestionListProps<S extends SuggestionCardData = SuggestionCardData> = {
+  items: S[] | undefined;
   emptyLabel: string;
   copy: ResourcesCopy;
-  renderActions?: (suggestion: SuggestionCardData) => ReactNode;
+  /** Per-card upvote control (#18) — generic so vote-enriched cards type through. */
+  renderVote?: (suggestion: S) => ReactNode;
+  renderActions?: (suggestion: S) => ReactNode;
 };
 
-export function SuggestionList({ items, emptyLabel, copy, renderActions }: SuggestionListProps) {
+export function SuggestionList<S extends SuggestionCardData>({
+  items,
+  emptyLabel,
+  copy,
+  renderVote,
+  renderActions,
+}: SuggestionListProps<S>) {
   if (items === undefined) {
     return (
       <div className="grid gap-4 @sm:grid-cols-2 @3xl:grid-cols-3 @6xl:grid-cols-4">
@@ -44,6 +52,7 @@ export function SuggestionList({ items, emptyLabel, copy, renderActions }: Sugge
           key={s._id}
           suggestion={s}
           copy={copy}
+          vote={renderVote?.(s)}
           actions={renderActions?.(s)}
         />
       ))}

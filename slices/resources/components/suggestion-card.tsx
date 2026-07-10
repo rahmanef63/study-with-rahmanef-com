@@ -11,11 +11,13 @@ import { StatusBadge } from "./status-badge";
 export type SuggestionCardProps = {
   suggestion: SuggestionCardData;
   copy: ResourcesCopy;
+  /** Upvote control (#18) — injected so the card stays presentational. */
+  vote?: ReactNode;
   /** Instructor triage actions (omitted for plain members). */
   actions?: ReactNode;
 };
 
-export function SuggestionCard({ suggestion, copy, actions }: SuggestionCardProps) {
+export function SuggestionCard({ suggestion, copy, vote, actions }: SuggestionCardProps) {
   return (
     <Card className="h-full rounded-[var(--radius-win)] transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:bg-accent/30 hover:shadow-md">
       <CardHeader>
@@ -31,6 +33,7 @@ export function SuggestionCard({ suggestion, copy, actions }: SuggestionCardProp
         {suggestion.detail && (
           <p className="line-clamp-4 text-sm text-muted-foreground">{suggestion.detail}</p>
         )}
+        {vote}
         {actions}
       </CardContent>
     </Card>

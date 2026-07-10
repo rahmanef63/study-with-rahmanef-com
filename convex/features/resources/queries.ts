@@ -10,8 +10,9 @@
 import { v } from "convex/values";
 import { query } from "../../_generated/server";
 import { requireTenantRole } from "../../_shared/auth";
-import { toResourceCard, toResourceReviewItem, toSuggestionCard } from "./projections";
+import { toResourceCard, toResourceReviewItem } from "./projections";
 import { LIST_TAKE, MINE_TAKE } from "./validate";
+import { toSuggestionCardsWithVotes } from "./votes";
 
 /** Approved resources for the tenant board — MEMBER read. */
 export const listApprovedResources = query({
@@ -59,11 +60,15 @@ export const listMineResources = query({
   },
 });
 
-/** Open suggestions for the tenant board — MEMBER read. */
+/**
+ * Open suggestions for the tenant board — MEMBER read. Each card carries the
+ * derived { voteCount, myVote } (#18); the result is re-sorted voteCount desc
+ * then newest, computed in-handler over the bounded LIST_TAKE window.
+ */
 export const listOpenSuggestions = query({
   args: { tenantId: v.id("tenants") },
   handler: async (ctx, args) => {
-    await requireTenantRole(ctx, args.tenantId, "member");
+    const { userId } = await requireTenantRole(ctx, args.tenantId, "member");
     const rows = await ctx.db
       .query("suggestions")
       .withIndex("by_tenant_status", (q) =>
@@ -71,7 +76,7 @@ export const listOpenSuggestions = query({
       )
       .order("desc")
       .take(LIST_TAKE);
-    return rows.map(toSuggestionCard);
+    return toSuggestionCardsWithVotes(ctx, rows, userId);
   },
 });
 
@@ -79,6 +84,7 @@ export const listOpenSuggestions = query({
  * The caller's OWN suggestions in this tenant (any status) — userId from ctx.
  * `suggestions` has no by_submitter index (schema is fixed), so this scans the
  * tenant segment bounded via by_tenant_status then filters to the caller.
+ * Cards carry { voteCount, myVote } and sort voteCount desc then newest (#18).
  */
 export const listMineSuggestions = query({
   args: { tenantId: v.id("tenants") },
@@ -89,6 +95,10 @@ export const listMineSuggestions = query({
       .withIndex("by_tenant_status", (q) => q.eq("tenantId", args.tenantId))
       .order("desc")
       .take(MINE_TAKE);
-    return rows.filter((s) => s.submittedBy === userId).map(toSuggestionCard);
+    return toSuggestionCardsWithVotes(
+      ctx,
+      rows.filter((s) => s.submittedBy === userId),
+      userId
+    );
   },
 });

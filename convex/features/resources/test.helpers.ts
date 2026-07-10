@@ -94,3 +94,37 @@ export async function seedSuggestion(
     })
   );
 }
+
+/** Insert a vote row directly for count/read specs (#18). */
+export async function seedVote(
+  t: T,
+  fx: TenantFixture,
+  suggestionId: Id<"suggestions">,
+  userId: Id<"users">
+): Promise<Id<"suggestionVotes">> {
+  return await t.run(async (ctx) =>
+    ctx.db.insert("suggestionVotes", { tenantId: fx.tenantId, suggestionId, userId })
+  );
+}
+
+/** Second ACTIVE tenant + one member of it — for cross-tenant rejection specs (#18). */
+export async function seedOtherTenantMember(
+  t: T
+): Promise<{ otherTenantId: Id<"tenants">; otherMemberId: Id<"users"> }> {
+  return await t.run(async (ctx) => {
+    const otherMemberId = await ctx.db.insert("users", { email: "tetangga@test.id" });
+    const otherTenantId = await ctx.db.insert("tenants", {
+      slug: "komunitas-lain",
+      name: "Komunitas Lain",
+      description: "Tenant kedua untuk spec cross-tenant",
+      status: "active",
+      ownerId: otherMemberId,
+    });
+    await ctx.db.insert("memberships", {
+      tenantId: otherTenantId,
+      userId: otherMemberId,
+      role: "member",
+    });
+    return { otherTenantId, otherMemberId };
+  });
+}

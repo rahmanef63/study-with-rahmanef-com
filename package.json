@@ -13,7 +13,10 @@
     "convex:codegen": "convex dev --once",
     "build:auto": "if [ -n \"$CONVEX_DEPLOY_KEY\" ]; then node scripts/setup-auth.mjs && convex deploy --cmd 'next build'; else next build; fi",
     "smoke": "node scripts/smoke-test.mjs",
-    "test": "vitest run"
+    "test": "vitest run",
+    "e2e": "playwright test",
+    "e2e:staging": "cross-env E2E_BASE_URL=https://study-with.rahmanef.com playwright test",
+    "e2e:prod": "playwright test"
   },
   "dependencies": {
     "@auth/core": "^0.37.4",

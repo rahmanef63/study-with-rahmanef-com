@@ -21,13 +21,14 @@
 | 10 | `slices/announcements` — in-app + Discord webhook action | v1.1 | #1 | done | zeta | main | — | reviewed+mounted (/t/[slug]/pengumuman); webhook isolated in internal flow (P0 verified) |
 | 11 | ops: production deploy sehat — Convex self-hosted, OAuth Google, seed, domain | v1 | #0 | done | vps | main | d894356 | A–E verified; live: https://study-with.rahmanef.com; 2 auth defects fixed (stale AUTH_GOOGLE_SECRET, missing auth.config.ts); seed done — Rahman = platform admin + owner `belajar-ai` |
 | 12 | ops: ROTASI SECRET — Convex admin key, JWT_PRIVATE_KEY/JWKS, AUTH_GOOGLE_SECRET (terekspos di chat sesi vps) | v1 | #11 | open | vps | — | — | **URGENT** — jalankan di VPS; JWT rotate = logout sesi aktif (login ulang saja); hapus juga .env.local berisi admin key di laptop |
-| 13 | e2e smoke Playwright (anon-first, auth-ready) terhadap lokal/staging/prod | v1.2 | #14 | in-progress | zeta | — | — | pre-claimed (wave v1.2); dep @playwright/test dipasang alpha; anon smoke atas deep-link OS shell |
+| 13 | e2e smoke Playwright (anon-first, auth-ready) | v1.2 | #14 | done | zeta | main | — | 6 spec anon + auth skeleton + README; MENEMUKAN bug komunitas-app payload (test.fail annotated) + gap kelola anon gate → follow-up #20; jalankan: npm run e2e (E2E_BASE_URL utk prod) |
 | 14 | ops: deploy v1.1 + verifikasi rute + seed check | v1.1 | #6–#10 | done | vps | main | 86ca386 | HEAD 5455096 + hotfix 86ca386 (rename modul kebab→camel, Convex melarang `-`); semua rute 200; seed idempoten OK; ROTASI (#12) DITAHAN Rahman → tetap OPEN & URGENT |
 | 15 | UI/UX: PRD + design exploration (agent ui) + wave polish UI-A/B/C | v1.2 | #14 | in-progress | ui | — | — | brief: docs/UI-UX-PRD.md (alpha, 2026-07-06); P0 = wiring gaps G1–G6; agent ui = spec-first, tanpa kode di Phase A |
-| 16 | `slices/comments` — diskusi per lesson (fase-2) | v1.2 | #2, #14 | in-progress | beta | — | — | pre-claimed; schema `comments` sudah ditambah alpha; depth-1 reply, soft delete placeholder |
-| 17 | `slices/analytics` — agregat instruktur per kelas (deferred dari #3) | v1.2 | #3, #8 | in-progress | gamma | — | — | pre-claimed; read-only aggregates, tanpa tabel baru, bounded takes |
-| 18 | `resources` — vote pada usulan | v1.2 | #7, #14 | in-progress | epsilon | — | — | pre-claimed; schema `suggestionVotes` sudah ditambah alpha; toggle idempotent, count derived |
+| 16 | `slices/comments` — diskusi per lesson (fase-2) | v1.2 | #2, #14 | done | beta | main | — | reviewed: depth-1 + soft-delete placeholder (type-asserted), authz-before-read; MOUNTING ke lesson app = #20 |
+| 17 | `slices/analytics` — agregat instruktur per kelas | v1.2 | #3, #8 | done | gamma | main | — | reviewed: read-only aggregates bounded, instructor-gated; MOUNTING ke kelola app = #20 |
+| 18 | `resources` — vote pada usulan | v1.2 | #7, #14 | done | epsilon | main | — | reviewed: toggle idempotent (by_suggestion_user), counts derived, cross-tenant rejected; UI sudah terpasang di SuggestionBoxView |
 | 19 | ops: deploy v1.2 + EKSEKUSI ROTASI #12 (finale) | v1.2 | #13, #16–#18 | open | vps | — | — | jalan terakhir setelah alpha merge & Rahman push; rotasi tidak ditunda lagi |
+| 20 | alpha: integrasi wave v1.2 — mount LessonComments (lesson app) + CourseAnalyticsView (kelola app), fix komunitas-app payload (temuan zeta), kelola anon login-gate, vitest alias @/features (proposal 3 worker) | v1.2 | #16, #17 | in-progress | alpha | — | — | pass lanjutan alpha; tidak memblokir deploy #19 (backend + suite sudah utuh) |
 
 ## Proposals (shared-surface changes — integrator applies)
 

@@ -1,0 +1,33 @@
+{
+  "$schema": "../../docs/slice.manifest.schema.json",
+  "name": "analytics",
+  "version": "0.1.0",
+  "description": "Instructor+ per-course analytics: per-lesson completion counts, badge count, member count, quiz attempt/pass stats per module. Read-only derived aggregates over shared tables (no new tables, no writes); bounded takes documented in constants.ts; no PII in outputs.",
+  "category": "lms",
+  "stability": "beta",
+  "deps": {
+    "shared": ["features/defineFeature"],
+    "slices": ["progress"],
+    "convexFeatures": ["analytics"],
+    "npm": {},
+    "env": []
+  },
+  "files": {
+    "include": ["**/*"],
+    "exclude": ["__tests__/**", "*.test.ts", "*.test.tsx"]
+  },
+  "convexFiles": {
+    "include": ["**/*.ts"],
+    "exclude": ["*.test.ts", "test.helpers.ts"]
+  },
+  "permissions": ["analytics.read"],
+  "schemaTables": [],
+  "compatibility": {
+    "next": ">=15 <17",
+    "react": "^19",
+    "convex": "^1.16",
+    "tailwind": "4",
+    "auth": "convex-auth"
+  },
+  "notes": "0.1.0 (2026-07-10, agent gamma): wave v1.2 scope of STATUS row #17. Owns ZERO tables — reads the shared memberships/lessons/modules/lessonCompletions/courseCompletions/quizzes/quizAttempts tables directly (sanctioned precedent: progress/profiles shared-table reads). courseCompletions has no by_course index, so badge counts derive per CURRENT member via by_user (exact, bounded; ex-members' badges uncounted) — by_course index proposed to alpha. toPercent consumed via the progress BARREL (extract-on-second-occurrence: util shared by two slices; shared/ is integrator-only surface)."
+}

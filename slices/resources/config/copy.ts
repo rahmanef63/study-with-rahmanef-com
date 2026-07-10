@@ -41,6 +41,8 @@ export const RESOURCES_COPY = {
   emptyMineSuggestion: "Kamu belum mengirim usulan",
   submitSuggestionSuccess: "Usulan terkirim",
   statusUpdateSuccess: "Status usulan diperbarui",
+  voteAction: "Dukung usulan ini",
+  unvoteAction: "Batalkan dukungan",
   markPlanned: "Rencanakan",
   markDone: "Tandai selesai",
   markRejectedSuggestion: "Tolak",

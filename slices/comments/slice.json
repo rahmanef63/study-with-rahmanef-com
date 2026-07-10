@@ -1,0 +1,53 @@
+{
+  "$schema": "https://resource.rahmanef.com/slice-schema.json",
+  "slug": "comments",
+  "version": "0.1.0",
+  "category": "community",
+  "kind": "fullstack",
+  "title": "Comments — diskusi per lesson",
+  "description": "Per-lesson discussion (fase-2, STATUS #16) for belajar-with-rahmanef.com. Members of the lesson's tenant post comments and depth-1 replies (parentId must be a ROOT comment of the same lesson — enforced in the mutation, VALIDATION_FAILED otherwise); soft delete by the author or instructor+ sets deletedAt and reads project a placeholder — the body never leaks after deletion (P0, asserted in tests). tenantId always derives from the lesson row, never from args. Light anti-spam: per-user-per-lesson cap via the by_lesson index. Adapted from the rr `comments` slice (threaded pattern) simplified to a fixed depth-1 model on our own schema. One mounted view: LessonComments({ lessonId }).",
+  "namespace": "@/features/comments",
+  "convex": {
+    "tablesExport": "",
+    "schemaPath": "convex/schema.ts",
+    "rootPaths": ["convex/features/comments"]
+  },
+  "frontend": { "slicePath": "slices/comments", "configExport": "commentsFeature" },
+  "deps": {
+    "npm": ["convex", "sonner", "lucide-react"],
+    "shadcn": ["button", "skeleton"],
+    "env": [],
+    "peers": [{ "slug": "responsive-dialog", "reason": "delete confirm on the mandatory dialog primitive" }]
+  },
+  "contract": {
+    "barrel": {
+      "views": ["LessonComments"],
+      "components": [
+        "CommentForm",
+        "CommentItem",
+        "CommentThread",
+        "CommentsEmptyState",
+        "DeleteCommentDialog"
+      ],
+      "hooks": ["useLessonComments", "useAddComment", "useDeleteComment"],
+      "lib": ["buildThread", "formatRelativeTime", "commentsErrorMessage", "extractCommentsError"],
+      "consumerSeams": {
+        "os-shell": [
+          "lesson window-app, under the lesson content ← <LessonComments lessonId={lesson._id} />"
+        ]
+      }
+    },
+    "convexFunctions": {
+      "member": [
+        "features/comments/comments:addComment",
+        "features/comments/comments:softDelete",
+        "features/comments/queries:listByLesson"
+      ],
+      "instructor": []
+    }
+  },
+  "registers": [],
+  "license": "MIT",
+  "tags": ["community", "comments", "discussion", "lesson", "multi-tenant"],
+  "providers": []
+}

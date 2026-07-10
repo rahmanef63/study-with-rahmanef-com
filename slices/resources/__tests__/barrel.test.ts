@@ -24,6 +24,7 @@ describe("resources barrel contract", () => {
       "SuggestionList",
       "SuggestionStatusActions",
       "SuggestionSubmitForm",
+      "SuggestionVoteButton",
       "StatusBadge",
     ] as const) {
       expect(typeof barrel[name]).toBe("function");
@@ -41,6 +42,7 @@ describe("resources barrel contract", () => {
       "useMySuggestions",
       "useSubmitSuggestion",
       "useSetSuggestionStatus",
+      "useToggleSuggestionVote",
     ] as const) {
       expect(typeof barrel[name]).toBe("function");
     }
