@@ -2,17 +2,31 @@
 // OsRoot — mounts the desktop. <AppShell> owns its whole provider stack
 // (capabilities/brand/registry/responsive) + window store; it only needs the
 // app-level Convex + theme providers, which the root layout already supplies.
-// The manifest is a stable module constant, so no memoization is needed.
+import { useMemo } from "react";
 import { AppShell } from "@/features/appshell";
+import { useMyPlatformAdmin } from "@/features/tenants";
 import { shellManifest } from "./manifest";
 import { BootBeranda } from "./boot-beranda";
 import { ShellCommands } from "./shell-commands";
 import { ShellActivity } from "./shell-activity";
 
 export function OsRoot() {
+  // Hide the platform-admin app from the app registry for everyone but platform
+  // admins — this is the ONE seam covering every shell's dock/launcher/sidebar
+  // (appshell rebuilds the registry from manifest.apps, so this is reactive).
+  // Server authz + the app's own denied state remain the real guards. Keep the
+  // original manifest object identity for admins to avoid needless AppShell churn.
+  const admin = useMyPlatformAdmin();
+  const manifest = useMemo(
+    () =>
+      admin?.isPlatformAdmin === true
+        ? shellManifest
+        : { ...shellManifest, apps: shellManifest.apps.filter((a) => a.id !== "admin") },
+    [admin?.isPlatformAdmin],
+  );
   return (
     <>
-      <AppShell manifest={shellManifest} />
+      <AppShell manifest={manifest} />
       {/* Side-effect siblings (render null): register ⌘K nav commands, and watch
           the signed-in user's communities for new-announcement toasts + a badge
           on the Komunitas dock icon. */}

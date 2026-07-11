@@ -32,6 +32,7 @@ function useAccount() {
     },
     openMasuk: () => openApp("masuk", "Masuk"),
     openProfil: () => openApp("profil", "Profil"),
+    openAdmin: () => openApp("admin", "Admin"),
   };
 }
 
@@ -98,6 +99,15 @@ export function AccountMenu() {
           >
             <CircleUser className="size-4" /> Profil saya
           </Button>
+          {a.isAdmin && (
+            <Button
+              variant="ghost"
+              className="h-auto justify-start gap-2 px-2 py-1.5 text-sm font-normal"
+              onClick={a.openAdmin}
+            >
+              <ShieldCheck className="size-4" /> Admin platform
+            </Button>
+          )}
           <Button
             variant="ghost"
             className="h-auto justify-start gap-2 px-2 py-1.5 text-sm font-normal text-destructive hover:text-destructive"

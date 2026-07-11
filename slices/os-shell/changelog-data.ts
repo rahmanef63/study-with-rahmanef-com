@@ -28,6 +28,15 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-07-11",
+    title: "Panel Admin platform",
+    tags: ["Baru"],
+    points: [
+      "Panel Admin platform untuk super admin — menyetujui/menolak pengajuan komunitas dan melihat statistik pengunjung, dalam satu jendela.",
+      "Hanya muncul untuk admin platform.",
+    ],
+  },
+  {
+    date: "2026-07-11",
     title: "Tanda app terbuka di sidebar (ganti daftar Running)",
     tags: ["Tampilan"],
     points: [

@@ -6,7 +6,7 @@ import { groupApps } from "./nav-groups";
 const app = (id: string) => ({ id, title: id }) as never;
 const ALL = [
   "beranda", "komunitas", "kelas", "kuis", "resources", "pengumuman",
-  "kelola", "profil", "pengaturan", "docs", "changelog",
+  "kelola", "profil", "pengaturan", "docs", "changelog", "admin",
 ];
 
 describe("groupApps", () => {
@@ -16,7 +16,7 @@ describe("groupApps", () => {
     expect(flat.slice().sort()).toEqual(ALL.slice().sort());
     expect(new Set(flat).size).toBe(flat.length);
     expect(groups.find((g) => g.label === "Platform")?.apps.map((a) => a.id))
-      .toEqual(["docs", "changelog"]);
+      .toEqual(["docs", "changelog", "admin"]);
   });
 
   it("buckets an ungrouped app into Lainnya", () => {

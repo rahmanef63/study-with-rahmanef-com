@@ -21,6 +21,7 @@ import {
   LogIn,
   Megaphone,
   Settings,
+  ShieldCheck,
   SlidersHorizontal,
   UserRound,
   Users,
@@ -172,6 +173,19 @@ const changelog: AppDescriptor = {
   noDock: true,
 };
 
+// Platform-admin console (super admin only). Hidden from the app registry for
+// non-admins by os-root; server + app-content gate it too. See admin-app.tsx.
+const admin: AppDescriptor = {
+  id: "admin",
+  slug: "admin",
+  title: "Admin",
+  icon: ShieldCheck,
+  gradient: CHART(2),
+  load: scrollize(() => import("./apps/admin-app")),
+  defaultSize: { w: 940, h: 720 },
+  noDock: true,
+};
+
 // Dock order = array order (dock shows non-noDock: beranda · komunitas · profil ·
 // pengaturan). The rest are launcher-/context-reachable.
 export const APPS: AppDescriptor[] = [
@@ -186,6 +200,7 @@ export const APPS: AppDescriptor[] = [
   pengaturan,
   docs,
   changelog,
+  admin,
   masuk,
 ];
 

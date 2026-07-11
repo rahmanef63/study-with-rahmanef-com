@@ -10,7 +10,9 @@ export const NAV_GROUPS: { label: string; appIds: string[] }[] = [
   { label: "Belajar", appIds: ["kelas", "kuis", "resources", "pengumuman"] },
   { label: "Kelola", appIds: ["kelola"] },
   { label: "Akun", appIds: ["profil", "pengaturan"] },
-  { label: "Platform", appIds: ["docs", "changelog"] },
+  // `admin` resolves only for platform admins — os-root filters it out of the
+  // app registry for everyone else, so groupApps() simply won't find it.
+  { label: "Platform", appIds: ["docs", "changelog", "admin"] },
 ];
 
 export type NavGroup = { label: string; apps: AppDescriptor[] };
