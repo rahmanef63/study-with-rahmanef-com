@@ -5,10 +5,11 @@
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@convex/_generated/api";
 import { clientIp, publicOrigin } from "@/lib/origin";
-import geoip from "geoip-lite";
 import { createHash } from "node:crypto";
 
-export const runtime = "nodejs"; // geoip-lite reads its .dat data files via fs
+// Runs on the DEFAULT Node.js runtime (geoip-lite reads .dat files via fs;
+// node:crypto used below). Do NOT re-add `export const runtime` — Next 16
+// with cacheComponents forbids route-segment config and fails the build.
 
 const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL || process.env.CONVEX_URL || "";
 const VIEWPORTS = new Set(["mobile", "tablet", "desktop"]);
@@ -43,7 +44,19 @@ export async function POST(req: Request) {
   }
 
   const ip = clientIp(req);
-  const geo = ip && ip !== "?" ? geoip.lookup(ip) : null;
+  // geoip-lite loads its .dat data files at require time; import it lazily +
+  // defensively so a missing/unreadable data file never breaks the build (Next
+  // evaluates the module during page-data collection) or a request — geo is
+  // best-effort enrichment, not core to the pageview record.
+  let geo: { country?: string; region?: string; city?: string; ll?: [number, number] } | null = null;
+  if (ip && ip !== "?") {
+    try {
+      const geoip = (await import("geoip-lite")).default;
+      geo = geoip.lookup(ip);
+    } catch {
+      /* geoip-lite data unavailable — skip geo enrichment */
+    }
+  }
   const ipHash = ip && ip !== "?" ? createHash("sha256").update(ip).digest("hex") : undefined;
 
   if (!CONVEX_URL) return new Response(null, { status: 204 });
