@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { Fraunces, Hanken_Grotesk } from "next/font/google";
 import { ConvexClientProvider } from "@/components/convex-provider";
 import { VersionWatcher } from "@/components/version-watcher";
+import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { ThemeProviders, ThemePresetStyle } from "@/features/theme-presets";
 import { Toaster } from "@/components/ui/sonner";
 // appshell.css first so app globals.css cascades last and wins the shared
@@ -58,6 +59,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemePresetStyle preset={DEFAULT_PRESET} />
         <ThemeProviders defaultMode={DEFAULT_MODE} defaultPreset={DEFAULT_PRESET}>
           <VersionWatcher />
+          {/* Cookieless visitor beacon — fires page_view on OS window/URL change
+              (History API), gated off admin/console paths. Own Suspense: it reads
+              usePathname, which forces dynamic without a boundary under
+              cacheComponents. */}
+          <Suspense fallback={null}>
+            <AnalyticsBeacon />
+          </Suspense>
           <Suspense fallback={null}>
             <ConvexClientProvider>{children}</ConvexClientProvider>
           </Suspense>

@@ -1,0 +1,46 @@
+{
+  "$schema": "https://resource.rahmanef.com/slice-schema.json",
+  "slug": "pageviews",
+  "version": "0.1.0",
+  "category": "admin",
+  "kind": "fullstack",
+  "title": "Pageviews — cookieless visitor analytics",
+  "description": "Self-hosted, cookieless visitor analytics distilled from the models pilot. A public beacon (navigator.sendBeacon → /api/analytics, runtime=nodejs) resolves geo from the caller IP via offline geoip-lite, hashes the IP into a per-IP fixed-window rate-limit bucket key, then DISCARDS the raw IP; a bounded public `record` mutation validates + inserts into an isolated `pageviews` table (never a cookie, IP, or stable identity); a platform-admin `summary` query (requirePlatformAdmin FIRST) powers the Traffic dashboard (totals + unique sessions + top paths/referrers/countries/cities + per-day volume). SPA-aware: on the OS desktop the beacon counts each focused-window URL change as a page_view, gated off /admin, /kelola, /masuk, /api.",
+  "namespace": "@/features/pageviews",
+  "convex": {
+    "tablesExport": "pageviewTables",
+    "schemaPath": "convex/schema.ts",
+    "rootPaths": ["convex/features/pageviews"]
+  },
+  "frontend": { "slicePath": "slices/pageviews", "configExport": "pageviewsFeature" },
+  "deps": {
+    "npm": ["geoip-lite"],
+    "shadcn": ["card", "skeleton", "empty"],
+    "env": [],
+    "peers": []
+  },
+  "contract": {
+    "barrel": {
+      "components": ["StatTile", "MiniBars", "HBarList"],
+      "views": ["TrafficView"],
+      "hooks": ["useTrafficSummary"],
+      "consumerSeams": {
+        "root layout (app-global)": [
+          "components/analytics-beacon.tsx AnalyticsBeacon ← mounted in app/layout.tsx inside <Suspense>",
+          "app/api/analytics/route.ts ← the beacon POST target (geo + IP hash + Convex ingest)"
+        ],
+        "admin surface": [
+          "TrafficView ← mounted on /admin/traffic (gated by useMyPlatformAdmin)"
+        ]
+      }
+    },
+    "convexFunctions": {
+      "public": ["features/pageviews/mutations:record"],
+      "platformAdmin": ["features/pageviews/queries:summary"]
+    }
+  },
+  "registers": [],
+  "license": "MIT",
+  "tags": ["analytics", "cookieless", "privacy", "geoip", "admin", "beacon"],
+  "providers": []
+}
