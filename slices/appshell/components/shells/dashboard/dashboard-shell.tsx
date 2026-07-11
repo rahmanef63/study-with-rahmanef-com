@@ -17,11 +17,10 @@ import { useApps } from "../../../lib/registry";
 import { useWindowOrder, useFocused, useWindow } from "../../../hooks/use-shell";
 import { shellStore, openWindow, minimizeWindow, restoreWindow } from "../../../lib/store";
 import type { AppDescriptor } from "../../../lib/types";
-import { AppIcon } from "../../app-icon";
 import { WindowContent } from "../../window-content";
 import { Slot } from "../../../registry/feature-registry"; // [study-with fork] rightPanel below
-import { DashboardHome, NavItem, RunningRow, SidebarLabel } from "./dashboard-parts";
-import { usePinnedApps } from "@/features/os-shell/pins"; // [study-with fork] Favorit rail section
+import { CollapsibleGroup, DashboardHome, NavItem, RunningRow, SidebarLabel } from "./dashboard-parts";
+import { groupApps } from "@/features/os-shell/nav-groups"; // [study-with fork] SSOT sidebar groups
 import { ThemePresetSwitcher } from "@/features/theme-presets"; // [study-with fork] header theme button
 
 function DashboardShell() {
@@ -36,6 +35,19 @@ function DashboardShell() {
     () => apps.filter((a) => a.title.toLowerCase().includes(q.toLowerCase())),
     [apps, q],
   );
+  // Collapsible sidebar groups (SSOT: nav-groups). Default every group open; a
+  // filter query force-opens groups so matches stay visible.
+  const groups = useMemo(() => groupApps(filtered), [filtered]);
+  const [openGroups, setOpenGroups] = useState<Set<string>>(
+    () => new Set(groupApps(apps).map((g) => g.label)),
+  );
+  const toggleGroup = (label: string) =>
+    setOpenGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(label)) next.delete(label);
+      else next.add(label);
+      return next;
+    });
 
   // URL → view, same derivation as the mobile shell: a pathname naming an app
   // slug shows the app pane (UrlSync opens/focuses its window in the shared
@@ -76,8 +88,6 @@ function DashboardShell() {
     setHome(true);
   };
 
-  const favs = usePinnedApps(); // [study-with fork] pinned apps → Favorit section
-
   return (
     <div className="absolute inset-0 z-[10] flex bg-background">
       <aside className="flex w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
@@ -92,24 +102,6 @@ function DashboardShell() {
           <NavItem active={!pane} onClick={goHome} icon={<Home className="size-4" />} label="Home" />
         </div>
 
-        {/* [study-with fork] Favorit — pinned apps (right-click an app tile → Sematkan). */}
-        {favs.length > 0 && (
-          <>
-            <SidebarLabel>Favorit</SidebarLabel>
-            <div className="flex flex-col gap-0.5 px-2">
-              {favs.map((a) => (
-                <NavItem
-                  key={a.id}
-                  active={pane?.app === a.id}
-                  onClick={() => launch(a)}
-                  icon={<span className="size-5"><AppIcon app={a} /></span>}
-                  label={a.title}
-                />
-              ))}
-            </div>
-          </>
-        )}
-
         {order.length > 0 && (
           <>
             <SidebarLabel>Running</SidebarLabel>
@@ -121,30 +113,31 @@ function DashboardShell() {
           </>
         )}
 
-        <SidebarLabel>Apps</SidebarLabel>
-        <div className="px-2 pb-1.5">
+        <div className="px-2 pb-1.5 pt-2">
           <div className="flex items-center gap-2 rounded-md border border-sidebar-border bg-background px-2.5 py-1.5">
             <Search className="size-3.5 shrink-0 text-muted-foreground" />
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Filter apps"
+              placeholder="Cari aplikasi"
               className="w-full bg-transparent text-sm outline-none"
             />
           </div>
         </div>
-        <nav className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-auto px-2 pb-3">
-          {filtered.map((a) => (
-            <NavItem
-              key={a.id}
-              active={pane?.app === a.id}
-              onClick={() => launch(a)}
-              icon={<span className="size-5"><AppIcon app={a} /></span>}
-              label={a.title}
+        <nav className="flex min-h-0 flex-1 flex-col overflow-auto pb-3">
+          {groups.map((g) => (
+            <CollapsibleGroup
+              key={g.label}
+              label={g.label}
+              apps={g.apps}
+              activeAppId={pane?.app ?? null}
+              open={q ? true : openGroups.has(g.label)}
+              onToggle={() => toggleGroup(g.label)}
+              onLaunch={launch}
             />
           ))}
-          {filtered.length === 0 && (
-            <div className="px-2.5 py-2 text-xs text-muted-foreground">No apps</div>
+          {groups.length === 0 && (
+            <div className="px-2.5 py-2 text-xs text-muted-foreground">Tidak ada aplikasi</div>
           )}
         </nav>
 

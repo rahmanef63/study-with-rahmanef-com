@@ -12,7 +12,9 @@
 import type { AppDescriptor, Brand, ShellManifest } from "@/features/appshell";
 import { DEFAULT_FEATURES } from "@/features/appshell";
 import {
+  BookOpen,
   GraduationCap,
+  History,
   Home,
   Library,
   ListChecks,
@@ -146,6 +148,30 @@ const masuk: AppDescriptor = {
   noDock: true,
 };
 
+// Platform group (sidebar "Platform" → Docs · Changelog). Static content apps,
+// launcher-/sidebar-reached (noDock).
+const docs: AppDescriptor = {
+  id: "docs",
+  slug: "docs",
+  title: "Docs",
+  icon: BookOpen,
+  gradient: CHART(5),
+  load: scrollize(() => import("./apps/docs-app")),
+  defaultSize: { w: 820, h: 660 },
+  noDock: true,
+};
+
+const changelog: AppDescriptor = {
+  id: "changelog",
+  slug: "changelog",
+  title: "Changelog",
+  icon: History,
+  gradient: CHART(3),
+  load: scrollize(() => import("./apps/changelog-app")),
+  defaultSize: { w: 820, h: 680 },
+  noDock: true,
+};
+
 // Dock order = array order (dock shows non-noDock: beranda · komunitas · profil ·
 // pengaturan). The rest are launcher-/context-reachable.
 export const APPS: AppDescriptor[] = [
@@ -158,6 +184,8 @@ export const APPS: AppDescriptor[] = [
   kelola,
   profil,
   pengaturan,
+  docs,
+  changelog,
   masuk,
 ];
 

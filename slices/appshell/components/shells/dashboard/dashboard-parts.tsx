@@ -6,7 +6,7 @@
    in this app's tokens (mockup-kit). Stats cards read the optional useSystemStats
    capability and simply don't render without it. */
 import { useMemo, useState } from "react";
-import { X, Cpu, MemoryStick, HardDrive, Pin, PinOff } from "lucide-react";
+import { X, Cpu, MemoryStick, HardDrive, Pin, PinOff, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Hero, CommandSearch, QuickActionRow, SectionHeader, StatTile } from "@/components/mockup-kit";
 import { cn } from "@/lib/utils";
@@ -118,7 +118,7 @@ export function DashboardHome({ apps, onOpenApp }: { apps: AppDescriptor[]; onOp
 
 /* A grid of app launch tiles — shared by the Home "Aplikasi" + "Fitur lain" groups.
    Right-click a tile to pin/unpin it ([study-with fork]: pinned apps become desktop
-   icons on macOS/Windows + a Favorit rail row). */
+   icons on macOS/Windows). */
 function AppGrid({ apps, onOpenApp }: { apps: AppDescriptor[]; onOpenApp: (app: AppDescriptor) => void }) {
   const menu = useContextMenu();
   const [target, setTarget] = useState<AppDescriptor | null>(null);
@@ -143,7 +143,7 @@ function AppGrid({ apps, onOpenApp }: { apps: AppDescriptor[]; onOpenApp: (app: 
         items={
           target
             ? [{
-                label: pinned.includes(target.id) ? "Lepas dari favorit" : "Sematkan",
+                label: pinned.includes(target.id) ? "Lepas dari desktop" : "Sematkan ke desktop",
                 icon: pinned.includes(target.id) ? PinOff : Pin,
                 onClick: () => { togglePin(target.id); menu.close(); },
               }]
@@ -225,6 +225,45 @@ export function SidebarLabel({ children }: { children: React.ReactNode }) {
   return (
     <div className="px-4 pb-1.5 pt-4 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
       {children}
+    </div>
+  );
+}
+
+/* [study-with fork] A collapsible sidebar group (SSOT: os-shell/nav-groups) — the
+   "normal dashboard" grouped nav that replaced the flat, triple-listed app dump.
+   Header toggles the group; items reuse NavItem. */
+export function CollapsibleGroup({ label, apps, activeAppId, open, onToggle, onLaunch }: {
+  label: string;
+  apps: AppDescriptor[];
+  activeAppId: string | null;
+  open: boolean;
+  onToggle: () => void;
+  onLaunch: (app: AppDescriptor) => void;
+}) {
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        className="flex w-full items-center gap-1.5 px-4 pb-1 pt-4 text-[11px] font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground"
+      >
+        <ChevronRight className={cn("size-3 shrink-0 transition-transform", open && "rotate-90")} />
+        <span className="truncate">{label}</span>
+      </button>
+      {open && (
+        <div className="flex flex-col gap-0.5 px-2">
+          {apps.map((a) => (
+            <NavItem
+              key={a.id}
+              active={activeAppId === a.id}
+              onClick={() => onLaunch(a)}
+              icon={<span className="size-5"><AppIcon app={a} /></span>}
+              label={a.title}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
