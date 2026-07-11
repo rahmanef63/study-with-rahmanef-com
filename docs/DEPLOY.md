@@ -1,64 +1,65 @@
-# DEPLOY — Runbook Produksi (Dokploy + Convex Self-Hosted)
+# DEPLOY — Runbook Produksi (Dokploy + Convex Cloud)
 
-> Operator: Rahman. Mode: satu VPS Dokploy menjalankan (a) Convex self-hosted via Docker Compose dan (b) app Next.js. Sesuai stack pin `docs/rr-conventions.md`.
-> Referensi resmi: https://docs.convex.dev/self-hosting · https://labs.convex.dev/auth · https://docs.dokploy.com
+> Operator: Rahman. Mode: app Next.js di **Dokploy VPS**; backend di **Convex Cloud** (managed).
+> **Migrasi 2026-07-10:** backend pindah dari Convex self-hosted → **Convex Cloud**. Stack self-hosted lama (`api-study-with.rahmanef.com`, Docker Compose) sudah **pensiun** (container mati, 404). Runbook self-hosted lama diarsipkan di git history.
+> Referensi resmi: https://docs.convex.dev · https://labs.convex.dev/auth · https://docs.dokploy.com
 
 > **Alur deploy — 2 jalur TERPISAH (PENTING).**
 > - **Next app:** `git push origin main` → webhook Dokploy auto-build + auto-deploy. Tidak perlu trigger manual.
-> - **Convex self-hosted:** TIDAK auto-deploy saat push. Perubahan di `convex/` (schema/functions) HANYA live setelah `npx convex deploy` manual dari laptop/CI lokal (§B). Repo ini tidak punya pre-push hook Convex — `git push` saja tidak mempublish backend.
+> - **Convex Cloud:** TIDAK auto-deploy saat push. Perubahan di `convex/` (schema/functions) HANYA live setelah `npx convex deploy --yes` manual (§B). Repo ini tidak punya pre-push hook Convex — `git push` saja tidak mempublish backend.
 
 ## Arsitektur
 
 ```
-[Browser] ──HTTPS──> [Next app (Dokploy)] ──NEXT_PUBLIC_CONVEX_URL──> [Convex backend :3210]
-                                              (HTTP actions/auth :3211)
-Convex backend ── Postgres (compose yang sama) ── volume persisten
+[Browser] ──HTTPS──> [Next app (Dokploy)] ──NEXT_PUBLIC_CONVEX_URL──> [Convex Cloud: rare-toucan-552.convex.cloud]
+                                              (auth/HTTP actions/JWKS: rare-toucan-552.convex.site)
+Convex Cloud ── managed storage (tidak ada Postgres/volume yang kita urus)
 ```
 
-Frontend = windowed **OS desktop** (satu catch-all route `app/[[...slug]]`, mount `slices/appshell` via `slices/os-shell/`); tiap path jadi deep-link URL yang membuka window. Tetap satu app Next.js seperti diagram di atas — backend Convex tidak berubah. (Detail arsitektur: AGENTS.md §0.)
+Frontend = windowed **OS desktop** (satu catch-all route `app/[[...slug]]`, mount `slices/appshell` via `slices/os-shell/`); tiap path jadi deep-link URL yang membuka window. Tetap satu app Next.js seperti diagram di atas. (Detail arsitektur: AGENTS.md §0.)
 
-## A. Convex self-hosted (sekali)
+## A. Deployment Convex Cloud (sekali)
 
-1. Di Dokploy, buat project **convex-backend** → jenis Docker Compose.
-2. Pakai compose resmi dari repo get-convex/convex-backend (image `ghcr.io/get-convex/convex-backend`). Minimal yang harus diset:
-   - `INSTANCE_NAME`, `INSTANCE_SECRET` (generate acak, simpan di password manager)
-   - `CONVEX_CLOUD_ORIGIN` = `https://convex.<domain-mu>` (port 3210 di balik proxy)
-   - `CONVEX_SITE_ORIGIN` = `https://convex-site.<domain-mu>` (port 3211 — dipakai OAuth callback)
-   - Postgres + volume persisten (JANGAN pakai storage ephemeral)
-3. Map domain + TLS di Dokploy untuk kedua origin di atas.
-4. Generate admin key (script `generate_admin_key.sh` di container) → simpan sebagai `CONVEX_SELF_HOSTED_ADMIN_KEY`.
-5. ✅ Cek: `curl https://convex.<domain-mu>/version` merespons.
+Deployment prod sudah ada — **project `template-projects/study-with-rahmanef-com`, deployment prod `rare-toucan-552`**. Tidak ada infra yang kita provision (Convex Cloud managed).
+
+- Auth CLI = login Convex Rahman (`~/.convex/config.json` `accessToken`) — `npx convex deploy` auto-target deployment PROD project ini.
+- `.env.local` `CONVEX_DEPLOYMENT=dev:coordinated-finch-69` hanya memilih **project** (itu deployment DEV). Prod dituju otomatis oleh `deploy`, atau eksplisit `--prod` untuk `run`/`env`/`data`.
+- ✅ Cek: `curl https://rare-toucan-552.convex.cloud/version` merespons; JWKS di `https://rare-toucan-552.convex.site/.well-known/jwks.json`.
 
 ## B. Deploy functions + schema (tiap rilis backend)
 
-Dari laptop (atau CI lokal pre-push):
+Dari laptop (login Convex Rahman):
 
 ```bash
-export CONVEX_SELF_HOSTED_URL="https://convex.<domain-mu>"
-export CONVEX_SELF_HOSTED_ADMIN_KEY="<admin-key>"
-npx convex deploy          # push schema + functions
-npx convex codegen         # regenerate _generated bertipe penuh → commit
+npx convex deploy --yes     # push schema + functions ke PROD (typecheck dulu, abort kalau error)
+npx convex codegen          # regenerate _generated bertipe penuh → commit
 ```
 
-Catatan: `convex/_generated` di-commit (lihat .gitignore) supaya build Docker Next bisa typecheck tanpa menjalankan codegen.
+- **JANGAN** `--prod` pada `deploy` (sudah prod; flag tak ada). **JANGAN** `-v` pada `deploy` — verbose men-dump VALUE env (AUTH_GOOGLE_SECRET dll) ke stdout.
+- CI alternatif: set `CONVEX_DEPLOY_KEY` (dari dashboard Cloud) lalu `npx convex deploy` — tak butuh login interaktif.
+- `convex/_generated` di-commit (lihat .gitignore) supaya build Docker Next bisa typecheck tanpa menjalankan codegen.
 
-**Ingat:** langkah ini WAJIB dijalankan manual tiap kali `convex/` berubah — `git push` ke main hanya membangun ulang app Next, TIDAK mempublish backend Convex.
+**Ingat:** langkah ini WAJIB manual tiap kali `convex/` berubah — `git push` ke main hanya membangun ulang app Next, TIDAK mempublish backend Convex.
 
 ## C. Auth (sekali, lalu jarang disentuh)
 
-1. **Kunci JWT @convex-dev/auth** — set di deployment Convex:
-   `JWT_PRIVATE_KEY` + `JWKS` (scaffold menyediakan `scripts/setup-auth.mjs`; `npm run build:auto` menjalankannya otomatis saat `CONVEX_DEPLOY_KEY` ada — untuk self-hosted, jalankan manual sekali dan set via `npx convex env set`).
-2. `npx convex env set SITE_URL https://study-with.rahmanef.com`
+Semua env di-set pada deployment Cloud dengan `npx convex env set <NAME> <value> --prod`:
+
+1. **Kunci JWT @convex-dev/auth** — `JWT_PRIVATE_KEY` + `JWKS` (scaffold: `scripts/setup-auth.mjs`; `npm run build:auto` menjalankannya otomatis saat `CONVEX_DEPLOY_KEY` ada — atau jalankan manual sekali dan set via `npx convex env set`).
+2. `npx convex env set SITE_URL https://study-with.rahmanef.com --prod`
 3. **Google OAuth** — console.cloud.google.com → Credentials → OAuth Client (Web):
-   - Authorized redirect URI: `https://convex-site.<domain-mu>/api/auth/callback/google`
-   - Set di Convex: `npx convex env set AUTH_GOOGLE_ID ...` dan `AUTH_GOOGLE_SECRET ...`
-4. ✅ Cek: buka `/masuk` (app Masuk di OS shell) → "Masuk dengan Google" → kembali dalam keadaan login. (Route `/login` lama sudah pensiun setelah OS pivot.)
+   - Authorized redirect URI: `https://rare-toucan-552.convex.site/api/auth/callback/google`
+   - Set di Convex: `npx convex env set AUTH_GOOGLE_ID ... --prod` dan `AUTH_GOOGLE_SECRET ... --prod`
+4. ✅ Cek: buka `/masuk` → "Masuk dengan Google" → kembali dalam keadaan login.
+
+Env NAMES prod (values JANGAN pernah di-print/commit): `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `JWKS`, `JWT_PRIVATE_KEY`, `SITE_URL`.
 
 ## D. App Next.js di Dokploy (tiap push ke main)
 
 1. Dokploy project **belajar-web** → source GitHub `rahmanef63/study-with-rahmanef-com`, branch `main`, auto-deploy on push.
 2. Env build & runtime:
-   - `NEXT_PUBLIC_CONVEX_URL` = `https://convex.<domain-mu>`
+   - `NEXT_PUBLIC_CONVEX_URL` = `https://rare-toucan-552.convex.cloud`
+   - `NEXT_PUBLIC_CONVEX_SITE_URL` = `https://rare-toucan-552.convex.site`
    - `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` = acak 32-byte base64 (pin sekali)
 3. Domain `study-with.rahmanef.com` + TLS di Dokploy (live sejak 2026-07-06).
 4. ✅ Cek: OS desktop (Beranda) tampil di `/`, app Masuk jalan di `/masuk`, tidak ada error di logs.
@@ -73,17 +74,17 @@ npx convex run seed:bootstrap '{
   "tenantSlug": "belajar-ai",
   "tenantName": "Belajar AI bareng Rahman",
   "tenantDescription": "Komunitas belajar pengaplikasian AI untuk semua orang."
-}'
+}' --prod
 ```
 
-Idempoten — aman diulang. Setelah ini akunmu = platform admin + owner komunitas pertama.
+Idempoten — aman diulang. Setelah ini akunmu = platform admin + owner komunitas pertama. Seed lanjutan (dunia + engagement flagship): `seed:seedWorld`, `seed:seedEngagement` (lihat header `convex/seed.ts`).
 
 ## F. Staging & rollback
 
 - Risky change: `git push origin main:staging` → verifikasi `npm run e2e:staging` → baru main (aturan delivery rr; hanya integrator).
 - Rollback app: redeploy commit sebelumnya dari UI Dokploy.
-- Rollback schema: Convex schema bersifat additive di v1 (tidak ada migrasi destruktif); JANGAN menghapus field tanpa rencana migrasi.
+- Rollback schema: Convex schema bersifat additive di v1 (tidak ada migrasi destruktif); JANGAN menghapus field tanpa rencana migrasi. Rollback function/schema Cloud: `npx convex deploy` dari commit sebelumnya.
 
 ## Biaya berjalan
 
-VPS (sudah ada) + domain. Semua layanan lain: Rp0 (YouTube embed, Discord webhook, Google OAuth gratis).
+VPS (sudah ada) + domain + Convex Cloud (free tier). Semua layanan lain: Rp0 (YouTube embed, Discord webhook, Google OAuth gratis).

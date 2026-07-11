@@ -19,15 +19,15 @@
 | 8 | `slices/quiz` — MCQ builder + attempt + auto-grade | v1.1 | #2 | done | gamma | main | — | reviewed+mounted (builder per modul dari editor kelola); P0 stripping asserted; taking-entry di halaman member = follow-up kecil |
 | 9 | `profiles` public page + badge wall `/u/[username]` | v1.1 | #3, #4 | done | delta | main | — | reviewed+mounted (/u/[username]); silently-stale convex types/hooks repaired at review |
 | 10 | `slices/announcements` — in-app + Discord webhook action | v1.1 | #1 | done | zeta | main | — | reviewed+mounted (/t/[slug]/pengumuman); webhook isolated in internal flow (P0 verified) |
-| 11 | ops: production deploy sehat — Convex self-hosted, OAuth Google, seed, domain | v1 | #0 | done | vps | main | d894356 | A–E verified; live: https://study-with.rahmanef.com; 2 auth defects fixed (stale AUTH_GOOGLE_SECRET, missing auth.config.ts); seed done — Rahman = platform admin + owner `belajar-ai` |
-| 12 | ops: ROTASI SECRET — Convex admin key, JWT_PRIVATE_KEY/JWKS, AUTH_GOOGLE_SECRET (terekspos di chat sesi vps) | v1 | #11 | open | vps | — | — | **URGENT** — jalankan di VPS; JWT rotate = logout sesi aktif (login ulang saja); hapus juga .env.local berisi admin key di laptop |
+| 11 | ops: production deploy sehat — Convex (self-hosted→Cloud), OAuth Google, seed, domain | v1 | #0 | done | vps | main | d894356 | A–E verified; live: https://study-with.rahmanef.com; 2 auth defects fixed (stale AUTH_GOOGLE_SECRET, missing auth.config.ts); seed done — Rahman = platform admin + owner `belajar-ai`. **NOTE: backend migrated off self-hosted → Convex Cloud `rare-toucan-552` (2026-07-10); self-hosted Docker stack retired.** |
+| 12 | ops: ROTASI SECRET → kini **hanya `AUTH_GOOGLE_SECRET`** (Google Console) | v1 | #11 | open | owner | — | — | JWT_PRIVATE_KEY+JWKS ROTATED 2026-07-10; self-hosted admin key + INSTANCE_SECRET **N/A** (migrasi Cloud). Sisa = reset AUTH_GOOGLE_SECRET di Google Console → `npx convex env set … --prod` → cek /masuk. Ditahan Rahman, low-urgency. Detail: docs/reports/vps-2026-07-11.md |
 | 13 | e2e smoke Playwright (anon-first, auth-ready) | v1.2 | #14 | done | zeta | main | — | 6 spec anon + auth skeleton + README; MENEMUKAN bug komunitas-app payload (test.fail annotated) + gap kelola anon gate → follow-up #20; jalankan: npm run e2e (E2E_BASE_URL utk prod) |
-| 14 | ops: deploy v1.1 + verifikasi rute + seed check | v1.1 | #6–#10 | done | vps | main | 86ca386 | HEAD 5455096 + hotfix 86ca386 (rename modul kebab→camel, Convex melarang `-`); semua rute 200; seed idempoten OK; ROTASI (#12) DITAHAN Rahman → tetap OPEN & URGENT |
+| 14 | ops: deploy v1.1 + verifikasi rute + seed check | v1.1 | #6–#10 | done | vps | main | 86ca386 | HEAD 5455096 + hotfix 86ca386 (rename modul kebab→camel, Convex melarang `-`); semua rute 200; seed idempoten OK; ROTASI (#12) kini menyempit ke AUTH_GOOGLE_SECRET (owner) — lihat #12 |
 | 15 | UI/UX: PRD + design exploration (agent ui) + wave polish UI-A/B/C | v1.2 | #14 | in-progress | ui | — | — | brief: docs/UI-UX-PRD.md (alpha, 2026-07-06); P0 = wiring gaps G1–G6; agent ui = spec-first, tanpa kode di Phase A |
 | 16 | `slices/comments` — diskusi per lesson (fase-2) | v1.2 | #2, #14 | done | beta | main | — | reviewed: depth-1 + soft-delete placeholder (type-asserted), authz-before-read; MOUNTING ke lesson app = #20 |
 | 17 | `slices/analytics` — agregat instruktur per kelas | v1.2 | #3, #8 | done | gamma | main | — | reviewed: read-only aggregates bounded, instructor-gated; MOUNTING ke kelola app = #20 |
 | 18 | `resources` — vote pada usulan | v1.2 | #7, #14 | done | epsilon | main | — | reviewed: toggle idempotent (by_suggestion_user), counts derived, cross-tenant rejected; UI sudah terpasang di SuggestionBoxView |
-| 19 | ops: deploy v1.2 + EKSEKUSI ROTASI #12 (finale) | v1.2 | #13, #16–#18 | open | vps | — | — | jalan terakhir setelah alpha merge & Rahman push; rotasi tidak ditunda lagi |
+| 19 | ops: deploy v1.2 (+ rotation #12) | v1.2 | #13, #16–#18 | done | vps | main | 3880413 | **deploy v1.2 DONE** (regen typed _generated after prod deploy; smoke 200; backend = Convex Cloud rare-toucan-552). Rotation menyempit ke AUTH_GOOGLE_SECRET (owner) → #12. Tidak ada sisa kerja vps. |
 | 20 | alpha: integrasi wave v1.2 — mount LessonComments (lesson app) + CourseAnalyticsView (kelola app), fix komunitas-app payload (temuan zeta), kelola anon login-gate, vitest alias @/features (proposal 3 worker) | v1.2 | #16, #17 | in-progress | alpha | — | — | pass lanjutan alpha; tidak memblokir deploy #19 (backend + suite sudah utuh) |
 
 ## Proposals (shared-surface changes — integrator applies)
@@ -47,6 +47,7 @@ _none yet_
 | 2026-07-06 | vps | Secret exposure: Convex admin key + JWT_PRIVATE_KEY leaked by vps filter mistakes; AUTH_GOOGLE_SECRET pasted by Rahman in chat. | Rotation tracked as row #12 (URGENT, runs on VPS). Reminder reinforced: reports reference env var NAMES only. |
 | 2026-07-06 | vps | Convex rejects `-` in module paths — two v1.1 kebab-case modules (anti-spam.ts, request-helpers.ts) failed the entire deploy; committed api.d.ts was also stale → all v1.1 routes 404 until hotfix. vps committed 86ca386 (renames + importers + typed codegen), exceeding the then-narrow hotfix exception. | Post-hoc review alpha: diff = rename murni + 4 importer + codegen, ACCEPTED; AGENTS.md §7 gains the convex camelCase module rule (P1, prompt-enforced) and §4 exception widened to cover mechanical toolchain fixes. vps proposal CI guard (ban `-` in convex/** non-test + pre-commit codegen check) tercatat sebagai kandidat tooling. |
 | 2026-07-06 | alpha | Cowork mount staleness escalated during wave-v1.1 review: 19 worker files truncated in the Linux view, several MODIFIED tracked files silently served OLD content (no git diff), and .git/index corrupted twice — Linux-side git commits became unreliable. | Mitigation: all affected files re-materialized byte-identical from the Windows-side truth (file tools); integration commits packaged as scripts/integrate-wave-v11.sh for Rahman to run with Windows git (reads correct bytes). Follow-up: workers should keep authoring via file tools; integrator verifies via /tmp copies; consider worktree mode if this recurs. |
+| 2026-07-11 | vps | Backend MIGRATED self-hosted → Convex Cloud (`rare-toucan-552`, 2026-07-10); board rows #11/#12/#14/#19 + `docs/DEPLOY.md` + `README.md` + `AGENTS.md` §2/§4/§9 + `docs/PRD.md` still narrated the dead self-hosted stack. | **vps applied:** `docs/DEPLOY.md` reconciled to Convex Cloud; ops rows #11/#12/#14/#19 + B1 runbook truthed. **alpha to apply:** AGENTS/README/PRD self-hosted→Cloud facts (see `docs/reports/vps-2026-07-11.md` §5). Rotation #12 narrowed to `AUTH_GOOGLE_SECRET` (owner-gated). |
 
 ## OS desktop shell + enhancement plan (2026-07-07)
 
@@ -85,7 +86,7 @@ _none yet_
 | OS-7 | Real AI study-assistant (LLM httpAction; skarang `chatComingSoon` placeholder) | backend | **DEFERRED** | butuh `ANTHROPIC_API_KEY` di Convex self-hosted + manual `npx convex deploy` (owner) |
 | OS-8 | Sticky-notes widget · Quick Look · Dynamic Island | frontend | deferred | scope P3 sisa, non-blocking |
 | OS-14 | Kuis sebagai GATE (kunci modul/badge ke kelulusan) · "Lanjutkan belajar" backed Convex (P3) | mixed | deferred | P2-gate = **keputusan produk** (semantik belajar; sengaja tidak dibangun — lihat runbook B4) · P3 = butuh query baru + **Convex deploy manual** self-hosted (B3). Android notif + Windows tray → **SHIPPED (OS-16).** |
-| 12 | ROTASI SECRET (admin key · JWT_PRIVATE_KEY/JWKS · AUTH_GOOGLE_SECRET) — lihat baris #12 & drift log | ops | **OPEN / URGENT** | ditahan Rahman; jalankan di VPS |
+| 12 | ROTASI SECRET → tinggal `AUTH_GOOGLE_SECRET` (Google Console) — JWT/JWKS done, admin key N/A on Cloud | ops | **OPEN (owner)** | ditahan Rahman; reset di Google Console lalu `npx convex env set … --prod` |
 
 Capabilities seam (`manifest.capabilities`) = **4/7 wired**: appearance (next-themes) · cpu
 (null stub) · **search** (Convex course+community) · **chat** ("coming soon" placeholder).
@@ -104,8 +105,8 @@ auto-open Beranda / prune `b1a38f4` → P1 `b6479a2` → P2 + shells `510b1c0` �
 `267c293` → onboarding dosen (G1/G2) `383ff23` → P2 quiz badge `35c9d73` → widget all-shells + S/M/L `0b26ad4` → Android notif + Windows tray `dd2ff29`.
 
 Deploy: Dokploy webhook on `git push origin main` → build → deploy (owner auto-ship).
-Convex self-hosted TIDAK auto-deploy on push — perubahan `convex/` butuh manual
-`npx convex deploy`. Live: https://study-with.rahmanef.com.
+Convex Cloud (`rare-toucan-552`) TIDAK auto-deploy on push — perubahan `convex/` butuh manual
+`npx convex deploy --yes`. Live: https://study-with.rahmanef.com.
 
 ## Owner runbook — buka gerbang yang tersisa (owner-only)
 
@@ -115,7 +116,7 @@ sudah beres & `main` aman tanpa ini (placeholder/lokal yang graceful). Yang ting
 
 | # | Item | Langkah owner (urut) | Catatan |
 |---|---|---|---|
-| B1 | **Rotasi secret (#12) — URGENT** | Di VPS: regen Convex admin key · putar `JWT_PRIVATE_KEY` + JWKS · putar `AUTH_GOOGLE_SECRET` (Google console) · update `.env.local` · restart backend | Hanya **NAMA** env di sini — jangan pernah commit VALUE-nya. Kebocoran tercatat di drift log #12. |
+| B1 | **Rotasi secret (#12)** — tinggal 1 | Reset `AUTH_GOOGLE_SECRET` di Google Cloud Console → `npx convex env set AUTH_GOOGLE_SECRET <val> --prod` → cek /masuk login | JWT_PRIVATE_KEY+JWKS sudah diputar (2026-07-10); admin key/INSTANCE_SECRET **N/A** di Cloud. Hanya **NAMA** env di sini — jangan commit VALUE-nya. |
 | B2 | **AI tutor asli (OS-7)** | `npx convex env set ANTHROPIC_API_KEY <key>` (self-hosted) · tulis httpAction stream Anthropic di `convex/` · `npx convex deploy` · ganti `capabilities.ts` `useChat: chatComingSoon` → hook httpAction | Sekarang placeholder "coming soon" jalan. Blocker = key (owner) + deploy manual. |
 | B3 | **P3 "Lanjutkan belajar" backed Convex (OS-14)** | Tambah query `recentActivity` atas `lessonCompletions`/last-opened di `convex/` · `npx convex deploy` · ganti recents localStorage → query | Sekarang localStorage (per-device). Push frontend **tanpa** deploy = query 404 → jangan. |
 | B4 | **Kuis sebagai GATE (OS-14)** | Keputusan produk: lulus-kuis nge-gate modul/badge? Kalau ya → implement di `slices/progress` | Sengaja **tidak** dibangun (default = badge status saja, OS-13). Butuh arahanmu. |
