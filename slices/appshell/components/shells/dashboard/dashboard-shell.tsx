@@ -9,17 +9,18 @@
    macOS/Windows/mobile shells. */
 import { useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
-import { Home, Activity, Search } from "lucide-react";
+import { Home, Activity, Search, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { registerShell } from "../../../registry/shells";
 import { useShellConfig } from "../../../registry/shell-config";
 import { useBrand } from "../../../registry/brand";
 import { useApps } from "../../../lib/registry";
 import { useWindowOrder, useFocused, useWindow } from "../../../hooks/use-shell";
-import { shellStore, openWindow, minimizeWindow, restoreWindow } from "../../../lib/store";
+import { shellStore, openWindow, minimizeWindow, restoreWindow, closeWindow } from "../../../lib/store";
 import type { AppDescriptor } from "../../../lib/types";
 import { WindowContent } from "../../window-content";
 import { Slot } from "../../../registry/feature-registry"; // [study-with fork] rightPanel below
-import { CollapsibleGroup, DashboardHome, NavItem, RunningRow, SidebarLabel } from "./dashboard-parts";
+import { CollapsibleGroup, DashboardHome, NavItem } from "./dashboard-parts";
 import { groupApps } from "@/features/os-shell/nav-groups"; // [study-with fork] SSOT sidebar groups
 import { ThemePresetSwitcher } from "@/features/theme-presets"; // [study-with fork] header theme button
 
@@ -88,6 +89,29 @@ function DashboardShell() {
     setHome(true);
   };
 
+  // Which apps have a window open (single-instance → app id ↔ one window). Drives
+  // the macOS/Windows-style "running" dot + close ✕ on each app's sidebar row,
+  // replacing the old Running list.
+  const windowIdByApp = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const id of order) {
+      const w = shellStore.getWindow(id);
+      if (w && !m.has(w.app)) m.set(w.app, id);
+    }
+    return m;
+  }, [order]);
+  const openApps = useMemo(() => new Set(windowIdByApp.keys()), [windowIdByApp]);
+  // Click an app: resume its window if open (restores from minimized), else launch.
+  const activate = (app: AppDescriptor) => {
+    const id = windowIdByApp.get(app.id);
+    if (id) resume(id);
+    else launch(app);
+  };
+  const closeApp = (app: AppDescriptor) => {
+    const id = windowIdByApp.get(app.id);
+    if (id) closeWindow(id);
+  };
+
   return (
     <div className="absolute inset-0 z-[10] flex bg-background">
       <aside className="flex w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
@@ -101,17 +125,6 @@ function DashboardShell() {
         <div className="flex flex-col gap-0.5 px-2">
           <NavItem active={!pane} onClick={goHome} icon={<Home className="size-4" />} label="Home" />
         </div>
-
-        {order.length > 0 && (
-          <>
-            <SidebarLabel>Running</SidebarLabel>
-            <div className="flex flex-col gap-0.5 px-2">
-              {order.map((id) => (
-                <RunningRow key={id} id={id} active={pane?.id === id} onPick={() => resume(id)} />
-              ))}
-            </div>
-          </>
-        )}
 
         <div className="px-2 pb-1.5 pt-2">
           <div className="flex items-center gap-2 rounded-md border border-sidebar-border bg-background px-2.5 py-1.5">
@@ -131,9 +144,11 @@ function DashboardShell() {
               label={g.label}
               apps={g.apps}
               activeAppId={pane?.app ?? null}
+              openApps={openApps}
               open={q ? true : openGroups.has(g.label)}
               onToggle={() => toggleGroup(g.label)}
-              onLaunch={launch}
+              onActivate={activate}
+              onClose={closeApp}
             />
           ))}
           {groups.length === 0 && (
@@ -156,6 +171,18 @@ function DashboardShell() {
             <>
               <span className="text-muted-foreground/50">/</span>
               <span className="font-medium">{pane.title}</span>
+              {/* Close the shown window — the single-pane shell has no titlebar, so
+                  this is the general close path (covers apps with no sidebar row, e.g. masuk). */}
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label={`Tutup ${pane.title}`}
+                onClick={() => closeWindow(pane.id)}
+                className="size-6 shrink-0 rounded text-muted-foreground hover:text-foreground"
+              >
+                <X className="size-3.5" />
+              </Button>
             </>
           )}
           {/* [study-with fork] quick theme + preset control in the header */}

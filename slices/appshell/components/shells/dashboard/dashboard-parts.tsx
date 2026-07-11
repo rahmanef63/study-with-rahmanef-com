@@ -10,9 +10,6 @@ import { X, Cpu, MemoryStick, HardDrive, Pin, PinOff, ChevronRight } from "lucid
 import { Button } from "@/components/ui/button";
 import { Hero, CommandSearch, QuickActionRow, SectionHeader, StatTile } from "@/components/mockup-kit";
 import { cn } from "@/lib/utils";
-import { useApps } from "../../../lib/registry";
-import { useWindow } from "../../../hooks/use-shell";
-import { closeWindow } from "../../../lib/store";
 import { useSystemStats } from "../../../registry/capabilities";
 import type { AppDescriptor } from "../../../lib/types";
 import { AppIcon } from "../../app-icon";
@@ -155,38 +152,6 @@ function AppGrid({ apps, onOpenApp }: { apps: AppDescriptor[]; onOpenApp: (app: 
   );
 }
 
-/* A sidebar row for an OPEN window: click resumes (restore + focus), the ✕
-   closes it in the shared store — exactly the taskbar/dock affordances. */
-export function RunningRow({ id, active, onPick }: { id: string; active: boolean; onPick: () => void }) {
-  const win = useWindow(id);
-  const apps = useApps();
-  if (!win) return null;
-  const app = apps.find((a) => a.id === win.app);
-  return (
-    <div className={cn("group flex items-center rounded-md", active ? "bg-primary/15" : "hover:bg-sidebar-accent")}>
-      <Button
-        type="button"
-        variant="ghost"
-        onClick={onPick}
-        className={cn(
-          "h-auto min-w-0 flex-1 justify-start gap-2.5 px-2.5 py-2 text-sm font-normal hover:bg-transparent",
-          active ? "font-semibold text-primary" : "text-sidebar-foreground hover:text-foreground",
-        )}
-      >
-        {app && <span className="size-5 shrink-0"><AppIcon app={app} /></span>}
-        <span className="truncate">{win.title}</span>
-      </Button>
-      <Button type="button" variant="ghost" size="icon"
-        aria-label={`Close ${win.title}`}
-        onClick={() => closeWindow(id)}
-        className="mr-1 size-6 shrink-0 rounded text-muted-foreground opacity-0 hover:text-foreground focus-visible:opacity-100 group-hover:opacity-100 pointer-coarse:opacity-100"
-      >
-        <X className="size-3.5" />
-      </Button>
-    </div>
-  );
-}
-
 export function NavItem({ active, onClick, icon, label, inline }: {
   active: boolean;
   onClick: () => void;
@@ -221,24 +186,20 @@ export function NavItem({ active, onClick, icon, label, inline }: {
   );
 }
 
-export function SidebarLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="px-4 pb-1.5 pt-4 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-      {children}
-    </div>
-  );
-}
-
 /* [study-with fork] A collapsible sidebar group (SSOT: os-shell/nav-groups) — the
    "normal dashboard" grouped nav that replaced the flat, triple-listed app dump.
-   Header toggles the group; items reuse NavItem. */
-export function CollapsibleGroup({ label, apps, activeAppId, open, onToggle, onLaunch }: {
+   Header toggles the group; each app row shows a macOS/Windows-style "running" dot
+   when its window is open (→ close ✕ on hover/touch), replacing the Running list. */
+export function CollapsibleGroup({ label, apps, activeAppId, openApps, open, onToggle, onActivate, onClose }: {
   label: string;
   apps: AppDescriptor[];
   activeAppId: string | null;
+  /** App ids that currently have a window open (drives the running dot). */
+  openApps: Set<string>;
   open: boolean;
   onToggle: () => void;
-  onLaunch: (app: AppDescriptor) => void;
+  onActivate: (app: AppDescriptor) => void;
+  onClose: (app: AppDescriptor) => void;
 }) {
   return (
     <div>
@@ -254,15 +215,63 @@ export function CollapsibleGroup({ label, apps, activeAppId, open, onToggle, onL
       {open && (
         <div className="flex flex-col gap-0.5 px-2">
           {apps.map((a) => (
-            <NavItem
+            <GroupAppRow
               key={a.id}
+              app={a}
               active={activeAppId === a.id}
-              onClick={() => onLaunch(a)}
-              icon={<span className="size-5"><AppIcon app={a} /></span>}
-              label={a.title}
+              running={openApps.has(a.id)}
+              onActivate={() => onActivate(a)}
+              onClose={() => onClose(a)}
             />
           ))}
         </div>
+      )}
+    </div>
+  );
+}
+
+/* One app row: click activates (launch, or resume if already open). When its
+   window is open it shows a "running" dot (macOS/Windows) that becomes a close ✕
+   on hover/touch — the only close affordance in the single-pane Dashboard shell. */
+function GroupAppRow({ app, active, running, onActivate, onClose }: {
+  app: AppDescriptor;
+  active: boolean;
+  running: boolean;
+  onActivate: () => void;
+  onClose: () => void;
+}) {
+  return (
+    <div className={cn("group/row flex items-center rounded-md", active ? "bg-primary/15" : "hover:bg-sidebar-accent")}>
+      <Button
+        type="button"
+        variant="ghost"
+        onClick={onActivate}
+        className={cn(
+          "h-auto min-w-0 flex-1 justify-start gap-2.5 px-2.5 py-2 text-sm font-normal hover:bg-transparent",
+          active ? "font-semibold text-primary" : "text-sidebar-foreground hover:text-foreground",
+        )}
+      >
+        <span className="size-5 shrink-0"><AppIcon app={app} /></span>
+        <span className="truncate">{app.title}</span>
+      </Button>
+      {running && (
+        <span className="relative mr-1.5 grid size-6 shrink-0 place-items-center">
+          <span
+            className={cn(
+              "size-1.5 rounded-full bg-primary transition-opacity group-hover/row:opacity-0 pointer-coarse:opacity-0",
+              !active && "bg-primary/70",
+            )}
+            aria-hidden
+          />
+          <button
+            type="button"
+            aria-label={`Tutup ${app.title}`}
+            onClick={(e) => { e.stopPropagation(); onClose(); }}
+            className="absolute inset-0 hidden place-items-center rounded text-muted-foreground hover:text-foreground group-hover/row:grid pointer-coarse:grid"
+          >
+            <X className="size-3.5" />
+          </button>
+        </span>
       )}
     </div>
   );

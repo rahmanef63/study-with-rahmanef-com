@@ -28,6 +28,15 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-07-11",
+    title: "Tanda app terbuka di sidebar (ganti daftar Running)",
+    tags: ["Tampilan"],
+    points: [
+      "Daftar “Running” di sidebar dihapus. Sebagai gantinya, app yang sedang terbuka ditandai titik kecil di barisnya sendiri — seperti taskbar Windows / dock macOS.",
+      "Arahkan kursor (atau sentuh) baris app yang terbuka untuk menutupnya.",
+    ],
+  },
+  {
+    date: "2026-07-11",
     title: "Sidebar dashboard dirapikan + Changelog & Docs",
     tags: ["Tampilan", "Baru"],
     points: [
