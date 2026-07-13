@@ -9,6 +9,7 @@ import {
   requireMemberForLesson,
 } from "./access";
 import { assertUnderCommentLimit, countUserCommentsOnLesson } from "./antiSpam";
+import { maybeScheduleReplyNotification } from "./notify";
 import { assertBody } from "./validate";
 
 /**
@@ -16,7 +17,9 @@ import { assertBody } from "./validate";
  * - bodyMd 1..2000 chars after trim (assertBody);
  * - parentId, when present, must be a ROOT comment of the SAME lesson and not
  *   soft-deleted — otherwise VALIDATION_FAILED (assertRootParentOnLesson);
- * - anti-spam: RATE_LIMITED past the per-user-per-lesson cap (antiSpam.ts).
+ * - anti-spam: RATE_LIMITED past the per-user-per-lesson cap (antiSpam.ts);
+ * - reply → schedules a comment_reply notification for the parent's author
+ *   (fire-and-forget, never for self-replies — notify.ts, wave v1.3 #21).
  */
 export const addComment = mutation({
   args: {
@@ -32,13 +35,21 @@ export const addComment = mutation({
     }
     assertUnderCommentLimit(await countUserCommentsOnLesson(ctx, args.lessonId, userId));
 
-    return ctx.db.insert("comments", {
+    const commentId = await ctx.db.insert("comments", {
       tenantId: lesson.tenantId, // ALWAYS from the lesson row (P0)
       lessonId: args.lessonId,
       userId,
       bodyMd: args.bodyMd.trim(),
       parentId: args.parentId,
     });
+
+    // Producer hook #1 (#21): notify the parent author about the reply.
+    // Inside notify.ts: self-reply guard (P0) + dangling-row no-ops.
+    if (args.parentId !== undefined) {
+      await maybeScheduleReplyNotification(ctx, { parentId: args.parentId, lesson, replierId: userId });
+    }
+
+    return commentId;
   },
 });
 

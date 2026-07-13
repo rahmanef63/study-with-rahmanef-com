@@ -1,4 +1,5 @@
-// Anonymous smoke suite over the OS desktop shell deep-links (STATUS row #13).
+// Anonymous smoke suite over the OS desktop shell deep-links (STATUS row #13;
+// hardened in #25: annotation flip spec 2, tightened gate spec 6, new specs 7–9).
 // Read-only by design: every scenario is an ANON visitor exercising the §6
 // etalase surface — no login, no mutation, safe against prod (e2e/README.md).
 //
@@ -37,9 +38,13 @@ function collectErrors(page: Page) {
   return errors;
 }
 
-/** The shell must never surface the Next.js crash overlay — on ANY scenario. */
+/** The shell must never surface the Next.js crash overlay — on ANY scenario.
+ *  Also treats the app/error.tsx boundary ("Ada yang tidak beres") as a crash:
+ *  it replaces the whole desktop, so reaching it means an unhandled client
+ *  exception escaped a window (hardening #25). */
 async function expectNoCrash(page: Page) {
   await expect(page.getByText(/Application error|Unhandled Runtime Error/)).toHaveCount(0);
+  await expect(page.getByText("Ada yang tidak beres")).toHaveCount(0);
 }
 
 test.describe("OS shell — anon smoke", () => {
@@ -56,19 +61,9 @@ test.describe("OS shell — anon smoke", () => {
   });
 
   test("2. deep-link /komunitas/<tenant> opens community window with etalase", async ({ page }) => {
-    // KNOWN DEFECT (found by this suite, 2026-07-10, reproduced on prod):
-    // KomunitasApp branches on `payload.tenantSlug`, but BOTH deep-links and
-    // openApp deliver the slug as `payload.path` (apps/_nav.ts contract) — so
-    // /komunitas/<tenant> falls back to the DIRECTORY instead of the community
-    // window. This spec asserts the INTENDED behavior and is annotated
-    // test.fail; it flips to "unexpected pass" the moment the fix lands.
-    // TODO(rr): waiting on os-shell (alpha) — komunitas-app should read the
-    // slug via seg(props.payload) like kelas/kelola/profil do; then delete
-    // this annotation.
-    test.fail(
-      true,
-      "komunitas-app reads payload.tenantSlug but deep-links deliver payload.path — remove once alpha fixes the payload parsing",
-    );
+    // Defect found by this suite 2026-07-10 (payload.tenantSlug vs payload.path)
+    // — FIXED by alpha in 5e805af: komunitas-app now reads the slug via
+    // seg(props.payload) (verified in source, wave v1.3). Plain assertion again.
     await page.goto(`/komunitas/${TENANT}`);
     // Etalase kelas section below the tenant profile card (komunitas-app.tsx).
     await expect(page.getByText("Mulai belajar di sini.")).toBeVisible({ timeout: DATA_TIMEOUT });
@@ -126,19 +121,96 @@ test.describe("OS shell — anon smoke", () => {
   }) => {
     const errors = collectErrors(page);
     await page.goto(`/kelola/${TENANT}`);
-    // Current behavior (verified against prod 2026-07-10): for ANON viewers
-    // useMyMembership skips its query while unauthenticated, so kelola-app
-    // stays on KelolaSkeleton — the "Khusus pengelola" gate only renders for
-    // AUTHENTICATED non-managers. Both are safe (server authz is the real
-    // guard); the spec accepts either so it also passes once the anon branch
-    // is added.
-    // TODO(rr): waiting on os-shell (alpha) — kelola-app anon branch: show a
-    // login gate ("Masuk") when !isAuthenticated instead of an endless
-    // skeleton; then tighten this to expect the gate text only.
-    const gate = page.getByText("Khusus pengelola");
-    const skeleton = page.locator('[data-slot="skeleton"]').first();
-    await expect(gate.or(skeleton).first()).toBeVisible({ timeout: DATA_TIMEOUT });
+    // Anon branch shipped (kelola-app.tsx, wave v1.3): when !isAuthenticated the
+    // console renders the "Masuk untuk mengelola" login gate instead of an
+    // endless skeleton — TIGHTENED (was gate-or-skeleton) to expect the gate
+    // only. Copy SSOT: slices/os-shell/apps/kelola-app.tsx KelolaEmpty title.
+    await expect(page.getByText("Masuk untuk mengelola")).toBeVisible({
+      timeout: DATA_TIMEOUT,
+    });
     await expectNoCrash(page);
     expect(errors, `gate must render cleanly:\n${errors.join("\n")}`).toEqual([]);
+  });
+
+  test("7. lesson deep-link as anon shows the silabus etalase, never lesson content", async ({
+    page,
+  }) => {
+    const errors = collectErrors(page);
+    // kelas-app gates the lesson pane on membership (lessonId !== null && isMember),
+    // so an ANON hitting a lesson URL must fall back to the §6 etalase overview —
+    // silabus + join CTA — and the lessonId segment must be inert. A garbage id is
+    // deliberate: for anon it is never sent to Convex, so ANY id must be safe.
+    await page.goto(`/kelas/${TENANT}/${COURSE}/lesson/e2e-bogus-lesson-id`);
+    // Same etalase markers as spec 3 (courses copy SSOT): eyebrow + Modul section.
+    await expect(page.getByText("Kelas", { exact: true }).first()).toBeVisible({
+      timeout: DATA_TIMEOUT,
+    });
+    await expect(page.locator('section[aria-label="Modul"]')).toBeVisible({
+      timeout: DATA_TIMEOUT,
+    });
+    // Join affordance proves we got the NON-member overview branch
+    // (JoinButton → tenants labels SSOT "Login untuk gabung").
+    await expect(page.getByText("Login untuk gabung").first()).toBeVisible({
+      timeout: DATA_TIMEOUT,
+    });
+    // Lesson content must be LOCKED for anon: LessonPlayerView is the only
+    // YouTube-embed surface (zero-cost law: video = YouTube embed only), so no
+    // iframe may exist anywhere on the etalase render.
+    await expect(page.locator("iframe")).toHaveCount(0);
+    await expectNoCrash(page);
+    expect(errors, `anon lesson etalase must render cleanly:\n${errors.join("\n")}`).toEqual([]);
+  });
+
+  test("8. /sertifikat/<bogus-id> shows a friendly not-found, never a crash", async ({
+    page,
+  }) => {
+    // TODO(rr): waiting on os-shell (alpha) — the /sertifikat/<completionId>
+    // deep-link mounts delta's CertificateView (#24) during alpha integration;
+    // at time of writing the route is NOT mounted, so this spec is fixme until
+    // then. Contract under test (delta's publicGetCertificate): unknown or
+    // invalid id → uniform NOT_FOUND (no case leaking) → a friendly Bahasa
+    // not-found state, zero crash. Tighten the copy selector to the profiles
+    // slice SSOT once the view lands.
+    test.fixme(
+      true,
+      "route /sertifikat/<id> not mounted yet — flips on after alpha integrates #24; then remove this annotation",
+    );
+    const errors = collectErrors(page);
+    await page.goto("/sertifikat/e2e-bogus-completion-id");
+    await expect(page.getByText(/tidak ditemukan/i).first()).toBeVisible({
+      timeout: DATA_TIMEOUT,
+    });
+    await expectNoCrash(page);
+    expect(errors, `bogus certificate id must fail soft:\n${errors.join("\n")}`).toEqual([]);
+  });
+
+  test("9. suggestion board (/resources/<tenant>/usulan) as anon shows a login gate — never a crash", async ({
+    page,
+  }) => {
+    // INTENDED behavior (this is the hardening target): suggestions are
+    // member-only server-side (listOpenSuggestions/listMineSuggestions call
+    // requireTenantRole first — correct per §6), but resources-app currently
+    // has NO anon branch: SuggestionBoxView fires both queries unauthenticated,
+    // convex/react rethrows NOT_AUTHENTICATED during render, and with no window
+    // error boundary the exception escalates to app/error.tsx — the whole
+    // desktop dies. This spec asserts the INTENDED login gate (kelola-app anon
+    // branch is the in-repo pattern) and is annotated test.fail; it flips to
+    // "unexpected pass" the moment the gate lands.
+    // TODO(rr): waiting on os-shell (alpha) — resources-app anon branch: gate
+    // the usulan tab (or the whole window) behind login when !isAuthenticated,
+    // like kelola-app does; then delete this annotation and tighten the gate
+    // selector to the exact copy SSOT.
+    test.fail(
+      true,
+      "resources-app has no anon branch — suggestion queries throw NOT_AUTHENTICATED into app/error.tsx; remove once alpha adds the login gate",
+    );
+    await page.goto(`/resources/${TENANT}/usulan`);
+    // Loose on purpose (gate copy not written yet — likely "Masuk untuk …" per
+    // kelola precedent or "Silakan login dulu" per resources errNotAuthenticated
+    // copy); strict on the safety contract below.
+    await expect(
+      page.getByText(/masuk untuk|login untuk|silakan login/i).first(),
+    ).toBeVisible({ timeout: DATA_TIMEOUT });
+    await expectNoCrash(page);
   });
 });

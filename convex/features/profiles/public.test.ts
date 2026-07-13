@@ -206,13 +206,16 @@ describe("publicListBadges", () => {
     });
     expect(typeof badges[0].earnedAt).toBe("number");
     expect(badges[0].earnedAt).toBeGreaterThanOrEqual(badges[1].earnedAt);
-    // Exact key set — no ids / tenantId / userId leak.
+    // Exact key set — completionId is the ONE sanctioned id (certificate
+    // handle, STATUS #24); no tenantId / courseId / userId leak.
     expect(Object.keys(badges[0]).sort()).toEqual([
+      "completionId",
       "courseSlug",
       "courseTitle",
       "earnedAt",
       "tenantSlug",
     ]);
+    expect(typeof badges[0].completionId).toBe("string");
   });
 
   test("draft courses are excluded (P0 §6: never leak drafts)", async () => {

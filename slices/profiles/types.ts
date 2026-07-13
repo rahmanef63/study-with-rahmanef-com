@@ -11,6 +11,7 @@ export {
 } from "@convex/features/profiles/types";
 export type {
   Badge,
+  Certificate,
   ProfileErrorCode,
   PublicProfile,
   UsernameCheck,
@@ -50,6 +51,44 @@ export type PublicProfileLabels = {
   copiedLabel: string;
   /** Owner-only "Edit profil" action shown next to the copy button. */
   editLabel: string;
+};
+
+// --- Public certificate page (/sertifikat/<completionId>, STATUS #24) -------
+
+/**
+ * Result of the anonymous certificate read. The query THROWS NOT_FOUND for an
+ * unknown/invalid id (asserted in certificate.test.ts); that throw surfaces
+ * via the slice error boundary, so this hook result only models loading →
+ * loaded. `certificate` is non-null whenever `isLoading` is false.
+ */
+export type CertificateData = {
+  certificate: import("@convex/features/profiles/types").Certificate | null;
+  isLoading: boolean;
+};
+
+/** Every user-facing string on the certificate page — props-driven. */
+export type CertificateLabels = {
+  loading: string;
+  notFoundTitle: string;
+  notFoundBody: string;
+  errorTitle: string;
+  errorBody: string;
+  /** Small eyebrow above the card, e.g. "Sertifikat Kelas". */
+  eyebrow: string;
+  /** Document title, e.g. "Sertifikat Penyelesaian". */
+  heading: string;
+  /** Lead-in above the recipient name, e.g. "Diberikan kepada". */
+  awardedTo: string;
+  /** Lead-in above the course title, e.g. "atas penyelesaian kelas". */
+  courseIntro: string;
+  /** Prefix before the community name, e.g. "di komunitas". */
+  communityPrefix: string;
+  /** Prefix before the earned date, e.g. "Diselesaikan pada". */
+  earnedPrefix: string;
+  /** Accessible label for the copy-share-link button. */
+  copyLabel: string;
+  /** Transient confirmation after copying. */
+  copiedLabel: string;
 };
 
 /** Own-profile shape returned by getCurrentProfile (full doc — self read). */

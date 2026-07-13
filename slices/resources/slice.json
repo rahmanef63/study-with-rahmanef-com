@@ -1,11 +1,11 @@
 {
   "$schema": "https://resource.rahmanef.com/slice-schema.json",
   "slug": "resources",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "category": "community",
   "kind": "fullstack",
   "title": "Resources — resource board + suggestion box",
-  "description": "Community-curated resource sharing (R8) and a class/topic suggestion box (R9) for belajar-with-rahmanef.com. Members submit resources (http(s) links) that land pending until an instructor+ approves/rejects; members post suggestions that instructors triage open→planned/done/rejected. Pending items are visible only to instructors and the submitter — enforced in the query, not just the UI (P0). Light per-tenant anti-spam cap on pending/open items via the by_tenant_status index (the DATA-MODEL guard, not the rr rate-limit dependency). Since 0.2.0 (#18): members upvote suggestions — idempotent toggle on the suggestionVotes by_suggestion_user unique path; counts derived per read (never stored); suggestion lists sort voteCount desc then newest. Two mounted views: ResourceBoardView and SuggestionBoxView.",
+  "description": "Community-curated resource sharing (R8) and a class/topic suggestion box (R9) for belajar-with-rahmanef.com. Members submit resources (http(s) links) that land pending until an instructor+ approves/rejects; members post suggestions that instructors triage open→planned/done/rejected. Pending items are visible only to instructors and the submitter — enforced in the query, not just the UI (P0). Light per-tenant anti-spam cap on pending/open items via the by_tenant_status index (the DATA-MODEL guard, not the rr rate-limit dependency). Since 0.2.0 (#18): members upvote suggestions — idempotent toggle on the suggestionVotes by_suggestion_user unique path; counts derived per read (never stored); suggestion lists sort voteCount desc then newest. Since 0.2.1 (#22): curate/setStatus schedule notification producers (resource_reviewed / suggestion_status) into the shared notifications table via internal notify:create — actor never self-notified; no UI, no new tables. Two mounted views: ResourceBoardView and SuggestionBoxView.",
   "namespace": "@/features/resources",
   "convex": {
     "tablesExport": "",

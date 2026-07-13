@@ -1,10 +1,10 @@
 {
   "$schema": "https://resource.rahmanef.com/slice-schema.json",
   "slug": "profiles",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "category": "identity",
   "title": "Profiles — Profil Pengguna + Halaman Publik",
-  "description": "Own-profile record + public profile page for belajar-with-rahmanef.com. v1: ensure-on-first-login mutation, settings form (username, displayName, bio, avatarUrl), current-profile query; username globally unique, normalized to lowercase kebab-case; explicit rename collisions reject VALIDATION_FAILED; isPlatformAdmin read-only from this slice (seed/integrator only). v1.1 (STATUS #9): anonymous etalase page /u/[username] via two public* queries (publicGetByUsername + publicListBadges) returning safe projections only (AGENTS.md §6), plus a badge wall from courseCompletions joined to published courses of active tenants.",
+  "description": "Own-profile record + public profile page for belajar-with-rahmanef.com. v1: ensure-on-first-login mutation, settings form (username, displayName, bio, avatarUrl), current-profile query; username globally unique, normalized to lowercase kebab-case; explicit rename collisions reject VALIDATION_FAILED; isPlatformAdmin read-only from this slice (seed/integrator only). v1.1 (STATUS #9): anonymous etalase page /u/[username] via two public* queries (publicGetByUsername + publicListBadges) returning safe projections only (AGENTS.md §6), plus a badge wall from courseCompletions joined to published courses of active tenants. v1.3 (STATUS #24): public certificate page /sertifikat/<completionId> via publicGetCertificate (anonymous §6 etalase; valid only while the course stays published, the tenant active, and the owner profile exists; uniform NOT_FOUND otherwise), completionId added to each badge as the certificate handle, CertificateView share card with copy-link.",
   "namespace": "@/features/profiles",
   "convex": {
     "schemaPath": "convex/schema.ts",
@@ -32,7 +32,7 @@
       }
     },
     "provides": {
-      "routes": ["/pengaturan/profil", "/u/[username]"],
+      "routes": ["/pengaturan/profil", "/u/[username]", "/sertifikat/[completionId]"],
       "tables": ["profiles"],
       "components": [
         "ProfileSettingsView",
@@ -40,7 +40,9 @@
         "PublicProfileView",
         "PublicProfileCard",
         "BadgeWall",
-        "ProfileAvatar"
+        "ProfileAvatar",
+        "CertificateView",
+        "CertificateCard"
       ],
       "hooks": [
         "useCurrentProfile",
@@ -48,7 +50,8 @@
         "useEnsureProfileOnFirstLogin",
         "useUpdateProfile",
         "useCheckUsername",
-        "usePublicProfile"
+        "usePublicProfile",
+        "useCertificate"
       ],
       "helpers": [
         "normalizeUsername",
@@ -61,7 +64,8 @@
         "features/profiles/mutations:ensureProfile",
         "features/profiles/mutations:updateProfile",
         "features/profiles/public:publicGetByUsername",
-        "features/profiles/public:publicListBadges"
+        "features/profiles/public:publicListBadges",
+        "features/profiles/public:publicGetCertificate"
       ]
     },
     "generalization": {

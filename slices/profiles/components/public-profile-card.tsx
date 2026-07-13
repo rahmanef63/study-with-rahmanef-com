@@ -21,6 +21,8 @@ export type PublicProfileCardProps = {
   shareValue: string;
   /** When set (viewer owns this profile), an "Edit profil" link renders next to the copy button. */
   editHref?: string;
+  /** Builds the certificate href per badge (STATUS #24) — forwarded to BadgeWall. */
+  certificateHref?: (completionId: Badge["completionId"]) => string;
   labels?: Partial<PublicProfileLabels>;
   className?: string;
 };
@@ -30,6 +32,7 @@ export function PublicProfileCard({
   badges,
   shareValue,
   editHref,
+  certificateHref,
   labels,
   className,
 }: PublicProfileCardProps) {
@@ -102,7 +105,7 @@ export function PublicProfileCard({
         </div>
       </Hero>
 
-      <BadgeWall badges={badges} labels={labels} />
+      <BadgeWall badges={badges} certificateHref={certificateHref} labels={labels} />
     </div>
   );
 }

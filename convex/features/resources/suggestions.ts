@@ -7,6 +7,7 @@ import { mutation } from "../../_generated/server";
 import { requireTenantRole } from "../../_shared/auth";
 import { requireInstructorForSuggestion } from "./access";
 import { assertUnderLimit, countUserOpenSuggestions } from "./antiSpam";
+import { scheduleNotify, SUGGESTION_STATUS_LABEL } from "./notify";
 import { assertDetail, assertTitle } from "./validate";
 
 /**
@@ -51,8 +52,26 @@ export const setStatus = mutation({
     ),
   },
   handler: async (ctx, args) => {
-    const { suggestion } = await requireInstructorForSuggestion(ctx, args.suggestionId);
+    const { userId, suggestion } = await requireInstructorForSuggestion(ctx, args.suggestionId);
+    const statusChanged = suggestion.status !== args.status;
     await ctx.db.patch(suggestion._id, { status: args.status });
+
+    // Producer (#22): tell the submitter their suggestion moved. Skipped when
+    // the status did not actually change (idempotent re-set → no spam) and for
+    // self-triage (guard inside scheduleNotify). Single bounded tenant get.
+    if (statusChanged) {
+      const tenant = await ctx.db.get(suggestion.tenantId);
+      if (tenant !== null) {
+        await scheduleNotify(ctx, userId, {
+          userId: suggestion.submittedBy,
+          tenantId: suggestion.tenantId,
+          kind: "suggestion_status",
+          title: "Status usulanmu diperbarui",
+          body: `"${suggestion.title}" kini ${SUGGESTION_STATUS_LABEL[args.status]}.`,
+          href: `/resources/${tenant.slug}`,
+        });
+      }
+    }
     return suggestion._id;
   },
 });

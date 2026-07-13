@@ -23,9 +23,20 @@ export {
 export { BadgeWall, type BadgeWallProps } from "./components/badge-wall";
 export { ProfileAvatar, type ProfileAvatarProps } from "./components/profile-avatar";
 
+// Public certificate page /sertifikat/<completionId> (STATUS #24, v1.3).
+export {
+  CertificateView,
+  type CertificateViewProps,
+} from "./components/certificate-view";
+export {
+  CertificateCard,
+  type CertificateCardProps,
+} from "./components/certificate-card";
+
 export { useCurrentProfile } from "./hooks/use-current-profile";
 export type { UseCurrentProfileResult } from "./hooks/use-current-profile";
 export { usePublicProfile } from "./hooks/use-public-profile";
+export { useCertificate } from "./hooks/use-certificate";
 export {
   profileErrorCode,
   useCheckUsername,
@@ -37,6 +48,7 @@ export {
 export { profilesFeature } from "./config";
 export { DEFAULT_PROFILE_LABELS } from "./config/labels";
 export { DEFAULT_PUBLIC_PROFILE_LABELS } from "./config/public-labels";
+export { DEFAULT_CERTIFICATE_LABELS } from "./config/certificate-labels";
 
 // Username rules — same functions the server enforces (SSOT in the convex
 // feature; pure module, safe for the client bundle).
@@ -55,6 +67,9 @@ export {
 } from "./types";
 export type {
   Badge,
+  Certificate,
+  CertificateData,
+  CertificateLabels,
   CurrentProfile,
   ProfileErrorCode,
   ProfileFormValues,

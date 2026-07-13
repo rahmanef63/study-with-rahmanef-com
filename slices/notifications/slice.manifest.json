@@ -1,0 +1,39 @@
+{
+  "$schema": "../../docs/slice.manifest.schema.json",
+  "name": "notifications",
+  "version": "0.1.0",
+  "description": "Inbox in-app (wave v1.3 #21): per-user notifications written only via the internal producer target notifications:create (producer #1 = comment_reply from comments addComment; never self-notify). Recipients read/mark ONLY their own rows (userId from ctx, by_user_read). Unread-first bounded listMine, capped unreadCount badge. Views: NotificationBell({onNavigate?}) + NotificationInbox({onNavigate?}).",
+  "category": "community",
+  "stability": "beta",
+  "deps": {
+    "shared": ["features/defineFeature"],
+    "slices": [],
+    "convexFeatures": ["notifications"],
+    "npm": { "sonner": "^1.7.1", "lucide-react": "^0.460.0" },
+    "env": []
+  },
+  "files": {
+    "include": ["**/*"],
+    "exclude": ["__tests__/**", "*.test.ts", "*.test.tsx"]
+  },
+  "convexFiles": {
+    "include": ["**/*.ts"],
+    "exclude": ["*.test.ts", "test.helpers.ts"]
+  },
+  "permissions": ["notifications.read", "notifications.write"],
+  "schemaTables": [
+    {
+      "name": "notifications",
+      "namespaced": false,
+      "indexes": ["by_user", "by_user_read"]
+    }
+  ],
+  "compatibility": {
+    "next": ">=15 <17",
+    "react": "^19",
+    "convex": "^1.16",
+    "tailwind": "4",
+    "auth": "convex-auth"
+  },
+  "notes": "0.1.0 (2026-07-13, agent beta): STATUS row #21 (wave v1.3). Schema table `notifications` pre-added by alpha (DATA-MODEL SSOT) — implemented exactly; no schema edits. create is INTERNAL (generic producer target; typed ref in convex/features/notifications/refs.ts, path contract `features/notifications/notifications:create` — epsilon #22 duplicates the ref, no cross-feature import). No dedupe window (prompt: optional — TODO(rr) marker in notifications.ts). href validated relative-only (no open redirect via producers). Producer #1 wired in convex/features/comments/notify.ts + 2-line addComment hook; self-reply-no-notif + own-rows-only + denied paths + markRead idempotency all tested (notifications.test.ts, queries.test.ts, producer.test.ts). Copy-first: adapted from rr `notifications-center` (bell + popover shape) onto our Convex hooks — no adapter layer, shadcn popover/scroll-area/separator already vendored. formatRelativeTime duplicated from comments (2nd occurrence — hoist-to-shared proposal in beta's report)."
+}

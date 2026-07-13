@@ -39,9 +39,12 @@ sanctioned table access (precedent: the progress feature; not a code import).
 
 - Every **authed** function: `v.*` validators + `requireUser` as the first
   handler line. All lookups via `by_user` / `by_username` indexes.
-- The two `public*` queries skip auth **by design** (etalase §6): validators
+- The three `public*` queries skip auth **by design** (etalase §6): validators
   present, active/published rows only, explicit safe projection, bounded
   `.take()` — no bare `.collect()`. Projection shape asserted in tests.
+  `publicGetCertificate` takes the id as a plain string (`normalizeId`) so
+  malformed, unknown, unpublished, inactive-tenant, and missing-profile cases
+  ALL return the same uniform `NOT_FOUND` — no existence oracle.
 - `isPlatformAdmin` is **read-only** here: no arg accepts it, no code path
   writes it (only `convex/seed.ts` sets it). Covered by tests.
 
@@ -67,6 +70,31 @@ directly (skips the loading skeleton, enables profile metadata/OG tags). The
 queries throw `NOT_FOUND` for unknown handles — the slice's own boundary renders
 a friendly fallback, or the app route can supply `not-found.tsx`.
 
+## Integration point for alpha — mount `/sertifikat/<completionId>` (STATUS #24)
+
+`CertificateView` is a client component that fetches its own data (anonymous,
+works signed-out — a shared certificate link opens for everyone). Minimal mount
+inside the os-shell deep-link handler:
+
+```tsx
+import { CertificateView } from "@/features/profiles";
+
+<CertificateView
+  completionId={completionId} // raw URL segment; server validates (bogus id → friendly not-found)
+  shareUrl={`https://study-with.rahmanef.com/sertifikat/${completionId}`}
+/>
+```
+
+To make badge tiles on the profile page link to their certificates, pass the
+host's URL shape (props-driven — the slice hardcodes no routes):
+
+```tsx
+<PublicProfileView
+  username={username}
+  certificateHref={(id) => `/sertifikat/${id}`}
+/>
+```
+
 ## Consume
 
 ```ts
@@ -88,8 +116,10 @@ in `vitest.config.mts` (shared surface) and delete this file.
 
 - `convex/features/profiles/` — `username.ts` (pure rules) · `types.ts` ·
   `queries.ts` · `mutations.ts` · **`public.ts`** (anonymous etalase) ·
-  tests (`profiles.test.ts`, `username.test.ts`, **`public.test.ts`**).
+  tests (`profiles.test.ts`, `username.test.ts`, **`public.test.ts`**,
+  **`certificate.test.ts`**).
 - `slices/profiles/` — components (settings + **public-profile-view /
-  public-profile-card / badge-wall / profile-avatar / public-profile-boundary**),
-  hooks (**`use-public-profile`**), config (**`public-labels`**), barrel,
-  metadata pair.
+  public-profile-card / badge-wall / profile-avatar / public-profile-boundary /
+  certificate-view / certificate-card**), hooks (**`use-public-profile`**,
+  **`use-certificate`**), config (**`public-labels`**, **`certificate-labels`**),
+  barrel, metadata pair.

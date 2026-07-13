@@ -79,4 +79,26 @@ spec sengaja gagal — perbarui bersama SSOT-nya:
 | 3 kelas | eyebrow "Kelas" · `section[aria-label="Modul"]` | `slices/courses/config/copy.ts` |
 | 4 masuk | tombol "Masuk dengan Google" | `masuk-app.tsx` |
 | 5 profil | "Profil anggota" · `@<username>` · `section[aria-label="Lencana Kelas"]` | `profil-app.tsx` · `slices/profiles/config/public-labels.ts` |
-| 6 kelola | "Khusus pengelola" | `kelola-app.tsx` |
+| 6 kelola | "Masuk untuk mengelola" (gate anon) | `kelola-app.tsx` |
+| 7 lesson anon | etalase spec 3 + "Login untuk gabung" + `iframe` count 0 | `kelas-app.tsx` (gate member) · `slices/tenants/config/labels.ts` |
+| 8 sertifikat | `/tidak ditemukan/i` — **fixme** menunggu mounting #24 | `profil-app`/CertificateView (belum mount) |
+| 9 usulan anon | gate login `/masuk untuk\|login untuk\|silakan login/i` — **test.fail** (defect terbuka) | `resources-app.tsx` (belum ada branch anon) |
+
+Semua spec juga menegaskan **no-crash**: overlay Next.js DAN halaman
+`app/error.tsx` ("Ada yang tidak beres") dihitung sebagai crash.
+
+## Matriks jalan & status anotasi (wave v1.3, #25)
+
+| Target | Cara | Catatan |
+|---|---|---|
+| Lokal dev | `npm run dev` lalu `npx playwright test` | matriks utama; butuh Convex env valid + seed |
+| Prod | `E2E_BASE_URL=https://study-with.rahmanef.com npx playwright test` | anon read-only SAJA; hasil valid **setelah** deploy v1.3 (#26) — sebelum itu spec 2/6 masih menguji build lama |
+
+Anotasi hidup (hapus saat flip):
+
+- **Spec 8 `test.fixme`** — route `/sertifikat/<id>` belum di-mount; nyalakan
+  setelah alpha integrasi #24.
+- **Spec 9 `test.fail`** — defect terbuka: `resources-app` tanpa branch anon →
+  query usulan melempar NOT_AUTHENTICATED sampai `app/error.tsx`. Spec menegaskan
+  perilaku yang DIMAKSUD (gate login ala `kelola-app`); begitu gate mendarat, spec
+  jadi "unexpected pass" → hapus anotasi + perketat selector ke copy SSOT-nya.

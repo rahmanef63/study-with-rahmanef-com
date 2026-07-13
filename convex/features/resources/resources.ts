@@ -7,6 +7,7 @@ import { mutation } from "../../_generated/server";
 import { requireTenantRole } from "../../_shared/auth";
 import { assertCourseInTenant, requireInstructorForResource } from "./access";
 import { assertUnderLimit, countUserPendingResources } from "./antiSpam";
+import { scheduleNotify } from "./notify";
 import { assertNote, assertTitle, assertUrl } from "./validate";
 
 /**
@@ -57,6 +58,24 @@ export const curate = mutation({
   handler: async (ctx, args) => {
     const { userId, resource } = await requireInstructorForResource(ctx, args.resourceId);
     await ctx.db.patch(resource._id, { status: args.decision, reviewedBy: userId });
+
+    // Producer (#22): tell the submitter the curation outcome. scheduleNotify
+    // guards the self-action case (curator reviewing their own submission).
+    // Single bounded get — the tenant slug feeds the OS-shell deep-link.
+    const tenant = await ctx.db.get(resource.tenantId);
+    if (tenant !== null) {
+      const approved = args.decision === "approved";
+      await scheduleNotify(ctx, userId, {
+        userId: resource.submittedBy,
+        tenantId: resource.tenantId,
+        kind: "resource_reviewed",
+        title: approved ? "Sumbermu disetujui" : "Sumbermu ditolak",
+        body: `"${resource.title}" ${
+          approved ? "kini tampil di papan sumber." : "belum dapat ditampilkan."
+        }`,
+        href: `/resources/${tenant.slug}`,
+      });
+    }
     return resource._id;
   },
 });

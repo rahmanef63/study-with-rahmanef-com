@@ -1,0 +1,43 @@
+{
+  "$schema": "https://resource.rahmanef.com/slice-schema.json",
+  "slug": "search",
+  "version": "0.1.0",
+  "category": "lms",
+  "kind": "fullstack",
+  "title": "Search — pencarian kelas & materi per komunitas",
+  "description": "Per-tenant full-text search (fase-2, STATUS #23) for belajar-with-rahmanef.com. MEMBER-ONLY: searchInTenant runs requireTenantRole(member) as its first line — anonymous and outsider callers are rejected before any domain read (P0, asserted in tests). Two bounded search-index reads: courses.search_title (eq tenantId + eq status published, take 10) and lessons.search_content (eq tenantId, take 15) with a DRAFT-GUARD pass that drops lessons whose owning course is not published — drafts never reach members (P0, asserted). Hits are safe projections {kind, title, courseSlug, lessonId?, snippet?}; snippet is contentMd stripped of markdown and cut at 120 chars — raw contentMd never ships. One mounted view: SearchView({ tenantId, tenantSlug, onNavigate? }) — onNavigate is the os-shell openApp seam (next/link fallback keeps the slice portable; no os-shell import).",
+  "namespace": "@/features/search",
+  "convex": {
+    "tablesExport": "",
+    "schemaPath": "convex/schema.ts",
+    "rootPaths": ["convex/features/search"]
+  },
+  "frontend": { "slicePath": "slices/search", "configExport": "searchFeature" },
+  "deps": {
+    "npm": ["convex", "lucide-react"],
+    "shadcn": ["input", "label", "skeleton"],
+    "env": [],
+    "peers": []
+  },
+  "contract": {
+    "barrel": {
+      "views": ["SearchView"],
+      "components": ["SearchInput", "SearchResults", "SearchResultItem", "SearchEmptyState"],
+      "hooks": ["useTenantSearch", "useDebouncedValue"],
+      "lib": ["buildCourseHref", "buildLessonHref", "hitHref"],
+      "consumerSeams": {
+        "os-shell": [
+          "search window-app ← <SearchView tenantId={tenant._id} tenantSlug={tenant.slug} onNavigate={(href) => openApp(href)} />"
+        ]
+      }
+    },
+    "convexFunctions": {
+      "member": ["features/search/queries:searchInTenant"],
+      "instructor": []
+    }
+  },
+  "registers": [],
+  "license": "MIT",
+  "tags": ["lms", "search", "full-text", "courses", "lessons", "multi-tenant"],
+  "providers": []
+}

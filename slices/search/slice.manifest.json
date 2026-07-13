@@ -1,0 +1,33 @@
+{
+  "$schema": "../../docs/slice.manifest.schema.json",
+  "name": "search",
+  "version": "0.1.0",
+  "description": "Pencarian per komunitas (fase-2 #23): member-only full-text search atas judul kelas published (courses.search_title, take 10) + isi materi (lessons.search_content, take 15) dengan draft-guard — lesson milik kelas non-published dibuang di query. Hasil = safe projections {kind, title, courseSlug, lessonId?, snippet? (contentMd tanpa markdown, 120 char)}. One mounted view: SearchView({ tenantId, tenantSlug, onNavigate? }).",
+  "category": "lms",
+  "stability": "beta",
+  "deps": {
+    "shared": ["features/defineFeature"],
+    "slices": [],
+    "convexFeatures": ["search"],
+    "npm": { "lucide-react": "^0.460.0" },
+    "env": []
+  },
+  "files": {
+    "include": ["**/*"],
+    "exclude": ["__tests__/**", "*.test.ts", "*.test.tsx"]
+  },
+  "convexFiles": {
+    "include": ["**/*.ts"],
+    "exclude": ["*.test.ts", "test.helpers.ts"]
+  },
+  "permissions": ["search.read"],
+  "schemaTables": [],
+  "compatibility": {
+    "next": ">=15 <17",
+    "react": "^19",
+    "convex": "^1.16",
+    "tailwind": "4",
+    "auth": "convex-auth"
+  },
+  "notes": "0.1.0 (2026-07-13, agent gamma): STATUS row #23 (wave v1.3). NO new tables — search indexes `courses.search_title` + `lessons.search_content` pre-added by alpha in convex/schema.ts (DATA-MODEL SSOT); implemented exactly, no schema edits. Authz: requireTenantRole(member) FIRST — anon → NOT_AUTHENTICATED, outsider/other-tenant member → NOT_AUTHORIZED (tested). q trimmed then 2..60 chars → VALIDATION_FAILED. Draft-guard: unique courseIds from lesson hits (≤15) loaded individually; only published courses' lessons survive — draft AND archived excluded (tested). Snippet strips markdown (fences, inline code, links, images, html, headings, lists, emphasis) then cuts at 120 chars + ellipsis; raw contentMd never leaves the server (tested: exact projection keys). UI: onNavigate?(href) openApp seam with next/link fallback — no os-shell import; input debounced 300ms, query skipped below 2 chars. Copy-first: rr `notifications-center`/`library` list patterns consulted; UI is thin enough that a bespoke grouped list on shadcn Input/Skeleton was the smaller lift."
+}

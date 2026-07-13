@@ -5,6 +5,7 @@
 // soft-delete semantics, anti-spam cap.
 import { describe, expect, test } from "vitest";
 import { api } from "../../_generated/api";
+import type { Id } from "../../_generated/dataModel";
 import { MAX_COMMENTS_PER_USER_PER_LESSON } from "./antiSpam";
 import { MAX_BODY } from "./validate";
 import { asUser, seedComment, seedLesson, seedTenantFixture, setup } from "./test.helpers";
@@ -57,7 +58,8 @@ describe("addComment — authz", () => {
 describe("addComment — writes & validation", () => {
   test("member posts a root comment; tenantId comes from the LESSON row", async () => {
     const { t, fx, lessonId } = await fixture();
-    const id = await t.withIdentity(asUser(fx.memberId))
+    // AnyApi _generated returns `any` — pin the id so ctx.db.get narrows.
+    const id: Id<"comments"> = await t.withIdentity(asUser(fx.memberId))
       .mutation(api.features.comments.comments.addComment, { lessonId, bodyMd: "  Halo kelas!  " });
     const row = await t.run((ctx) => ctx.db.get(id));
     expect(row?.tenantId).toBe(fx.tenantId);

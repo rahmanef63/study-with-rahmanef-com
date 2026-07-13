@@ -107,3 +107,7 @@ Quality gate: `audit-bp` score ≥80 to ship (pulls latest Next 16 / React 19 / 
 - Hosting: Next app di Dokploy VPS; backend **Convex Cloud `rare-toucan-552`** (self-hosted retired 2026-07-10; deploy via `npx convex deploy` + CONVEX_DEPLOY_KEY).
 - Releases: v1 = R1–R6 (build steps 0–4 in SLICES.md), v1.1 = R7–R13 (steps 5–9).
 - First tenant is seeded (Rahman's community); the "open a community" request form ships in v1.1.
+
+## Imported Claude Cowork project instructions
+
+ini adalah projects untuk membuat platform dan komunitas belajar ai

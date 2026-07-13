@@ -2,6 +2,9 @@
 // re-exports these through its barrel (slices/profiles/types.ts) so client
 // copy mapping and server throws share one source of truth.
 
+// Type-level import only — keeps this module safe for client bundles.
+import type { Id } from "../../_generated/dataModel";
+
 export const PROFILE_ERROR_CODES = [
   "NOT_AUTHENTICATED",
   "NOT_AUTHORIZED",
@@ -48,11 +51,28 @@ export type PublicProfile = {
 /**
  * One earned badge = one courseCompletion, joined to its (published) course and
  * (active) tenant. `earnedAt` is the completion's `_creationTime` (epoch ms).
- * No ids leak — the wall is display-only and keyed by tenantSlug/courseSlug.
+ * `completionId` (STATUS #24) is the ONE sanctioned id in this projection — it
+ * is the public certificate handle (`/sertifikat/<completionId>`), resolvable
+ * only through publicGetCertificate which re-checks published/active. No other
+ * internal id (userId, courseId, tenantId, profile._id) ever leaks.
  */
 export type Badge = {
+  completionId: Id<"courseCompletions">;
   courseTitle: string;
   courseSlug: string;
   tenantSlug: string;
+  earnedAt: number;
+};
+
+/**
+ * Safe public projection of one certificate (publicGetCertificate, STATUS #24).
+ * Exactly these five keys — asserted in certificate.test.ts. No ids at all:
+ * the certificate is a display-only document addressed by its completionId URL.
+ */
+export type Certificate = {
+  displayName: string;
+  username: string;
+  courseTitle: string;
+  tenantName: string;
   earnedAt: number;
 };

@@ -107,6 +107,24 @@ export async function seedVote(
   );
 }
 
+/**
+ * Run functions scheduled via ctx.scheduler.runAfter(0, ...) (#22). convex-test
+ * dispatches through a real setTimeout, so yield to the macrotask queue for the
+ * timer to fire BEFORE finishInProgressScheduledFunctions can await it. Loop
+ * covers chained scheduling and timer jitter (pattern: announcements spec).
+ */
+export async function flushScheduled(t: T): Promise<void> {
+  for (let i = 0; i < 5; i++) {
+    await new Promise((resolve) => setTimeout(resolve, 5));
+    await t.finishInProgressScheduledFunctions();
+  }
+}
+
+/** All notification rows, oldest first — for producer specs (#22). */
+export async function listNotifications(t: T) {
+  return await t.run(async (ctx) => ctx.db.query("notifications").collect());
+}
+
 /** Second ACTIVE tenant + one member of it — for cross-tenant rejection specs (#18). */
 export async function seedOtherTenantMember(
   t: T

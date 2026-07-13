@@ -56,10 +56,11 @@ describe("listByLesson — projection & ordering", () => {
     const asMember = await t.withIdentity(asUser(fx.memberId))
       .query(api.features.comments.queries.listByLesson, { lessonId });
     expect(asMember.canModerate).toBe(false);
-    const mineItem = asMember.items.find((i) => i.mine);
+    // (i: any) — AnyApi _generated makes query results `any` until real codegen.
+    const mineItem = asMember.items.find((i: any) => i.mine);
     expect(mineItem?.deleted).toBe(false);
     expect(mineItem?.author).toEqual({ displayName: "Budi Santoso", username: "budi" });
-    const noProfile = asMember.items.find((i) => !i.mine);
+    const noProfile = asMember.items.find((i: any) => !i.mine);
     expect(noProfile?.author).toBeNull();
     // userId never appears in any projected item (public-profile join only).
     expect(JSON.stringify(asMember.items)).not.toContain(fx.memberId);
@@ -78,7 +79,7 @@ describe("listByLesson — projection & ordering", () => {
 
     const res = await t.withIdentity(asUser(fx.memberId))
       .query(api.features.comments.queries.listByLesson, { lessonId });
-    const item = res.items.find((i) => i._id === commentId);
+    const item = res.items.find((i: any) => i._id === commentId);
     expect(item).toMatchObject({ deleted: true, bodyMd: null, author: null, mine: false });
     // The original body must not appear ANYWHERE in the serialized result.
     expect(JSON.stringify(res)).not.toContain(secret);
@@ -92,8 +93,8 @@ describe("listByLesson — projection & ordering", () => {
 
     const res = await t.withIdentity(asUser(fx.memberId))
       .query(api.features.comments.queries.listByLesson, { lessonId });
-    expect(res.items.map((i) => i._id)).toEqual([newRoot, reply, oldRoot]); // desc
-    expect(res.items.find((i) => i._id === reply)?.parentId).toBe(oldRoot);
-    expect(res.items.find((i) => i._id === newRoot)?.parentId).toBeNull();
+    expect(res.items.map((i: any) => i._id)).toEqual([newRoot, reply, oldRoot]); // desc
+    expect(res.items.find((i: any) => i._id === reply)?.parentId).toBe(oldRoot);
+    expect(res.items.find((i: any) => i._id === newRoot)?.parentId).toBeNull();
   });
 });

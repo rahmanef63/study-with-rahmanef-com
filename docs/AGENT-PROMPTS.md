@@ -21,7 +21,7 @@
 | zeta | #25 | e2e hardening (annotation flip + spec baru) | `e2e/`, `playwright.config.ts` |
 | vps | #26 | FINAL: deploy v1.3 (schema+functions) + smoke | Cloud CLI (dormant-role exception) |
 
-Urutan: 5 worker paralel → alpha review+integrasi (mount bell/inbox + search ke os-shell) → Rahman push → vps #26 → Rahman: rotasi `AUTH_GOOGLE_SECRET` kapan sempat (#12).
+Urutan: 5 worker paralel → alpha review (DONE 2026-07-13; mounting UI dipisah ke row #27, pola #20) → Rahman push → vps #26 (deploy backend; tidak menunggu #27) → alpha #27 mounting → Rahman: rotasi `AUTH_GOOGLE_SECRET` kapan sempat (#12).
 
 ---
 
@@ -103,10 +103,13 @@ Done: specs parse + (jika env memungkinkan) jalan lokal; laporan terstruktur, st
 You are agent "vps" (AGENTS.md §4 — dormant-role exception for Cloud deploys; secrets NAMES only). Rows: #26.
 
 1. git pull --ff-only origin main (di clone mana pun kamu berada; atau minta Rahman jalankan langkah deploy dari laptop — Cloud deploy tidak butuh VPS).
-2. npx convex deploy --prod (schema additive: notifications + 2 search index; functions baru: notifications/search/producers/certificate). Regen typed api bila stale (mechanical-hotfix exception, flag alpha).
-3. Smoke: /, /komunitas/belajar-ai, /kelas/belajar-ai/dasar-ai, /profil/rahman, /sertifikat/<ambil satu completionId via dashboard — angka saja>, bell unread badge tampil saat login.
-4. Ingatkan Rahman: #12 AUTH_GOOGLE_SECRET masih pending (owner).
-5. Laporan: status per langkah, row counts (angka), proposals. No secret values.
+2. npx convex deploy --prod (schema additive: notifications + 2 search index — courses.search_title & lessons.search_content; functions baru: notifications/search/producers/publicGetCertificate). Regen typed api bila stale (mechanical-hotfix exception, flag alpha).
+3. Seed kurikulum baru (idempoten, aman diulang):
+   npx convex run seedWebDev:seedWebDevContent '{"ownerEmail":"rahmanef63@gmail.com","tenantSlug":"belajar-ai"}' --prod
+4. Smoke UI (yang SUDAH mounted): /, /komunitas/belajar-ai, /kelas/belajar-ai/dasar-ai, /kelas/belajar-ai/bikin-aplikasi-web-dengan-ai (kelas seed baru), /profil/rahman — semua 200 tanpa crash. CATATAN: bell/inbox, SearchView, dan route /sertifikat BELUM mounted (row #27, alpha) — JANGAN smoke-test itu di UI.
+5. Smoke backend (dashboard/CLI, angka saja): tabel notifications ada; jalankan satu query search via dashboard function runner kalau mudah; publicGetCertificate callable dengan completionId nyata → 5 kunci tanpa id.
+6. Ingatkan Rahman: #12 AUTH_GOOGLE_SECRET masih pending (owner).
+7. Laporan: status per langkah, row counts (angka; JANGAN pernah purge/fake data — ada aktivitas user nyata), proposals. No secret values.
 ```
 
 ## Template re-assignment — tetap (lihat riwayat git bila perlu).

@@ -58,6 +58,26 @@ describe("public profile barrel contract (STATUS #9)", () => {
   });
 });
 
+describe("certificate barrel contract (STATUS #24)", () => {
+  test("certificate components + hook are exported", () => {
+    expect(typeof barrel.CertificateView).toBe("function");
+    expect(typeof barrel.CertificateCard).toBe("function");
+    expect(typeof barrel.useCertificate).toBe("function");
+  });
+
+  test("certificate labels are exported with full Bahasa copy (every key non-empty)", () => {
+    const labels = barrel.DEFAULT_CERTIFICATE_LABELS;
+    for (const value of Object.values(labels)) {
+      expect(typeof value).toBe("string");
+      expect(value.length).toBeGreaterThan(0);
+    }
+    // Spot-check contract keys the host relies on.
+    expect(labels.notFoundTitle).toBeTruthy();
+    expect(labels.heading).toBeTruthy();
+    expect(labels.copyLabel).toBeTruthy();
+  });
+});
+
 describe("slice metadata pair", () => {
   test("versions are in sync (audit:slices contract)", () => {
     expect(sliceJson.version).toBe(manifest.version);

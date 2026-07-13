@@ -57,7 +57,8 @@ test("getCourseAnalytics: per-lesson counts, badge count, and quiz stats are exa
   expect(result.memberCount).toBe(3);
   expect(result.courseCompletionCount).toBe(1);
   expect(result.totalLessons).toBe(2);
-  expect(result.lessons.map((l) => ({ id: l.lessonId, n: l.completedCount }))).toEqual([
+  // (x: any) — AnyApi _generated makes query results `any` until real codegen.
+  expect(result.lessons.map((l: any) => ({ id: l.lessonId, n: l.completedCount }))).toEqual([
     { id: c.lessonIds[0], n: 2 },
     { id: c.lessonIds[1], n: 1 },
   ]);
@@ -107,8 +108,8 @@ test("listCourseSummaries: badges bucket per course; other tenant's badges never
     .query(api.features.analytics.queries.listCourseSummaries, { tenantId: fx.tenantId });
 
   expect(summaries).toHaveLength(2);
-  const bySlug = new Map(summaries.map((s) => [s.slug, s]));
+  const bySlug = new Map(summaries.map((s: any) => [s.slug, s]));
   expect(bySlug.get("kelas-satu")).toMatchObject({ completionCount: 2, memberCount: 3 });
   expect(bySlug.get("kelas-dua")).toMatchObject({ completionCount: 0, memberCount: 3 });
-  expect(summaries.some((s) => s.courseId === cOther.courseId)).toBe(false);
+  expect(summaries.some((s: any) => s.courseId === cOther.courseId)).toBe(false);
 });

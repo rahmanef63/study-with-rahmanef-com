@@ -8,6 +8,9 @@ feat(schema): wave v1.3 pre-work - notifications, search indexes, Cloud facts
 - docs/AGENT-PROMPTS.md: wave v1.3 (beta notifications, epsilon producers,
   gamma search, delta public certificate, zeta e2e hardening, vps finale)
 - docs/STATUS.md: rows 21-26 pre-claimed
+- convex/seedWebDev.ts: kurikulum "Bikin Aplikasi Web dengan AI" (6 modul,
+  14 lesson, 4 kuis: HTML/CSS/JS -> context & harness engineering -> React ->
+  Next.js -> Convex -> deploy Vercel/Netlify); idempoten per course slug
 
 Verified: tsc 0 errors; vitest 336/336 (48 files).
 

@@ -22,11 +22,22 @@ export type PublicProfileViewProps = {
    * passes its own absolute URL when mounting the route).
    */
   shareUrl?: string;
+  /**
+   * Builds the certificate href per badge (STATUS #24), e.g.
+   * `(id) => `/sertifikat/${id}``. Omitted → badge tiles stay non-interactive.
+   */
+  certificateHref?: (completionId: string) => string;
   labels?: Partial<PublicProfileLabels>;
   className?: string;
 };
 
-export function PublicProfileView({ username, shareUrl, labels, className }: PublicProfileViewProps) {
+export function PublicProfileView({
+  username,
+  shareUrl,
+  certificateHref,
+  labels,
+  className,
+}: PublicProfileViewProps) {
   const copy = { ...DEFAULT_PUBLIC_PROFILE_LABELS, ...labels };
   return (
     <div className={cn("w-full", className)}>
@@ -35,7 +46,12 @@ export function PublicProfileView({ username, shareUrl, labels, className }: Pub
         key={username}
         renderFallback={({ notFound }) => <ProfileFallback copy={copy} notFound={notFound} />}
       >
-        <PublicProfileContent username={username} shareUrl={shareUrl} labels={labels} />
+        <PublicProfileContent
+          username={username}
+          shareUrl={shareUrl}
+          certificateHref={certificateHref}
+          labels={labels}
+        />
       </PublicProfileBoundary>
     </div>
   );
@@ -44,10 +60,11 @@ export function PublicProfileView({ username, shareUrl, labels, className }: Pub
 type ContentProps = {
   username: string;
   shareUrl?: string;
+  certificateHref?: (completionId: string) => string;
   labels?: Partial<PublicProfileLabels>;
 };
 
-function PublicProfileContent({ username, shareUrl, labels }: ContentProps) {
+function PublicProfileContent({ username, shareUrl, certificateHref, labels }: ContentProps) {
   const { profile, badges, isLoading } = usePublicProfile(username);
   // Signed-out viewers skip the query (hook returns null) → isOwner stays false.
   const { profile: currentProfile } = useCurrentProfile();
@@ -60,6 +77,7 @@ function PublicProfileContent({ username, shareUrl, labels }: ContentProps) {
       badges={badges}
       shareValue={shareUrl ?? `@${profile.username}`}
       editHref={isOwner ? "/pengaturan" : undefined}
+      certificateHref={certificateHref}
       labels={labels}
     />
   );
