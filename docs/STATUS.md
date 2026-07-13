@@ -29,6 +29,12 @@
 | 18 | `resources` — vote pada usulan | v1.2 | #7, #14 | done | epsilon | main | — | reviewed: toggle idempotent (by_suggestion_user), counts derived, cross-tenant rejected; UI sudah terpasang di SuggestionBoxView |
 | 19 | ops: deploy v1.2 (+ rotation #12) | v1.2 | #13, #16–#18 | done | vps | main | 3880413 | **deploy v1.2 DONE** (regen typed _generated after prod deploy; smoke 200; backend = Convex Cloud rare-toucan-552). Rotation menyempit ke AUTH_GOOGLE_SECRET (owner) → #12. Tidak ada sisa kerja vps. |
 | 20 | alpha: integrasi wave v1.2 — mounts + fixes | v1.2 | #16, #17 | done | alpha | main | — | LessonComments mounted di kelas-app; tab Statistik (useCourseSummaries + CourseAnalyticsView) di kelola-app; komunitas-app payload fix (spec zeta #2 kini hijau — hapus test.fail saat run berikutnya); kelola anon login-gate; vitest alias @/features/@convex/@; e2e:staging tanpa cross-env |
+| 21 | `slices/notifications` — inbox in-app + producer comment_reply | v1.3 | #16 | in-progress | beta | — | — | pre-claimed; schema `notifications` by alpha; bell+inbox mount = alpha |
+| 22 | resources — producer notifikasi (kurasi & status usulan) | v1.3 | #18, #21 | in-progress | epsilon | — | — | pre-claimed; scheduler → internal notifications.create; no self-notify |
+| 23 | `slices/search` — pencarian kelas+materi per komunitas | v1.3 | #2 | in-progress | gamma | — | — | pre-claimed; search indexes by alpha; draft-guard wajib |
+| 24 | profiles — sertifikat publik per badge (`/sertifikat/<id>`) | v1.3 | #9 | in-progress | delta | — | — | pre-claimed; publicGetCertificate via §6; mount = alpha |
+| 25 | e2e hardening — flip annotation, gate baru, 3 spec tambahan | v1.3 | #13, #20 | in-progress | zeta | — | — | pre-claimed |
+| 26 | ops: deploy v1.3 + smoke (finale) | v1.3 | #21–#25 | open | vps | — | — | Cloud deploy; ingatkan #12 AUTH_GOOGLE_SECRET (owner) |
 
 ## Proposals (shared-surface changes — integrator applies)
 

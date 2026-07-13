@@ -76,7 +76,9 @@ export default defineSchema({
   })
     .index("by_tenant", ["tenantId"])
     .index("by_tenant_slug", ["tenantId", "slug"])
-    .index("by_tenant_status", ["tenantId", "status"]),
+    .index("by_tenant_status", ["tenantId", "status"])
+    // fase-2 (#23): pencarian judul kelas per tenant
+    .searchIndex("search_title", { searchField: "title", filterFields: ["tenantId", "status"] }),
 
   modules: defineTable({
     tenantId: v.id("tenants"),
@@ -96,7 +98,9 @@ export default defineSchema({
     order: v.number(),
   })
     .index("by_module", ["moduleId"])
-    .index("by_course", ["courseId"]),
+    .index("by_course", ["courseId"])
+    // fase-2 (#23): pencarian materi per tenant (filter tenantId; draft-guard di query)
+    .searchIndex("search_content", { searchField: "contentMd", filterFields: ["tenantId"] }),
 
   lessonCompletions: defineTable({
     tenantId: v.id("tenants"),
@@ -194,6 +198,24 @@ export default defineSchema({
     .index("by_suggestion", ["suggestionId"])
     .index("by_suggestion_user", ["suggestionId", "userId"])
     .index("by_user", ["userId"]),
+
+  notifications: defineTable({
+    // fase-2 (#21): inbox in-app per user. Producers menjadwalkan internal
+    // mutation notifications (comment reply, hasil kurasi, status usulan).
+    userId: v.id("users"), // penerima
+    tenantId: v.id("tenants"),
+    kind: v.union(
+      v.literal("comment_reply"),
+      v.literal("resource_reviewed"),
+      v.literal("suggestion_status")
+    ),
+    title: v.string(),
+    body: v.optional(v.string()),
+    href: v.optional(v.string()), // deep-link OS shell
+    readAt: v.optional(v.number()),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_read", ["userId", "readAt"]),
 
   announcements: defineTable({
     tenantId: v.id("tenants"),
