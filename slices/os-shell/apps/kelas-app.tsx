@@ -17,6 +17,7 @@ import { JoinButton, useTenantBySlug } from "@/features/tenants";
 import { openApp, seg } from "./_nav";
 import { recordRecentCourse } from "../recent-courses";
 import { CourseOverviewView, LessonPlayerView, useCourseOverview } from "@/features/courses";
+import { LessonComments } from "@/features/comments";
 import { CourseProgress, LessonCompletion, useCourseProgress } from "@/features/progress";
 import { CourseNav } from "@/features/roadmap";
 import { useQuizForTaking, useMyAttempts } from "@/features/quiz";
@@ -336,6 +337,10 @@ function KelasCourse({
             backHref={OVERVIEW_HREF}
             completionSlot={<LessonCompletion lessonId={lessonId} />}
           />
+          {/* #20: diskusi per lesson (comments slice, #16) */}
+          <div className="mt-8">
+            <LessonComments lessonId={lessonId} />
+          </div>
         </div>
       </div>
     );

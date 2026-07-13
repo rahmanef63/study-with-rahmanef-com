@@ -19,7 +19,7 @@ import {
   ResponsiveDialogHeader,
   ResponsiveDialogTitle,
 } from "@/features/responsive-dialog";
-import { openApp } from "./_nav";
+import { openApp, seg } from "./_nav";
 import {
   JoinButton,
   RequestTenantForm,
@@ -419,11 +419,12 @@ function CommunityDirectory() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export default function KomunitasApp(props: AppProps) {
-  const payload = props.payload as { tenantSlug?: string } | undefined;
+  // Deep-links and openApp deliver the slug as path segments (apps/_nav.ts
+  // contract) — read via seg() like kelas/kelola/profil do. The legacy
+  // { tenantSlug } object payload stays supported for old callers.
+  // Fix for zeta's #13 finding (e2e/smoke.anon.spec.ts test 2).
+  const legacy = props.payload as { tenantSlug?: string } | undefined;
+  const slug = seg(props.payload)[0] ?? legacy?.tenantSlug;
 
-  return payload?.tenantSlug ? (
-    <CommunityView slug={payload.tenantSlug} />
-  ) : (
-    <CommunityDirectory />
-  );
+  return slug ? <CommunityView slug={slug} /> : <CommunityDirectory />;
 }

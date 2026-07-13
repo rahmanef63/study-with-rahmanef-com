@@ -1,0 +1,20 @@
+feat(os-shell): wave v1.2 integration - comments, analytics tab, deep-link fixes (#20)
+
+- kelas-app: LessonComments mounted below the lesson player (comments #16)
+- kelola-app: new Statistik tab - course summaries (useCourseSummaries) with
+  per-course drill-down into CourseAnalyticsView (analytics #17)
+- komunitas-app: read the tenant slug via seg(payload) like every other app
+  (fixes zeta's #13 finding - /komunitas/<tenant> deep-link fell back to the
+  directory; e2e spec 2 flips green, remove its test.fail annotation on the
+  next e2e run)
+- kelola-app: anon login gate instead of an endless skeleton (zeta gap;
+  e2e spec 6 can be tightened)
+- vitest.config.mts: @/features / @convex / @ aliases mirroring tsconfig
+  (proposal from beta/gamma/delta barrel tests across waves)
+- package.json: e2e:staging without cross-env (dep was never installed)
+- docs/STATUS.md: #20 done
+
+Verified: tsc 0 errors; vitest 333/333 green (47 files).
+
+Agent: alpha
+Co-Authored-By: Claude <noreply@anthropic.com>

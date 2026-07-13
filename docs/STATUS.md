@@ -28,7 +28,7 @@
 | 17 | `slices/analytics` — agregat instruktur per kelas | v1.2 | #3, #8 | done | gamma | main | — | reviewed: read-only aggregates bounded, instructor-gated; MOUNTING ke kelola app = #20 |
 | 18 | `resources` — vote pada usulan | v1.2 | #7, #14 | done | epsilon | main | — | reviewed: toggle idempotent (by_suggestion_user), counts derived, cross-tenant rejected; UI sudah terpasang di SuggestionBoxView |
 | 19 | ops: deploy v1.2 (+ rotation #12) | v1.2 | #13, #16–#18 | done | vps | main | 3880413 | **deploy v1.2 DONE** (regen typed _generated after prod deploy; smoke 200; backend = Convex Cloud rare-toucan-552). Rotation menyempit ke AUTH_GOOGLE_SECRET (owner) → #12. Tidak ada sisa kerja vps. |
-| 20 | alpha: integrasi wave v1.2 — mount LessonComments (lesson app) + CourseAnalyticsView (kelola app), fix komunitas-app payload (temuan zeta), kelola anon login-gate, vitest alias @/features (proposal 3 worker) | v1.2 | #16, #17 | in-progress | alpha | — | — | pass lanjutan alpha; tidak memblokir deploy #19 (backend + suite sudah utuh) |
+| 20 | alpha: integrasi wave v1.2 — mounts + fixes | v1.2 | #16, #17 | done | alpha | main | — | LessonComments mounted di kelas-app; tab Statistik (useCourseSummaries + CourseAnalyticsView) di kelola-app; komunitas-app payload fix (spec zeta #2 kini hijau — hapus test.fail saat run berikutnya); kelola anon login-gate; vitest alias @/features/@convex/@; e2e:staging tanpa cross-env |
 
 ## Proposals (shared-surface changes — integrator applies)
 

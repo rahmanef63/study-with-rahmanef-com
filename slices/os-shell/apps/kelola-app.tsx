@@ -18,12 +18,14 @@ import { Hero, SectionHeader } from "@/components/mockup-kit";
 import { KelolaEmpty, KelolaSkeleton } from "./kelola-parts";
 import { KelolaKelasTab } from "./kelola-kelas-tab";
 import { KelolaKuisTab } from "./kelola-kuis-tab";
+import { KelolaStatistikTab } from "./kelola-statistik-tab";
 
-type TabKey = "kelas" | "kuis" | "komunitas" | "pengumuman";
+type TabKey = "kelas" | "kuis" | "statistik" | "komunitas" | "pengumuman";
 
 const TABS: { key: TabKey; label: string; icon: LucideIcon; blurb: string }[] = [
   { key: "kelas", label: "Kelas", icon: BookOpen, blurb: "Susun kelas, modul, dan materi." },
   { key: "kuis", label: "Kuis", icon: ListChecks, blurb: "Bangun bank soal per modul." },
+  { key: "statistik", label: "Statistik", icon: ListChecks, blurb: "Progress & hasil kuis per kelas." },
   { key: "komunitas", label: "Komunitas", icon: Users, blurb: "Atur profil & identitas komunitas." },
   {
     key: "pengumuman",
@@ -54,8 +56,23 @@ export default function KelolaApp(props: AppProps) {
 
 function KelolaConsole({ tenantSlug }: { tenantSlug: string }) {
   const tenant = useTenantBySlug(tenantSlug);
-  const { membership, isAuthLoading } = useMyMembership(tenant?._id);
+  const { membership, isAuthenticated, isAuthLoading } = useMyMembership(tenant?._id);
   const [tab, setTab] = useState<TabKey>("kelas");
+
+  // Anon branch (#20, zeta's #13 finding): while logged OUT the membership
+  // query is skipped, so `membership` never resolves — show a login gate
+  // instead of an endless skeleton. e2e spec 6 tightens once this ships.
+  if (!isAuthLoading && !isAuthenticated) {
+    return (
+      <div className="w-full p-6 @md:p-8">
+        <KelolaEmpty
+          icon={Lock}
+          title="Masuk untuk mengelola"
+          body="Konsol pengelola butuh login. Buka /masuk lalu kembali ke sini."
+        />
+      </div>
+    );
+  }
 
   if (tenant === undefined || isAuthLoading || membership === undefined) {
     return (
@@ -138,6 +155,7 @@ function KelolaConsole({ tenantSlug }: { tenantSlug: string }) {
         <div className="min-w-0">
           {tab === "kelas" ? <KelolaKelasTab tenantId={tenant._id} /> : null}
           {tab === "kuis" ? <KelolaKuisTab tenantId={tenant._id} /> : null}
+          {tab === "statistik" ? <KelolaStatistikTab tenantId={tenant._id} /> : null}
           {tab === "komunitas" ? <TenantSettingsView slug={tenant.slug} /> : null}
           {tab === "pengumuman" ? <AnnouncementsView tenantId={tenant._id} canManage /> : null}
         </div>
