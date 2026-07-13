@@ -169,12 +169,12 @@ test("snippet is plain text ≤121 chars — markdown markers stripped", async (
     .withIdentity(asUser(fx.memberId))
     .query(fn, { tenantId: fx.tenantId, q: "fotosintesis" });
   const long = hits.find(
-    (h: { kind: string; courseSlug: string }) =>
+    (h): h is Extract<(typeof hits)[number], { kind: "lesson" }> =>
       h.kind === "lesson" && h.courseSlug === "kelas-panjang"
   );
   expect(long).toBeDefined();
-  expect(long.snippet.length).toBeLessThanOrEqual(121); // 120 + ellipsis
-  expect(long.snippet).not.toMatch(/[#*_`]|\]\(|https:\/\//);
+  expect(long!.snippet.length).toBeLessThanOrEqual(121); // 120 + ellipsis
+  expect(long!.snippet).not.toMatch(/[#*_`]|\]\(|https:\/\//);
 });
 
 // ── bounded reads ──────────────────────────────────────────────────────────
