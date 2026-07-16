@@ -1,89 +1,110 @@
-# Agent Prompts — Wave v1.4 (CURRENT)
+# Agent Prompts — Wave v1.5 "KONTEN" (CURRENT)
 
-> Contract: [AGENTS.md](../AGENTS.md) · Board: [STATUS.md](STATUS.md) · Konteks ops terbaru: [reports/vps-2026-07-13.md](reports/vps-2026-07-13.md)
-> LIVE: https://study-with.rahmanef.com · backend **Convex Cloud `rare-toucan-552`** · frontend OS desktop shell · **prod punya aktivitas user NYATA — jangan pernah purge/fake data**.
-> Fitur v1.3 SUDAH live end-to-end (bell/inbox, Cari, /sertifikat, gate anon resources — mounted #27).
+> Contract: [AGENTS.md](../AGENTS.md) · Board: [STATUS.md](STATUS.md) · Ops terbaru: [reports/vps-2026-07-16.md](reports/vps-2026-07-16.md)
+> LIVE: https://study-with.rahmanef.com · backend **Convex Cloud `rare-toucan-552`** · **prod punya aktivitas user NYATA — jangan pernah purge/fake data**.
+> Wave ini 100% KONTEN: 3 kursus seed baru. NOL perubahan schema/fitur/UI.
 
-## EXECUTION MODE: Cowork parallel (same folder) — aturan tetap
+## EXECUTION MODE: Cowork parallel (same folder) — varian KONTEN
 
-1. Worker menulis HANYA di direktori assignment-nya (tabel di bawah). Tidak `docs/**` (kecuali disebut eksplisit di assignment), `app/**`, `package.json`, `convex/schema.ts`, atau slice/dir milik agent lain di wave ini.
-2. Board milik alpha (read-only bagi worker); klaim sudah di-pre-claim; lapor via chat (laporan terstruktur: files, barrel, hasil test, proposals, TODO).
-3. No git. 4. Tests wajib DITULIS untuk perubahan convex (run via /tmp copy + `npm install --legacy-peer-deps`; gagal install → "not executed"). 5. Tulis file di FOLDER PROJECT (verifikasi ada + utuh sebelum lapor — cek `wc -l`). 6. Modul non-test `convex/**` = camelCase. 7. Copy ID; anonymous read hanya via §6 etalase. 8. Skema wave v1.4 SUDAH ditambah alpha (`notifications.kind` + literal `announcement`) — implement PERSIS per docs/DATA-MODEL.md (blok "Wave v1.4 additions").
-9. Pola rujukan: convex/features/comments/notify.ts + resources/notify.ts (producer scheduler → internal) · notifications/notifications.test.ts (fixture + flushScheduled) · search/queries.ts (bounded + projections) · slices/os-shell/apps/cari-app.tsx (state ladder empty/gate/skeleton).
+1. Worker menulis TEPAT SATU file baru: `convex/<namaSeedCamelCase>.ts` (tabel di bawah). Tidak menyentuh file lain APA PUN (tidak docs/**, convex/features/**, slices/**, schema, seed.ts/seedWebDev.ts).
+2. Board milik alpha (read-only); klaim pre-claimed; lapor via chat (jumlah modul/lesson/kuis, judul-judulnya, hasil verifikasi, run command).
+3. No git. 4. Modul convex non-test = camelCase (P1 §7 — Convex menolak `-`).
+5. Pola WAJIB diikuti: `convex/seedWebDev.ts` (baca dulu!) — internalMutation; cari user via email index + tenant via by_slug; SKIP kalau slug course sudah ada (idempoten); insert course(status "published") → modules(order) → lessons(order, links[]) → quizzes.
+6. ATURAN KONTEN:
+   - Bahasa Indonesia hangat & membumi; istilah teknis tetap English (AGENTS.md §7). Gaya: seperti mentor, banyak analogi, langkah praktis yang bisa langsung dicoba GRATIS.
+   - contentMd = template literal → JANGAN pakai triple-backtick di dalamnya; contoh kode/prompt ditulis sebagai INDENTED code block (4 spasi). Escape backtick/`${}` bila perlu.
+   - `links`: 2–4 tautan eksternal GRATIS per lesson yang relevan (docs resmi, YouTube, artikel bebas). `youtubeVideoId` hanya jika kamu yakin ID 11-karakter valid — kalau ragu, OMIT (jangan ngarang).
+   - Kuis: per modul yang ditandai, 3–5 soal MCQ 4 opsi, `passingScorePct` 60–70, `explanation` singkat tiap soal. `correctIndex` bervariasi (jangan semua 0).
+   - Zero-cost law: semua praktik harus bisa diikuti tanpa bayar (free tier).
+7. Slug course yang SUDAH ADA (jangan tabrak): dasar-ai, prompt-engineering, kreator-konten, ide-konten, skrip-caption, karier-digital, freelance-nol, portofolio-dilirik, bikin-aplikasi-web-dengan-ai.
+8. Verifikasi sebelum lapor: file ada di FOLDER PROJECT + `wc -l` masuk akal; parse via `npx esbuild <file> --loader:.ts=ts --outfile=/dev/null` dari copy /tmp; TIDAK perlu vitest (data-only; file seed exempt LOC).
 
-## Assignments — wave v1.4
+## Assignments — wave v1.5
 
-| Agent | Row | Tugas | Dirs |
+| Agent | Row | Kursus (slug) | File |
 |---|---|---|---|
-| ui | #15 (final) | polish sweep permukaan v1.3 + UI-UX-PRD v3.2 + tutup arc | `slices/os-shell/**` (apps baru & chrome), `slices/profiles/components/certificate-*` + `config/certificate-labels.ts`, `docs/UI-UX-PRD.md` (satu-satunya docs yang boleh) |
-| beta | #28 | notifikasi pengumuman (fan-out bounded ke member) | `convex/features/announcements/`, `convex/features/notifications/`, `slices/notifications/` |
-| gamma | #29 | pencarian meluas ke papan sumber (kind `resource`) | `convex/features/search/`, `slices/search/` |
-| vps | #30 | FINAL: deploy v1.4 (schema union + functions) + smoke | Cloud CLI (dormant-role exception) |
+| beta | #31 | AI untuk Produktivitas Kerja (`ai-produktivitas-kerja`) | `convex/seedAiKerja.ts` (export `seedAiKerjaContent`) |
+| gamma | #32 | Analisis Data dengan AI (`analisis-data-dengan-ai`) | `convex/seedAnalisisData.ts` (export `seedAnalisisDataContent`) |
+| delta | #33 | Orkestrasi Multi-Agent (`orkestrasi-multi-agent`) | `convex/seedMultiAgent.ts` (export `seedMultiAgentContent`) |
+| vps | #34 | FINAL: run 3 seed di prod + smoke | Cloud CLI (dormant-role exception) |
 
-Non-overlap: ui TIDAK menyentuh `slices/notifications` & `slices/search` (milik beta/gamma wave ini); beta/gamma TIDAK menyentuh `slices/os-shell`.
-Urutan: 3 worker paralel → alpha review+integrasi → Rahman push → vps #30 → (masih terbuka: #12 rotasi `AUTH_GOOGLE_SECRET`, owner).
+Urutan: 3 worker paralel → alpha review (baca konten! bukan cuma parse) → Rahman push → vps #34.
 
 ---
 
-## Prompt — ui (#15 FINAL polish)
+## Prompt — beta (#31 AI untuk Produktivitas Kerja)
 
 ```
-You are agent "ui" (Cowork parallel; no git; STATUS read-only — row #15 pre-claimed, THIS is its closing pass). Dirs: slices/os-shell/** + slices/profiles/components/certificate-*.tsx + slices/profiles/config/certificate-labels.ts + docs/UI-UX-PRD.md ONLY. JANGAN sentuh slices/notifications & slices/search (agent lain sedang kerja di sana) dan JANGAN ubah perilaku/data-flow — ini polish visual & a11y murni.
+You are agent "beta" (Cowork parallel KONTEN; no git; STATUS read-only — row #31 pre-claimed). Kamu menulis TEPAT SATU file baru: convex/seedAiKerja.ts. Tidak menyentuh file lain.
 
-Onboarding: CLAUDE.md → AGENTS.md → mode rules atop docs/AGENT-PROMPTS.md → docs/UI-UX-PRD.md (§5 Editorial Warmth + §9 checklist + DoD §10) → docs/design/BRAND.md.
+Onboarding: CLAUDE.md → AGENTS.md → mode rules KONTEN atop docs/AGENT-PROMPTS.md → BACA convex/seedWebDev.ts sebagai pola (ikuti persis strukturnya; ganti nama fungsi jadi seedAiKerjaContent, idempoten per slug "ai-produktivitas-kerja").
 
-Scope (permukaan baru v1.3 yang belum kena sweep Editorial Warmth):
-- apps/cari-app.tsx, apps/notifikasi-app.tsx, apps/sertifikat-app.tsx, notifications-status.tsx (bell placement), + touchpoint kecil di apps/komunitas-app.tsx (quick action Cari) & apps/resources-app.tsx (gate anon).
-- Checklist per permukaan: tokens only (nol hex/hardcode; pakai --chart-*, --radius-win, --hover-strong dst) · container-first reflow @sm/@md (window bisa 340px!) · target sentuh ≥44px · empty/loading/error hadir & senada · copy Bahasa Indonesia konsisten (istilah teknis tetap EN) · aria-label ikon · reduced-motion safe · font serif utk judul (pola Hero/font-serif yang ada).
-- CertificateCard: pantas di-screenshot/dibagikan (ini permukaan publik paling shareable) — rapikan hierarki nama besar → kelas → komunitas → tanggal, tanpa mengubah props/shape.
-- docs/UI-UX-PRD.md → v3.2: tambah 3 app baru (cari/notifikasi/sertifikat) ke peta app §3 + baris fitur §4, update angka test di DoD §10 (403), tandai arc #15 CLOSED.
+Kursus: "AI untuk Produktivitas Kerja" — utk karyawan/pekerja kantoran non-IT yang mau kerja lebih cepat pakai AI, semuanya gratis. Track: kerja.
+Deskripsi singkat course: bantu pekerjaan harian — menulis, dokumen, spreadsheet, rapat — dengan asisten AI, tanpa jargon.
 
-DoD: tsc --noEmit hijau (scoped tsconfig ke dirs-mu cukup — lihat pola tsconfig scratch di memory worker sebelumnya); tanpa perubahan logika (diff = className/markup/copy/docs); laporan terstruktur per file dengan alasan desain singkat, stop.
+Silabus (5 modul, 12–14 lesson, 4 kuis — kembangkan isinya sendiri, mendalam & praktis):
+1. Asisten AI di Tempat Kerja — pilih alat gratis (Claude/ChatGPT/Gemini), akun & privasi data kantor (JANGAN tempel data rahasia), prompt dasar utk kerja. [kuis]
+2. Menulis Lebih Cepat — email profesional (ID/EN), ringkas dokumen panjang, proposal & laporan, nada formal vs santai. [kuis]
+3. Spreadsheet & Data Ringan — minta AI bikin formula Excel/Sheets, rapikan data berantakan, pivot sederhana, template gratis.
+4. Rapat & Kolaborasi — agenda, notulen dari transkrip, follow-up action items, presentasi outline. [kuis]
+5. Otomasi Ringan & Etika — template prompt yang bisa dipakai ulang, batas AI di kerjaan (verifikasi, bias, data sensitif), bangun kebiasaan. [kuis]
+
+Aturan konten & verifikasi: ikut mode rules KONTEN #6 dan #8. Laporan terstruktur (daftar modul/lesson/kuis + run command), stop.
 ```
 
-## Prompt — beta (#28 notifikasi pengumuman)
+## Prompt — gamma (#32 Analisis Data dengan AI)
 
 ```
-You are agent "beta" (Cowork parallel; no git; STATUS read-only — row #28 pre-claimed; verify schema notifications.kind sudah punya literal "announcement" di convex/schema.ts, else STOP). Dirs: convex/features/announcements/ + convex/features/notifications/ + slices/notifications/ ONLY.
+You are agent "gamma" (Cowork parallel KONTEN; no git; STATUS read-only — row #32 pre-claimed). Kamu menulis TEPAT SATU file baru: convex/seedAnalisisData.ts. Tidak menyentuh file lain.
 
-Onboarding: CLAUDE.md → AGENTS.md → mode rules atop docs/AGENT-PROMPTS.md → docs/DATA-MODEL.md blok "Wave v1.4 additions".
+Onboarding: CLAUDE.md → AGENTS.md → mode rules KONTEN atop docs/AGENT-PROMPTS.md → BACA convex/seedWebDev.ts sebagai pola (fungsi seedAnalisisDataContent, idempoten per slug "analisis-data-dengan-ai").
 
-Build:
-- convex/features/notifications: internal mutation `createMany` — validators; args {rows: v.array(<shape create>)} ATAU {tenantId, kind, title, body?, href?, recipientIds}; insert loop DI DALAM satu mutation; hard-cap array (≤200, VALIDATION_FAILED jika lebih); reuse validasi title/href dari `create` (refactor helper, jangan duplikasi).
-- Producer di announcements.create (setelah insert row): baca memberships by_tenant bounded take(200) → kumpulkan userId ≠ pengirim → SATU ctx.scheduler.runAfter(0, internal.features.notifications.<createMany>, …) dengan kind "announcement", title = judul pengumuman (trim/potong wajar), href = `/pengumuman/<tenantSlug>` (tenant row sudah/boleh di-load bounded). Pengirim TIDAK menotifikasi diri sendiri (P0, tested). Jangan ganggu alur Discord yang ada.
-- slices/notifications: type NotificationKind + literal "announcement"; mapping copy/ikon kind di komponen row jika ada switch per-kind (cek notification-row.tsx); TANPA perubahan visual lain (agent ui sedang polish os-shell — kamu hanya slices/notifications).
-- P0: validators + authz tetap; createMany INTERNAL (bukan public); bounded; tanpa tabel baru.
+Kursus: "Analisis Data dengan AI" — utk siapa pun yang punya data (jualan, keuangan pribadi, media sosial) dan mau membacanya dengan bantuan AI, tanpa background statistik. Track: umum/kerja.
+Deskripsi: dari file CSV/spreadsheet mentah sampai insight dan grafik yang bisa dipresentasikan — dipandu AI, gratis.
 
-Done = AGENTS.md §5 (tests: fan-out ke member lain ya / pengirim tidak, cap 200 dihormati, denied paths lama utuh, flushScheduled pattern). Laporan terstruktur, stop.
+Silabus (5 modul, 12–14 lesson, 4 kuis — kembangkan sendiri):
+1. Kenalan dengan Data — jenis data sehari-hari, rapi vs berantakan, siapkan contoh dataset gratis (unduhan publik / data sendiri). [kuis]
+2. AI sebagai Analis Pribadi — tempel data ke chat dengan aman (anonimkan!), minta ringkasan, tanya-jawab data, deteksi tren & anomali dasar. [kuis]
+3. Statistik Praktis Tanpa Rumus — rata-rata vs median (kapan mana), persentase & pertumbuhan, korelasi ≠ sebab-akibat — semua via contoh + AI. [kuis]
+4. Visualisasi — pilih grafik yang tepat, minta AI bikin chart (Sheets/alat gratis), merapikan utk presentasi.
+5. Studi Kasus End-to-End — satu dataset dari mentah → bersih → insight → slide ringkas; checklist verifikasi angka (AI bisa salah hitung!). [kuis]
+
+Aturan konten & verifikasi: ikut mode rules KONTEN #6 dan #8. Laporan terstruktur, stop.
 ```
 
-## Prompt — gamma (#29 pencarian sumber)
+## Prompt — delta (#33 Orkestrasi Multi-Agent)
 
 ```
-You are agent "gamma" (Cowork parallel; no git; STATUS read-only — row #29 pre-claimed). Dirs: convex/features/search/ + slices/search/ ONLY.
+You are agent "delta" (Cowork parallel KONTEN; no git; STATUS read-only — row #33 pre-claimed). Kamu menulis TEPAT SATU file baru: convex/seedMultiAgent.ts. Tidak menyentuh file lain.
 
-Onboarding: CLAUDE.md → AGENTS.md → mode rules atop docs/AGENT-PROMPTS.md → docs/DATA-MODEL.md blok "Wave v1.4 additions".
+Onboarding: CLAUDE.md → AGENTS.md → mode rules KONTEN atop docs/AGENT-PROMPTS.md → BACA convex/seedWebDev.ts sebagai pola (fungsi seedMultiAgentContent, idempoten per slug "orkestrasi-multi-agent").
 
-Build:
-- searchInTenant: tambah sumber ketiga — resources APPROVED-only via index by_tenant_status (eq tenantId, eq "approved"), bounded take(50), filter judul di memori (case-insensitive contains q; TANPA search index baru). Hasil baru: {kind:"resource", title, url} — projection eksplisit, TANPA note/submittedBy/id. Batasi hasil resource take teratas 10.
-- Type SearchHit + varian ResourceHit; SearchResults/SearchResultItem render grup "Sumber" — klik = buka url eksternal target="_blank" rel="noopener noreferrer" (BUKAN onNavigate); empty state tetap.
-- Bump versi metadata pair slices/search 0.1.0 → 0.2.0 (sinkron slice.json + slice.manifest.json).
-- P0: member-only tetap (tanpa jalur anon baru); pending/rejected TIDAK PERNAH muncul (tested); bounded; shape exact di-assert (update test shape yang ada — kind resource {kind,title,url} PERSIS).
+Kursus: "Orkestrasi Multi-Agent untuk Proyek Nyata" — kelanjutan "Bikin Aplikasi Web dengan AI": cara menjalankan BEBERAPA agent AI sekaligus utk satu proyek, seperti punya tim developer. Track: lanjutan. INI KISAH NYATA platform ini — platform belajar-with-rahmanef dibangun persis dengan metode ini; jadikan itu benang merah studi kasusnya (tanpa menyebut detail rahasia/infra).
+Deskripsi: dari satu agent jadi tim agent — kontrak kerja, pembagian tugas paralel, review, dan integrasi, dipraktikkan pada proyek sungguhan.
 
-Done = AGENTS.md §5. Laporan terstruktur (sebut perubahan shape barrel utk alpha), stop.
+Silabus (5 modul, 12–14 lesson, 4 kuis — kembangkan sendiri):
+1. Kenapa Multi-Agent — batas satu sesi (context window, fokus), kapan 1 agent cukup, peran: integrator vs worker. [kuis]
+2. Kontrak & Aturan Main — dokumen kontrak (AGENTS.md-style), konvensi kode, pembagian wilayah file (zero shared writes), claim board utk klaim tugas. [kuis]
+3. Menulis Prompt Assignment — anatomi prompt worker yang baik (peran, batas dir, pola rujukan, definition-of-done, format laporan), anti-pattern umum.
+4. Review & Integrasi — membaca laporan worker, verifikasi independen (typecheck/test), menangani konflik & drift, kapan menolak hasil. [kuis]
+5. Studi Kasus: Platform Ini — alur 1 wave dari pre-work → 3-5 worker paralel → review → deploy; pelajaran yang bisa ditiru pembaca utk proyeknya sendiri. [kuis]
+
+Aturan konten & verifikasi: ikut mode rules KONTEN #6 dan #8. Laporan terstruktur, stop.
 ```
 
-## Prompt — vps (#30 FINAL — setelah alpha merge & Rahman push)
+## Prompt — vps (#34 FINAL — setelah alpha review & Rahman push)
 
 ```
-You are agent "vps" (AGENTS.md §4 — dormant-role exception for Cloud deploys; secrets NAMES only). Rows: #30.
+You are agent "vps" (AGENTS.md §4 — dormant-role exception; secrets NAMES only). Rows: #34.
 
 1. git pull --ff-only origin main.
-2. npx convex deploy --yes (schema additive: notifications.kind + literal "announcement"; functions: notifications createMany + producer announcements + search resources). --dry-run dulu utk konfirmasi target prod rare-toucan-552. Regen typed api bila stale (mechanical-hotfix exception, flag alpha).
-3. Smoke UI: /, /komunitas/belajar-ai, /kelas/belajar-ai/bikin-aplikasi-web-dengan-ai, /profil/rahman, /sertifikat/<completionId nyata via dashboard — angka saja>, /cari/belajar-ai (gate anon "Masuk untuk mencari"), /resources/belajar-ai/usulan (gate anon) — 200 tanpa crash.
-4. Smoke backend: buat 1 pengumuman test di tenant belajar-ai via dashboard (fungsi asli, BUKAN insert manual) → cek rows notifications kind announcement muncul utk member lain (angka saja) — JANGAN hapus data user; searchInTenant happy-path via dashboard runner (member-authed) memuat grup resource.
-5. Ingatkan Rahman: #12 AUTH_GOOGLE_SECRET masih pending (owner).
-6. Laporan: status per langkah, row counts (angka), proposals. No secret values.
+2. npx convex deploy --yes HANYA bila ada modul convex baru yang perlu terdaftar (3 file seed = modul baru → perlu deploy; --dry-run dulu, konfirmasi prod rare-toucan-552).
+3. Jalankan 3 seed (idempoten, aman diulang; angka hasil saja):
+   npx convex run seedAiKerja:seedAiKerjaContent '{"ownerEmail":"rahmanef63@gmail.com","tenantSlug":"belajar-ai"}' --prod
+   npx convex run seedAnalisisData:seedAnalisisDataContent '{"ownerEmail":"rahmanef63@gmail.com","tenantSlug":"belajar-ai"}' --prod
+   npx convex run seedMultiAgent:seedMultiAgentContent '{"ownerEmail":"rahmanef63@gmail.com","tenantSlug":"belajar-ai"}' --prod
+4. Smoke: /kelas/belajar-ai/ai-produktivitas-kerja, /kelas/belajar-ai/analisis-data-dengan-ai, /kelas/belajar-ai/orkestrasi-multi-agent → 200 tanpa crash; searchInTenant q sesuai judul baru memuat hasil (dashboard runner, member-authed).
+5. Laporan: row counts per kursus (modul/lesson/kuis — angka), status per langkah, proposals. JANGAN purge/ubah data user.
 ```
 
 ## Template re-assignment — tetap (lihat riwayat git bila perlu).
