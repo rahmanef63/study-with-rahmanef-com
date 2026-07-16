@@ -7,7 +7,9 @@
 // still open the right window via URL-sync).
 //
 // Convex surface (not re-exported; call via api.features.search.*):
-//   queries:searchInTenant — MEMBER-ONLY, drafts never returned.
+//   queries:searchInTenant — MEMBER-ONLY, drafts never returned; since 0.2.0
+//   (#29) hits also include kind "resource" {kind, title, url} (approved-only)
+//   rendered as an external-link group "Sumber" (new tab, not onNavigate).
 
 // feature descriptor
 export { searchFeature } from "./config";
@@ -43,6 +45,7 @@ export { MAX_QUERY_LENGTH, MIN_QUERY_LENGTH, SEARCH_DEBOUNCE_MS } from "./config
 export type {
   CourseHit,
   LessonHit,
+  ResourceHit,
   SearchErrorCode,
   SearchHit,
   SearchInTenantResult,

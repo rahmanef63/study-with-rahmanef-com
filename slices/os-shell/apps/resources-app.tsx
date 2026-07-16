@@ -11,9 +11,10 @@ import { ResourceBoardView, SuggestionBoxView } from "@/features/resources";
 import { openApp, seg } from "./_nav";
 import { tenantsApi, useMyMembership, type PublicTenant } from "@/features/tenants";
 import { Button } from "@/components/ui/button";
-import { Empty, EmptyHeader, EmptyTitle, EmptyDescription } from "@/components/ui/empty";
+import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/components/ui/empty";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Hero } from "@/components/mockup-kit";
-import { LogIn } from "lucide-react";
+import { Library, LogIn, SearchX } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const TABS = [
@@ -23,10 +24,21 @@ const TABS = [
 
 type TabKey = (typeof TABS)[number]["key"];
 
-function ResourcesEmpty({ title, description }: { title: string; description: string }) {
+function ResourcesEmpty({
+  icon: Icon,
+  title,
+  description,
+}: {
+  icon: typeof Library;
+  title: string;
+  description: string;
+}) {
   return (
     <Empty className="border">
       <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <Icon aria-hidden />
+        </EmptyMedia>
         <EmptyTitle className="font-serif">{title}</EmptyTitle>
         <EmptyDescription className="text-pretty">{description}</EmptyDescription>
       </EmptyHeader>
@@ -71,6 +83,9 @@ export default function ResourcesApp(props: AppProps) {
         />
         <Empty className="border">
           <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <LogIn aria-hidden />
+            </EmptyMedia>
             <EmptyTitle className="font-serif">Masuk untuk membuka sumber &amp; usulan</EmptyTitle>
             <EmptyDescription className="text-pretty">
               Papan sumber dan kotak usulan hanya untuk anggota komunitas. Masuk dulu, ya.
@@ -98,16 +113,19 @@ export default function ResourcesApp(props: AppProps) {
 
       {!slug ? (
         <ResourcesEmpty
+          icon={Library}
           title="Komunitas belum dipilih"
           description="Buka papan ini dari sebuah komunitas untuk melihat sumber dan usulannya."
         />
       ) : tenant === undefined ? (
-        <div className="space-y-4">
-          <div className="h-10 w-64 max-w-full animate-pulse rounded-full bg-muted/50" />
-          <div className="h-64 animate-pulse rounded-[var(--radius-win)] bg-muted/50" />
+        <div className="space-y-4" aria-busy>
+          <span className="sr-only">Memuat papan sumber…</span>
+          <Skeleton className="h-11 w-64 max-w-full rounded-full" />
+          <Skeleton className="h-64 w-full rounded-[var(--radius-win)]" />
         </div>
       ) : tenant === null ? (
         <ResourcesEmpty
+          icon={SearchX}
           title="Komunitas tidak ditemukan"
           description="Komunitas ini tidak aktif atau tautannya sudah tidak berlaku."
         />

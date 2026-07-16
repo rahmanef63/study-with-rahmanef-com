@@ -75,6 +75,7 @@ export default function CariApp(props: AppProps) {
   } else if (tenant === undefined || isAuthLoading || membership === undefined) {
     body = (
       <div className="space-y-3" aria-busy>
+        <span className="sr-only">Memuat pencarian…</span>
         <Skeleton className="h-11 w-full rounded-md" />
         <Skeleton className="h-14 w-full rounded-md" />
         <Skeleton className="h-14 w-full rounded-md" />

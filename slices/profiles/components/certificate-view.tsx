@@ -65,7 +65,8 @@ function CertificateContent({ completionId, shareUrl, labels }: ContentProps) {
 function CertificateSkeleton() {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-5" aria-busy="true">
-      <div className="flex flex-col items-center gap-4 rounded-[var(--radius-win)] border border-border bg-card px-6 py-10 @sm:px-10 @sm:py-12">
+      <span className="sr-only">{DEFAULT_CERTIFICATE_LABELS.loading}</span>
+      <div className="flex flex-col items-center gap-4 rounded-[var(--radius-win)] border border-border bg-card px-6 py-10 @sm:px-12 @sm:py-14">
         <Skeleton className="size-14 rounded-full" />
         <Skeleton className="h-3 w-28" />
         <Skeleton className="h-6 w-52 max-w-full" />
@@ -89,10 +90,14 @@ function CertificateFallback({
   notFound: boolean;
 }) {
   return (
-    <Empty className="mx-auto max-w-2xl">
+    <Empty className="mx-auto max-w-2xl border">
       <EmptyHeader>
-        <EmptyTitle>{notFound ? copy.notFoundTitle : copy.errorTitle}</EmptyTitle>
-        <EmptyDescription>{notFound ? copy.notFoundBody : copy.errorBody}</EmptyDescription>
+        <EmptyTitle className="font-serif">
+          {notFound ? copy.notFoundTitle : copy.errorTitle}
+        </EmptyTitle>
+        <EmptyDescription className="text-pretty">
+          {notFound ? copy.notFoundBody : copy.errorBody}
+        </EmptyDescription>
       </EmptyHeader>
     </Empty>
   );

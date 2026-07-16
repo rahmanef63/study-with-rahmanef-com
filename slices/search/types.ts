@@ -7,6 +7,7 @@
 export type {
   CourseHit,
   LessonHit,
+  ResourceHit,
   SearchHit,
   SearchInTenantResult,
 } from "@convex/features/search/projections";

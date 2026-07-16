@@ -1,6 +1,6 @@
 # UI/UX PRD — belajar-with-rahmanef.com (study-with.rahmanef.com)
 
-> v3.1 · 2026-07-07 · Pemilik: alpha (integrator) · Status: **OS DESKTOP SHELL SHIPPED** · Editorial Warmth SHIPPED · shell features P1/P2/P3 SHIPPED · **enhancement arc SHIPPED** (account + sign-out kerja · Dashboard inspector · onboarding dosen G1/G2 · badge status kuis · widget "Lanjutkan belajar" di SEMUA shell dg S/M/L · Android notif-log · Windows tray)
+> v3.2 · 2026-07-16 · Pemilik: alpha (integrator) · Status: **OS DESKTOP SHELL SHIPPED** · Editorial Warmth SHIPPED · shell features P1/P2/P3 SHIPPED · **enhancement arc #15 CLOSED** (account + sign-out kerja · Dashboard inspector · onboarding dosen G1/G2 · badge status kuis · widget "Lanjutkan belajar" di SEMUA shell dg S/M/L · Android notif-log · Windows tray) · **wave v1.3 SHIPPED + sweep Editorial Warmth** (bell/inbox Notifikasi · Cari per-komunitas · Sertifikat publik · gate anon Resources — v3.2 = polish pass permukaan baru: token/serif/empty-state senada + a11y)
 > Konteks produk: [PRD.md](PRD.md) · kontrak: [AGENTS.md](../AGENTS.md) · aturan UI rr: [rr-conventions.md](rr-conventions.md) §UI · arsitektur data: [DATA-MODEL.md](DATA-MODEL.md)
 > Fokus dokumen: model UX + daftar fitur & permukaan + progres. **Chrome utama sekarang = satu OS desktop berjendela** (bukan lagi route/page per-permukaan). Deskripsi "route/page" era lama ditandai *superseded* — tidak dihapus.
 
@@ -29,14 +29,14 @@ Riwayat pra-OS (masih valid sebagai fondasi visual/data): `742e078` overhaul "Ed
 Bukan "satu halaman per fitur", tapi **satu desktop** yang me-mount jendela-jendela aplikasi. Alur mount:
 
 - `app/[[...slug]]/page.tsx` (catch-all, satu-satunya route) → `OsRoot` (client) → `<AppShell manifest>` dari `@/features/appshell`.
-- `slices/os-shell/manifest.tsx` = SATU tempat deklarasi brand + 10 app + features + capabilities; appshell core tidak meng-import apa pun dari domain — semua di-inject.
+- `slices/os-shell/manifest.tsx` = SATU tempat deklarasi brand + 16 app + features + capabilities; appshell core tidak meng-import apa pun dari domain — semua di-inject.
 - **Window manager** (store via `useSyncExternalStore`, `persistKey: "study-with:os"`): buka/tutup/fokus/minimize, single-instance (buka app dengan payload baru = swap payload + refocus, bukan jendela baru), snap/split-view, dock, launcher.
 - **URL-sync** (`routing: true`, History API): app yang fokus dicerminkan ke address bar; link yang di-paste re-hidrasi ke jendela yang sama (lihat §3 + Diagram B).
 
 Ownership: seluruh `slices/os-shell/**` + `slices/appshell/**` milik **alpha** (integrator). App = thin client wrapper yang **me-reuse view slice + query Convex yang sudah ada** (tak ada domain logic ditulis ulang). Tambah app = satu `AppDescriptor` di manifest.
 
 Lapisan integrasi `slices/os-shell/`:
-`manifest.tsx` (brand + 10 app + features + capabilities) · `capabilities.ts` (data seam) · `os-root.tsx` (mount `<AppShell>`) · `apps/` (10 window-app + `_nav.ts` `openApp`/`seg`) · `shell-search.ts` (⌘K) · `shell-commands.tsx` (palette) · `shell-activity.tsx` (notifikasi) · `learning-widgets.tsx` (widget Today) · `recent-courses.ts` (recents) · `boot-beranda.tsx` (auto-open cold boot).
+`manifest.tsx` (brand + 16 app + features + capabilities) · `capabilities.ts` (data seam) · `os-root.tsx` (mount `<AppShell>`) · `apps/` (16 window-app + `_nav.ts` `openApp`/`seg`) · `shell-search.ts` (⌘K) · `shell-commands.tsx` (palette) · `shell-activity.tsx` (notifikasi) · `notifications-status.tsx` (bell menu-bar) · `learning-widgets.tsx` (widget Today) · `recent-courses.ts` (recents) · `boot-beranda.tsx` (auto-open cold boot).
 
 ## 2. Lima shell yang bisa diganti + picker "Tampilan OS" (tayang)
 
@@ -54,9 +54,9 @@ appshell membawa **5 shell chrome** yang bisa ditukar live; identik isinya, beda
 
 Chrome shell **mengikuti preset tema aktif** (lihat §5): warna/radius/font glass/window/dock diambil dari token preset via remap di `app/globals.css`, jadi 5 shell × ±30 preset × light/dark semuanya konsisten. Token `--info/--success/--warning` ditambahkan agar chrome tak lagi "invisible" di shell non-macOS.
 
-## 3. Peta aplikasi — 10 window-apps (tayang)
+## 3. Peta aplikasi — 13 window-apps belajar + 3 app platform (tayang)
 
-10 app. Empat **pinned di dock** (bisa diluncurkan telanjang, punya state sendiri); enam **`noDock` / kontekstual** (payload-driven — dibuka DARI app lain lewat `openApp`, atau dari launcher entry; kalau diluncurkan telanjang cuma tampil empty "pilih satu"). `masuk` hanya relevan saat logged-out.
+16 app (v1.3 menambah **cari · notifikasi · sertifikat**). Empat **pinned di dock** (bisa diluncurkan telanjang, punya state sendiri); sisanya **`noDock` / kontekstual** (payload-driven — dibuka DARI app lain lewat `openApp`, atau dari launcher entry; kalau diluncurkan telanjang cuma tampil empty "pilih satu" — kecuali `notifikasi` yang berdiri sendiri dan `sertifikat` yang publik via tautan). `masuk` hanya relevan saat logged-out. Tiga app platform (**docs · changelog · admin** — statis/console, launcher-only; admin khusus super-admin) tidak masuk peta belajar di bawah.
 
 | App | Dock? | Deep-link URL | Dibuka dari | Me-reuse |
 |---|---|---|---|---|
@@ -69,6 +69,9 @@ Chrome shell **mengikuti preset tema aktif** (lihat §5): warna/radius/font glas
 | **resources** | ⛔ noDock | `/resources/<tenant>` | komunitas | resources slice |
 | **pengumuman** | ⛔ noDock | `/pengumuman/<tenant>` | komunitas, badge/toast | announcements slice |
 | **kelola** | ⛔ noDock | `/kelola/<tenant>` | komunitas | kelola kelas/kuis/komunitas slice |
+| **cari** | ⛔ noDock | `/cari/<tenant>` | komunitas (quick action), launcher | search slice (member-only; gate anon "Masuk untuk mencari") |
+| **notifikasi** | ⛔ noDock | `/notifikasi` | bell menu-bar ("lihat semua"), launcher — rumah inbox di shell mobile tanpa menu bar | notifications slice (inbox) |
+| **sertifikat** | ⛔ noDock | `/sertifikat/<completionId>` | profil (badge wall), tautan publik yang dibagikan | profiles CertificateView (anon §6 etalase) |
 | **masuk** | ⛔ noDock | `/masuk` | komunitas/profil/pengaturan (logged-out) | sign-in |
 
 `openApp(id, title, [segs])` (`apps/_nav.ts`) meng-encode param ke string `payload.path` (`/<slug>/<seg>/<seg>`), yang dicerminkan UrlSync ke address bar; `seg(payload)` mem-parse balik jadi segmen di sisi penerima — deep-link **shareable DAN survive reload**.
@@ -89,12 +92,17 @@ flowchart LR
     R["Resources /resources/t"]
     PG["Pengumuman /pengumuman/t"]
     KO["Kelola /kelola/t"]
+    CR["Cari /cari/t"]
+    N["Notifikasi /notifikasi"]
+    SF["Sertifikat /sertifikat/id"]
     M["Masuk /masuk"]
   end
   Boot(["cold boot"]) --> B
   CMD["⌘K search · palette"] --> B & K & P & S & KL
+  Bell["bell menu-bar"] --> N
   B --> KL
-  K --> KL & R & PG & KO
+  K --> KL & R & PG & KO & CR
+  P --> SF
   KL --> KU
   KU --> KL
   P --> S & M
@@ -141,6 +149,10 @@ Semua di-lit lewat **capabilities seam** (`manifest.capabilities`, `capabilities
 | **Focus mode** | ✅ P3 | command; toggle di Windows tray |
 | **Android notif-log** | ✅ | bell → `MobileNotifications` (log persisten) |
 | **Windows tray quick-settings** | ✅ | Focus + tema di system tray |
+| **Bell notifikasi + inbox (v1.3)** | ✅ | `notifications-status.tsx` → `NotificationBell` di `menuBarStatus` (macOS/Windows/Dashboard, kiri avatar; aria-label dinamis dg jumlah unread); shell mobile → app **notifikasi** (gate anon + empty/loading senada) |
+| **Cari per-komunitas (v1.3)** | ✅ | app **cari** → `SearchView` slice search; state ladder empty/gate/skeleton; member-only (server re-check) |
+| **Sertifikat publik (v1.3)** | ✅ | app **sertifikat** → `CertificateView` anon (§6 etalase); kartu bergaya dokumen serif + double-rule, layak screenshot/dibagikan; salin tautan |
+| **Gate anon Resources (v1.3)** | ✅ | `resources-app` login-gate sebelum query member-only (pola kelola-app) — desktop tidak crash saat anon buka deep-link |
 | **Snap / split-view** | ✅ | bawaan appshell (⌘/Ctrl+Arrow / drag-to-edge) |
 | **AI study-assistant** | ⏸️ deferred | placeholder `chatComingSoon`; LLM asli butuh API key + deploy manual (§0 + STATUS runbook) |
 | Kuis-sebagai-GATE · Quick Look · Dynamic Island | ⏸️ deferred | gate = keputusan produk; sisanya delight (slot desktop-widget kini dipakai widget belajar) |
@@ -252,9 +264,10 @@ Legenda: ✅ tayang (editorial + responsif) · 🟡 poles lanjut opsional. Catat
 - ✅ **Wave UI-C (delight):** onboarding, motion, OG, a11y.
 - ✅ **Design Overhaul "Editorial Warmth" (`742e078`):** identitas bespoke + aset code-gen + sweep responsif.
 - ✅ **OS PIVOT (`89c4434`…`1cb407d`):** catch-all desktop + 5 shell + 10 window-app + deep-link/URL-sync + preset-follows-shell + fitur shell P1/P2/P3. Nol perubahan `convex/**`.
+- ✅ **Wave v1.3 (#27) + sweep v3.2 (arc #15 CLOSED):** app cari/notifikasi/sertifikat + bell menu-bar + gate anon resources; polish pass Editorial Warmth atas permukaan baru (serif/token/empty-state senada, sr-only loading, CertificateCard bergaya dokumen).
 - ⏸️ **AI study-assistant asli** — blocker owner (API key + deploy manual).
 
-Definition of done: tsc + **276 test** hijau · tanpa hex hardcode (tokens) · mobile-first terverifikasi (360/768/1280) · empty/loading/error hadir · copy ID konsisten · target sentuh ≥44px · deep-link round-trip survive reload.
+Definition of done: tsc + **403 test** hijau · tanpa hex hardcode (tokens) · mobile-first terverifikasi (360/768/1280) · empty/loading/error hadir · copy ID konsisten · target sentuh ≥44px · deep-link round-trip survive reload.
 
 ## 11. Catatan historis
 

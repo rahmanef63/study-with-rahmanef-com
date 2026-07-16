@@ -1,6 +1,7 @@
 "use client";
-// search slice — grouped results (Kelas / Materi). Presentational: hits come
-// in flat with a kind discriminator; grouping + hrefs are derived here.
+// search slice — grouped results (Kelas / Materi / Sumber). Presentational:
+// hits come in flat with a kind discriminator; grouping + hrefs derived here.
+// Sumber rows (#29) open their EXTERNAL url in a new tab — see SearchResultItem.
 import { hitHref } from "../lib/hrefs";
 import type { SearchHit } from "../types";
 import type { SearchCopy } from "../config/copy";
@@ -17,6 +18,7 @@ export function SearchResults({ hits, tenantSlug, onNavigate, copy }: SearchResu
   const groups = [
     { label: copy.groupCourses, items: hits.filter((h) => h.kind === "course") },
     { label: copy.groupLessons, items: hits.filter((h) => h.kind === "lesson") },
+    { label: copy.groupResources, items: hits.filter((h) => h.kind === "resource") },
   ].filter((group) => group.items.length > 0);
 
   return (
@@ -29,7 +31,13 @@ export function SearchResults({ hits, tenantSlug, onNavigate, copy }: SearchResu
           <ul className="space-y-2">
             {group.items.map((hit) => (
               <SearchResultItem
-                key={hit.kind === "lesson" ? hit.lessonId : `course-${hit.courseSlug}`}
+                key={
+                  hit.kind === "lesson"
+                    ? hit.lessonId
+                    : hit.kind === "resource"
+                      ? `resource-${hit.url}`
+                      : `course-${hit.courseSlug}`
+                }
                 hit={hit}
                 href={hitHref(tenantSlug, hit)}
                 onNavigate={onNavigate}

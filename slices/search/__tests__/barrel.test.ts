@@ -41,10 +41,18 @@ describe("barrel type contract (compile-time, enforced by tsc)", () => {
     expectTypeOf<typeof Barrel.useDebouncedValue>().toBeFunction();
     // P0 type shape: hits are the safe projection — kind discriminator,
     // lesson carries lessonId + snippet, course carries neither.
-    expectTypeOf<Barrel.SearchHit["kind"]>().toEqualTypeOf<"course" | "lesson">();
+    expectTypeOf<Barrel.SearchHit["kind"]>().toEqualTypeOf<
+      "course" | "lesson" | "resource"
+    >();
     expectTypeOf<Barrel.LessonHit>().toHaveProperty("snippet");
     expectTypeOf<Barrel.LessonHit["snippet"]>().toEqualTypeOf<string>();
     expectTypeOf<Barrel.CourseHit>().not.toHaveProperty("snippet");
+    // Resource hit (#29, v0.2.0): EXACTLY {kind, title, url} — no note,
+    // no submittedBy, no id (server projection asserted in convex specs).
+    expectTypeOf<Barrel.ResourceHit["url"]>().toEqualTypeOf<string>();
+    expectTypeOf<Barrel.ResourceHit>().not.toHaveProperty("note");
+    expectTypeOf<Barrel.ResourceHit>().not.toHaveProperty("submittedBy");
+    expectTypeOf<keyof Barrel.ResourceHit>().toEqualTypeOf<"kind" | "title" | "url">();
     expect(true).toBe(true); // runtime anchor so the test registers
   });
 });
@@ -53,6 +61,7 @@ describe("barrel runtime contract (alias-free modules)", () => {
   test("feature descriptor + metadata pair versions in sync (audit:slices)", () => {
     expect(searchFeature.slug).toBe("search");
     expect(sliceJson.version).toBe(manifest.version);
+    expect(sliceJson.version).toBe("0.2.0"); // #29 resource group bump
     expect(sliceJson.slug).toBe("search");
     expect(manifest.name).toBe("search");
   });
@@ -79,5 +88,9 @@ describe("barrel runtime contract (alias-free modules)", () => {
     expect(
       hitHref("belajar-ai", { kind: "course", title: "X", courseSlug: "dasar-ai" })
     ).toBe("/kelas/belajar-ai/dasar-ai");
+    // Resource href IS the external url — untouched, never rewritten (#29).
+    expect(
+      hitHref("belajar-ai", { kind: "resource", title: "X", url: "https://contoh.id/x" })
+    ).toBe("https://contoh.id/x");
   });
 });

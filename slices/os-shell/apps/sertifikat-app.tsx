@@ -8,7 +8,8 @@
 // shareable URL for the copy button.
 import { type AppProps } from "@/features/appshell";
 import { CertificateView } from "@/features/profiles";
-import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
+import { Award } from "lucide-react";
 import { seg } from "./_nav";
 
 export default function SertifikatApp(props: AppProps) {
@@ -19,6 +20,9 @@ export default function SertifikatApp(props: AppProps) {
       <div className="w-full p-6 @sm:p-8">
         <Empty className="mx-auto max-w-2xl border">
           <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <Award aria-hidden />
+            </EmptyMedia>
             <EmptyTitle className="font-serif">Sertifikat belum dipilih</EmptyTitle>
             <EmptyDescription className="text-pretty">
               Buka sertifikat lewat tautannya (/sertifikat/…) atau dari lencana di halaman

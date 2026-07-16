@@ -16,8 +16,13 @@ export function buildLessonHref(
   return `/kelas/${tenantSlug}/${courseSlug}/lesson/${lessonId}`;
 }
 
-/** Href for any hit — dispatches on the kind discriminator. */
+/**
+ * Href for any hit — dispatches on the kind discriminator. A resource hit's
+ * href is its EXTERNAL url (#29): the item renders it target="_blank"
+ * rel="noopener noreferrer" and never routes it through onNavigate/openApp.
+ */
 export function hitHref(tenantSlug: string, hit: SearchHit): string {
+  if (hit.kind === "resource") return hit.url;
   return hit.kind === "course"
     ? buildCourseHref(tenantSlug, hit.courseSlug)
     : buildLessonHref(tenantSlug, hit.courseSlug, hit.lessonId);

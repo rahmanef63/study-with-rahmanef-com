@@ -86,8 +86,12 @@ test("member finds published course + lesson; drafts NEVER appear", async () => 
     .withIdentity(asUser(fx.memberId))
     .query(fn, { tenantId: fx.tenantId, q: "fotosintesis" });
 
-  const courseHits = hits.filter((h: { kind: string }) => h.kind === "course");
-  const lessonHits = hits.filter((h: { kind: string }) => h.kind === "lesson");
+  const courseHits = hits.filter(
+    (h): h is Extract<(typeof hits)[number], { kind: "course" }> => h.kind === "course"
+  );
+  const lessonHits = hits.filter(
+    (h): h is Extract<(typeof hits)[number], { kind: "lesson" }> => h.kind === "lesson"
+  );
 
   // Published course matched by title.
   expect(courseHits).toHaveLength(1);
@@ -113,7 +117,7 @@ test("lesson under archived course is dropped too (draft-guard is 'published onl
     .withIdentity(asUser(fx.memberId))
     .query(fn, { tenantId: fx.tenantId, q: "fotosintesis" });
   expect(
-    hits.some((h: { courseSlug: string }) => h.courseSlug === "arsip-fotosintesis")
+    hits.some((h) => "courseSlug" in h && h.courseSlug === "arsip-fotosintesis")
   ).toBe(false);
 });
 
@@ -130,52 +134,13 @@ test("results are tenant-scoped: matching rows in another tenant never leak", as
     .withIdentity(asUser(fx.memberId))
     .query(fn, { tenantId: fx.tenantId, q: "fotosintesis" });
   expect(
-    hits.some((h: { courseSlug: string }) => h.courseSlug === "fotosintesis-tetangga")
+    hits.some((h) => "courseSlug" in h && h.courseSlug === "fotosintesis-tetangga")
   ).toBe(false);
 });
 
-// ── projection safety (P0: explicit shapes, no raw docs) ──────────────────
-
-test("hit shapes are EXACT — no tenantId/contentMd/status/raw doc fields", async () => {
-  const { t, fx } = await fixture();
-  const hits = await t
-    .withIdentity(asUser(fx.memberId))
-    .query(fn, { tenantId: fx.tenantId, q: "fotosintesis" });
-
-  for (const hit of hits) {
-    if (hit.kind === "course") {
-      expect(Object.keys(hit).sort()).toEqual(["courseSlug", "kind", "title"]);
-    } else {
-      expect(Object.keys(hit).sort()).toEqual([
-        "courseSlug",
-        "kind",
-        "lessonId",
-        "snippet",
-        "title",
-      ]);
-    }
-  }
-});
-
-test("snippet is plain text ≤121 chars — markdown markers stripped", async () => {
-  const { t, fx } = await fixture();
-  await seedCourseWithLesson(t, fx, {
-    status: "published",
-    slug: "kelas-panjang",
-    title: "Kelas Panjang",
-    contentMd: `# Heading\n\nFotosintesis **panjang** [tautan](https://x.id) ${"kata ".repeat(60)}`,
-  });
-  const hits = await t
-    .withIdentity(asUser(fx.memberId))
-    .query(fn, { tenantId: fx.tenantId, q: "fotosintesis" });
-  const long = hits.find(
-    (h): h is Extract<(typeof hits)[number], { kind: "lesson" }> =>
-      h.kind === "lesson" && h.courseSlug === "kelas-panjang"
-  );
-  expect(long).toBeDefined();
-  expect(long!.snippet.length).toBeLessThanOrEqual(121); // 120 + ellipsis
-  expect(long!.snippet).not.toMatch(/[#*_`]|\]\(|https:\/\//);
-});
+// ── projection safety (P0) ─────────────────────────────────────────────────
+// Exact-shape + snippet specs live in projection.test.ts (#29 moved them out
+// to keep this file under the 200-LOC audit; resource specs: resources.test.ts).
 
 // ── bounded reads ──────────────────────────────────────────────────────────
 

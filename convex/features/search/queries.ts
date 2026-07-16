@@ -1,5 +1,6 @@
-// search feature — per-tenant full-text search (#23): published course titles
-// (courses.search_title) + lesson content (lessons.search_content).
+// search feature — per-tenant full-text search (#23, extended #29): published
+// course titles (courses.search_title) + lesson content (lessons.search_content)
+// + APPROVED resources by title (by_tenant_status index, in-memory filter).
 // MEMBER-ONLY: requireTenantRole(member) is the FIRST line — anonymous and
 // outsider callers are rejected before any domain row is touched (P0; pattern:
 // courses/access.ts auth-before-read). Draft-guard: the lessons search index
@@ -9,8 +10,19 @@ import { v } from "convex/values";
 import type { Doc, Id } from "../../_generated/dataModel";
 import { query } from "../../_generated/server";
 import { requireTenantRole } from "../../_shared/auth";
-import { toCourseHit, toLessonHit, type SearchInTenantResult } from "./projections";
-import { assertSearchQuery, COURSE_TAKE, LESSON_TAKE } from "./validate";
+import {
+  toCourseHit,
+  toLessonHit,
+  toResourceHit,
+  type SearchInTenantResult,
+} from "./projections";
+import {
+  assertSearchQuery,
+  COURSE_TAKE,
+  LESSON_TAKE,
+  RESOURCE_SCAN_TAKE,
+  RESOURCE_TAKE,
+} from "./validate";
 
 export const searchInTenant = query({
   args: { tenantId: v.id("tenants"), q: v.string() },
@@ -51,6 +63,22 @@ export const searchInTenant = query({
       return course === undefined ? [] : [toLessonHit(lesson, course)];
     });
 
-    return [...courses.map(toCourseHit), ...lessonHits];
+    // Resources (#29): APPROVED-only, filtered STRUCTURALLY in the index —
+    // pending/rejected rows are never even read (P0). Title match is an
+    // in-memory case-insensitive contains over a bounded take; NO new search
+    // index (DATA-MODEL wave v1.4 — upgrade to searchIndex only if weak).
+    const needle = q.toLowerCase();
+    const resources = await ctx.db
+      .query("resources")
+      .withIndex("by_tenant_status", (idx) =>
+        idx.eq("tenantId", args.tenantId).eq("status", "approved")
+      )
+      .take(RESOURCE_SCAN_TAKE);
+    const resourceHits = resources
+      .filter((resource) => resource.title.toLowerCase().includes(needle))
+      .slice(0, RESOURCE_TAKE)
+      .map(toResourceHit);
+
+    return [...courses.map(toCourseHit), ...lessonHits, ...resourceHits];
   },
 });

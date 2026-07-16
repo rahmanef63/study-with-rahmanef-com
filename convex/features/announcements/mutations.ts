@@ -5,6 +5,7 @@
 import { v } from "convex/values";
 import { mutation } from "../../_generated/server";
 import { requireTenantRole } from "../../_shared/auth";
+import { scheduleAnnouncementFanout } from "./notify";
 import { postToDiscordRef } from "./refs";
 import { validateCreateInput } from "./validate";
 
@@ -37,6 +38,14 @@ export const create = mutation({
     // keeps the mutation fast and the write atomic; the action is idempotent-ish
     // (it only flips postedToDiscord on success).
     await ctx.scheduler.runAfter(0, postToDiscordRef, { announcementId });
+
+    // In-app inbox fan-out (#28, wave v1.4): ONE scheduled internal createMany
+    // for every member EXCEPT the sender. Independent of the Discord flow.
+    await scheduleAnnouncementFanout(ctx, {
+      tenantId: args.tenantId,
+      senderId: userId,
+      title,
+    });
 
     return { announcementId };
   },

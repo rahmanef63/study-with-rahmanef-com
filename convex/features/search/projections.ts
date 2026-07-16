@@ -1,6 +1,7 @@
 // search feature — explicit safe projections (P0: queries return an explicit
-// shape, never raw docs). Hit shape per docs/AGENT-PROMPTS.md #23:
+// shape, never raw docs). Hit shapes per docs/AGENT-PROMPTS.md #23 + #29:
 //   { kind: "course" | "lesson", title, courseSlug, lessonId?, snippet? }
+//   { kind: "resource", title, url }
 // No ids beyond lessonId (needed for the deep-link), no tenantId, no raw
 // contentMd (snippet is stripped + truncated), no status/createdBy leak.
 import type { Doc } from "../../_generated/dataModel";
@@ -30,9 +31,24 @@ export function toLessonHit(lesson: Doc<"lessons">, course: Doc<"courses">) {
   };
 }
 
+/**
+ * Approved resource matched by title (#29) — caller reads via
+ * by_tenant_status(eq tenantId, eq "approved") so pending/rejected rows never
+ * reach this projection. Click-through is the EXTERNAL url (new tab in the
+ * UI). Shape is EXACT {kind, title, url}: no note, no submittedBy, no _id.
+ */
+export function toResourceHit(resource: Doc<"resources">) {
+  return {
+    kind: "resource" as const,
+    title: resource.title,
+    url: resource.url,
+  };
+}
+
 export type CourseHit = ReturnType<typeof toCourseHit>;
 export type LessonHit = ReturnType<typeof toLessonHit>;
-export type SearchHit = CourseHit | LessonHit;
+export type ResourceHit = ReturnType<typeof toResourceHit>;
+export type SearchHit = CourseHit | LessonHit | ResourceHit;
 
 /** searchInTenant result — flat, courses first; the client groups by kind. */
 export type SearchInTenantResult = SearchHit[];

@@ -57,45 +57,49 @@ export function CertificateCard({
     <div className={cn("mx-auto flex w-full max-w-2xl flex-col gap-5", className)}>
       <article
         aria-label={copy.heading}
-        className="rounded-[var(--radius-win)] border border-border bg-card px-6 py-10 text-center shadow-sm @sm:px-10 @sm:py-12"
+        className="relative rounded-[var(--radius-win)] border border-border bg-card px-6 py-10 text-center shadow-sm @sm:px-12 @sm:py-14"
       >
+        {/* Classic double-rule document frame — hairline, tokens only */}
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-2 rounded-[calc(var(--radius-win)-0.25rem)] border border-border/70 @sm:inset-3"
+        />
+
         {/* Medal + eyebrow */}
         <div className="flex flex-col items-center gap-3">
           <span
             aria-hidden="true"
-            className="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary"
+            className="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary ring-1 ring-primary/20"
           >
             <Award className="size-7" />
           </span>
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
-            {copy.eyebrow}
-          </p>
-          <h1 className="text-xl font-semibold text-foreground @sm:text-2xl">
+          <p className="eyebrow">{copy.eyebrow}</p>
+          <h1 className="font-serif text-2xl text-foreground @sm:text-3xl">
             {copy.heading}
           </h1>
         </div>
 
         <Separator className="mx-auto my-6 max-w-40" />
 
-        {/* Recipient — the big name */}
+        {/* Recipient — the big serif name (the certificate's true headline) */}
         <p className="text-sm text-muted-foreground">{copy.awardedTo}</p>
-        <p className="mt-2 break-words text-3xl font-bold leading-tight text-foreground @sm:text-4xl">
+        <p className="mt-2 break-words font-serif text-4xl leading-tight text-foreground @sm:text-5xl">
           {certificate.displayName}
         </p>
-        <p className="mt-1 text-sm text-muted-foreground">@{certificate.username}</p>
+        <p className="mt-1.5 text-sm text-muted-foreground">@{certificate.username}</p>
 
         {/* Course + community */}
-        <p className="mt-6 text-sm text-muted-foreground">{copy.courseIntro}</p>
-        <p className="mt-1 text-pretty text-lg font-semibold text-foreground @sm:text-xl">
+        <p className="mt-7 text-sm text-muted-foreground">{copy.courseIntro}</p>
+        <p className="mt-1 text-pretty font-serif text-xl italic text-primary @sm:text-2xl">
           {certificate.courseTitle}
         </p>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-1.5 text-sm text-muted-foreground">
           {copy.communityPrefix}{" "}
           <span className="font-medium text-foreground">{certificate.tenantName}</span>
         </p>
 
-        {/* Earned date */}
-        <p className="mt-6 text-xs text-muted-foreground">
+        {/* Earned date — quiet, letterpress-style closing line */}
+        <p className="mt-7 text-xs uppercase tracking-[0.14em] text-muted-foreground">
           {copy.earnedPrefix} {formatEarned(certificate.earnedAt)}
         </p>
       </article>

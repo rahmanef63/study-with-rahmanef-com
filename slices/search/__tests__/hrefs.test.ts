@@ -27,4 +27,13 @@ describe("href builders", () => {
     } as unknown as LessonHit; // Id<"lessons"> is a branded string
     expect(hitHref("belajar-ai", lesson)).toBe("/kelas/belajar-ai/dasar-ai/lesson/j57abc");
   });
+
+  test("resource href is the EXTERNAL url as-is — tenantSlug never applied (#29)", () => {
+    const resource: SearchHit = {
+      kind: "resource",
+      title: "Panduan Prompt",
+      url: "https://contoh.id/panduan?ref=1",
+    };
+    expect(hitHref("belajar-ai", resource)).toBe("https://contoh.id/panduan?ref=1");
+  });
 });

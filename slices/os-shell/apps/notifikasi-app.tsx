@@ -32,6 +32,7 @@ export default function NotifikasiApp(_props: AppProps) {
 
       {isLoading ? (
         <div className="space-y-3" aria-busy>
+          <span className="sr-only">Memuat notifikasi…</span>
           <Skeleton className="h-14 w-full rounded-md" />
           <Skeleton className="h-14 w-full rounded-md" />
           <Skeleton className="h-14 w-full rounded-md" />

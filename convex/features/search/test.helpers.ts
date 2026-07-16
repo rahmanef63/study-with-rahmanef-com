@@ -105,3 +105,25 @@ export async function seedCourseWithLesson(
     return { courseId, moduleId, lessonId };
   });
 }
+
+export type SeedResourceOpts = {
+  status: "pending" | "approved" | "rejected";
+  title: string;
+  url?: string;
+  note?: string;
+};
+
+/** Resource row (#29) — status controllable to assert pending/rejected never leak. */
+export async function seedResource(t: T, fx: TenantFixture, opts: SeedResourceOpts) {
+  return await t.run(async (ctx) => {
+    return await ctx.db.insert("resources", {
+      tenantId: fx.tenantId,
+      title: opts.title,
+      url: opts.url ?? "https://contoh.id/sumber",
+      note: opts.note,
+      submittedBy: fx.memberId,
+      status: opts.status,
+      reviewedBy: opts.status === "pending" ? undefined : fx.ownerId,
+    });
+  });
+}

@@ -1,0 +1,36 @@
+feat(v1.4): notifikasi pengumuman, pencarian sumber, polish penutup UI (#15, #28, #29)
+
+Wave v1.4 — 3 worker paralel (ui/beta/gamma), direview & diverifikasi alpha
+(tsc --noEmit bersih seluruh repo; vitest 417/417 hijau, 62 file).
+
+ui #15 (ARC CLOSED) — sweep Editorial Warmth permukaan v1.3:
+- apps cari/notifikasi/sertifikat + bell + gate anon resources: token only,
+  target sentuh >=44px, sr-only pada skeleton, ikon Award di empty state
+  sertifikat, hierarki CertificateCard dirapikan (shareable), copy senada.
+- docs/UI-UX-PRD.md v3.2: peta app +3 (cari/notifikasi/sertifikat), status
+  arc #15 CLOSED, DoD test count. Diff murni markup/copy/docs — nol logika.
+
+beta #28 — notifikasi pengumuman (fan-out bounded):
+- convex/features/notifications: internal `createMany` (INTERNAL, cap <=200
+  -> VALIDATION_FAILED sebelum insert apa pun; validasi payload SEKALI via
+  assertCreateInput yang sama dengan `create`); typed ref
+  createManyNotificationsRef (kontrak path lintas-feature).
+- convex/features/announcements/notify.ts: scheduleAnnouncementFanout —
+  memberships by_tenant take(200), sender DIFILTER (no self-notify, P0,
+  tested), guard truncation judul, SATU scheduler call utk seluruh daftar;
+  dipanggil dari announcements.create; alur Discord tidak tersentuh.
+- 7 spec baru (fan-out, cap, no-self, payload invalid = nol row, no-op).
+
+gamma #29 — pencarian meluas ke papan sumber:
+- searchInTenant sumber ketiga: resources APPROVED-only via by_tenant_status
+  (structural filter — pending/rejected tak pernah terbaca), take(50) +
+  filter judul in-memory case-insensitive top 10; TANPA search index baru.
+- ResourceHit EXACT {kind,title,url} (di-assert; tanpa note/submittedBy/id);
+  grup "Sumber" = anchor eksternal target=_blank rel=noopener noreferrer,
+  BYPASS onNavigate; hitHref mengembalikan url apa adanya.
+- slices/search 0.2.0 (metadata pair synced); queries.test dipecah menjadi
+  projection.test + resources.test (audit 200-LOC).
+
+Alpha: review + STATUS #15/#28/#29 done.
+Selanjutnya: vps #30 (deploy Cloud — schema union "announcement" additive +
+functions baru) -> sisa board tinggal #12 (rotasi AUTH_GOOGLE_SECRET, owner).

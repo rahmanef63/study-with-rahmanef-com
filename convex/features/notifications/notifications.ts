@@ -6,7 +6,7 @@ import { v } from "convex/values";
 import { internalMutation, mutation } from "../../_generated/server";
 import { requireUser } from "../../_shared/auth";
 import { fail } from "./errors";
-import { assertCreateInput, MARK_ALL_TAKE } from "./validate";
+import { assertCreateInput, CREATE_MANY_CAP, MARK_ALL_TAKE } from "./validate";
 
 /**
  * Generic producer target (INTERNAL — un-callable from any client). Producers
@@ -40,6 +40,51 @@ export const create = internalMutation({
       body,
       href,
     });
+  },
+});
+
+/**
+ * Fan-out producer target (INTERNAL — un-callable from any client, v1.4 #28).
+ * ONE scheduled call inserts one row per recipient INSIDE this single mutation
+ * (never one scheduler job per member). Bounded write: recipientIds is
+ * hard-capped at CREATE_MANY_CAP (200) — a longer list is a producer bug and
+ * fails loudly with VALIDATION_FAILED before any insert. Shared title/body/href
+ * validation is the same assertCreateInput helper `create` uses (no duplicate
+ * rules). Producers guarantee sender ∉ recipientIds (no self-notify, P0) —
+ * this mutation cannot know the actor.
+ */
+export const createMany = internalMutation({
+  args: {
+    tenantId: v.id("tenants"),
+    kind: v.union(
+      v.literal("comment_reply"),
+      v.literal("resource_reviewed"),
+      v.literal("suggestion_status"),
+      v.literal("announcement")
+    ),
+    title: v.string(),
+    body: v.optional(v.string()),
+    href: v.optional(v.string()),
+    recipientIds: v.array(v.id("users")),
+  },
+  handler: async (ctx, args) => {
+    if (args.recipientIds.length > CREATE_MANY_CAP) {
+      fail("VALIDATION_FAILED", "Terlalu banyak penerima notifikasi");
+    }
+    // Validate ONCE (payload is identical per recipient), before any insert —
+    // a bad payload writes zero rows, never a partial fan-out of junk.
+    const { title, body, href } = assertCreateInput(args.title, args.body, args.href);
+    for (const userId of args.recipientIds) {
+      await ctx.db.insert("notifications", {
+        userId,
+        tenantId: args.tenantId,
+        kind: args.kind,
+        title,
+        body,
+        href,
+      });
+    }
+    return args.recipientIds.length;
   },
 });
 

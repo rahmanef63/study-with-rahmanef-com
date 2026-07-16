@@ -12,6 +12,12 @@ export const READ_TAKE = 20;
 export const UNREAD_COUNT_CAP = 99;
 /** markAllRead patches at most this many rows per call (bounded write). */
 export const MARK_ALL_TAKE = 100;
+/**
+ * createMany inserts at most this many rows per call (bounded write, v1.4 #28).
+ * Mirrors the producer-side memberships fan-out take — a recipient list larger
+ * than this is a producer bug and fails loudly (VALIDATION_FAILED).
+ */
+export const CREATE_MANY_CAP = 200;
 
 export const MAX_TITLE = 120;
 export const MAX_BODY = 300;
