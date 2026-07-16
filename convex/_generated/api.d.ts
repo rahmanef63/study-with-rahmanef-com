@@ -18,6 +18,7 @@ import type * as features_analytics_queries from "../features/analytics/queries.
 import type * as features_announcements_discord from "../features/announcements/discord.js";
 import type * as features_announcements_errors from "../features/announcements/errors.js";
 import type * as features_announcements_mutations from "../features/announcements/mutations.js";
+import type * as features_announcements_notify from "../features/announcements/notify.js";
 import type * as features_announcements_queries from "../features/announcements/queries.js";
 import type * as features_announcements_refs from "../features/announcements/refs.js";
 import type * as features_announcements_validate from "../features/announcements/validate.js";
@@ -112,6 +113,7 @@ declare const fullApi: ApiFromModules<{
   "features/announcements/discord": typeof features_announcements_discord;
   "features/announcements/errors": typeof features_announcements_errors;
   "features/announcements/mutations": typeof features_announcements_mutations;
+  "features/announcements/notify": typeof features_announcements_notify;
   "features/announcements/queries": typeof features_announcements_queries;
   "features/announcements/refs": typeof features_announcements_refs;
   "features/announcements/validate": typeof features_announcements_validate;
