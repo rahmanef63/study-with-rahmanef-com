@@ -13,7 +13,10 @@ import { test, expect, type Page, type ConsoleMessage } from "@playwright/test";
 // Env-overridable so staging can point at its own seed without editing specs.
 const TENANT = process.env.E2E_TENANT ?? "belajar-ai";
 const COURSE = process.env.E2E_COURSE ?? "dasar-ai";
-const USERNAME = process.env.E2E_USERNAME ?? "rahman";
+// Default = the REAL prod handle (vps proposal 2026-07-16: "rahman" punya no
+// profile row di prod — spec 5 cuma fail-soft; handle nyata mengaktifkan
+// branch kuat badge-wall). Override tetap via E2E_USERNAME.
+const USERNAME = process.env.E2E_USERNAME ?? "abdurrahman-fakhrul";
 
 // Convex data loads client-side inside windows — first paint is skeletons.
 const DATA_TIMEOUT = 15_000;
@@ -175,7 +178,14 @@ test.describe("OS shell — anon smoke", () => {
       timeout: DATA_TIMEOUT,
     });
     await expectNoCrash(page);
-    expect(errors, `bogus certificate id must fail soft:\n${errors.join("\n")}`).toEqual([]);
+    // EXPECTED noise (vps proposal 2026-07-16, accepted): the Convex client
+    // console.errors every server-thrown error, so the by-design NOT_FOUND for
+    // a bogus id ALWAYS logs against a real backend. Filter that one expected
+    // error only — anything else still fails the spec.
+    const unexpected = errors.filter(
+      (e) => !/NOT_FOUND|Sertifikat tidak ditemukan/.test(e),
+    );
+    expect(unexpected, `bogus certificate id must fail soft:\n${unexpected.join("\n")}`).toEqual([]);
   });
 
   test("9. suggestion board (/resources/<tenant>/usulan) as anon shows a login gate — never a crash", async ({
