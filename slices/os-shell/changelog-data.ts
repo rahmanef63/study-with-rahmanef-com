@@ -28,15 +28,13 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-07-16",
-    version: "v1.6",
-    title: "Alfa — asisten belajar AI + 3 kelas baru",
-    tags: ["Baru", "Konten"],
+    version: "v1.5",
+    title: "3 kelas baru di Belajar AI",
+    tags: ["Konten"],
     points: [
-      "Kenalkan Alfa: asisten belajar AI di dock (ikon ✨). Tanya apa saja seputar belajar AI — gratis untuk semua yang sudah masuk.",
-      "Dari dalam materi, tekan “Tanya Alfa soal materi ini” — Alfa ikut membaca materinya sebelum menjawab.",
-      "Panel Inspector (⌘I) tab Alfa kini menjawab sungguhan, bukan “segera hadir”.",
-      "3 kelas baru: “AI untuk Produktivitas Kerja”, “Analisis Data dengan AI”, dan “Orkestrasi Multi-Agent untuk Proyek Nyata” (kisah nyata pembuatan platform ini).",
-      "Alfa bisa keliru — selalu cek ulang hal penting ke sumber tepercaya.",
+      "“AI untuk Produktivitas Kerja” — email, dokumen, spreadsheet, dan rapat jadi lebih cepat dengan asisten AI, tanpa jargon.",
+      "“Analisis Data dengan AI” — dari CSV mentah sampai insight dan slide presentasi, tanpa background statistik.",
+      "“Orkestrasi Multi-Agent untuk Proyek Nyata” — kisah nyata bagaimana platform ini dibangun oleh tim agent AI, dan cara menirunya untuk proyekmu.",
     ],
   },
   {

@@ -1,0 +1,39 @@
+feat(v1.7): parkir fitur AI + "Lanjutkan belajar" lintas perangkat + CI (#36-#38)
+
+Keputusan owner 2026-07-16: fitur AI DITUNDA. Wave ini memarkirnya dengan
+rapi lalu lanjut ke backlog non-AI. Verifikasi: tsc --noEmit bersih;
+vitest 437/437 hijau (66 file; +4 spec recents).
+
+PARKIR Alfa (#36 → DIPARKIR; kode #35 tetap, dorman & tersembunyi):
+- os-root.tsx: PARKED_APP_IDS — app "asisten" disaring dari registry SEMUA
+  shell (dock/launcher/sidebar); jendela nyasar ditutup otomatis (pola admin).
+- manifest: asisten pinned → noDock; nav-groups: dilepas dari grup Belajar;
+- kelas-app: tombol "Tanya Alfa soal materi ini" DICABUT (markup tersimpan di
+  riwayat git w16); changelog v1.6 di-reword → entri v1.5 "3 kelas baru" saja.
+- TIDAK dihapus: convex/features/asisten + slices/asisten + test-nya tetap
+  hidup di CI (tanpa ANTHROPIC_API_KEY memang mati total by design — nol
+  biaya). Re-aktivasi = checklist di STATUS #36.
+
+BARU #37 — "Lanjutkan belajar" lintas perangkat (B3/OS-14):
+- Schema: index additive lessonCompletions.by_user.
+- convex/features/progress/recents.ts: query recentCourses — requireUser
+  FIRST; rows milik sendiri by construction; scan bounded 60 desc → dedupe
+  per course → HANYA course published + tenant active (tanpa kartu mati) →
+  proyeksi eksplisit {tenantSlug, courseSlug, title, lastAt} cap 6. 4 spec
+  (anon denied, own-rows+dedupe+shape, draft/arsip/suspended guard, cap).
+- slices/progress: hook useRecentCourses (skip saat anon → []) + barrel.
+- os-shell: use-resume-courses.ts menggabungkan server truth (login) dengan
+  recents localStorage (tamu / kelas yang baru dibuka, belum ada progres);
+  Beranda "Lanjutkan belajar" + widget resume SEMUA shell kini lintas
+  perangkat. recordRecentCourse lokal tetap jalan sebagai pelengkap.
+
+BARU #38 — CI GitHub Actions (.github/workflows/ci.yml):
+- tsc --noEmit + vitest run pada push/PR ke main; GRATIS di repo publik
+  (zero-cost law). Memenuhi proposal vps "jaring pengaman pre-deploy";
+  varian codegen-freshness ditunda (butuh kredensial Convex di CI).
+
+convex/_generated/api.d.ts: +entri modul progress/recents (manual mengikuti
+format codegen — deploy berikutnya menghasilkan isi identik).
+
+STATUS: #36 DIPARKIR · #37/#38 done · #39 open (deploy index+modul — TANPA
+env AI apa pun). docs/DATA-MODEL.md: blok wave v1.7.

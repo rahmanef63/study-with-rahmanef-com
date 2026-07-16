@@ -25,6 +25,8 @@ export { LessonCompletion, type LessonCompletionProps } from "./views/lesson-com
 export { useCourseProgress } from "./hooks/use-course-progress";
 export { useLessonCompletion } from "./hooks/use-lesson-completion";
 export { useMarkLessonComplete } from "./hooks/use-progress-mutations";
+// v1.7 (#37): "Lanjutkan belajar" lintas perangkat (server truth; anon → []).
+export { useRecentCourses, type RecentCourseItem } from "./hooks/use-recent-courses";
 
 // lib (pure — safe for server or client)
 export { toPercent } from "./lib/percent";

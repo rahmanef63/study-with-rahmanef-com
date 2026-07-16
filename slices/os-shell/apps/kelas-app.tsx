@@ -9,7 +9,7 @@
 // window via openWindow. Runs inside an appshell window, so it fetches
 // client-side via useQuery (root layout already mounts Convex).
 import { useEffect, type MouseEvent } from "react";
-import { BookOpen, ChevronRight, Compass, GraduationCap, Library, List, Share2, Sparkles } from "lucide-react";
+import { BookOpen, ChevronRight, Compass, GraduationCap, Library, List, Share2 } from "lucide-react";
 import type { Id } from "@convex/_generated/dataModel";
 import { Badge } from "@/components/mockup-kit";
 import { type AppProps, usePublishInspector, share } from "@/features/appshell";
@@ -337,18 +337,9 @@ function KelasCourse({
             backHref={OVERVIEW_HREF}
             completionSlot={<LessonCompletion lessonId={lessonId} />}
           />
-          {/* #35: tanya Alfa DENGAN konteks materi ini (buka app asisten
-              ber-payload lessonId; server re-check membership + published). */}
-          <div className="mt-6 flex justify-end">
-            <button
-              type="button"
-              onClick={() => openApp("asisten", "Alfa", [lessonId])}
-              className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary transition-colors hover:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <Sparkles className="size-4" aria-hidden />
-              Tanya Alfa soal materi ini
-            </button>
-          </div>
+          {/* #35 DIPARKIR: tombol "Tanya Alfa soal materi ini" (openApp
+              "asisten" ber-payload lessonId) menyusul saat owner mengaktifkan
+              fitur AI — lihat riwayat git w16 untuk markup-nya. */}
           {/* #20: diskusi per lesson (comments slice, #16) */}
           <div className="mt-8">
             <LessonComments lessonId={lessonId} />

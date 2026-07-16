@@ -3,26 +3,22 @@
 // Reuses the courses/tenants slice barrels for data; a course click opens the
 // Kelas app in its own window (openWindow). Renders inside an appshell window,
 // so it fetches client-side via useQuery (root layout already mounts Convex).
-import { useEffect, useState } from "react";
 import { useQuery } from "convex/react";
 import { BookOpen, ArrowRight } from "lucide-react";
 import { type AppProps } from "@/features/appshell";
 import { tenantsApi, type PublicTenant } from "@/features/tenants";
 import { openApp } from "./_nav";
-import { getRecentCourses, type RecentCourse } from "../recent-courses";
+import { useResumeCourses } from "../use-resume-courses";
 import { type CourseCardData } from "@/features/courses";
 import { api } from "@convex/_generated/api";
 import { Hero, SectionHeader, Badge } from "@/components/mockup-kit";
 
-/** "Lanjutkan belajar" — one-click resume of recently opened courses. Reads
- *  localStorage, so it is client-only: we start empty and hydrate after mount
- *  (useState + useEffect) to avoid an SSR hydration mismatch. Renders nothing
- *  until the user has opened at least one course. */
+/** "Lanjutkan belajar" — one-click resume. v1.7 (#37): server truth lintas
+ *  perangkat (progress.recentCourses, login) digabung recents localStorage
+ *  (tamu / kelas yang baru dibuka) — lihat use-resume-courses.ts. Renders
+ *  nothing until there is at least one course to resume. */
 function LanjutkanBelajar() {
-  const [recents, setRecents] = useState<RecentCourse[]>([]);
-  useEffect(() => {
-    setRecents(getRecentCourses());
-  }, []);
+  const recents = useResumeCourses();
 
   if (recents.length === 0) return null;
 

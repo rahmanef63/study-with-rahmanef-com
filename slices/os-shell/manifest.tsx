@@ -154,8 +154,11 @@ const masuk: AppDescriptor = {
   noDock: true,
 };
 
-// Wave v1.6 (#35) — Alfa, the AI study assistant. PINNED: dock-level presence,
-// it works bare (general chat) AND with a payload (/asisten/<lessonId>).
+// Wave v1.6 (#35) — Alfa, the AI study assistant. DIPARKIR owner 2026-07-16
+// (fitur AI ditunda): noDock — hanya reachable via deep-link /asisten; tanpa
+// ANTHROPIC_API_KEY dia menjawab "belum aktif" (kill-switch). Saat owner siap:
+// pinned: true + tombol "Tanya Alfa" di kelas-app (lihat riwayat git w16) +
+// set env + deploy. Kode & test tetap hidup di CI supaya tidak membusuk.
 const asisten: AppDescriptor = {
   id: "asisten",
   slug: "asisten",
@@ -164,7 +167,7 @@ const asisten: AppDescriptor = {
   gradient: CHART(3),
   load: scrollize(() => import("./apps/asisten-app")),
   defaultSize: { w: 680, h: 700 },
-  pinned: true,
+  noDock: true,
 };
 
 // Wave v1.3 (#27) — payload-driven/contextual, so noDock like their siblings.

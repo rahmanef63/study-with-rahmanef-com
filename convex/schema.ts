@@ -110,7 +110,10 @@ export default defineSchema({
   })
     .index("by_user_lesson", ["userId", "lessonId"])
     .index("by_user_course", ["userId", "courseId"])
-    .index("by_course", ["courseId"]),
+    .index("by_course", ["courseId"])
+    // v1.7 (#37): "Lanjutkan belajar" lintas perangkat — recents per user
+    // terurut _creationTime di dalam index.
+    .index("by_user", ["userId"]),
 
   courseCompletions: defineTable({
     // = badge (PRD R11)

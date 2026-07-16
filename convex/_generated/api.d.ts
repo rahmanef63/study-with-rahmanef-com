@@ -15,6 +15,7 @@ import type * as features_analytics_aggregate from "../features/analytics/aggreg
 import type * as features_analytics_constants from "../features/analytics/constants.js";
 import type * as features_analytics_errors from "../features/analytics/errors.js";
 import type * as features_analytics_queries from "../features/analytics/queries.js";
+import type * as features_progress_recents from "../features/progress/recents.js";
 import type * as features_asisten_chat from "../features/asisten/chat.js";
 import type * as features_asisten_context from "../features/asisten/context.js";
 import type * as features_asisten_errors from "../features/asisten/errors.js";
@@ -118,6 +119,7 @@ declare const fullApi: ApiFromModules<{
   "features/analytics/constants": typeof features_analytics_constants;
   "features/analytics/errors": typeof features_analytics_errors;
   "features/analytics/queries": typeof features_analytics_queries;
+  "features/progress/recents": typeof features_progress_recents;
   "features/asisten/chat": typeof features_asisten_chat;
   "features/asisten/context": typeof features_asisten_context;
   "features/asisten/errors": typeof features_asisten_errors;

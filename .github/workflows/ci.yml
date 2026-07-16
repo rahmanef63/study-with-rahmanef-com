@@ -1,0 +1,37 @@
+# CI — typecheck + unit/convex-test di setiap push & PR ke main.
+# GRATIS: repo publik dapat menit GitHub Actions tanpa biaya (zero-cost law).
+# Menjawab proposal vps (STATUS 2026-07-16): jaring pengaman sebelum deploy —
+# codegen-freshness TIDAK dicek di sini (butuh kredensial Convex; deploy nyata
+# tetap menjalankan codegen+tsc sendiri via `npx convex deploy`).
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install (lockfile)
+        run: npm ci --legacy-peer-deps --no-audit --no-fund
+
+      - name: Typecheck (tsc --noEmit)
+        run: npx tsc --noEmit
+
+      - name: Unit + convex-test (vitest)
+        run: npx vitest run

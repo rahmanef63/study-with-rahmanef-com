@@ -1,6 +1,7 @@
 "use client";
-// Learning widget — the "Lanjutkan belajar" resume card, fed by the recent-courses
-// localStorage tracker (works logged-out, zero Convex). ONE card, THREE sizes
+// Learning widget — the "Lanjutkan belajar" resume card. v1.7 (#37): fed by
+// use-resume-courses (server truth lintas perangkat utk yang login, digabung
+// recents localStorage — tetap berfungsi logged-out). ONE card, THREE sizes
 // (S/M/L, persisted), shown in EVERY shell: the mobile Today page + the macOS/Windows
 // desktop widget stack + the Android home + the Dashboard home. Size is changed via a
 // header button OR a right-click on the card (reuses appshell's desktop ContextMenu —
@@ -15,7 +16,7 @@ import {
   type MenuItem,
 } from "@/features/appshell/components/shells/context-menu";
 import { cn } from "@/lib/utils";
-import { getRecentCourses, type RecentCourse } from "./recent-courses";
+import { useResumeCourses } from "./use-resume-courses";
 import { openApp } from "./apps/_nav";
 
 // ── size preference (S/M/L) ──────────────────────────────────────────────────
@@ -51,8 +52,7 @@ function useWidgetSize(): [WidgetSize, (s: WidgetSize) => void] {
 /** The card itself — always w-full (fills whatever wrapper hosts it). Theme-preset
  *  colours + radius; a size menu on right-click AND on the header ⚙ button. */
 function ResumeCard({ size, setSize }: { size: WidgetSize; setSize: (s: WidgetSize) => void }) {
-  const [recents, setRecents] = useState<RecentCourse[]>([]);
-  useEffect(() => setRecents(getRecentCourses()), []);
+  const recents = useResumeCourses();
   const menu = useContextMenu();
 
   const sizeItems: MenuItem[] = (["s", "m", "l"] as WidgetSize[]).map((k) => ({

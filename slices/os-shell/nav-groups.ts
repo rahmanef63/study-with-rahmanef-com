@@ -7,7 +7,9 @@ import type { AppDescriptor } from "@/features/appshell";
 
 export const NAV_GROUPS: { label: string; appIds: string[] }[] = [
   { label: "Ruang", appIds: ["beranda", "komunitas"] },
-  { label: "Belajar", appIds: ["kelas", "kuis", "asisten", "cari", "resources", "pengumuman", "sertifikat"] },
+  // "asisten" sengaja TIDAK terdaftar: app-nya diparkir (PARKED_APP_IDS di
+  // os-root.tsx) — begitu diaktifkan, tambahkan kembali di sini.
+  { label: "Belajar", appIds: ["kelas", "kuis", "cari", "resources", "pengumuman", "sertifikat"] },
   { label: "Kelola", appIds: ["kelola"] },
   { label: "Akun", appIds: ["profil", "notifikasi", "pengaturan"] },
   // `admin` resolves only for platform admins — os-root filters it out of the
