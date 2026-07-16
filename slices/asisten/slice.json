@@ -1,0 +1,44 @@
+{
+  "$schema": "https://resource.rahmanef.com/slice-schema.json",
+  "slug": "asisten",
+  "version": "0.1.0",
+  "category": "lms",
+  "kind": "fullstack",
+  "title": "Asisten — Alfa, tutor belajar AI in-app",
+  "description": "Asisten belajar bertenaga Claude (STATUS #35, wave v1.6) untuk belajar-with-rahmanef.com. Satu action publik chat:ask — LOGIN WAJIB (getAuthUserId sebagai langkah pertama, P0); konteks materi opsional via internal query yang meng-enforce membership + course published (draft tidak pernah bocor lewat asisten, §6). Bounded: riwayat <=20 pesan, pesan <=4000 char, konteks materi dipotong 8000 char, jawaban max_tokens 1024, model Haiku. TANPA kuota per-user (keputusan owner 2026-07-16) — kill-switch global = unset ANTHROPIC_API_KEY (asisten melaporkan 'belum aktif'); RATE_LIMITED dicadangkan untuk kuota masa depan. Kunci API hanya dibaca dari env server, tidak pernah menyeberang wire; body error provider tidak pernah diteruskan ke client. UI: AsistenChatView (window-app /asisten[/<lessonId>]) + useAsistenChat yang signature-nya kompatibel dengan seam appshell capabilities.useChat (Inspector Alfa jadi hidup).",
+  "namespace": "@/features/asisten",
+  "convex": {
+    "tablesExport": "",
+    "schemaPath": "convex/schema.ts",
+    "rootPaths": ["convex/features/asisten"]
+  },
+  "frontend": { "slicePath": "slices/asisten", "configExport": "asistenFeature" },
+  "deps": {
+    "npm": ["convex", "lucide-react"],
+    "shadcn": ["button"],
+    "env": ["ANTHROPIC_API_KEY"],
+    "peers": []
+  },
+  "contract": {
+    "barrel": {
+      "views": ["AsistenChatView"],
+      "components": ["AsistenMessageBubble"],
+      "hooks": ["useAsistenChat", "asistenErrorCode"],
+      "lib": [],
+      "consumerSeams": {
+        "os-shell": [
+          "window-app asisten ← <AsistenChatView lessonId={seg(payload)[0]} />",
+          "capabilities.useChat ← useAsistenChat (Inspector ⌘I)"
+        ]
+      }
+    },
+    "convexFunctions": {
+      "member": ["features/asisten/chat:ask (login wajib; konteks lesson member-gated)"],
+      "instructor": []
+    }
+  },
+  "registers": [],
+  "license": "MIT",
+  "tags": ["lms", "ai", "assistant", "chat", "anthropic", "multi-tenant"],
+  "providers": []
+}

@@ -7,7 +7,7 @@ import type { AppDescriptor } from "@/features/appshell";
 
 export const NAV_GROUPS: { label: string; appIds: string[] }[] = [
   { label: "Ruang", appIds: ["beranda", "komunitas"] },
-  { label: "Belajar", appIds: ["kelas", "kuis", "cari", "resources", "pengumuman", "sertifikat"] },
+  { label: "Belajar", appIds: ["kelas", "kuis", "asisten", "cari", "resources", "pengumuman", "sertifikat"] },
   { label: "Kelola", appIds: ["kelola"] },
   { label: "Akun", appIds: ["profil", "notifikasi", "pengaturan"] },
   // `admin` resolves only for platform admins — os-root filters it out of the

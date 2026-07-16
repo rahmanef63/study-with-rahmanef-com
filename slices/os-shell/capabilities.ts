@@ -11,6 +11,7 @@ import { useCallback } from "react";
 import { useTheme } from "next-themes";
 import type { ShellAppearance, ShellCapabilities } from "@/features/appshell";
 import { useShellSearch } from "./shell-search";
+import { useAlfaShellChat } from "./alfa-chat";
 
 // Bespoke "Editorial Warmth" wallpaper — a CSS-props bag (wins over any named
 // preset). Built from the app's own tokens (var(--primary) terracotta over
@@ -38,27 +39,13 @@ function useEditorialAppearance(): ShellAppearance {
 
 const cpuNull = (): number | null => null;
 
-// Study-assistant placeholder: there's no LLM backend/key yet, so stream an
-// honest "coming soon" instead of appshell's silent empty-chat default (which
-// leaves the Inspector AI bubble stuck on "…"). Swap for a real useChat (a convex
-// httpAction) once ANTHROPIC_API_KEY is set on the self-hosted backend + deployed.
-// Module-level = referentially stable, per the capabilities contract.
-const ASSISTANT_SOON =
-  "Asisten belajar Alfa segera hadir. Untuk sekarang, jelajahi materi, kuis, dan progres di kelas ini.";
-async function* comingSoonChat(): AsyncGenerator<string> {
-  for (const word of ASSISTANT_SOON.split(" ")) {
-    yield word + " ";
-    await new Promise((r) => setTimeout(r, 35));
-  }
-}
-const chatComingSoon = () => comingSoonChat;
-
 export const editorialCapabilities: ShellCapabilities = {
   useAppearance: useEditorialAppearance,
   useCpuPercent: cpuNull,
   // Spotlight ⌘K over communities + courses (existing Convex queries, run
   // imperatively). Hook reference — its returned fn is stable (see shell-search).
   useSearch: useShellSearch,
-  // Inspector AI tab: honest "coming soon" stream until a real LLM backend exists.
-  useChat: chatComingSoon,
+  // Inspector "Alfa" (⌘I) — LIVE sejak #35: chat:ask (login wajib server-side;
+  // adaptor menangani anon/error sebagai stream Bahasa Indonesia, never-throw).
+  useChat: useAlfaShellChat,
 };

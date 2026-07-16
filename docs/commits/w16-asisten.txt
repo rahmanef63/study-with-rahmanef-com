@@ -1,0 +1,45 @@
+feat(asisten): Alfa — asisten belajar AI in-OS (tutor materi + chat umum) (#35)
+
+Wave v1.6 — dikerjakan langsung oleh alpha (permintaan owner). OS-7 jadi
+nyata. NOL tabel baru (riwayat chat = state window; nol biaya simpan).
+Verifikasi: tsc --noEmit bersih; vitest 433/433 hijau (65 file; +16 spec).
+
+Backend (convex/features/asisten — default V8 runtime, teruji convex-test):
+- action `ask`: LOGIN WAJIB (getAuthUserId langkah pertama, P0); validasi
+  bounded (<=20 pesan, <=4000 char, pesan terakhir harus user, coalesce
+  giliran utk API Anthropic); model Haiku, max_tokens 1024.
+- Konteks materi via INTERNAL query lessonContext: normalizeId → NOT_FOUND
+  seragam; membership by_tenant_user WAJIB; course harus published — draft
+  TIDAK PERNAH bocor lewat asisten (P0 §6, tested).
+- ANTHROPIC_API_KEY hanya dibaca dari env server; tanpa key → NOT_FOUND
+  "belum aktif" (kill-switch global). Provider 429/529 → RATE_LIMITED;
+  error lain → NOT_FOUND generik; body error provider TIDAK diteruskan
+  (di-assert). Kunci tak pernah masuk body/jawaban (di-assert).
+- Guard biaya (janji alpha atas keputusan owner "tanpa kuota"): bound per
+  request + Haiku + kill-switch env; kuota harian = upgrade path
+  (RATE_LIMITED sudah dicadangkan).
+
+Slice (slices/asisten 0.1.0):
+- AsistenChatView: chat penuh (stream kosmetik per potongan kata, saran
+  pembuka, badge konteks materi, disclaimer, error copy Bahasa Indonesia).
+- useAsistenChat: signature (messages) => AsyncGenerator<string> — sengaja
+  kompatibel seam appshell capabilities.useChat. Barrel + metadata pair +
+  barrel test (limits mirror server, versi sinkron).
+
+Wiring os-shell:
+- App "Alfa" PINNED di dock (Sparkles, deep-link /asisten dan
+  /asisten/<lessonId>) + login gate; nav group Belajar.
+- kelas-app: tombol "Tanya Alfa soal materi ini" di bawah lesson player —
+  membuka Alfa ber-konteks materi.
+- capabilities.useChat: placeholder "segera hadir" DIGANTI adaptor
+  useAlfaShellChat (never-throw; anon/error → stream copy Bahasa Indonesia)
+  — panel Inspector ⌘I "Alfa" kini menjawab sungguhan.
+- changelog v1.6 (user-facing).
+
+convex/_generated/api.d.ts: entri modul asisten ditambahkan MANUAL mengikuti
+format codegen (typed api tetap; regen deploy berikutnya menghasilkan isi
+identik — hindari siklus downgrade AnyApi seperti 1aba552/54280bf).
+
+STATUS: #34 done (konfirmasi owner) · #35 done · #36 open (deploy+aktivasi).
+AKTIVASI (owner, dari laptop): npx convex env set ANTHROPIC_API_KEY <kunci>
+lalu npx convex deploy --yes. Tanpa env, Alfa sopan bilang "belum aktif".

@@ -15,6 +15,7 @@ import {
   Award,
   Bell,
   BookOpen,
+  Sparkles,
   GraduationCap,
   History,
   Home,
@@ -153,6 +154,19 @@ const masuk: AppDescriptor = {
   noDock: true,
 };
 
+// Wave v1.6 (#35) — Alfa, the AI study assistant. PINNED: dock-level presence,
+// it works bare (general chat) AND with a payload (/asisten/<lessonId>).
+const asisten: AppDescriptor = {
+  id: "asisten",
+  slug: "asisten",
+  title: "Alfa",
+  icon: Sparkles,
+  gradient: CHART(3),
+  load: scrollize(() => import("./apps/asisten-app")),
+  defaultSize: { w: 680, h: 700 },
+  pinned: true,
+};
+
 // Wave v1.3 (#27) — payload-driven/contextual, so noDock like their siblings.
 const cari: AppDescriptor = {
   id: "cari",
@@ -234,6 +248,7 @@ export const APPS: AppDescriptor[] = [
   resources,
   pengumuman,
   cari,
+  asisten,
   kelola,
   profil,
   notifikasi,

@@ -1,0 +1,33 @@
+{
+  "$schema": "../../docs/slice.manifest.schema.json",
+  "name": "asisten",
+  "version": "0.1.0",
+  "description": "Alfa — asisten belajar bertenaga Claude (wave v1.6 #35). Action chat:ask (login wajib, konteks materi member-gated + published-only, bounded 20 pesan/4000 char/8000 char konteks/1024 max_tokens, model Haiku). Tanpa kuota per-user (keputusan owner; kill-switch = unset ANTHROPIC_API_KEY). UI AsistenChatView + hook useAsistenChat yang kompatibel seam appshell capabilities.useChat.",
+  "category": "lms",
+  "stability": "beta",
+  "deps": {
+    "shared": ["features/defineFeature"],
+    "slices": [],
+    "convexFeatures": ["asisten"],
+    "npm": { "lucide-react": "^0.460.0" },
+    "env": ["ANTHROPIC_API_KEY"]
+  },
+  "files": {
+    "include": ["**/*"],
+    "exclude": ["__tests__/**", "*.test.ts", "*.test.tsx"]
+  },
+  "convexFiles": {
+    "include": ["**/*.ts"],
+    "exclude": ["*.test.ts", "test.helpers.ts"]
+  },
+  "permissions": ["asisten.chat"],
+  "schemaTables": [],
+  "compatibility": {
+    "next": ">=15 <17",
+    "react": "^19",
+    "convex": "^1.16",
+    "tailwind": "4",
+    "auth": "convex-auth"
+  },
+  "notes": "0.1.0 (2026-07-16, alpha): STATUS row #35 (wave v1.6) — OS-7 jadi nyata. NOL tabel baru (riwayat chat hidup di state window; nol biaya simpan). Action default V8 runtime (fetch tanpa 'use node') supaya teruji convex-test dengan fetch stub (pola announcements/discord.test.ts). Auth = getAuthUserId langsung di action (requireUser _shared bertipe Query/MutationCtx); konteks lesson via internal query lessonContext (normalizeId → NOT_FOUND seragam; membership by_tenant_user; course harus published — draft tak bocor, P0 §6). Provider errors dipetakan ke kode kontrak (429/529 → RATE_LIMITED, lainnya → NOT_FOUND generic) tanpa meneruskan body provider. Kunci API tak pernah ke wire — di-assert di test. Keputusan owner 2026-07-16: tanpa kuota per-user dulu; guard biaya = bound per request + Haiku + kill-switch env; kuota harian tinggal menambah cek + RATE_LIMITED bila dibutuhkan."
+}
