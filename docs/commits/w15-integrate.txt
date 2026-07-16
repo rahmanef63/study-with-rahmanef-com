@@ -1,0 +1,31 @@
+feat(konten): 3 kursus baru — produktivitas kerja, analisis data, orkestrasi multi-agent (#31-#33)
+
+Wave v1.5 KONTEN — 3 worker paralel (beta/gamma/delta), masing-masing satu
+file seed; direview alpha per ISI (bukan cuma parse) + verifikasi penuh:
+tsc --noEmit bersih, vitest 417/417 hijau, scan bocoran secret/infra NIHIL.
+
+- convex/seedAiKerja.ts (beta #31): "AI untuk Produktivitas Kerja"
+  (ai-produktivitas-kerja) — 5 modul / 14 lesson / 4 kuis. Utk pekerja
+  kantoran non-IT: asisten AI & privasi data kantor, menulis cepat
+  (email/laporan ID-EN), formula spreadsheet via AI, notulen & follow-up
+  rapat, template prompt + etika. Semua praktik gratis.
+
+- convex/seedAnalisisData.ts (gamma #32): "Analisis Data dengan AI"
+  (analisis-data-dengan-ai) — 5 modul / 14 lesson / 4 kuis. Dari CSV mentah
+  sampai insight & slide: anonimisasi sebelum tempel ke AI, tren vs anomali,
+  mean vs median, korelasi != kausalitas, pilih grafik yang benar, checklist
+  verifikasi angka (AI bisa salah hitung). Dataset publik: data.go.id, BPS,
+  Kaggle, Our World in Data.
+
+- convex/seedMultiAgent.ts (delta #33): "Orkestrasi Multi-Agent untuk
+  Proyek Nyata" (orkestrasi-multi-agent) — 5 modul / 14 lesson / 4 kuis.
+  Kelanjutan bikin-aplikasi-web: kontrak agent, pembagian wilayah (zero
+  shared writes), claim board, anatomi prompt assignment, review &
+  verifikasi independen — dengan studi kasus JUJUR: platform ini sendiri
+  dibangun persis dengan metode yang diajarkan (tanpa detail infra/secret).
+
+Semua idempoten per course slug (pola seedWebDev); run command ada di
+header masing-masing file. Total katalog belajar-ai: 12 kursus.
+
+STATUS: #31-#33 done. Selanjutnya: vps #34 (deploy modul + run 3 seed +
+smoke). Backlog: #35 asisten AI (v1.6) · #12 rotasi (owner, ditunda).
