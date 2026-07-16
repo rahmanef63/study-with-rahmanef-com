@@ -96,6 +96,9 @@ import type * as features_tenants_requestHelpers from "../features/tenants/reque
 import type * as features_tenants_requests from "../features/tenants/requests.js";
 import type * as http from "../http.js";
 import type * as seed from "../seed.js";
+import type * as seedAiKerja from "../seedAiKerja.js";
+import type * as seedAnalisisData from "../seedAnalisisData.js";
+import type * as seedMultiAgent from "../seedMultiAgent.js";
 import type * as seedWebDev from "../seedWebDev.js";
 import type * as settings from "../settings.js";
 import type * as setup from "../setup.js";
@@ -196,6 +199,9 @@ declare const fullApi: ApiFromModules<{
   "features/tenants/requests": typeof features_tenants_requests;
   http: typeof http;
   seed: typeof seed;
+  seedAiKerja: typeof seedAiKerja;
+  seedAnalisisData: typeof seedAnalisisData;
+  seedMultiAgent: typeof seedMultiAgent;
   seedWebDev: typeof seedWebDev;
   settings: typeof settings;
   setup: typeof setup;
