@@ -53,7 +53,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { Compass, Library, LogIn, Megaphone, Plus, Settings2, Users } from "lucide-react";
+import { Compass, Library, LogIn, Megaphone, Plus, Search, Settings2, Users } from "lucide-react";
 
 // ── Shared course tile ───────────────────────────────────────────────────────
 // Mirrors Beranda's KelasGrid item: a button (not a route Link) so a course
@@ -95,6 +95,12 @@ function CommunityBody({ slug }: { slug: string }) {
   // Community sub-features — each opens its own deep-linkable window. Rendered as
   // the mockup's quick-action strip (icon tiles) instead of a button row.
   const quickActions: QuickAction[] = [
+    {
+      id: "cari",
+      icon: <Search aria-hidden className="size-5" />,
+      label: "Cari kelas & materi",
+      onClick: () => openApp("cari", tenant?.name ?? "Cari", [slug]),
+    },
     {
       id: "resources",
       icon: <Library aria-hidden className="size-5" />,

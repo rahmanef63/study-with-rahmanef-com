@@ -12,6 +12,8 @@
 import type { AppDescriptor, Brand, ShellManifest } from "@/features/appshell";
 import { DEFAULT_FEATURES } from "@/features/appshell";
 import {
+  Award,
+  Bell,
   BookOpen,
   GraduationCap,
   History,
@@ -20,6 +22,7 @@ import {
   ListChecks,
   LogIn,
   Megaphone,
+  Search,
   Settings,
   ShieldCheck,
   SlidersHorizontal,
@@ -30,6 +33,7 @@ import { LogoMark } from "@/components/brand/logo";
 import { editorialCapabilities } from "./capabilities";
 import { learningWidgetsFeature } from "./learning-widgets";
 import { accountFeature } from "./account";
+import { notificationsStatusFeature } from "./notifications-status";
 import { shellSwitchFeature } from "./shell-switch";
 import { pinsFeature } from "./pins";
 import { scrollize } from "./app-scroll";
@@ -149,6 +153,40 @@ const masuk: AppDescriptor = {
   noDock: true,
 };
 
+// Wave v1.3 (#27) — payload-driven/contextual, so noDock like their siblings.
+const cari: AppDescriptor = {
+  id: "cari",
+  slug: "cari",
+  title: "Cari",
+  icon: Search,
+  gradient: CHART(4),
+  load: scrollize(() => import("./apps/cari-app")),
+  defaultSize: { w: 720, h: 640 },
+  noDock: true,
+};
+
+const notifikasi: AppDescriptor = {
+  id: "notifikasi",
+  slug: "notifikasi",
+  title: "Notifikasi",
+  icon: Bell,
+  gradient: CHART(1),
+  load: scrollize(() => import("./apps/notifikasi-app")),
+  defaultSize: { w: 640, h: 640 },
+  noDock: true,
+};
+
+const sertifikat: AppDescriptor = {
+  id: "sertifikat",
+  slug: "sertifikat",
+  title: "Sertifikat",
+  icon: Award,
+  gradient: CHART(5),
+  load: scrollize(() => import("./apps/sertifikat-app")),
+  defaultSize: { w: 760, h: 680 },
+  noDock: true,
+};
+
 // Platform group (sidebar "Platform" → Docs · Changelog). Static content apps,
 // launcher-/sidebar-reached (noDock).
 const docs: AppDescriptor = {
@@ -195,8 +233,11 @@ export const APPS: AppDescriptor[] = [
   kuis,
   resources,
   pengumuman,
+  cari,
   kelola,
   profil,
+  notifikasi,
+  sertifikat,
   pengaturan,
   docs,
   changelog,
@@ -219,6 +260,7 @@ export const shellManifest: ShellManifest = {
   features: [
     ...DEFAULT_FEATURES.filter((f) => f.id !== "widgets"),
     learningWidgetsFeature,
+    notificationsStatusFeature, // bell BEFORE the avatar in menuBarStatus
     accountFeature,
     shellSwitchFeature,
     pinsFeature,

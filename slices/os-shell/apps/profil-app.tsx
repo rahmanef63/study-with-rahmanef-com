@@ -39,7 +39,11 @@ function MemberProfil({ username }: { username: string }) {
         <span className="eyebrow">Profil anggota</span>
         <p className="truncate text-sm text-muted-foreground">@{username}</p>
       </header>
-      <PublicProfileView username={username} shareUrl={`${SITE_URL}/profil/${username}`} />
+      <PublicProfileView
+        username={username}
+        shareUrl={`${SITE_URL}/profil/${username}`}
+        certificateHref={(id) => `/sertifikat/${id}`}
+      />
     </Frame>
   );
 }
@@ -137,6 +141,7 @@ function OwnProfil() {
       <PublicProfileView
         username={profile.username}
         shareUrl={`${SITE_URL}/profil/${profile.username}`}
+        certificateHref={(id) => `/sertifikat/${id}`}
       />
     </Frame>
   );

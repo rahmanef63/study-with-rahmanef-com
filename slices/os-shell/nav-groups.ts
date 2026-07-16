@@ -7,9 +7,9 @@ import type { AppDescriptor } from "@/features/appshell";
 
 export const NAV_GROUPS: { label: string; appIds: string[] }[] = [
   { label: "Ruang", appIds: ["beranda", "komunitas"] },
-  { label: "Belajar", appIds: ["kelas", "kuis", "resources", "pengumuman"] },
+  { label: "Belajar", appIds: ["kelas", "kuis", "cari", "resources", "pengumuman", "sertifikat"] },
   { label: "Kelola", appIds: ["kelola"] },
-  { label: "Akun", appIds: ["profil", "pengaturan"] },
+  { label: "Akun", appIds: ["profil", "notifikasi", "pengaturan"] },
   // `admin` resolves only for platform admins — os-root filters it out of the
   // app registry for everyone else, so groupApps() simply won't find it.
   { label: "Platform", appIds: ["docs", "changelog", "admin"] },

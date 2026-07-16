@@ -164,20 +164,14 @@ test.describe("OS shell — anon smoke", () => {
   test("8. /sertifikat/<bogus-id> shows a friendly not-found, never a crash", async ({
     page,
   }) => {
-    // TODO(rr): waiting on os-shell (alpha) — the /sertifikat/<completionId>
-    // deep-link mounts delta's CertificateView (#24) during alpha integration;
-    // at time of writing the route is NOT mounted, so this spec is fixme until
-    // then. Contract under test (delta's publicGetCertificate): unknown or
-    // invalid id → uniform NOT_FOUND (no case leaking) → a friendly Bahasa
-    // not-found state, zero crash. Tighten the copy selector to the profiles
-    // slice SSOT once the view lands.
-    test.fixme(
-      true,
-      "route /sertifikat/<id> not mounted yet — flips on after alpha integrates #24; then remove this annotation",
-    );
+    // Mounted at #27 (sertifikat-app; alpha) — fixme removed. Contract under
+    // test (delta's publicGetCertificate): unknown or invalid id → uniform
+    // NOT_FOUND (no case leaking) → the profiles-slice SSOT not-found copy
+    // (DEFAULT_CERTIFICATE_LABELS.notFoundTitle), zero crash. The bogus id is
+    // ANON-safe by design: the server normalizes it and answers NOT_FOUND.
     const errors = collectErrors(page);
     await page.goto("/sertifikat/e2e-bogus-completion-id");
-    await expect(page.getByText(/tidak ditemukan/i).first()).toBeVisible({
+    await expect(page.getByText("Sertifikat tidak ditemukan").first()).toBeVisible({
       timeout: DATA_TIMEOUT,
     });
     await expectNoCrash(page);
@@ -187,29 +181,14 @@ test.describe("OS shell — anon smoke", () => {
   test("9. suggestion board (/resources/<tenant>/usulan) as anon shows a login gate — never a crash", async ({
     page,
   }) => {
-    // INTENDED behavior (this is the hardening target): suggestions are
-    // member-only server-side (listOpenSuggestions/listMineSuggestions call
-    // requireTenantRole first — correct per §6), but resources-app currently
-    // has NO anon branch: SuggestionBoxView fires both queries unauthenticated,
-    // convex/react rethrows NOT_AUTHENTICATED during render, and with no window
-    // error boundary the exception escalates to app/error.tsx — the whole
-    // desktop dies. This spec asserts the INTENDED login gate (kelola-app anon
-    // branch is the in-repo pattern) and is annotated test.fail; it flips to
-    // "unexpected pass" the moment the gate lands.
-    // TODO(rr): waiting on os-shell (alpha) — resources-app anon branch: gate
-    // the usulan tab (or the whole window) behind login when !isAuthenticated,
-    // like kelola-app does; then delete this annotation and tighten the gate
-    // selector to the exact copy SSOT.
-    test.fail(
-      true,
-      "resources-app has no anon branch — suggestion queries throw NOT_AUTHENTICATED into app/error.tsx; remove once alpha adds the login gate",
-    );
+    // Gate landed at #27 (resources-app anon branch, kelola-app pattern) —
+    // test.fail removed. Both tabs are member-only server-side
+    // (requireTenantRole), so the whole window login-gates for anon instead of
+    // letting the first query throw NOT_AUTHENTICATED into app/error.tsx.
     await page.goto(`/resources/${TENANT}/usulan`);
-    // Loose on purpose (gate copy not written yet — likely "Masuk untuk …" per
-    // kelola precedent or "Silakan login dulu" per resources errNotAuthenticated
-    // copy); strict on the safety contract below.
+    // Exact copy SSOT: resources-app.tsx anon-gate EmptyTitle.
     await expect(
-      page.getByText(/masuk untuk|login untuk|silakan login/i).first(),
+      page.getByText("Masuk untuk membuka sumber & usulan").first(),
     ).toBeVisible({ timeout: DATA_TIMEOUT });
     await expectNoCrash(page);
   });

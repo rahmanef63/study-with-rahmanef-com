@@ -8,10 +8,12 @@ import { useState } from "react";
 import { useQuery } from "convex/react";
 import { type AppProps } from "@/features/appshell";
 import { ResourceBoardView, SuggestionBoxView } from "@/features/resources";
-import { seg } from "./_nav";
+import { openApp, seg } from "./_nav";
 import { tenantsApi, useMyMembership, type PublicTenant } from "@/features/tenants";
+import { Button } from "@/components/ui/button";
 import { Empty, EmptyHeader, EmptyTitle, EmptyDescription } from "@/components/ui/empty";
 import { Hero } from "@/components/mockup-kit";
+import { LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const TABS = [
@@ -46,10 +48,41 @@ export default function ResourcesApp(props: AppProps) {
   // Membership → canModerate exactly like the routes: instructor+ is a UX gate;
   // every Convex function re-checks the role server-side. The hook skips until
   // authenticated so it never throws during the auth handshake.
-  const { membership } = useMyMembership(tenant?._id);
+  const { membership, isAuthenticated, isAuthLoading } = useMyMembership(tenant?._id);
   const canModerate = membership?.role === "instructor" || membership?.role === "owner";
 
   const [tab, setTab] = useState<TabKey>(view === "usulan" ? "usulan" : "board");
+
+  // Anon login-gate (#27, zeta e2e spec 9): every read in BOTH tabs is
+  // member-only server-side (requireTenantRole) — without this branch the
+  // first query throws NOT_AUTHENTICATED through convex/react into
+  // app/error.tsx and kills the whole desktop. Pattern: kelola-app.
+  if (!isAuthLoading && !isAuthenticated) {
+    return (
+      <div className="w-full space-y-8 p-6 @sm:p-8">
+        <Hero
+          eyebrow="Sumber & usulan · Komunitas"
+          title={
+            <>
+              Papan sumber <em className="italic text-primary">komunitas</em>.
+            </>
+          }
+          description="Kurasi tautan bermanfaat dan usulkan topik berikutnya."
+        />
+        <Empty className="border">
+          <EmptyHeader>
+            <EmptyTitle className="font-serif">Masuk untuk membuka sumber &amp; usulan</EmptyTitle>
+            <EmptyDescription className="text-pretty">
+              Papan sumber dan kotak usulan hanya untuk anggota komunitas. Masuk dulu, ya.
+            </EmptyDescription>
+          </EmptyHeader>
+          <Button className="min-h-11" onClick={() => openApp("masuk", "Masuk")}>
+            <LogIn aria-hidden className="size-4" /> Masuk
+          </Button>
+        </Empty>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full space-y-8 p-6 @sm:p-8">

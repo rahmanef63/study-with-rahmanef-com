@@ -20,3 +20,19 @@ export function seg(payload: unknown): string[] {
   const p = (payload as { path?: unknown } | null | undefined)?.path;
   return typeof p === "string" ? p.split("/").filter(Boolean).map(decodeURIComponent) : [];
 }
+
+/**
+ * Open a deep-link HREF (`/<appSlug>/<seg>/…`) as its window-app — the seam
+ * slices hand their `onNavigate` prop (#27: notification hrefs, search hits).
+ * Unknown first segment falls back to plain navigation so external/legacy
+ * links keep working; the catch-all route still renders the desktop there.
+ */
+export function openHref(href: string) {
+  const [first, ...rest] = href.split("?")[0].split("/").filter(Boolean).map(decodeURIComponent);
+  const app = first ? APPS.find((a) => a.slug === first) : undefined;
+  if (!app) {
+    window.location.assign(href);
+    return;
+  }
+  return openApp(app.id, app.title, rest);
+}

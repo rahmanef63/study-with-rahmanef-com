@@ -201,13 +201,15 @@ export default defineSchema({
 
   notifications: defineTable({
     // fase-2 (#21): inbox in-app per user. Producers menjadwalkan internal
-    // mutation notifications (comment reply, hasil kurasi, status usulan).
+    // mutation notifications (comment reply, hasil kurasi, status usulan;
+    // v1.4 #28: pengumuman komunitas — fan-out bounded ke members).
     userId: v.id("users"), // penerima
     tenantId: v.id("tenants"),
     kind: v.union(
       v.literal("comment_reply"),
       v.literal("resource_reviewed"),
-      v.literal("suggestion_status")
+      v.literal("suggestion_status"),
+      v.literal("announcement")
     ),
     title: v.string(),
     body: v.optional(v.string()),

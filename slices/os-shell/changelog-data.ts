@@ -27,6 +27,19 @@ export type ChangelogEntry = {
 // NEWEST FIRST. Prepend here on every update.
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-07-13",
+    version: "v1.3",
+    title: "Notifikasi, pencarian, dan sertifikat kelas",
+    tags: ["Baru", "Konten"],
+    points: [
+      "Lonceng notifikasi di bar atas — balasan diskusi, hasil kurasi sumber, dan status usulanmu masuk ke satu kotak (app Notifikasi juga ada untuk semua tampilan).",
+      "Pencarian per komunitas: cari judul kelas dan isi materi lewat app Cari (tombolnya ada di halaman komunitas).",
+      "Sertifikat kelas yang bisa dibagikan — klik lencana di profil untuk membuka /sertifikat/… dan salin tautannya.",
+      "Kelas baru di Belajar AI: “Bikin Aplikasi Web dengan AI — dari Nol sampai Live” (7 modul, 17 materi, 4 kuis).",
+      "Papan sumber & kotak usulan kini menampilkan ajakan masuk yang ramah untuk pengunjung yang belum login (sebelumnya bisa bikin error).",
+    ],
+  },
+  {
     date: "2026-07-11",
     title: "Panel Admin platform",
     tags: ["Baru"],

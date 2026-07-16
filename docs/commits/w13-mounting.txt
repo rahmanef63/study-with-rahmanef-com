@@ -1,0 +1,56 @@
+feat(os-shell): mount wave-v1.3 UI — bell/inbox, pencarian, sertifikat, anon-gate resources (#27)
+
+Integrasi alpha pasca-deploy vps #26 (backend v1.3 sudah live di prod).
+Verifikasi: tsc --noEmit bersih (seluruh repo) + vitest 403/403 hijau.
+
+os-shell (3 app baru + chrome):
+- apps/_nav.ts: helper `openHref(href)` — buka deep-link `/<appSlug>/…`
+  sebagai window-app (seam onNavigate utk notifikasi & hasil pencarian);
+  fallback window.location utk href tak dikenal.
+- apps/notifikasi-app.tsx (BARU): inbox penuh (NotificationInbox) dengan
+  login-gate anon; rumah notifikasi utk shell mobile tanpa menu bar.
+- notifications-status.tsx (BARU): NotificationBell di slot `menuBarStatus`
+  (macOS menu bar, Windows tray, Dashboard header — Slot merender semua
+  feature berurutan; bell SEBELUM avatar akun). Gate auth di sini:
+  useUnreadCount = requireUser, render null saat anon/loading.
+- apps/cari-app.tsx (BARU): SearchView per komunitas, deep-link
+  /cari/<tenantSlug>; state lengkap (belum pilih komunitas / login-gate /
+  bukan anggota / tidak ditemukan / skeleton); hasil klik → openHref.
+- apps/sertifikat-app.tsx (BARU): CertificateView di /sertifikat/<id> —
+  ANONIM by design (§6 etalase), shareUrl dari window.location.origin.
+- manifest.tsx: 3 AppDescriptor baru (cari/notifikasi/sertifikat, noDock)
+  + notificationsStatusFeature; nav-groups.ts: cari+sertifikat di
+  "Belajar", notifikasi di "Akun".
+- apps/komunitas-app.tsx: quick action "Cari kelas & materi".
+- apps/profil-app.tsx: certificateHref → lencana profil nge-link ke
+  /sertifikat/<completionId> (dua pemakaian PublicProfileView).
+- apps/resources-app.tsx: LOGIN-GATE anon seluruh window (temuan zeta
+  spec 9 — kedua tab member-only server-side; sebelumnya query pertama
+  melempar NOT_AUTHENTICATED ke app/error.tsx dan mematikan desktop).
+- changelog-data.ts: entri v1.3 (user-facing, Bahasa Indonesia).
+
+e2e (janji #25 ditepati):
+- spec 8 /sertifikat/<bogus>: test.fixme DIHAPUS; selector di-tighten ke
+  copy SSOT "Sertifikat tidak ditemukan".
+- spec 9 usulan anon: test.fail DIHAPUS; selector di-tighten ke copy
+  SSOT gate "Masuk untuk membuka sumber & usulan".
+
+STATUS: #26 done (vps, dikonfirmasi) · #27 done · hotfix 1aba552
+di-post-review alpha (§4): ACCEPTED — typed api regen + narrow tipe
+test-only, perilaku tidak berubah.
+
+Sisa board: #12 rotasi AUTH_GOOGLE_SECRET (owner) · #15 ui agent.
+
+--- PLUS: wave v1.4 pre-work (alpha) ---
+
+- convex/schema.ts: notifications.kind + literal "announcement" (additive;
+  producer fan-out bounded menyusul di #28).
+- slices/notifications: NotificationKind + "announcement" (type pre-extended
+  supaya main tetap tsc-hijau dengan typed api) + barrel test union updated.
+- docs/DATA-MODEL.md: blok "Wave v1.4 additions" (fan-out createMany cap 200,
+  no self-notify; pencarian resources approved-only tanpa search index baru).
+- docs/AGENT-PROMPTS.md: rewrite wave v1.4 — ui #15 (closing polish pass),
+  beta #28 (notifikasi pengumuman), gamma #29 (pencarian sumber), vps #30.
+- docs/STATUS.md: #26/#27 done; #28/#29 pre-claimed; #30 open; #15 note.
+
+Verifikasi gabungan (mounting + prework): tsc --noEmit bersih, vitest 403/403.

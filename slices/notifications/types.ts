@@ -6,7 +6,8 @@ import type { Id } from "@convex/_generated/dataModel";
 export type NotificationKind =
   | "comment_reply"
   | "resource_reviewed"
-  | "suggestion_status";
+  | "suggestion_status"
+  | "announcement"; // v1.4 #28 — producer lands with beta; type pre-extended by alpha (schema union already shipped)
 
 export type NotificationItemData = {
   _id: Id<"notifications">;
