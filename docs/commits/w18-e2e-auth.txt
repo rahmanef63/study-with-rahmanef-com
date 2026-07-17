@@ -1,0 +1,30 @@
+test(e2e): suite member ber-login (storage-state) — project auth kondisional (#40)
+
+Wave v1.8 — alpha langsung. Skeleton auth zeta (#13/#25) diaktifkan jadi
+suite member sungguhan, tanpa mengotomasi Google OAuth (ToS).
+
+- playwright.config.ts: project "chromium-auth" terdaftar OTOMATIS hanya
+  bila e2e/.auth/user.json ada (fs check di config) — tanpa state, run
+  tetap anon-only dan CI tidak terpengaruh; project anon kini men-ignore
+  *.auth.spec.ts secara eksplisit.
+- e2e/member.auth.spec.ts (A1-A5, SEMUA read-only):
+  A1 sesi hidup — menu-bar tak lagi menawarkan "Masuk" (state kedaluwarsa
+     ⇒ A1 gagal = sinyal rekam ulang);
+  A2 /notifikasi — inbox terbuka, BUKAN gate login;
+  A3 /cari/<tenant> — SearchView utk member, ketik query → hasil/empty
+     tanpa crash;
+  A4 lesson pertama kelas seeded — player member + form Diskusi ter-mount
+     (kebalikan spec anon 7);
+  A5 Beranda — section "Lanjutkan belajar" (#37) valid bila render.
+  GUARD: prod DITOLAK (skip) kecuali E2E_ALLOW_PROD_AUTH=1 — kebijakan
+  README "authed = lokal/staging" ditegakkan di kode, bukan cuma prosa.
+- e2e/README.md: resep aktivasi 1 langkah (codegen --save-storage), matriks
+  env (+E2E_ALLOW_PROD_AUTH), default E2E_USERNAME diselaraskan ke handle
+  real (abdurrahman-fakhrul — sisa proposal vps 2026-07-16).
+- STATUS: #39 done (laporan vps direkonsiliasi) · #40 done; hotfix vps
+  a32c15f (actions v4→v5) di-post-review alpha: ACCEPTED.
+
+Verifikasi: parse + strict tsc scoped (esbuild + tsc dengan tipe
+@playwright/test asli) atas keempat file e2e/config — bersih; kode app tak
+tersentuh (CI mengulang tsc+vitest penuh di push). Run authed dieksekusi
+owner secara lokal setelah merekam state (lihat e2e/README.md).

@@ -6,9 +6,15 @@
 //   E2E_BASE_URL unset            → http://localhost:3000 (run `npm run dev` first)
 //   E2E_BASE_URL=https://staging… → staging
 //   E2E_BASE_URL=https://study-with.rahmanef.com → prod (anon read-only ONLY — e2e/README.md)
+import fs from "node:fs";
 import { defineConfig, devices } from "@playwright/test";
 
 const BASE_URL = process.env.E2E_BASE_URL ?? "http://localhost:3000";
+// State login hasil rekam manual (gitignored). Project auth hanya didaftarkan
+// bila file-nya ADA — tanpa state, `playwright test` tetap jalan anon-only
+// tanpa error load config (CI tidak pernah punya state ini).
+const AUTH_STATE = "e2e/.auth/user.json";
+const HAS_AUTH_STATE = fs.existsSync(AUTH_STATE);
 
 export default defineConfig({
   testDir: "./e2e",
@@ -32,15 +38,21 @@ export default defineConfig({
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
+      testIgnore: /.*\.auth\.spec\.ts/,
     },
-    // Future authenticated run (see e2e/auth.setup.ts + e2e/README.md):
-    // 1. Rahman records storage state ONCE, locally:
-    //      npx playwright codegen --save-storage=e2e/.auth/user.json $E2E_BASE_URL
-    // 2. Uncomment:
-    // {
-    //   name: "chromium-auth",
-    //   use: { ...devices["Desktop Chrome"], storageState: "e2e/.auth/user.json" },
-    //   testMatch: /.*\.auth\.spec\.ts/,
-    // },
+    // Authenticated run (v1.8 #40 — AKTIF bila state ada). Rekam SEKALI
+    // (login manual di jendela yang terbuka, lalu tutup):
+    //   npx playwright codegen --save-storage=e2e/.auth/user.json http://localhost:3000/masuk
+    // Tanpa file itu, project ini tidak terdaftar (anon-only, CI aman).
+    // Specs juga MENOLAK prod kecuali E2E_ALLOW_PROD_AUTH=1 (member.auth.spec.ts).
+    ...(HAS_AUTH_STATE
+      ? [
+          {
+            name: "chromium-auth",
+            use: { ...devices["Desktop Chrome"], storageState: AUTH_STATE },
+            testMatch: /.*\.auth\.spec\.ts/,
+          },
+        ]
+      : []),
   ],
 });

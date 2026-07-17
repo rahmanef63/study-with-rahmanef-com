@@ -42,7 +42,8 @@ menyentuhnya): `"e2e": "playwright test"` dan
 | `E2E_BASE_URL` | `http://localhost:3000` | target suite |
 | `E2E_TENANT` | `belajar-ai` | slug komunitas seeded |
 | `E2E_COURSE` | `dasar-ai` | slug kelas seeded |
-| `E2E_USERNAME` | `rahman` | username profil publik seeded |
+| `E2E_USERNAME` | `abdurrahman-fakhrul` | username profil publik nyata di prod (proposal vps 2026-07-16) |
+| `E2E_ALLOW_PROD_AUTH` | _(unset)_ | `1` = izinkan suite authed menyentuh prod (default DITOLAK; tetap read-only) |
 
 Laporan HTML: `npx playwright show-report e2e/playwright-report`
 (artefak diarahkan ke dalam `e2e/` dan sudah di-gitignore di `e2e/.gitignore`).
@@ -56,16 +57,19 @@ Laporan HTML: `npx playwright show-report e2e/playwright-report`
 - `e2e/.auth/user.json` (storage state hasil rekam) berisi token sesi hidup —
   gitignored, jangan pernah di-commit atau ditempel di chat.
 
-## Menuju run authenticated (auth.setup.ts)
+## Run authenticated — AKTIF sejak v1.8 (#40)
 
 Google OAuth **tidak** diotomasi di CI (ToS + bot detection). Pola yang dipakai:
 rekam storage state sekali secara manual, pakai ulang lewat project Playwright.
-Resep lengkap ada di header `e2e/auth.setup.ts`; ringkas:
 
 1. `npx playwright codegen --save-storage=e2e/.auth/user.json http://localhost:3000/masuk`
-   → login manual di jendela yang terbuka, tutup.
-2. Un-comment project `chromium-auth` di `playwright.config.ts`.
-3. Tulis spec member sebagai `e2e/<nama>.auth.spec.ts`.
+   → login manual (Google) di jendela yang terbuka, lalu tutup jendelanya.
+2. Selesai. Project `chromium-auth` terdaftar OTOMATIS begitu file state ada
+   (tanpa file → `playwright test` tetap anon-only; CI tidak pernah punya state).
+3. Spec member: `e2e/member.auth.spec.ts` (A1–A5: sesi hidup, inbox notifikasi,
+   pencarian member, lesson player + diskusi, resume lintas perangkat). Semua
+   **read-only**; **prod DITOLAK** kecuali `E2E_ALLOW_PROD_AUTH=1`.
+4. Sesi kedaluwarsa → spec A1 gagal → ulangi langkah 1 (itu saja refresh-nya).
 
 ## Peta spec ↔ copy SSOT
 
