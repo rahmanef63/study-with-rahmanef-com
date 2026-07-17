@@ -180,10 +180,15 @@ test.describe("OS shell — anon smoke", () => {
     await expectNoCrash(page);
     // EXPECTED noise (vps proposal 2026-07-16, accepted): the Convex client
     // console.errors every server-thrown error, so the by-design NOT_FOUND for
-    // a bogus id ALWAYS logs against a real backend. Filter that one expected
-    // error only — anything else still fails the spec.
+    // a bogus id ALWAYS logs against a real backend. In the PROD browser bundle
+    // the printed message is the scrubbed "Server Error" wrapper — the
+    // {code:"NOT_FOUND"} payload rides in .data, NOT the console string (the
+    // CLI/Node prints the payload, the browser does not) — so anchor on the
+    // query PATH itself. That one expected error only; any OTHER console error
+    // (different function, real crash) still fails the spec, and the friendly
+    // not-found text assertion above already guards a real certificate crash.
     const unexpected = errors.filter(
-      (e) => !/NOT_FOUND|Sertifikat tidak ditemukan/.test(e),
+      (e) => !/publicGetCertificate|NOT_FOUND|Sertifikat tidak ditemukan/.test(e),
     );
     expect(unexpected, `bogus certificate id must fail soft:\n${unexpected.join("\n")}`).toEqual([]);
   });
