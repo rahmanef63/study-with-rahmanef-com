@@ -1,7 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-
 // iPhone-style home indicator with gestures. In a standalone PWA the OS bottom
 // gesture is suppressed, so the pill owns it:
 //   • tap            → app switcher
@@ -75,17 +73,16 @@ export function HomeIndicator({
       style={{ paddingBottom: "calc(7px + var(--sai-bottom))" }}
       onPointerDown={onPointerDown}
     >
-      <Button
+      <button
         type="button"
-        variant="ghost"
         aria-label="Home — swipe up for home, hold for app switcher"
-        className="flex h-auto items-center justify-center px-12 py-1.5 hover:bg-transparent"
+        className="flex items-center justify-center px-12 py-1.5"
       >
         <span
           className="h-[5px] w-[134px] rounded-full"
           style={{ background: light ? "rgba(255,255,255,.75)" : "rgba(0,0,0,.3)" }}
         />
-      </Button>
+      </button>
     </div>
   );
 }

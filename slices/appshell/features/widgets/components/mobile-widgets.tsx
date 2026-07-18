@@ -1,59 +1,47 @@
 "use client";
 
-import { Cpu, HardDrive, MemoryStick } from "lucide-react";
+import { createElement } from "react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  useApps,
-  useShellUI,
-  useSystemStats,
-  useQuickLinks,
-  AppIcon,
-  QuicklinkIcon,
-  type AppDescriptor,
-} from "@/features/appshell";
+import { useApps, useShellUI, AppIcon, type AppDescriptor } from "@/features/appshell";
+import { Card } from "./widget-cards";
+import { useWidgetState, setPickerOpen } from "../widget-registry";
+import { WIDGET_RENDER } from "./widgets-defs";
+import { WidgetPicker } from "./widget-picker";
 
-import { Bar, Card, Row, gb } from "./widget-cards";
-
-// Today view (swipe right from home) — live system widgets + quick shortcuts.
-// Real data only (system telemetry capability); no clock or fake hardware status.
-// Apps + quick set + launch come from the registry + shell-UI context.
+// Today view (swipe right from home) — renders the SAME editable widget set the
+// desktop stack uses (widget-registry), so a user's chosen widgets (Clock/Notes/
+// Quicklinks/system) follow them to mobile. Widgets here are naturally
+// interactive (no pointer-events-none wrapper). Plus a mobile-only "Quick open"
+// app row from the shell-UI context.
 export function MobileWidgets() {
   const apps = useApps();
   const { quickAppIds: quickIds, openApp: onOpen } = useShellUI();
-  const s = useSystemStats();
-  const { items: links, open: openLink } = useQuickLinks();
+  const { enabled } = useWidgetState();
 
   const quick = quickIds.map((id) => apps.find((a) => a.id === id)).filter(Boolean) as AppDescriptor[];
 
   return (
     <div className="flex h-full flex-col gap-3 overflow-y-auto px-4 py-3 [scrollbar-width:none]">
-      <h2 className="px-1 text-lg font-bold text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.5)]">Today</h2>
-
-      <Card>
-        <Row icon={Cpu} label="CPU" value={s ? `${s.cpu.pct}%` : "—"} sub={s ? `${s.cpu.cores} cores` : ""} />
-        <Bar pct={s?.cpu.pct ?? 0} />
-      </Card>
-
-      <div className="grid grid-cols-2 gap-3">
-        <Card>
-          <Row
-            icon={MemoryStick}
-            label="Memory"
-            value={s ? gb(s.mem.used) : "—"}
-            sub={s ? `of ${gb(s.mem.total)}` : ""}
-          />
-          <Bar pct={s ? (s.mem.used / s.mem.total) * 100 : 0} />
-        </Card>
-        <Card>
-          <Row
-            icon={HardDrive}
-            label="Storage"
-            value={s ? gb(s.disk.used) : "—"}
-            sub={s ? `of ${gb(s.disk.total)}` : ""}
-          />
-          <Bar pct={s ? (s.disk.used / s.disk.total) * 100 : 0} />
-        </Card>
+      <div className="flex items-center justify-between px-1">
+        <h2 className="text-[28px] font-extrabold tracking-[-0.02em] text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.5)]">Today</h2>
+        {/* Edit the glanceable VPS telemetry set right from the phone — opens the
+            shared widget picker (add/remove Clock/Notes/Quicklinks/CPU/Mem/…). */}
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => setPickerOpen(true)}
+          className="h-8 gap-1.5 rounded-full bg-white/15 px-3 text-[13px] font-medium text-white backdrop-blur hover:bg-white/25 hover:text-white [@media(pointer:coarse)]:min-h-[44px]"
+        >
+          <Plus className="size-4" /> Edit
+        </Button>
       </div>
+
+      {enabled.map((id) => {
+        const Render = WIDGET_RENDER[id];
+        return Render ? createElement(Render, { key: id }) : null;
+      })}
 
       {quick.length > 0 && (
         <Card>
@@ -71,22 +59,9 @@ export function MobileWidgets() {
         </Card>
       )}
 
-      {links.length > 0 && (
-        <Card>
-          <span className="mb-2 block text-[12px] font-semibold text-muted-foreground">Quicklinks</span>
-          <div className="grid grid-cols-4 gap-3">
-            {links.map((link) => (
-              <Button key={link.id} type="button" variant="ghost" onClick={() => openLink(link)} className="h-auto p-0 hover:bg-transparent flex flex-col items-center gap-1.5">
-                <span className="size-11">
-                  <QuicklinkIcon link={link} />
-                </span>
-                <span className="max-w-[56px] truncate text-[10.5px] font-medium">{link.title}</span>
-              </Button>
-            ))}
-          </div>
-        </Card>
-      )}
+      {/* The picker Dialog is desktop-only in the tree; mount it here so the phone
+          Today view can open it (portals to body, so page inert-ness is fine). */}
+      <WidgetPicker />
     </div>
   );
 }
-

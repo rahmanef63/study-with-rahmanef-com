@@ -1,28 +1,34 @@
 "use client";
 
-import { useEffect, useState, type ComponentType } from "react";
+import { Suspense, useEffect, useMemo, useState, type ComponentType } from "react";
 import { Monitor, Smartphone, Grid3x3, Minimize2, Maximize2, X } from "lucide-react";
 import { useResponsive } from "../responsive/use-responsive";
-import { useWindowOrder } from "../hooks/use-shell";
+import { useWindowOrder, useWindowsMap } from "../hooks/use-shell";
+import { stackByZ } from "../lib/store";
+import { inEditable } from "../lib/use-focused-hotkey";
 import { usePersistLayout } from "../hooks/use-persist-layout";
 import { useOverviewKey } from "../hooks/use-overview-key";
 import { MenuBar } from "./menu-bar";
 import { Dock } from "./dock";
 import { AppLauncher } from "./app-launcher";
+import { HotCorners } from "./hot-corners";
 import { Wallpaper } from "./wallpaper";
 import { MobileShell } from "./mobile-shell";
 import { Window } from "./window";
 import { Slot } from "../registry/feature-registry";
-import { toggleSpotlight, toggleInspector, snapWindow, toggleMaximize, minimizeWindow, minimizeAll, restoreWindow, closeAll, shellStore } from "../lib/store";
+import { toggleSpotlight, toggleInspector, snapWindow, cycleSnap, toggleMaximize, minimizeWindow, minimizeAll, restoreWindow, closeAll, shellStore } from "../lib/store";
 import { WindowOverview } from "./shells/window-overview";
+import { ForceQuitDialog } from "../features/force-quit/force-quit";
+import { DesktopIcons, useDesktopMarquee } from "../features/desktop-icons";
 import { NotificationCenter } from "./notification-center";
 import { AppSwitcher } from "./app-switcher";
-import { ContextMenu, useContextMenu } from "./shells/context-menu";
-import { registerShell, resolveShell, useShellPrefs } from "../registry/shells";
-// side-effects: shell + palette-command registrations
-import "./shells/windows/windows-shell";
-import "./shells/android/android-shell";
-import "./shells/dashboard/dashboard-shell";
+import { ShellContextMenu, useShellContextMenu, type MenuItem } from "./shells/context-menu";
+import { ContextMenuHost } from "./shells/context-menu-host";
+import { registerShell, resolveShell, useShellPrefs, ActiveShellProvider } from "../registry/shells";
+import { useShellAppearance } from "../registry/capabilities";
+import { cn } from "@/lib/utils";
+// side-effects: shell registrations (windows/android/dashboard lazy) + palette commands
+import "../registry/register-shells";
 import "../lib/window-commands";
 import "../lib/spaces";
 import "../lib/window-tabs";
@@ -59,12 +65,18 @@ function Surface() {
   const framed = surface === "mobile" && r.vw >= 768;
 
   return (
-    <div className="relative h-dvh w-screen overflow-hidden">
-      <Wallpaper shellDefault={desc.wallpaper} />
-      {framed ? <PhoneFrame Comp={Comp} /> : <Comp />}
-      <Slot region="overlay" />
-      <Slot region="notifications" />
-    </div>
+    <ActiveShellProvider id={desc.id} surface={surface}>
+      <div id="main-content" data-shell={desc.id} className="relative h-dvh w-screen overflow-hidden">
+        <Wallpaper shellDefault={desc.wallpaper} />
+        <ContextMenuHost>
+          <Suspense fallback={null}>
+            {framed ? <PhoneFrame Comp={Comp} /> : <Comp />}
+          </Suspense>
+          <Slot region="overlay" />
+          <Slot region="notifications" />
+        </ContextMenuHost>
+      </div>
+    </ActiveShellProvider>
   );
 }
 
@@ -93,11 +105,12 @@ function useSpotlightHotkey() {
   }, []);
 }
 
-// ⌘I / Ctrl+I toggles the AI Inspector.
+// ⌘I / Ctrl+I toggles the AI Inspector — but not while typing (⌘I is italic in
+// every editor; stealing it mid-edit is surprising).
 function useInspectorHotkey() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "i") {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "i" && !inEditable(e.target)) {
         e.preventDefault();
         toggleInspector();
       }
@@ -116,16 +129,16 @@ function useWindowSnapKeys(enabled: boolean) {
     const onKey = (e: KeyboardEvent) => {
       if (!(e.metaKey || e.ctrlKey)) return;
       if (!e.key.startsWith("Arrow")) return;
-      const el = e.target as HTMLElement | null;
-      if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable)) return;
+      if (inEditable(e.target)) return;
       const id = shellStore.getFocused();
       if (!id) return;
       const win = shellStore.getWindow(id);
       if (!win) return;
       e.preventDefault();
       switch (e.key) {
-        case "ArrowLeft": snapWindow(id, "left"); break;
-        case "ArrowRight": snapWindow(id, "right"); break;
+        // Cycle the tiling width on repeated presses: ½ → ⅔ → ⅓ → ½ …
+        case "ArrowLeft": snapWindow(id, cycleSnap(win.snapZone, "left")); break;
+        case "ArrowRight": snapWindow(id, cycleSnap(win.snapZone, "right")); break;
         case "ArrowUp": if (!win.maximized) toggleMaximize(id); break;
         case "ArrowDown": if (win.maximized) toggleMaximize(id); else minimizeWindow(id); break;
       }
@@ -137,20 +150,51 @@ function useWindowSnapKeys(enabled: boolean) {
 
 function DesktopChrome() {
   const order = useWindowOrder();
+  const winMap = useWindowsMap();
+  // Paint windows in z-order (focus recency) so the visible stack matches the
+  // store's MRU — unfocused windows share one CSS z tier, so DOM order is the
+  // tiebreak. winMap re-identifies on any window patch (incl. focus z bump).
+  const stacked = useMemo(() => stackByZ(order, winMap), [order, winMap]);
   const [overview, setOverview] = useState(false);
-  const menu = useContextMenu();
+  const menu = useShellContextMenu("macos");
+  const marquee = useDesktopMarquee();
+  // An interactive live wallpaper needs empty-desktop clicks to reach it: the
+  // window layer goes transparent to hit-testing, its windows stay clickable.
+  const interactive = !!useShellAppearance().liveWallpaper?.interactive;
   useOverviewKey(() => setOverview(true));
+  // Built-in items — passed at open time so they read current state. Registry
+  // items (consumer/app, dynamic per shell) merge after these.
+  const baseItems: MenuItem[] = [
+    { label: "Mission Control", icon: Grid3x3, onClick: () => setOverview(true) },
+    { type: "sep" },
+    { label: "Show all windows", icon: Maximize2, disabled: order.length === 0, onClick: () => order.forEach((id) => shellStore.getWindow(id)?.minimized && restoreWindow(id)) },
+    { label: "Minimize all", icon: Minimize2, disabled: order.length === 0, onClick: () => minimizeAll() },
+    { label: "Close all", icon: X, disabled: order.length === 0, onClick: () => closeAll() },
+  ];
   return (
     <>
       <MenuBar />
-      <Slot region="desktopWidgets" />
       <section
-        className="absolute inset-x-0 bottom-0 top-[30px] z-[10]"
-        // Only the empty desktop opens the menu — clicks inside an app window
-        // (which sit in child layers) keep their native right-click.
-        onContextMenu={(e) => { if (e.target === e.currentTarget) menu.open(e); }}
+        className={cn("absolute inset-x-0 bottom-0 top-[30px] z-[10]", interactive && "pointer-events-none [&>*]:pointer-events-auto")}
+        // Open the desktop menu for any right-click NOT inside a window. Icons +
+        // widgets stopPropagation their own menus (never reach here); windows are
+        // excluded via [data-window]. The old `target===currentTarget` guard
+        // silently missed clicks whose target was a background descendant.
+        onContextMenu={(e) => { if (!(e.target as HTMLElement).closest("[data-window]")) menu.open(e, baseItems); }}
+        onPointerDown={marquee.onPointerDown}
       >
-        {order.map((id) => (
+        {/* Icons + widgets live INSIDE the section (behind windows: z-[4]/z-[5] <
+            window z-10+) so their own right-click / drag beats the desktop menu +
+            marquee, which only fire on the bare surface. */}
+        <DesktopIcons />
+        <Slot region="desktopWidgets" />
+        {marquee.rect && (
+          <div
+            className="pointer-events-none absolute z-[6] rounded-sm border border-primary bg-primary/15"
+            style={{ left: marquee.rect.x, top: marquee.rect.y, width: marquee.rect.w, height: marquee.rect.h }}
+          />
+        )}
+        {stacked.map((id) => (
           <Window key={id} id={id} />
         ))}
       </section>
@@ -159,18 +203,10 @@ function DesktopChrome() {
       <AppSwitcher />
       <AppLauncher />
       <Dock onMissionControl={() => setOverview(true)} />
+      <HotCorners onMissionControl={() => setOverview(true)} />
       {overview && <WindowOverview onClose={() => setOverview(false)} label="Mission Control" />}
-      <ContextMenu
-        pos={menu.pos}
-        onClose={menu.close}
-        items={[
-          { label: "Mission Control", icon: Grid3x3, onClick: () => setOverview(true) },
-          { type: "sep" },
-          { label: "Show all windows", icon: Maximize2, disabled: order.length === 0, onClick: () => order.forEach((id) => shellStore.getWindow(id)?.minimized && restoreWindow(id)) },
-          { label: "Minimize all", icon: Minimize2, disabled: order.length === 0, onClick: () => minimizeAll() },
-          { label: "Close all", icon: X, disabled: order.length === 0, onClick: () => closeAll() },
-        ]}
-      />
+      <ForceQuitDialog />
+      <ShellContextMenu state={menu.state} onClose={menu.close} />
     </>
   );
 }

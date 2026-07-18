@@ -60,7 +60,6 @@ function OverviewCard({ id, onReveal }: { id: string; onReveal: () => void }) {
     <div className="group/card flex flex-col" onClick={(e) => e.stopPropagation()}>
       <Button type="button" variant="ghost"
         onClick={onReveal}
-        aria-label={`Open ${win.title}`}
         className="h-auto p-0 font-normal hover:bg-transparent relative aspect-[4/3] overflow-hidden rounded-xl border border-white/15 bg-card text-left shadow-xl ring-0 transition group-hover/card:-translate-y-0.5 group-hover/card:ring-2 group-hover/card:ring-white/70"
       >
         {/* A mini stand-in for the window: app gradient header + icon, since live

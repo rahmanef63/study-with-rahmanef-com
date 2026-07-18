@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { Fraunces, Hanken_Grotesk } from "next/font/google";
 import { ConvexClientProvider } from "@/components/convex-provider";
@@ -34,6 +34,15 @@ const serif = Fraunces({
 
 const SITE_DESCRIPTION =
   "Platform & komunitas belajar pengaplikasian AI — gratis, terbuka, berbahasa Indonesia.";
+
+// viewportFit:"cover" lets the standalone PWA draw edge-to-edge so the shell's
+// env(safe-area-inset-*) tokens (--sai-*) resolve on notched phones; without it
+// they are always 0 and the iOS/Android top bars sit under the status bar.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://study-with.rahmanef.com"),

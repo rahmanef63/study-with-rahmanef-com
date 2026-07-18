@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   useApps,
+  useActiveShell,
   useCommands,
   useSpotlightOpen,
   useShellAppearance,
@@ -19,6 +20,8 @@ import {
 } from "@/features/appshell";
 
 import { matches, type Command } from "../lib";
+import { loadRecents, pushRecent } from "../history";
+import { ResultList } from "./spotlight-results";
 
 // The panel MOUNTS per open (and unmounts on close), so query/selection state
 // starts fresh every time without effect-driven resets (set-state-in-effect).
@@ -34,7 +37,11 @@ function SpotlightPanel() {
   const { theme, setTheme } = useShellAppearance();
   const [q, setQ] = useState("");
   const [sel, setSel] = useState(0);
+  // Read MRU once per open (panel mounts on open), so recents refresh each time.
+  const [recents] = useState(loadRecents);
   const inputRef = useRef<HTMLInputElement>(null);
+  const LISTBOX_ID = "spotlight-listbox";
+  const ios = useActiveShell().id === "ios"; // iOS = top-anchored full-width search over the wallpaper
 
   // Debounced folder search under ~/projects (live) — opens Files at the hit.
   // Results are state, but "no query → no hits" is derived below (stale hits
@@ -87,7 +94,13 @@ function SpotlightPanel() {
   }, [apps, theme, setTheme, dynamic]);
 
   const results = useMemo(() => {
-    const base = commands.filter((c) => matches(q, c.keywords ? `${c.label} ${c.keywords}` : c.label));
+    let base = commands.filter((c) => matches(q, c.keywords ? `${c.label} ${c.keywords}` : c.label));
+    // Empty query → float recently-run commands to the top (recency order).
+    // Array.sort is stable, so non-recent commands keep their catalog order.
+    if (!q.trim() && recents.length) {
+      const rank = new Map(recents.map((id, i) => [id, i]));
+      base = [...base].sort((a, b) => (rank.get(a.id) ?? Infinity) - (rank.get(b.id) ?? Infinity));
+    }
     const folderCmds: Command[] = folderHits.map((h) => ({
       id: h.id,
       label: h.label,
@@ -95,12 +108,18 @@ function SpotlightPanel() {
       run: h.run,
     }));
     return [...base, ...folderCmds];
-  }, [commands, q, folderHits]);
+  }, [commands, q, folderHits, recents]);
 
-  // Focus after the open transition paints (mount = open).
+  // Focus the input after the open transition paints (mount = open), and on
+  // close return focus to whatever was focused before — so keyboard/AT users
+  // aren't dumped at the top of the document when Spotlight dismisses.
   useEffect(() => {
+    const prev = document.activeElement as HTMLElement | null;
     const id = requestAnimationFrame(() => inputRef.current?.focus());
-    return () => cancelAnimationFrame(id);
+    return () => {
+      cancelAnimationFrame(id);
+      prev?.focus?.();
+    };
   }, []);
 
   // Clamp the selection in render when results shrink — no clamp effect.
@@ -110,6 +129,7 @@ function SpotlightPanel() {
   const runAt = (i: number) => {
     const cmd = results[i];
     if (!cmd) return;
+    pushRecent(cmd.id);
     cmd.run();
     toast(cmd.app ? `Opened ${cmd.label}` : cmd.label);
     close();
@@ -131,47 +151,39 @@ function SpotlightPanel() {
 
   return (
     <div
-      className="absolute inset-0 z-[9000] flex items-start justify-center bg-black/20 pt-[18vh]"
+      className={cn(
+        "absolute inset-0 z-[var(--z-spotlight)] flex items-start justify-center bg-black/20",
+        ios ? "pt-[calc(var(--sai-top)_+_0.5rem)]" : "pt-[18vh]",
+      )}
       onClick={close}
     >
       <div
-        className="glass w-full max-w-xl overflow-hidden rounded-2xl border border-border shadow-2xl"
+        className={cn(
+          "glass w-full overflow-hidden rounded-2xl border border-border shadow-2xl",
+          ios ? "max-w-[calc(100%_-_1.5rem)]" : "max-w-xl",
+        )}
         onClick={(e) => e.stopPropagation()}
       >
-        <input
-          ref={inputRef}
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          onKeyDown={onKey}
-          placeholder="Search apps, folders, actions…"
-          className="w-full bg-transparent px-5 py-4 text-base outline-none placeholder:text-muted-foreground"
-        />
+        {/* iOS: input becomes a systemFill pill with a leading search glyph. */}
+        <div className={cn("flex items-center", ios && "m-3 gap-2 rounded-xl bg-[var(--fill)] px-3")}>
+          {ios && <Search className="size-[15px] shrink-0 text-muted-foreground" />}
+          <input
+            ref={inputRef}
+            role="combobox"
+            aria-label="Spotlight search"
+            aria-expanded={results.length > 0}
+            aria-controls={LISTBOX_ID}
+            aria-activedescendant={results.length > 0 ? `spotlight-option-${selIdx}` : undefined}
+            aria-autocomplete="list"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            onKeyDown={onKey}
+            placeholder="Search apps, folders, actions…"
+            className={cn("w-full bg-transparent text-base outline-none placeholder:text-muted-foreground", ios ? "py-2.5" : "px-5 py-4")}
+          />
+        </div>
         {results.length > 0 && (
-          <ul className="max-h-80 overflow-y-auto border-t border-border p-2">
-            {results.map((c, i) => (
-              <li key={c.id}>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onMouseMove={() => setSel(i)}
-                  onClick={() => runAt(i)}
-                  className={cn(
-                    "h-auto flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm",
-                    i === selIdx ? "bg-primary/15 text-foreground" : "text-foreground/80",
-                  )}
-                >
-                  <span
-                    className="grid size-7 shrink-0 place-items-center rounded-md text-xs font-bold text-white"
-                    style={{ background: c.app?.gradient ?? "var(--accent)" }}
-                  >
-                    {c.app ? null : c.hint === "Folder" ? "📁" : "⚡"}
-                  </span>
-                  <span className="flex-1 truncate">{c.label}</span>
-                  <span className="text-[11px] text-muted-foreground">{c.hint}</span>
-                </Button>
-              </li>
-            ))}
-          </ul>
+          <ResultList id={LISTBOX_ID} results={results} selIdx={selIdx} onHover={setSel} onPick={runAt} />
         )}
         {results.length === 0 && (
           <p className="border-t border-border px-5 py-4 text-sm text-muted-foreground">
@@ -182,3 +194,4 @@ function SpotlightPanel() {
     </div>
   );
 }
+

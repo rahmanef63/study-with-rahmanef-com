@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { AppDescriptor } from "../lib/types";
 import { AppIcon } from "./app-icon";
-import { Clock } from "./clock";
 import { Slot } from "../registry/feature-registry";
 import { MobileAppLibrary } from "./mobile-app-library";
 import { AppActionSheet, AppsGrid } from "./mobile-home-parts";
+import { ShellContextMenu, useShellContextMenu } from "./shells/context-menu";
 
 // Paged iPhone home: [Today widgets] · [App grid] · [App Library]. The status
 // clock, dock, page dots and home-indicator persist across pages.
@@ -34,6 +34,7 @@ export function MobileHome({
   const pagerRef = useRef<HTMLDivElement>(null);
   const [page, setPage] = useState(1); // 0 widgets · 1 apps · 2 library
   const [ctxApp, setCtxApp] = useState<AppDescriptor | null>(null); // long-press sheet
+  const menu = useShellContextMenu("ios", "mobile"); // home background long-press menu
 
   // Open on the app grid (the middle page), like iPhone's default home.
   useLayoutEffect(() => {
@@ -69,17 +70,25 @@ export function MobileHome({
     window.addEventListener("pointerup", cleanup);
   };
 
+  // Home-background long-press / right-click → the registry menu for this
+  // shell. Native long-press fires contextmenu on touch; app icons keep their
+  // own long-press sheet (the closest() guard skips presses on controls).
+  const onHomeContext = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest("button,a,input")) return;
+    menu.open(e);
+  };
+
   return (
-    <div className="absolute inset-0 flex flex-col" inert={inactive} aria-hidden={inactive}>
-      {/* top safe area: status clock + Dynamic Island live here; swipe down →
-          NC (left) / CC (right). Height = base bar + the device notch inset. */}
+    <div className="absolute inset-0 flex flex-col" inert={inactive} aria-hidden={inactive} onContextMenu={onHomeContext}>
+      {/* Top safe-area spacer: reserves the notch / Dynamic-Island zone (a real
+          phone's hardware lives here) and owns the swipe-down gesture →
+          Notification Center (left half) / Control Center (right half).
+          Deliberately empty — no status clock (not useful in a VPS cockpit). */}
       <div
-        className="flex shrink-0 items-end px-7 pb-0.5 text-[13px] font-semibold text-white/90 [touch-action:none]"
+        className="shrink-0 [touch-action:none]"
         style={{ height: "calc(2.25rem + var(--sai-top))" }}
         onPointerDown={onTopPointerDown}
-      >
-        <Clock mode="time" />
-      </div>
+      />
 
       <div
         ref={pagerRef}
@@ -87,7 +96,10 @@ export function MobileHome({
         className="flex min-h-0 flex-1 snap-x snap-mandatory overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         <Page active={page === 0}>
-          <Slot region="today" />
+          {/* Own scroller so tall Today widgets scroll (pages 1/2 already do) */}
+          <div className="h-full overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <Slot region="today" />
+          </div>
         </Page>
         <Page active={page === 1}>
           <AppsGrid apps={apps} onLaunch={onLaunch} onSearch={onSearch} onContext={setCtxApp} />
@@ -97,16 +109,25 @@ export function MobileHome({
         </Page>
       </div>
 
-      <div className="flex justify-center gap-1.5 pb-2 pt-1.5">
+      <div className="flex justify-center gap-0.5 pb-1.5 pt-1">
         {[0, 1, 2].map((i) => (
-          <span key={i} className={cn("size-[7px] rounded-full", i === page ? "bg-white/90" : "bg-white/40")} />
+          <button
+            key={i}
+            type="button"
+            aria-label={`Go to page ${i + 1}`}
+            aria-current={i === page}
+            onClick={() => pagerRef.current?.scrollTo({ left: i * pagerRef.current.clientWidth, behavior: "smooth" })}
+            className="grid place-items-center p-1.5"
+          >
+            <span className={cn("size-[7px] rounded-full transition-colors", i === page ? "bg-white/90" : "bg-white/40")} />
+          </button>
         ))}
       </div>
 
       {dockApps.length > 0 && (
         <div
-          className="glass mx-3 mb-3.5 flex justify-around rounded-[30px] border border-white/30 px-3.5 py-3"
-          style={{ background: "rgba(255,255,255,.18)" }}
+          className="glass mx-3 mb-3.5 flex justify-around rounded-[30px] border border-white/15 px-3.5 py-3"
+          style={{ background: "var(--glass-bar)", boxShadow: "inset 0 0.5px 0 var(--glass-hi), 0 12px 34px rgba(0,0,0,0.30)" }}
         >
           {dockApps.map((app) => (
             <Button key={app.id} type="button" variant="ghost" size="icon" aria-label={app.title} onClick={() => onLaunch(app)} className="h-auto w-auto hover:bg-transparent size-[60px] p-0">
@@ -125,6 +146,8 @@ export function MobileHome({
           onClose={() => setCtxApp(null)}
         />
       )}
+
+      <ShellContextMenu state={menu.state} onClose={menu.close} />
     </div>
   );
 }

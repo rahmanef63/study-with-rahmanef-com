@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, type ComponentType, type ReactNode } from "react";
+import { useEffect, useMemo, type ComponentType, type ReactNode } from "react";
 import { OsDesktop } from "../components/desktop";
 import { configureWindowTitle, startWindowTitleSync } from "../lib/window-title";
 import { AppRegistryProvider } from "../lib/registry";
@@ -34,12 +34,6 @@ function withProviders(
  */
 export function AppShell({ manifest }: { manifest: ShellManifest }) {
   const features = manifest.features ?? [];
-  // OPTIONAL agentic seam — a consumer that runs an agent injects a mount
-  // component (manifest.agentMount) that self-registers appshellTools via
-  // @/shared/agentic. appshell core stays brand- AND agent-free, so a consumer
-  // without that module compiles. rr passes <AppshellAgentMount/> (see
-  // appshell/agentic.tsx); a non-agent consumer (os-vps) omits it.
-  const AgentMount = manifest.agentMount;
 
   // Tab title follows the focused window ("Files — Brand"); audit found it
   // frozen on the SSR metadata. Opt out via manifest.titleSync: false.
@@ -50,23 +44,31 @@ export function AppShell({ manifest }: { manifest: ShellManifest }) {
   const providers = features
     .map((f) => f.provider)
     .filter((p): p is ComponentType<{ children: ReactNode }> => Boolean(p));
+  // OPTIONAL agentic seam — a consumer that runs an agent injects a mount
+  // component (manifest.agentMount) that self-registers appshellTools via
+  // @/shared/agentic. appshell core stays brand- AND agent-free, so a consumer
+  // without that module compiles. rr passes <AppshellAgentMount/> (see
+  // appshell/agentic.tsx); a non-agent consumer (os-vps) omits it.
+  const AgentMount = manifest.agentMount;
+  const shellConfig = useMemo(
+    () => ({
+      persistKey: manifest.persistKey ?? "appshell:layout",
+      routing: manifest.routing !== false,
+    }),
+    [manifest.persistKey, manifest.routing],
+  );
 
   return (
     <CapabilitiesProvider value={manifest.capabilities}>
       <BrandProvider brand={manifest.brand}>
-        <ShellConfigProvider
-          value={{
-            persistKey: manifest.persistKey ?? "appshell:layout",
-            routing: manifest.routing !== false,
-          }}
-        >
+        <ShellConfigProvider value={shellConfig}>
           <FeatureRegistryProvider features={features}>
             {/* Registry + responsive mount ABOVE the feature-provider seam so a
                 FeatureDescriptor.provider can call useApps()/useResponsive(). */}
             <AppRegistryProvider apps={manifest.apps}>
               <ResponsiveBoundary>
-                {manifest.routing !== false && <UrlSync apps={manifest.apps} />}
                 {AgentMount ? <AgentMount /> : null}
+                {manifest.routing !== false && <UrlSync apps={manifest.apps} />}
                 {withProviders(providers, <OsDesktop />)}
               </ResponsiveBoundary>
             </AppRegistryProvider>

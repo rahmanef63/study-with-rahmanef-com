@@ -1,7 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { memo, useRef } from "react";
+import { memo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useWindow, useFocused } from "../hooks/use-shell";
 import { useWindowDrag } from "../hooks/use-window-drag";
@@ -10,6 +9,7 @@ import {
   minimizeWindow,
   toggleMaximize,
   focusWindow,
+  hasCloseGuard,
   snapRect,
 } from "../lib/store";
 import { deliverDrop, dragCarriesPayload, readDragData } from "../lib/dnd";
@@ -18,6 +18,10 @@ import { useGroupTop } from "../lib/window-tabs";
 import { TrafficLights } from "./traffic-lights";
 import { TabStrip } from "./window-tabs";
 import { WindowContent } from "./window-content";
+import { WinCaption } from "./win-caption";
+import { ContextMenu, useContextMenu, type MenuItem } from "./shells/context-menu";
+import { togglePin } from "../lib/window-commands";
+import { Maximize2, Minimize2, Minus, Pin, PinOff, X } from "lucide-react";
 import type { WinId } from "../lib/types";
 
 // Subscribes to ONE window — a drag on another window never re-renders this.
@@ -31,12 +35,38 @@ export const Window = memo(function Window({ id, variant = "macos" }: { id: WinI
   const groupTopId = useGroupTop(win?.groupId);
   const ref = useRef<HTMLDivElement>(null);
   const { startDrag, startResize, zone } = useWindowDrag(id, ref);
+  const ctx = useContextMenu();
+  // Left-button only starts a drag — a right-click on the title bar opens the
+  // window menu instead of dragging the frame.
+  const onBarDown = (e: React.PointerEvent) => { if (e.button === 0) startDrag(e); };
+  // Component-local exit phase: the store close/minimize stay SYNCHRONOUS (tests
+  // + bulk ops rely on it); the per-window button animates first, then finalizes
+  // the store action on animationend. A guarded window (unsaved editor) skips the
+  // animation so its confirm dialog isn't shown over a faded-out frame.
+  const [phase, setPhase] = useState<"in" | "closing" | "minimizing">("in");
+  const beginClose = () => (hasCloseGuard(id) ? closeWindow(id) : setPhase("closing"));
+  const beginMinimize = () => setPhase("minimizing");
 
   if (!win || win.minimized) return null;
   if (spaceOf(win) !== activeSpace) return null; // lives on another Space
   if (win.groupId && groupTopId !== id) return null; // a tab behind the group's active frame
   const preview = zone ? snapRect(zone) : null;
   const isWin = variant === "windows";
+  // Title-bar right-click menu — the window controls, mirroring the traffic
+  // lights / caption buttons plus pin.
+  const menuItems: MenuItem[] = [
+    { label: win.maximized ? "Restore" : "Maximize", icon: win.maximized ? Minimize2 : Maximize2, onClick: () => toggleMaximize(id) },
+    { label: "Minimize", icon: Minus, onClick: beginMinimize, shortcut: "⌘M" },
+    { label: win.pinned ? "Unpin from Top" : "Keep on Top", icon: win.pinned ? PinOff : Pin, onClick: () => togglePin(id) },
+    { type: "sep" },
+    { label: "Close", icon: X, onClick: beginClose, shortcut: "⌘W" },
+  ];
+  const anim =
+    phase === "closing"
+      ? "[animation:winClose_var(--shell-dur-fast)_var(--shell-ease)_forwards]"
+      : phase === "minimizing"
+        ? "[animation:winMin_var(--shell-dur)_var(--shell-ease)_forwards]"
+        : "[animation:winOpen_var(--shell-dur-fast)_var(--shell-ease)]";
 
   return (
     <>
@@ -50,41 +80,51 @@ export const Window = memo(function Window({ id, variant = "macos" }: { id: WinI
       )}
       <div
         ref={ref}
+        data-window
         className={cn(
-          "absolute flex flex-col overflow-hidden border border-border bg-card shadow-[var(--shadow-win)]",
-          isWin ? "rounded-md" : "rounded-[var(--radius-win)]",
+          "win-geo absolute flex flex-col overflow-hidden border border-border bg-card shadow-[var(--shadow-win)]",
+          "rounded-[var(--shell-radius-win)]",
+          anim,
           // pinned (always-on-top) windows beat even the focused regular window
           win.pinned ? (focused ? "z-[70]" : "z-[60]") : focused ? "z-50" : "z-10",
         )}
         style={{ left: win.x, top: win.y, width: win.w, height: win.h }}
         onMouseDown={() => focusWindow(id)}
+        onAnimationEnd={(e) => {
+          // Finalize the deferred store action once the exit animation ends.
+          if (e.animationName === "winClose") closeWindow(id);
+          else if (e.animationName === "winMin") minimizeWindow(id);
+        }}
       >
         {isWin ? (
           <div
-            className="flex h-[34px] shrink-0 cursor-grab items-center border-b border-border bg-card active:cursor-grabbing"
-            onPointerDown={startDrag}
+            className="flex h-[34px] shrink-0 cursor-grab items-center border-b border-border bg-[var(--mica-win,var(--card))] font-[family-name:var(--shell-font)] active:cursor-grabbing"
+            onPointerDown={onBarDown}
             onDoubleClick={() => toggleMaximize(id)}
+            onContextMenu={ctx.open}
           >
             <div className="pointer-events-none flex-1 truncate pl-3 text-[12px] font-medium text-muted-foreground">
               {win.title}
             </div>
             <WinCaption
+              id={id}
               maximized={win.maximized}
-              onMinimize={() => minimizeWindow(id)}
+              onMinimize={beginMinimize}
               onMaximize={() => toggleMaximize(id)}
-              onClose={() => closeWindow(id)}
+              onClose={beginClose}
             />
           </div>
         ) : (
           <div
-            className="glass flex h-[38px] shrink-0 cursor-grab items-center gap-2 border-b border-border px-3 active:cursor-grabbing"
+            className="glass flex h-[38px] shrink-0 cursor-grab items-center gap-2 border-b border-border px-3 font-[family-name:var(--shell-font)] active:cursor-grabbing"
             style={{ background: "var(--window-head)" }}
-            onPointerDown={startDrag}
+            onPointerDown={onBarDown}
             onDoubleClick={() => toggleMaximize(id)}
+            onContextMenu={ctx.open}
           >
             <TrafficLights
-              onClose={() => closeWindow(id)}
-              onMinimize={() => minimizeWindow(id)}
+              onClose={beginClose}
+              onMinimize={beginMinimize}
               onMaximize={() => toggleMaximize(id)}
             />
             <div className="pointer-events-none flex-1 truncate text-center text-[13px] font-semibold text-muted-foreground">
@@ -119,63 +159,10 @@ export const Window = memo(function Window({ id, variant = "macos" }: { id: WinI
         <Handle cls="bottom-0 left-0 h-2 w-full cursor-ns-resize" onDown={(e) => startResize(e, "b")} />
         <Handle cls="bottom-0 right-0 size-4 cursor-nwse-resize" onDown={(e) => startResize(e, "br")} />
       </div>
+      <ContextMenu pos={ctx.pos} items={menuItems} onClose={ctx.close} />
     </>
   );
 });
-
-// Windows 11 caption buttons (minimize / maximize-restore / close), right-aligned.
-function WinCaption({
-  maximized, onMinimize, onMaximize, onClose,
-}: {
-  maximized: boolean;
-  onMinimize: () => void;
-  onMaximize: () => void;
-  onClose: () => void;
-}) {
-  return (
-    <div className="flex h-full items-stretch">
-      <CapBtn onClick={onMinimize} label="Minimize window">
-        <rect x="1" y="5" width="8" height="1" />
-      </CapBtn>
-      <CapBtn onClick={onMaximize} label={maximized ? "Restore window" : "Maximize window"}>
-        {maximized ? (
-          <>
-            <rect x="1" y="2.5" width="6" height="6" fill="none" stroke="currentColor" strokeWidth="1" />
-            <rect x="3" y="1" width="6" height="6" fill="none" stroke="currentColor" strokeWidth="1" />
-          </>
-        ) : (
-          <rect x="1" y="1" width="8" height="8" fill="none" stroke="currentColor" strokeWidth="1" />
-        )}
-      </CapBtn>
-      <CapBtn onClick={onClose} label="Close window" danger>
-        <path d="M1 1l8 8M9 1l-8 8" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
-      </CapBtn>
-    </div>
-  );
-}
-
-function CapBtn({
-  onClick, label, danger, children,
-}: {
-  onClick: () => void;
-  label: string;
-  danger?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <Button type="button" variant="ghost"
-      aria-label={label}
-      onPointerDown={(e) => e.stopPropagation()}
-      onClick={(e) => { e.stopPropagation(); onClick(); }}
-      className={cn("h-auto p-0 font-normal hover:bg-transparent", 
-        "grid w-[46px] place-items-center text-muted-foreground transition-colors",
-        danger ? "hover:bg-destructive hover:text-white" : "hover:bg-muted",
-      )}
-    >
-      <svg viewBox="0 0 10 10" className="size-2.5" fill="currentColor">{children}</svg>
-    </Button>
-  );
-}
 
 function Handle({
   cls,

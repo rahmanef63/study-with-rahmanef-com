@@ -1,28 +1,27 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
-import { Cpu, HardDrive, MemoryStick } from "lucide-react";
-import { useSystemStats, registerCommands, toast } from "@/features/appshell";
-import { Bar, Card, Row, gb } from "./widget-cards";
+import { createElement, useEffect, useRef, useState, type CSSProperties } from "react";
+import { Check, LayoutGrid, Trash2 } from "lucide-react";
+import { ContextMenu, registerCommands, registerContextMenu, toast, useContextMenu, type MenuItem } from "@/features/appshell";
+import { cn } from "@/lib/utils";
+import {
+  getWidgetState,
+  setPickerOpen,
+  setWidgetPos,
+  setWidgetSize,
+  setWidgetsOn,
+  toggleWidget,
+  useWidgetState,
+  type WidgetPos,
+  type WidgetSize,
+} from "../widget-registry";
+import { WIDGET_RENDER } from "./widgets-defs";
+import { WidgetPicker } from "./widget-picker";
 
-// Desktop widgets — a glanceable stack pinned to the wallpaper layer (behind
-// every window), macOS-Sonoma style. Opt-in via the palette ("Toggle desktop
-// widgets"); preference persists.
-
-const KEY = "sv:desktop-widgets";
-
-let on = typeof localStorage !== "undefined" && localStorage.getItem(KEY) === "1";
-const subs = new Set<() => void>();
-
-function setOn(v: boolean) {
-  on = v;
-  try {
-    localStorage.setItem(KEY, v ? "1" : "0");
-  } catch {
-    /* ignore */
-  }
-  subs.forEach((f) => f());
-}
+// Desktop widgets — a glanceable, EDITABLE set free-positioned on the wallpaper
+// layer (behind windows). Drag a widget to move it; right-click sets its size or
+// removes it. Layout + membership live in the widget-registry store; the
+// WidgetPicker (live-preview gallery) edits membership.
 
 registerCommands("desktop-widgets", [
   {
@@ -31,40 +30,121 @@ registerCommands("desktop-widgets", [
     hint: "Widgets",
     keywords: "glance dashboard wallpaper stats",
     run: () => {
-      setOn(!on);
-      toast(on ? "Desktop widgets on" : "Desktop widgets off");
+      const next = !getWidgetState().on;
+      setWidgetsOn(next);
+      toast(next ? "Desktop widgets on" : "Desktop widgets off");
     },
+  },
+  {
+    id: "widgets:configure",
+    label: "Configure desktop widgets",
+    hint: "Widgets",
+    keywords: "desktop widget picker add remove reorder",
+    run: () => setPickerOpen(true),
   },
 ]);
 
-export function DesktopWidgets() {
-  const enabled = useSyncExternalStore(
-    (cb) => {
-      subs.add(cb);
-      return () => {
-        subs.delete(cb);
-      };
-    },
-    () => on,
-    () => on,
-  );
-  const s = useSystemStats();
-  if (!enabled) return null;
+registerContextMenu("macos", () => [
+  { label: "Desktop widgets…", icon: LayoutGrid, onClick: () => setPickerOpen(true) },
+]);
+
+const SIZE_W: Record<WidgetSize, string> = { s: "w-44", m: "w-60", l: "w-72" };
+const SIZE_PX: Record<WidgetSize, number> = { s: 176, m: 240, l: 288 };
+
+// One free-dragged widget. Drag from any non-interactive part (its own inputs /
+// buttons keep working); the move commits once on drop (not every frame). Right-
+// click sets its size or removes it.
+function DesktopWidget({ id, size, pos }: { id: string; size: WidgetSize; pos: WidgetPos }) {
+  const ctx = useContextMenu();
+  const Render = WIDGET_RENDER[id];
+  const drag = useRef<{ x: number; y: number } | null>(null);
+  const [offset, setOffset] = useState<{ dx: number; dy: number } | null>(null);
+  if (!Render) return null;
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    if (e.button !== 0) return;
+    if ((e.target as HTMLElement).closest("input,textarea,button,a,[contenteditable],iframe,summary")) return;
+    e.stopPropagation();
+    drag.current = { x: e.clientX, y: e.clientY };
+    setOffset({ dx: 0, dy: 0 });
+    (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+  };
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!drag.current) return;
+    setOffset({ dx: e.clientX - drag.current.x, dy: e.clientY - drag.current.y });
+  };
+  const onPointerUp = () => {
+    if (drag.current && offset) setWidgetPos(id, pos.x + offset.dx, pos.y + offset.dy);
+    drag.current = null;
+    setOffset(null);
+  };
+
+  const items: MenuItem[] = [
+    { label: "Small", icon: size === "s" ? Check : undefined, onClick: () => setWidgetSize(id, "s") },
+    { label: "Medium", icon: size === "m" ? Check : undefined, onClick: () => setWidgetSize(id, "m") },
+    { label: "Large", icon: size === "l" ? Check : undefined, onClick: () => setWidgetSize(id, "l") },
+    { type: "sep" },
+    { label: "Remove widget", icon: Trash2, onClick: () => toggleWidget(id), danger: true },
+    { label: "Desktop widgets…", icon: LayoutGrid, onClick: () => setPickerOpen(true) },
+  ];
 
   return (
-    <div className="pointer-events-none absolute right-4 top-12 z-[5] flex w-60 flex-col gap-3">
-      <Card>
-        <Row icon={Cpu} label="CPU" value={s ? `${s.cpu.pct}%` : "—"} sub={s ? `${s.cpu.cores} cores` : ""} />
-        <Bar pct={s?.cpu.pct ?? 0} />
-      </Card>
-      <Card>
-        <Row icon={MemoryStick} label="Memory" value={s ? gb(s.mem.used) : "—"} sub={s ? `of ${gb(s.mem.total)}` : ""} />
-        <Bar pct={s ? (s.mem.used / s.mem.total) * 100 : 0} />
-      </Card>
-      <Card>
-        <Row icon={HardDrive} label="Storage" value={s ? gb(s.disk.used) : "—"} sub={s ? `of ${gb(s.disk.total)}` : ""} />
-        <Bar pct={s ? (s.disk.used / s.disk.total) * 100 : 0} />
-      </Card>
+    <div
+      className={cn(
+        // Elevation so a widget reads as the same floating surface family as
+        // windows (which carry --shadow-win). filter drop-shadow — not box-shadow
+        // — follows the inner card's rounded alpha; this square wrapper has no radius.
+        "pointer-events-auto absolute touch-none cursor-grab active:cursor-grabbing drop-shadow-[0_8px_24px_rgba(0,0,0,0.28)]",
+        SIZE_W[size],
+      )}
+      style={{ left: pos.x + (offset?.dx ?? 0), top: pos.y + (offset?.dy ?? 0) }}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onContextMenu={(e) => { e.stopPropagation(); ctx.open(e); }}
+    >
+      {createElement(Render)}
+      <ContextMenu pos={ctx.pos} items={items} onClose={ctx.close} />
     </div>
+  );
+}
+
+export function DesktopWidgets() {
+  const { on, enabled, sizes, positions } = useWidgetState();
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Auto-place any enabled widget that lacks a saved position — a top-right
+  // column, matching the previous stack so the migration is seamless.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const W = el.clientWidth;
+    let slot = 0;
+    for (const id of enabled) {
+      if (positions[id]) continue;
+      setWidgetPos(id, Math.max(0, W - SIZE_PX[sizes[id] ?? "m"] - 16), 16 + slot * 128);
+      slot++;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enabled.join(","), on]);
+
+  if (!on) return <WidgetPicker />;
+  return (
+    <>
+      <WidgetPicker />
+      <div
+        ref={ref}
+        className="pointer-events-none absolute inset-0 z-[5]"
+        // Desktop-only: point the shared widget Card's radius at the WINDOW token
+        // so widgets read as the same floating surface family as windows. Mobile
+        // Today never sets this var → its Cards keep the 1rem fallback → intact.
+        style={{ "--widget-radius": "var(--shell-radius-win)" } as CSSProperties}
+      >
+        {enabled.map((id) => {
+          const pos = positions[id];
+          return pos ? <DesktopWidget key={id} id={id} size={sizes[id] ?? "m"} pos={pos} /> : null;
+        })}
+      </div>
+    </>
   );
 }

@@ -3,10 +3,6 @@
 import type { AppDescriptor } from "./lib/types";
 
 export type AppShellConfig = {
-  /** Registry identity — MUST equal slice.json slug/title/category. */
-  slug: string;
-  title: string;
-  category: "os";
   /** Apps mounted into the desktop. Wired by the consumer's manifest. */
   apps: AppDescriptor[];
   /** Optional wallpaper class override (theme token based). */
@@ -14,9 +10,6 @@ export type AppShellConfig = {
 };
 
 export const appshellConfig: AppShellConfig = {
-  slug: "appshell",
-  title: "AppShell — Desktop + Mobile OS Shell",
-  category: "os",
   apps: [],
 };
 

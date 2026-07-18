@@ -17,14 +17,19 @@ export function DynamicIsland() {
   const tone = a.tone ?? "active";
 
   return (
-    <div className="pointer-events-none absolute inset-x-0 top-1.5 z-[60] flex justify-center">
+    <div
+      className="pointer-events-none absolute inset-x-0 z-[60] flex justify-center"
+      // Sit at the safe-area top so a live activity clears the phone notch
+      // (iOS floors --sai-top to the notch height); desktop keeps the 6px inset.
+      style={{ top: "max(0.375rem, var(--sai-top))" }}
+    >
       <Button
         type="button"
         variant="ghost"
         disabled={!a.appId}
         onClick={() => a.appId && openAppById(a.appId)}
-        className="h-auto hover:bg-black/85 pointer-events-auto flex max-w-[80%] items-center gap-2.5 rounded-full bg-black/85 px-3.5 py-2 text-white shadow-xl backdrop-blur disabled:cursor-default"
-        style={{ animation: "appOpen .25s cubic-bezier(.2,.8,.2,1)" }}
+        className="glass h-auto hover:bg-black/85 pointer-events-auto flex max-w-[80%] items-center gap-2.5 rounded-full bg-black/85 px-3.5 py-2 text-white shadow-xl disabled:cursor-default"
+        style={{ animation: "appOpen var(--shell-dur) var(--shell-ease)" }}
       >
         <span className="grid size-5 shrink-0 place-items-center">
           {tone === "done" ? (

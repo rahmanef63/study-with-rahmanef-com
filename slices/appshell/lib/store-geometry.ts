@@ -20,7 +20,6 @@ export function setChromeInsets(i: { top?: number; bottom?: number }) {
   topInset = i.top ?? TOPBAR;
   bottomInset = i.bottom ?? DOCK_RESERVE;
 }
-
 function viewport() {
   return { vw: window.innerWidth, vh: window.innerHeight };
 }
@@ -78,6 +77,37 @@ export function spawnRect(n: number, w: number, h: number): Rect {
     w: cw,
     h: ch,
   };
+}
+
+// Clamp a free-floating window rect into the current work area: shrink an
+// oversized window to fit, then nudge it so its whole frame stays on-screen
+// (title bar reachable, never under the bottom chrome). Used when restoring a
+// saved layout or after the viewport shrinks/rotates — a window saved on a wide
+// monitor must not strand its title bar off the right edge on a laptop.
+export function clampRect(r: Rect): Rect {
+  if (typeof window === "undefined") return r;
+  const { vw, top, bottom } = workArea();
+  const w = Math.min(r.w, vw - GAP * 2);
+  const h = Math.min(r.h, bottom - top);
+  return {
+    w,
+    h,
+    x: Math.max(GAP, Math.min(r.x, vw - GAP - w)),
+    y: Math.max(top, Math.min(r.y, bottom - h)),
+  };
+}
+
+// ⌘/Ctrl+Arrow cycles a window through the tiling widths on one side:
+// ½ → ⅔ → ⅓ → ½ … . The first press from any other state snaps to the half;
+// each subsequent press narrows. Reuses the l13/l23/r13/r23 zones snapRect
+// already defines (they re-tile on shell-switch/resize via win.snapZone).
+const LEFT_CYCLE: SnapZone[] = ["left", "l23", "l13"];
+const RIGHT_CYCLE: SnapZone[] = ["right", "r23", "r13"];
+
+export function cycleSnap(current: SnapZone | undefined, dir: "left" | "right"): SnapZone {
+  const cycle = dir === "left" ? LEFT_CYCLE : RIGHT_CYCLE;
+  const i = current ? cycle.indexOf(current) : -1;
+  return i === -1 ? cycle[0] : cycle[(i + 1) % cycle.length];
 }
 
 // Zone from a pointer near the screen edges (drag-to-snap).

@@ -117,12 +117,13 @@ export function AppsGrid({
   };
 
   return (
-    // Scrolls vertically so every app + quicklink is reachable (the grid used to
-    // be clipped by the page's overflow-hidden, hiding the trailing quicklinks).
-    // touch-action:pan-y keeps horizontal swipes free for the home pager.
+    // Scrolls vertically so every app + quicklink is reachable. touch-action is
+    // left AUTO (was pan-y, which BLOCKED the home pager's horizontal swipe when a
+    // touch started on the grid): the browser direction-locks — a vertical drag
+    // scrolls this grid, a horizontal drag pages the pager.
     <div
       onPointerDown={onPointerDown}
-      className="grid h-full grid-cols-4 content-start gap-x-2.5 gap-y-5 overflow-y-auto px-[18px] pt-3.5 pb-5 [touch-action:pan-y] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="grid h-full grid-cols-4 content-start gap-x-3.5 gap-y-[22px] overflow-y-auto px-6 pt-[18px] pb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       {apps.map((app) => (
         <Button
@@ -134,10 +135,10 @@ export function AppsGrid({
           onClick={() => { if (held.current) { held.current = false; return; } onLaunch(app); }}
           className="h-auto p-0 hover:bg-transparent flex flex-col items-center gap-1.5"
         >
-          <span className="aspect-square w-full max-w-[62px]">
+          <span className="aspect-square w-full max-w-[58px]">
             <AppIcon app={app} />
           </span>
-          <span className="max-w-full truncate text-[11px] font-medium text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.5)]">
+          <span className="max-w-full truncate text-[12px] font-medium text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.5)]">
             {app.title}
           </span>
         </Button>
@@ -150,10 +151,10 @@ export function AppsGrid({
           onClick={() => openLink(link)}
           className="h-auto p-0 hover:bg-transparent flex flex-col items-center gap-1.5"
         >
-          <span className="aspect-square w-full max-w-[62px]">
+          <span className="aspect-square w-full max-w-[58px]">
             <QuicklinkIcon link={link} />
           </span>
-          <span className="max-w-full truncate text-[11px] font-medium text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.5)]">
+          <span className="max-w-full truncate text-[12px] font-medium text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.5)]">
             {link.title}
           </span>
         </Button>

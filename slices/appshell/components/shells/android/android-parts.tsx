@@ -6,11 +6,35 @@
    feature via the controlCenter slot (working toggles, single source). */
 import { Button } from "@/components/ui/button";
 import { useMemo, useState, useRef } from "react";
-import { Search, X } from "lucide-react";
+import { ChevronLeft, Search, X } from "lucide-react";
 import { shellStore, closeWindow, closeAll } from "../../../lib/store";
 import { useSwipeUpClose } from "../../../hooks/use-swipe-close";
 import { AppIcon } from "../../app-icon";
 import type { AppDescriptor, WindowState } from "../../../lib/types";
+
+// 3-button gesture/nav row. 48px button row (--android-nav) + the device
+// safe-area below it — the same calc(var(--android-nav) + var(--sai-bottom))
+// total every overlay pads for. `inactive` = covered by the app layer's copy.
+export function NavBar({ inactive = false, onBack, onHome, onRecents }: { inactive?: boolean; onBack: () => void; onHome: () => void; onRecents: () => void }) {
+  return (
+    <div
+      className="flex shrink-0 items-center justify-around"
+      style={{ height: "calc(var(--android-nav) + var(--sai-bottom))", paddingBottom: "var(--sai-bottom)" }}
+      inert={inactive}
+      aria-hidden={inactive}
+    >
+      <Button type="button" variant="ghost" onClick={onBack} aria-label="Back" className="h-auto p-0 font-normal hover:bg-transparent grid size-12 place-items-center">
+        <ChevronLeft className="size-5" />
+      </Button>
+      <Button type="button" variant="ghost" onClick={onHome} aria-label="Home" className="h-auto p-0 font-normal hover:bg-transparent grid size-12 place-items-center">
+        <span className="size-4 rounded-full border-2 border-foreground/70" />
+      </Button>
+      <Button type="button" variant="ghost" onClick={onRecents} aria-label="Recents" className="h-auto p-0 font-normal hover:bg-transparent grid size-12 place-items-center">
+        <span className="size-3.5 rounded-[3px] border-2 border-foreground/70" />
+      </Button>
+    </div>
+  );
+}
 
 export function Recents({ order, apps, onResume, onHome }: { order: string[]; apps: AppDescriptor[]; onResume: (id: string) => void; onHome: () => void }) {
   const wins = order.map((id) => shellStore.getWindow(id)).filter(Boolean) as WindowState[];
@@ -62,20 +86,18 @@ function RecentCard({ win, app, onResume }: { win: WindowState; app?: AppDescrip
       <span className="flex items-center gap-2 px-3 py-2">
         {app && <span className="size-5"><AppIcon app={app} /></span>}
         <span className="min-w-0 flex-1 truncate text-left text-xs font-medium">{win.title}</span>
-        <Button
+        <button
           type="button"
-          variant="ghost"
-          size="icon"
           aria-label={`Close ${win.title}`}
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => {
             e.stopPropagation(); // don't let the card's onClick resume the app
             closeWindow(win.id);
           }}
-          className="-mr-1 size-6 shrink-0 rounded-full text-muted-foreground hover:bg-foreground/10 active:bg-foreground/20 [@media(pointer:coarse)]:size-9"
+          className="-mr-1 flex size-6 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-foreground/10 active:bg-foreground/20 [@media(pointer:coarse)]:size-11"
         >
           <X className="size-3.5" />
-        </Button>
+        </button>
       </span>
       <span className="min-h-0 flex-1" style={{ background: app?.gradient, opacity: 0.15 }} />
     </div>
@@ -95,7 +117,7 @@ export function AppDrawer({ apps, onLaunch, onClose }: { apps: AppDescriptor[]; 
   const [q, setQ] = useState("");
   const list = useMemo(() => apps.filter((a) => a.title.toLowerCase().includes(q.toLowerCase())), [apps, q]);
   return (
-    <div className="absolute inset-0 z-[30] flex flex-col bg-background/95 backdrop-blur-xl [animation:appOpen_.2s_ease]">
+    <div className="absolute inset-0 z-[30] flex flex-col bg-background/95 backdrop-blur-xl [animation:appOpen_var(--shell-dur)_var(--shell-ease)]">
       {/* Visually a thin pull handle, but a ≥36px hit area (same treatment as
           the iOS home indicator) so it's actually closable by thumb. */}
       <Button

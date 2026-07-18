@@ -1,4 +1,13 @@
 @import "tailwindcss";
+/* Enter/exit animation utilities (animate-in / fade-in / slide-in-from-*) used
+   by the shadcn kit + the vendored appshell (dialogs, sheets, toasts, the
+   notification center). Without this import those classes were silent no-ops. */
+@import "tw-animate-css";
+
+/* Dark is driven by next-themes' `.dark` class on <html>; key shadcn `dark:`
+   utilities off the same class (Tailwind 4 defaults them to the OS media
+   query, which ignores the in-app toggle). */
+@custom-variant dark (&:is(.dark *));
 
 @theme {
   --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
@@ -141,6 +150,10 @@
   --accent-foreground: oklch(0.36 0.045 44);
   --destructive: oklch(0.553 0.203 27);
   --destructive-foreground: oklch(0.98 0.008 83);
+  /* Destructive TEXT on the card (appshell context-menu "danger" rows). The
+     base red is already dark enough for text on warm paper; dark mode keeps
+     the brighter fill red. */
+  --destructive-text: var(--destructive);
   --border: oklch(0.902 0.013 71);
   --input: oklch(0.8 0.022 64);
   --ring: oklch(0.567 0.132 41);
@@ -226,6 +239,7 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive-text: var(--destructive-text);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -263,6 +277,11 @@ body {
   color: var(--color-foreground);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  /* Kill double-tap-to-zoom + the 300ms tap delay so the standalone PWA feels
+     native, while KEEPING pinch-zoom (WCAG 1.4.4). Gesture children set their
+     own stricter touch-action (none / pan-y) per-element and still win locally. */
+  touch-action: manipulation;
+  overscroll-behavior: none;
 }
 
 /* ── OS shell follows the active theme preset ────────────────────────────────
@@ -275,6 +294,7 @@ body {
    cascade, including over appshell's own `.dark` block. */
 :root {
   --glass-bar: color-mix(in oklab, var(--card) 62%, transparent);
+  --glass-panel: color-mix(in oklab, var(--card) 78%, transparent);
   --glass-menu: color-mix(in oklab, var(--card) 88%, transparent);
   --window-bg: color-mix(in oklab, var(--card) 92%, transparent);
   --window-head: color-mix(in oklab, var(--card) 70%, transparent);

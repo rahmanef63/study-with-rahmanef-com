@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import {
   clearClips,
   copyClip,
+  inEditable,
   removeClip,
   setClipboardOpen,
   startClipboardCapture,
@@ -26,7 +27,9 @@ export function ClipboardOverlay() {
   useEffect(() => startClipboardCapture(), []);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === "v") {
+      // ⌘⇧V is the canonical terminal/editor paste — don't hijack it while the
+      // user is typing; only summon the history panel from outside a field.
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === "v" && !inEditable(e.target)) {
         e.preventDefault();
         toggleClipboard();
       } else if (e.key === "Escape") {
@@ -46,7 +49,7 @@ function ClipboardPanel() {
   const list = clips.filter((c) => c.text.toLowerCase().includes(q.toLowerCase()));
 
   return (
-    <div className="absolute inset-0 z-[8500] flex items-start justify-center bg-black/20 pt-[16vh]" onClick={() => setClipboardOpen(false)}>
+    <div className="absolute inset-0 z-[var(--z-clipboard)] flex items-start justify-center bg-black/20 pt-[16vh]" onClick={() => setClipboardOpen(false)}>
       <div className="glass flex max-h-[60vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-border shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <header className="flex items-center gap-2 border-b border-border px-4 py-2.5">
           <span className="text-xs font-semibold text-muted-foreground">Clipboard history</span>

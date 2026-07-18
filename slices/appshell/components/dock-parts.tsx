@@ -12,7 +12,8 @@ import { AppIcon } from "./app-icon";
 import { useContextMenu, ContextMenu, type MenuItem } from "./shells/context-menu";
 import type { AppDescriptor, WindowState } from "../lib/types";
 
-export const BASE = 50; // resting icon px (dock.tsx magnification shares it)
+// Resting icon size is a user pref now (dock-prefs). DockIcon/PlainIcon receive it
+// as `base`; dock.tsx passes DOCK_SIZE_PX[size].
 
 // Floating panel above an icon (CSS-only; pb-4 bridges the gap so the cursor can
 // travel from icon to panel without it closing). `wide` = the running-app menu
@@ -37,15 +38,16 @@ export function HoverPanel({ wide, children }: { wide?: boolean; children: React
 // bottom-anchored icon ZONE sized w×w that OVERFLOWS upward — the magnified icon
 // rises out of the bar (in front of it) instead of sitting inside. width + height
 // transition so hover-in/out (and the redistribution as the cursor moves) glide.
-export const SLOT_TRANS = "transition-[width] duration-200 ease-out";
-export const ZONE_TRANS = "transition-[height] duration-200 ease-out";
+export const SLOT_TRANS = "transition-[width] duration-200 ease-out motion-reduce:transition-none";
+export const ZONE_TRANS = "transition-[height] duration-200 ease-out motion-reduce:transition-none";
 
 export function DockIcon({
-  app, windows, focused, slotRef, zoneRef,
+  app, windows, focused, base, slotRef, zoneRef,
 }: {
   app: AppDescriptor;
   windows: WindowState[];
   focused: string | null;
+  base: number;
   slotRef: (el: HTMLDivElement | null) => void;
   zoneRef: (el: HTMLDivElement | null) => void;
 }) {
@@ -72,8 +74,8 @@ export function DockIcon({
       ];
 
   return (
-    <div ref={slotRef} className={cn(`relative shrink-0 ${SLOT_TRANS}`)} style={{ width: BASE, height: BASE }}>
-      <div ref={zoneRef} className={cn(`group absolute inset-x-0 bottom-0 ${ZONE_TRANS}`)} style={{ height: BASE }}>
+    <div ref={slotRef} className={cn(`relative shrink-0 ${SLOT_TRANS}`)} style={{ width: base, height: base }}>
+      <div ref={zoneRef} className={cn(`group absolute inset-x-0 bottom-0 ${ZONE_TRANS}`)} style={{ height: base }}>
         {hasMenu ? (
           <HoverPanel wide>
             <div className="px-2 py-1 text-center text-[11px] font-semibold text-muted-foreground">{app.title}</div>
@@ -107,7 +109,6 @@ export function DockIcon({
         <Link
           href={href}
           prefetch={false}
-          aria-label={app.title}
           onPointerEnter={() => void app.load?.().catch(() => {})}
           onContextMenu={ctx.open}
           onClick={(e) => {
@@ -130,17 +131,18 @@ export function DockIcon({
 }
 
 export function PlainIcon({
-  label, onClick, slotRef, zoneRef, children,
+  label, onClick, base, slotRef, zoneRef, children,
 }: {
   label: string;
   onClick: () => void;
+  base: number;
   slotRef: (el: HTMLDivElement | null) => void;
   zoneRef: (el: HTMLDivElement | null) => void;
   children: React.ReactNode;
 }) {
   return (
-    <div ref={slotRef} className={cn(`relative shrink-0 ${SLOT_TRANS}`)} style={{ width: BASE, height: BASE }}>
-      <div ref={zoneRef} className={cn(`group absolute inset-x-0 bottom-0 ${ZONE_TRANS}`)} style={{ height: BASE }}>
+    <div ref={slotRef} className={cn(`relative shrink-0 ${SLOT_TRANS}`)} style={{ width: base, height: base }}>
+      <div ref={zoneRef} className={cn(`group absolute inset-x-0 bottom-0 ${ZONE_TRANS}`)} style={{ height: base }}>
         <HoverPanel><span className="text-[12.5px] font-medium">{label}</span></HoverPanel>
         <Button type="button" variant="ghost" onClick={onClick} aria-label={label} className="h-auto p-0 font-normal hover:bg-transparent relative block size-full drop-shadow-[0_6px_10px_rgba(0,0,0,0.3)]">
           {children}

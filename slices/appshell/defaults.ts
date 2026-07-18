@@ -4,7 +4,8 @@
 // ── Bundled shell features ───────────────────────────────────────────────────
 // Each is a defineFeature() contribution mounted via `manifest.features`. They
 // live inside this slice (appshell/features/*) so the whole shell installs as
-// one unit. Re-exported LAST so the core bindings they read are already live.
+// one unit. Re-exported LAST (from index.ts) so the core bindings they read are
+// already live.
 import { searchFeature } from "./features/search";
 import { inspectorFeature } from "./features/inspector";
 import { notificationsFeature } from "./features/notifications";
@@ -27,10 +28,11 @@ export { shareFeature } from "./features/share";
 export { shortcutHelpFeature } from "./features/shortcut-help";
 export { lockScreenFeature } from "./features/lock-screen";
 
-// The default system-feature set — generic, brand-free, app-agnostic. Drop all
-// five into any consumer's manifest in one line (`features: DEFAULT_FEATURES`).
-// Spread + override/trim per project; each entry is independently removable since
-// the surfaces are slot-driven (a feature absent from the array just doesn't mount).
+// The default system-feature set — generic, brand-free, app-agnostic. Drop the
+// whole bundle into any consumer's manifest in one line (`features:
+// DEFAULT_FEATURES`). Spread + override/trim per project; each entry is
+// independently removable since the surfaces are slot-driven (a feature absent
+// from the array just doesn't mount).
 export const DEFAULT_FEATURES = [
   searchFeature,
   quickLookFeature,
@@ -43,4 +45,3 @@ export const DEFAULT_FEATURES = [
   controlCenterFeature,
   widgetsFeature,
 ];
-

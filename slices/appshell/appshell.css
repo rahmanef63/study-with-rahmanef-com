@@ -1,48 +1,94 @@
 /**
- * appshell theme tokens — the OS-shell look (glass bars, glossy dock, window
- * chrome, wallpapers). The slice's components reference these CSS custom
- * properties; they are NOT shadcn defaults, so a consumer MUST import this file
- * once (e.g. in the root layout or the page that mounts <AppShell>):
+ * appshell theme tokens + shell CSS — the OS-shell look (glass bars, glossy
+ * dock, window chrome, wallpapers, per-shell skins, window/app motion). The
+ * slice's components reference these CSS custom properties; they are NOT shadcn
+ * defaults, so a consumer MUST import this file once (e.g. in the root layout
+ * or the page that mounts <AppShell>):
  *
  *     import "@/features/appshell/appshell.css";
  *
- * Light values live on :root; `.dark` overrides them. Pairs with the shadcn
- * theme tokens already in the consumer's globals (--background/--foreground/…).
+ * Light values live on :root; `.dark` overrides them (this repo toggles dark
+ * via next-themes' class, NOT os-vps' [data-theme] attribute). app/globals.css
+ * loads AFTER this file and remaps the core chrome tokens onto the shadcn
+ * palette (--card/--foreground/--radius), so theme presets restyle the shell.
  */
 
 :root {
+  /* Chrome typeface — follows the consumer's sans (and any preset that
+     overrides --font-sans). Per-shell skins refine it via --shell-font. */
+  --font-ui: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+
+  /* Notch / home-bar safe areas — read by ResponsiveProvider + primitives. */
   --sai-top: env(safe-area-inset-top, 0px);
   --sai-right: env(safe-area-inset-right, 0px);
   --sai-bottom: env(safe-area-inset-bottom, 0px);
   --sai-left: env(safe-area-inset-left, 0px);
-  --blur: 30px;
-  --accent: #2f7bf6;
+
+  /* Shell z-index scale — the full-screen modal tier (z-[var(--z-*)]).
+     Window-tile (10–80) + shell-chrome (880–2000) layers stay inline. */
+  --z-skip-link: 2000;
+  --z-quick-look: 8000;
+  --z-launcher: 8400;
+  --z-clipboard: 8500;
+  --z-share: 8600;
+  --z-shortcut-help: 8700;
+  --z-spotlight: 9000;
+  --z-lock-screen: 9500;
+
+  /* iOS systemFill + liquid-glass edge (referenced by iOS-scoped rules and the
+     mobile surfaces; translucent so they sit on any theme). */
+  --grouped: #f2f2f7;
+  --fill: rgba(118, 118, 128, 0.12);
+  --fill2: rgba(118, 118, 128, 0.24);
+  --glass-hi: rgba(255, 255, 255, 0.95);
+  --glass-stroke: rgba(255, 255, 255, 0.7);
+  /* Notification Center — a dark glass panel over the wallpaper in BOTH themes
+     (iOS lock-screen aesthetic), so it is not redefined under dark. */
+  --glass-nc: rgba(20, 22, 38, 0.62);
 
   --glass-bar: rgba(250, 250, 252, 0.62);
+  --glass-panel: rgba(252, 252, 254, 0.78);
   --glass-menu: rgba(252, 252, 254, 0.86);
   --window-bg: rgba(248, 248, 251, 0.86);
   --surface: #f4f4f7;
   --window-head: rgba(255, 255, 255, 0.55);
+  --field: rgba(255, 255, 255, 0.7);
+  --hover: rgba(0, 0, 0, 0.05);
   --hover-strong: rgba(0, 0, 0, 0.09);
-  --dock-bg: rgba(255, 255, 255, 0.34);
+  --inset: rgba(0, 0, 0, 0.04);
 
-  --radius-win: 12px;
+  --blur: 30px;
+  --radius-win: calc(var(--radius, 0.625rem) + 0.125rem);
   --radius-icon: 22%;
-  --shadow-win: 0 0 0 0.5px rgba(0, 0, 0, 0.16), 0 24px 60px -12px rgba(0, 0, 0, 0.42),
-    0 8px 22px -10px rgba(0, 0, 0, 0.3);
+  --shadow-win: 0 0 0 0.5px rgba(0, 0, 0, 0.16), 0 24px 60px -12px rgba(0, 0, 0, 0.42), 0 8px 22px -10px rgba(0, 0, 0, 0.3);
+  --shadow-pop: 0 0 0 0.5px rgba(0, 0, 0, 0.12), 0 14px 38px -8px rgba(0, 0, 0, 0.32);
+  --dock-bg: rgba(255, 255, 255, 0.34);
 }
 
 .dark {
+  --grouped: #000000;
+  --fill: rgba(120, 120, 128, 0.24);
+  --fill2: rgba(120, 120, 128, 0.36);
+  --glass-hi: rgba(255, 255, 255, 0.2);
+  --glass-stroke: rgba(255, 255, 255, 0.14);
+
   --glass-bar: rgba(28, 28, 32, 0.6);
+  --glass-panel: rgba(34, 34, 40, 0.74);
   --glass-menu: rgba(40, 40, 46, 0.86);
   --window-bg: rgba(34, 34, 40, 0.82);
   --surface: #1b1b20;
   --window-head: rgba(60, 60, 68, 0.5);
+  --field: rgba(255, 255, 255, 0.08);
+  --hover: rgba(255, 255, 255, 0.08);
   --hover-strong: rgba(255, 255, 255, 0.14);
+  --inset: rgba(0, 0, 0, 0.25);
+
+  --shadow-win: 0 0 0 0.5px rgba(0, 0, 0, 0.6), 0 28px 70px -12px rgba(0, 0, 0, 0.7), 0 8px 22px -10px rgba(0, 0, 0, 0.55);
+  --shadow-pop: 0 0 0 0.5px rgba(255, 255, 255, 0.08), 0 16px 40px -8px rgba(0, 0, 0, 0.6);
   --dock-bg: rgba(40, 40, 48, 0.42);
-  --shadow-win: 0 0 0 0.5px rgba(0, 0, 0, 0.6), 0 28px 70px -12px rgba(0, 0, 0, 0.7),
-    0 8px 22px -10px rgba(0, 0, 0, 0.55);
 }
+
+.reduce-glass { --blur: 0px; }
 
 /* glass helper — applied alongside theme tokens, never raw hex in components */
 .glass {
@@ -50,40 +96,163 @@
   backdrop-filter: blur(var(--blur)) saturate(180%);
 }
 
-/* wallpapers — the desktop background (manifest appearance picks the key) */
-.wp-aurora {
-  background:
-    radial-gradient(120% 120% at 18% 12%, #6a8dff 0%, rgba(106, 141, 255, 0) 46%),
-    radial-gradient(120% 110% at 86% 22%, #ff7ac4 0%, rgba(255, 122, 196, 0) 42%),
-    radial-gradient(120% 120% at 70% 88%, #5be0c8 0%, rgba(91, 224, 200, 0) 48%),
-    linear-gradient(160deg, #2a2f6b 0%, #1b2050 60%, #141738 100%);
-}
-.wp-dusk {
-  background:
-    radial-gradient(130% 120% at 80% 8%, #ffb066 0%, rgba(255, 176, 102, 0) 45%),
-    radial-gradient(120% 120% at 12% 30%, #ff6f91 0%, rgba(255, 111, 145, 0) 42%),
-    linear-gradient(160deg, #5a2a55 0%, #2e1b46 55%, #16122e 100%);
-}
-.wp-mist {
-  background:
-    radial-gradient(120% 120% at 22% 18%, #c9d4e6 0%, rgba(201, 212, 230, 0) 50%),
-    radial-gradient(120% 120% at 86% 80%, #aebfd6 0%, rgba(174, 191, 214, 0) 50%),
-    linear-gradient(160deg, #eef1f6 0%, #dde3ee 60%, #cfd7e6 100%);
-}
-.wp-noir {
-  background: linear-gradient(160deg, #121316 0%, #0a0a0c 100%);
-}
-.wp-graphite {
-  background:
-    radial-gradient(120% 120% at 30% 20%, #3a3f4b 0%, rgba(58, 63, 75, 0) 55%),
-    linear-gradient(160deg, #23262e 0%, #16181d 70%, #0e0f13 100%);
-}
-
-/* Per-OS flavours — the "auto" wallpaper resolves to the active shell's pick
-   (ShellDescriptor.wallpaper); these are also selectable as plain presets. */
-.wp-win11    { background: radial-gradient(90% 75% at 50% 35%, #3b82f6 0%, #1e40af 42%, #0b1f4a 100%); }
-.wp-material { background: linear-gradient(150deg, #cfe0ff 0%, #e8def8 55%, #ffd8e4 100%); }
-.dark .wp-material { background: linear-gradient(150deg, #1f2c47 0%, #322c4b 55%, #46263a 100%); }
-.wp-ios      { background: linear-gradient(165deg, #0f2a6b 0%, #5b3bb4 48%, #c84fa0 100%); }
+/* Wallpapers — per-shell native backdrops. Each key paints its webp
+   (public/wallpapers/<key>.webp) over a gradient fallback (shown while the
+   image loads or if it 404s). "auto" resolves to the active shell's pick via
+   ShellDescriptor.wallpaper; a per-shell override or custom image wins. graphite
+   (Dashboard) stays a pure gradient — a photo backdrop fights data widgets. */
+.wp-aurora { background:
+  url("/wallpapers/aurora.webp") center/cover no-repeat,
+  radial-gradient(120% 120% at 18% 12%, #6a8dff 0%, rgba(106,141,255,0) 46%),
+  radial-gradient(120% 110% at 86% 22%, #ff7ac4 0%, rgba(255,122,196,0) 42%),
+  radial-gradient(120% 120% at 70% 88%, #5be0c8 0%, rgba(91,224,200,0) 48%),
+  linear-gradient(160deg, #2a2f6b 0%, #1b2050 60%, #141738 100%); }
+.wp-graphite { background:
+  radial-gradient(120% 120% at 30% 20%, #3a3f4b 0%, rgba(58,63,75,0) 55%),
+  linear-gradient(160deg, #23262e 0%, #16181d 70%, #0e0f13 100%); }
+.wp-win11    { background: url("/wallpapers/win11.webp") center/cover no-repeat, radial-gradient(90% 75% at 50% 35%, #3b82f6 0%, #1e40af 42%, #0b1f4a 100%); }
+.wp-material { background: url("/wallpapers/material.webp") center/cover no-repeat, linear-gradient(150deg, #cfe0ff 0%, #e8def8 55%, #ffd8e4 100%); }
+.wp-ios      { background: url("/wallpapers/ios.webp") center/cover no-repeat, linear-gradient(165deg, #0f2a6b 0%, #5b3bb4 48%, #c84fa0 100%); }
 /* "auto" swatch in pickers — a hue ring that reads as "follows the OS". */
 .wp-auto     { background: conic-gradient(from 220deg at 50% 50%, #3b82f6, #8b5cf6, #ec4899, #f59e0b, #10b981, #3b82f6); }
+
+/* ── Per-shell design tokens ──────────────────────────────────────────────
+   `data-shell` on the Surface root lets each OS skin diverge (font, corner
+   radius, icon mask, motion curve + durations) WITHOUT forking the shared
+   chrome — components read the --shell-* vars. Base = framework defaults; each
+   shell overrides only what differs. Font is scoped to chrome (menu bar /
+   taskbar / window title) so app content keeps the theme preset's typeface. */
+[data-shell] {
+  --shell-font: var(--font-ui);
+  --shell-radius-win: var(--radius-win);
+  --shell-radius-ui: var(--radius, 0.625rem);
+  --shell-icon-radius: 22.37%;
+  /* App-icon look, per shell. Defaults are FLAT (iOS 7+ killed the glassy
+     dome); macOS re-adds a whisper of depth below. */
+  --shell-icon-sheen: 0.06; /* top-light overlay alpha */
+  --shell-icon-shade: 0; /* bottom inner-shade alpha */
+  --shell-icon-ring: 0.1; /* top hairline edge alpha */
+  --shell-icon-glyph: 52%; /* glyph size */
+  --shell-icon-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
+  --shell-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --shell-dur-fast: 150ms;
+  --shell-dur: 250ms;
+  --shell-dur-slow: 340ms;
+}
+[data-shell="macos"], [data-shell="ios"] {
+  --shell-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", var(--font-ui);
+  --shell-radius-win: 10px;
+  --shell-ease: cubic-bezier(0.32, 0.72, 0, 1);
+}
+/* macOS icons keep gentle Big-Sur dimensionality (not flat, not glossy) + a
+   soft layered dock shadow + a slightly more inset glyph. */
+[data-shell="macos"] {
+  --shell-icon-radius: 22.5%;
+  --shell-icon-sheen: 0.12;
+  --shell-icon-shade: 0.06;
+  --shell-icon-ring: 0.14;
+  --shell-icon-glyph: 46%;
+  --shell-icon-shadow: 0 1px 1px rgba(0, 0, 0, 0.2), 0 6px 14px rgba(0, 0, 0, 0.3);
+}
+/* Shared app-icon tile corner: a plain rounded-rect at the per-shell radius. */
+.shell-icon-tile {
+  border-radius: var(--shell-icon-radius);
+}
+
+/* ── iOS component parity (scoped to the iOS surface ONLY) ─────────────────
+   The shared Switch carries accent-tinted states that suit Material/Fluent;
+   iOS wants the system-green switch. #30d158 is a fixed semantic category
+   color (accepted raw-hex exception, like the traffic lights). */
+[data-shell="ios"] [role="switch"] {
+  width: 47px;
+  height: 29px;
+}
+[data-shell="ios"] [role="switch"][aria-checked="true"] { background: #30d158; }
+[data-shell="ios"] [role="switch"][aria-checked="false"] { background: var(--fill2); }
+[data-shell="ios"] [role="switch"] > span {
+  width: 25px;
+  height: 25px;
+  transform: translateX(2px);
+}
+[data-shell="ios"] [role="switch"][aria-checked="true"] > span {
+  transform: translateX(20px);
+}
+
+/* ── Touch-target a11y (HIG 44px / Material 48dp) ──────────────────────────
+   Lift form controls + menu rows on ANY coarse pointer — universal a11y
+   sizing, applied to both touch shells. */
+@media (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+  textarea,
+  select,
+  [data-slot="select-trigger"],
+  [role="menuitem"] {
+    min-height: 44px;
+  }
+  /* iOS focus-zoom guard: Safari zooms the viewport when a focused text field
+     computes <16px. Floor entry fields at 16px on touch only. */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+  textarea,
+  select {
+    font-size: max(16px, 1rem);
+  }
+}
+
+[data-shell="windows"] {
+  --shell-font: "Segoe UI Variable Text", "Segoe UI", system-ui, var(--font-ui);
+  --shell-radius-win: 8px;
+  --shell-radius-ui: 4px;
+  --shell-ease: cubic-bezier(0, 0, 0, 1);
+  --shell-dur: 230ms;
+  /* Win11 Mica: a near-opaque neutral window surface with a faint accent wash.
+     Reuses the theme-aware --window-bg + --primary (this repo's chrome accent)
+     so it flips light/dark by itself. Accent held to 5% for AA contrast. */
+  --mica-win: color-mix(in srgb, var(--window-bg) 95%, var(--primary, #1f6df0) 5%);
+}
+[data-shell="android"] {
+  --shell-font: Roboto, "Google Sans Text", system-ui, var(--font-ui);
+  /* M3 Expressive spring-ish enter: a mild overshoot (y>1) gives app-open a
+     lively settle. Android-only + enter-only. */
+  --shell-ease: cubic-bezier(0.2, 0.9, 0.3, 1.06);
+  --shell-dur: 300ms;
+  --shell-dur-slow: 400ms;
+  --shell-icon-radius: 50%;
+}
+/* Top safe-area floor per touch shell — the back/nav buttons + top bars must
+   clear the status bar / notch. iOS floors everywhere; Android floors ONLY in
+   the installed PWA (display-mode: standalone), so the browser tab / desktop
+   PhoneFrame preview stays visually unchanged while the real app clears the bar. */
+[data-shell="ios"] { --sai-top: max(env(safe-area-inset-top, 0px), 2.75rem); }
+@media (display-mode: standalone) {
+  [data-shell="android"] { --sai-top: max(env(safe-area-inset-top, 0px), 1.5rem); }
+}
+/* OS reduced-motion: collapse durations to ~instant. 1ms (not 0) so
+   animationend still fires — window close/minimize finalize on that event. */
+@media (prefers-reduced-motion: reduce) {
+  [data-shell] { --shell-dur-fast: 1ms; --shell-dur: 1ms; --shell-dur-slow: 1ms; }
+  [data-state="open"], [data-state="closed"],
+  .animate-in, .animate-out,
+  [class*="fade-in"], [class*="slide-in"], [class*="zoom-in"] {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+  }
+}
+
+/* Window lifecycle motion (macOS + Windows). Open on mount; close/minimize via
+   a component-local phase that finalizes the store action on animationend. */
+@keyframes winOpen { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: none; } }
+@keyframes winClose { from { opacity: 1; transform: none; } to { opacity: 0; transform: scale(0.95); } }
+@keyframes winMin { from { opacity: 1; transform: none; } to { opacity: 0; transform: scale(0.5) translateY(46%); } }
+/* Geometry glide for maximize/snap/restore. The drag + resize hooks set
+   `transition:none` inline during a gesture, so per-frame drags never lag. */
+.win-geo { transition: left var(--shell-dur) var(--shell-ease), top var(--shell-dur) var(--shell-ease), width var(--shell-dur) var(--shell-ease), height var(--shell-dur) var(--shell-ease); }
+
+@keyframes appOpen { from { transform: translateY(14px) scale(0.985); } to { transform: none; } }
+/* Dismiss-to-home: the app zooms down a touch + fades, revealing the home
+   behind it (real-iOS close). Finalized on animationend in mobile-shell. */
+@keyframes appClose { from { transform: none; opacity: 1; } to { transform: translateY(10px) scale(0.96); opacity: 0; } }
+/* Live-wallpaper blob drift (transform-only — compositor-friendly). */
+@keyframes wpFloatA { 0%, 100% { transform: translate(-10%, -6%) scale(1); } 50% { transform: translate(12%, 8%) scale(1.18); } }
+@keyframes wpFloatB { 0%, 100% { transform: translate(8%, 10%) scale(1.1); } 50% { transform: translate(-10%, -8%) scale(0.92); } }
+@keyframes bootPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.06); opacity: 0.85; } }
+@keyframes toastIn { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: none; } }
