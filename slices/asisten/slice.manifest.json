@@ -1,26 +1,47 @@
 {
   "$schema": "../../docs/slice.manifest.schema.json",
   "name": "asisten",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Alfa — asisten belajar bertenaga Claude (wave v1.6 #35). Action chat:ask (login wajib, konteks materi member-gated + published-only, bounded 20 pesan/4000 char/8000 char konteks/1024 max_tokens, model Haiku). Tanpa kuota per-user (keputusan owner; kill-switch = unset ANTHROPIC_API_KEY). UI AsistenChatView + hook useAsistenChat yang kompatibel seam appshell capabilities.useChat.",
   "category": "lms",
   "stability": "beta",
   "deps": {
-    "shared": ["features/defineFeature"],
+    "shared": [
+      "features/defineFeature"
+    ],
     "slices": [],
-    "convexFeatures": ["asisten"],
-    "npm": { "lucide-react": "^0.460.0" },
-    "env": ["ANTHROPIC_API_KEY"]
+    "convexFeatures": [
+      "asisten"
+    ],
+    "npm": {
+      "lucide-react": "^0.460.0"
+    },
+    "env": [
+      "ANTHROPIC_API_KEY"
+    ]
   },
   "files": {
-    "include": ["**/*"],
-    "exclude": ["__tests__/**", "*.test.ts", "*.test.tsx"]
+    "include": [
+      "**/*"
+    ],
+    "exclude": [
+      "__tests__/**",
+      "*.test.ts",
+      "*.test.tsx"
+    ]
   },
   "convexFiles": {
-    "include": ["**/*.ts"],
-    "exclude": ["*.test.ts", "test.helpers.ts"]
+    "include": [
+      "**/*.ts"
+    ],
+    "exclude": [
+      "*.test.ts",
+      "test.helpers.ts"
+    ]
   },
-  "permissions": ["asisten.chat"],
+  "permissions": [
+    "asisten.chat"
+  ],
   "schemaTables": [],
   "compatibility": {
     "next": ">=15 <17",

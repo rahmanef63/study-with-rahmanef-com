@@ -6,7 +6,9 @@
 //      tetap berguna untuk tamu dan untuk kelas yang belum ada progresnya.
 // Server dulu (truth), lalu entri lokal yang belum terwakili; cap 6.
 import { useEffect, useState } from "react";
-import { useRecentCourses } from "@/features/progress";
+// PERF: light sub-barrel — consumed by the eager learning widgets; the full
+// progress barrel would drag its views into the initial JS chunk.
+import { useRecentCourses } from "@/features/progress/hooks";
 import { getRecentCourses, type RecentCourse } from "./recent-courses";
 
 const CAP = 6;

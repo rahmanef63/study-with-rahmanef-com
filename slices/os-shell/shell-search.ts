@@ -12,8 +12,11 @@
 import { useCallback } from "react";
 import { useConvex } from "convex/react";
 import { api } from "@convex/_generated/api";
-import { tenantsApi, type PublicTenant } from "@/features/tenants";
-import { type CourseCardData } from "@/features/courses";
+// PERF: light entries/`import type` only — eager shell chrome; the full
+// tenants/courses barrels would drag every view into the initial JS chunk.
+import { tenantsApi } from "@/features/tenants/api";
+import type { PublicTenant } from "@/features/tenants/hooks";
+import type { CourseCardData } from "@/features/courses";
 import type { SearchHit } from "@/features/appshell";
 import { openApp } from "./apps/_nav";
 

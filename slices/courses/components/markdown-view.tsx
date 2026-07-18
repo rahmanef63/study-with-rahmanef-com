@@ -4,7 +4,7 @@
 // contract as the rr `markdown` slice's <MarkdownReader/> so the integrator
 // can swap implementations post-v1 without touching consumers.
 import Link from "next/link";
-import { Fragment } from "react";
+import { Fragment, useMemo } from "react";
 import { parseMarkdown } from "../lib/markdown";
 import type { MdBlock, MdInline } from "../types";
 
@@ -98,7 +98,10 @@ export type MarkdownViewProps = {
 
 /** Lesson material renderer — headings, lists, quotes, code, http(s) links. */
 export function MarkdownView({ content, className }: MarkdownViewProps) {
-  const blocks = parseMarkdown(content);
+  // Memoized: the lesson window re-renders per pointermove frame while dragged/
+  // resized (appshell Window subscribes x/y — by design); re-parsing identical
+  // contentMd through the ~150-LOC regex parser every frame is pure waste.
+  const blocks = useMemo(() => parseMarkdown(content), [content]);
   return (
     <div className={className ? `space-y-4 break-words ${className}` : "space-y-4 break-words"}>
       {blocks.map((block, i) => (

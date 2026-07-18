@@ -10,7 +10,9 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { CircleUser, LogOut, LogIn, ShieldCheck } from "lucide-react";
 import { defineFeature, toast } from "@/features/appshell";
-import { useCurrentProfile } from "@/features/profiles";
+// PERF: light sub-barrel — eager menu-bar chrome; the full profiles barrel
+// would drag its views into the initial JS chunk.
+import { useCurrentProfile } from "@/features/profiles/hooks";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";

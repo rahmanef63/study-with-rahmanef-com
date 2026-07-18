@@ -14,8 +14,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useConvexAuth } from "convex/react";
 import { setBadge, toast } from "@/features/appshell";
-import { useMyCommunities, type MyCommunity } from "@/features/tenants";
-import { useAnnouncements } from "@/features/announcements";
+// PERF: light sub-barrels — this file is eager shell chrome; the full slice
+// barrels would drag every view into the initial JS chunk.
+import { useMyCommunities, type MyCommunity } from "@/features/tenants/hooks";
+import { useAnnouncements } from "@/features/announcements/hooks";
 import { openApp } from "./apps/_nav";
 
 // Per-tenant "high-water mark": the newest announcement time we've already

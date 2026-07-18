@@ -10,8 +10,10 @@
 // server-side, so rendering the bell while signed out would throw into the
 // chrome. Render null until authenticated — same guard AccountMenu uses.
 import { defineFeature } from "@/features/appshell";
-import { NotificationBell } from "@/features/notifications";
-import { useCurrentProfile } from "@/features/profiles";
+// PERF: light sub-barrels — this feature mounts in the eager menu bar; the
+// full slice barrels would drag every view into the initial JS chunk.
+import { NotificationBell } from "@/features/notifications/views";
+import { useCurrentProfile } from "@/features/profiles/hooks";
 import { openHref } from "./apps/_nav";
 
 function NotificationBellStatus() {

@@ -108,7 +108,8 @@ Setiap window-app di-deep-link; link bisa di-share dan re-open window yang sama 
 ## Data fetching (pola per halaman)
 
 - Halaman authed/dinamis: server component `preloadQuery` → client `usePreloadedQuery` (reaktif, tanpa loading flash). Di OS, window-app adalah client wrapper — reuse hook/query slice yang sama.
-- Landing (statis): `"use cache"` + `fetchQuery` daftar komunitas aktif (dipakai `beranda` + `komunitas`).
+- Landing/etalase: full client-reactive — `beranda`/`komunitas` window-app pakai `useQuery` subscription (daftar komunitas aktif live-update). TIDAK ada `"use cache"` di codebase; jangan tambah server cache di atas read Convex yang reactive (hasilnya basi).
+- **Light entries (perf, chrome eager):** cross-slice import tetap barrel-only (P1), tapi selain barrel penuh `slices/<slug>/index.ts`, slice boleh punya entry publik RINGAN di level slice-root: `api.ts` (function refs) dan sub-barrel re-export-only `hooks/index.ts` / `views/index.ts`. Chrome shell yang eager (os-shell menu bar/badges/search) WAJIB import dari entry ringan ini — import barrel penuh dari file eager menarik semua view slice ke initial JS chunk.
 - Mutation: hooks slice-lokal (`slices/<slug>/hooks/`), error `ConvexError.code` → copy user-facing via toast (sonner).
 - **Tidak ada fetch di `useEffect`.**
 

@@ -1,5 +1,20 @@
 # Changelog — appshell
 
+## 1.6.1 — 2026-07-18
+
+UX-performance audit fixes (mirror upstream to os-vps before the next sync so
+they don't get overwritten):
+
+- **desktop.tsx**: the Surface `<Suspense>` around the active shell now shows a
+  centered `Loader2` spinner (same pattern as window-content.tsx) instead of
+  `fallback={null}` — users on a lazy shell (windows/android/dashboard) no
+  longer stare at a bare wallpaper while the shell chunk loads on cold boot.
+- **widgets-defs-vps.tsx**: MarkdownWidget memoizes `mdToHtml(md)` with
+  `useMemo` — the regex pipeline no longer re-runs on every desktop widget-layer
+  re-render for an unchanged note.
+- Metadata: slice.json + slice.manifest.json synced at 1.6.1 (manifest was
+  stale at 1.5.1 since the 1.6.0 port).
+
 ## 1.6.0 — 2026-07-18
 
 UI/UX parity port from the current os-vps appshell (upstream is months ahead of

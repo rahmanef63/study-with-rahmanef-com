@@ -27,6 +27,10 @@ export {
   type UseAsistenChatOptions,
 } from "./hooks/use-asisten-chat";
 
+// lib (plain, non-hook chat call — lazy consumers dynamic-import the barrel:
+// os-shell alfa-chat keeps the parked slice out of the initial JS chunk)
+export { sendAsistenChat } from "./lib/send-chat";
+
 // copy (props-driven defaults)
 export {
   ASISTEN_COPY,

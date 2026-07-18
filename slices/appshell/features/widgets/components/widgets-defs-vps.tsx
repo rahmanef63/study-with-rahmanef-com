@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Code2, FileText, Globe, Moon, Palette, Sun, Timer as TimerIcon } from "lucide-react";
 import { setShell, shellsForSurface, useShellAppearance, useShellPrefs } from "@/features/appshell";
 import { cn } from "@/lib/utils";
@@ -182,6 +182,9 @@ function ThemeWidget() {
 function MarkdownWidget() {
   const [md, setMd] = useState(() => ls(MD_KEY));
   const [editing, setEditing] = useState(!md);
+  // Memoized: the widget layer re-renders with the desktop; don't re-run the
+  // regex pipeline for an unchanged note.
+  const html = useMemo(() => mdToHtml(md), [md]);
   const save = () => {
     try { localStorage.setItem(MD_KEY, md); } catch { /* quota */ }
     setEditing(false);
@@ -208,7 +211,7 @@ function MarkdownWidget() {
       ) : (
         <div
           className="max-h-40 overflow-auto text-xs leading-relaxed [&_a]:text-primary"
-          dangerouslySetInnerHTML={{ __html: mdToHtml(md) }}
+          dangerouslySetInnerHTML={{ __html: html }}
         />
       )}
     </Card>

@@ -4,7 +4,9 @@
 // app-level Convex + theme providers, which the root layout already supplies.
 import { useEffect, useMemo } from "react";
 import { AppShell, shellStore, closeWindow } from "@/features/appshell";
-import { useMyPlatformAdmin } from "@/features/tenants";
+// PERF: light sub-barrel — eager entry; the full tenants barrel would drag all
+// its views into the initial JS chunk.
+import { useMyPlatformAdmin } from "@/features/tenants/hooks";
 import { shellManifest } from "./manifest";
 import { BootBeranda } from "./boot-beranda";
 import { ShellCommands } from "./shell-commands";

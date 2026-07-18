@@ -1,14 +1,13 @@
 "use client";
 // asisten slice — hook chat (#35). Mengembalikan fungsi ber-signature seam
 // appshell `capabilities.useChat`: (messages) => AsyncGenerator<string>.
-// Action `ask` non-streaming (jawaban utuh), jadi generator "mengalirkan"
-// jawaban per potongan kata di client — UX progresif tanpa httpAction.
+// Logika call+stream ada di lib/send-chat.ts (SSOT — juga dipakai lazy oleh
+// os-shell alfa-chat); hook ini tinggal mengikat Convex client + lessonId.
 // Identity STABIL (useCallback tanpa dep yang berubah) per kontrak capabilities.
 import { useCallback } from "react";
-import { useAction } from "convex/react";
-import { api } from "@convex/_generated/api";
+import { useConvex } from "convex/react";
 import type { AsistenChatFn, AsistenErrorCode, AsistenMessage } from "../types";
-import { MAX_MESSAGES } from "../config/limits";
+import { sendAsistenChat } from "../lib/send-chat";
 
 /** Ambil kode kontrak dari pesan ConvexError (format {code, message}). */
 export function asistenErrorCode(err: unknown): AsistenErrorCode | null {
@@ -25,21 +24,6 @@ export function asistenErrorCode(err: unknown): AsistenErrorCode | null {
   return null;
 }
 
-/** Pecah teks jadi potongan kecil untuk efek mengetik (murni kosmetik). */
-async function* streamText(text: string): AsyncGenerator<string> {
-  const words = text.split(/(\s+)/);
-  let buf = "";
-  for (const w of words) {
-    buf += w;
-    if (buf.length >= 24) {
-      yield buf;
-      buf = "";
-      await new Promise((r) => setTimeout(r, 15));
-    }
-  }
-  if (buf.length > 0) yield buf;
-}
-
 export type UseAsistenChatOptions = {
   /** Id materi (string dari deep-link) — Alfa ikut membaca materinya. */
   lessonId?: string;
@@ -51,21 +35,13 @@ export type UseAsistenChatOptions = {
  * pemetaan copy dilakukan konsumen (AsistenChatView / adaptor capabilities).
  */
 export function useAsistenChat(options?: UseAsistenChatOptions): AsistenChatFn {
-  const askAction = useAction(api.features.asisten.chat.ask);
+  const client = useConvex();
   const lessonId = options?.lessonId;
 
   return useCallback(
     function chat(messages: AsistenMessage[]) {
-      const bounded = messages.slice(-MAX_MESSAGES);
-      async function* run(): AsyncGenerator<string> {
-        const text: string = await askAction({
-          messages: bounded.map((m) => ({ role: m.role, text: m.text })),
-          ...(lessonId !== undefined ? { lessonId } : {}),
-        });
-        yield* streamText(text);
-      }
-      return run();
+      return sendAsistenChat(client, messages, lessonId);
     },
-    [askAction, lessonId]
+    [client, lessonId]
   );
 }

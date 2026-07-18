@@ -36,6 +36,8 @@ export function TenantProfileCard({
           <img
             src={tenant.coverImageUrl}
             alt=""
+            loading="lazy"
+            decoding="async"
             className="h-32 w-full rounded-[var(--radius-win)] border border-border object-cover @md:h-44"
             onError={(e) => { e.currentTarget.style.display = "none"; }}
           />

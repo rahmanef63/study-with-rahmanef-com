@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useState, type ComponentType } from "react";
-import { Monitor, Smartphone, Grid3x3, Minimize2, Maximize2, X } from "lucide-react";
+import { Loader2, Monitor, Smartphone, Grid3x3, Minimize2, Maximize2, X } from "lucide-react";
 import { useResponsive } from "../responsive/use-responsive";
 import { useWindowOrder, useWindowsMap } from "../hooks/use-shell";
 import { stackByZ } from "../lib/store";
@@ -69,7 +69,17 @@ function Surface() {
       <div id="main-content" data-shell={desc.id} className="relative h-dvh w-screen overflow-hidden">
         <Wallpaper shellDefault={desc.wallpaper} />
         <ContextMenuHost>
-          <Suspense fallback={null}>
+          {/* Lazy shells (windows/android/dashboard via register-shells) load a
+              chunk on first boot — show a small spinner over the wallpaper
+              instead of bare backdrop (same Loader2 pattern as window-content).
+              The built-in macos/ios shells are sync and never hit this. */}
+          <Suspense
+            fallback={
+              <div className="absolute inset-0 grid place-items-center text-muted-foreground">
+                <Loader2 className="animate-spin" />
+              </div>
+            }
+          >
             {framed ? <PhoneFrame Comp={Comp} /> : <Comp />}
           </Suspense>
           <Slot region="overlay" />
