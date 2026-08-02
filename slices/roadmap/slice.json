@@ -1,0 +1,32 @@
+{
+  "$schema": "https://resource.rahmanef.com/slice-schema.json",
+  "slug": "roadmap",
+  "version": "0.3.0",
+  "category": "lms",
+  "kind": "frontend",
+  "title": "Course nav rail (Kelas lesson sidebar)",
+  "description": "CourseNav — a compact secondary-sidebar syllabus nav (modules→lessons + per-lesson completion, current lesson highlighted) shown beside the Kelas lesson sheet. DERIVED client-side from courses.getOverview + progress.getCourseProgress; no new tables/convex, no routes. The former Silabus⇄Roadmap 'quest trail' presentation (CourseRoadmap/RoadmapNode) was removed in 0.3.0 — it duplicated the Silabus overview (DRY).",
+  "namespace": "@/features/roadmap",
+  "frontend": { "slicePath": "slices/roadmap", "configExport": "roadmapFeature" },
+  "deps": {
+    "npm": [],
+    "shadcn": ["skeleton"],
+    "env": [],
+    "peers": ["courses", "progress"]
+  },
+  "contract": {
+    "barrel": {
+      "components": ["CourseNav"],
+      "views": [],
+      "consumerSeams": {
+        "kelas": [
+          "KelasCourse lesson open: <CourseNav tenantId courseSlug lessonHref overviewHref currentLessonId> is the secondary-sidebar nav rail beside the LessonPlayerView sheet (flat module→lesson list, current lesson highlighted)"
+        ]
+      }
+    }
+  },
+  "registers": [],
+  "license": "MIT",
+  "tags": ["lms", "course-nav", "sidebar", "multi-tenant"],
+  "providers": []
+}

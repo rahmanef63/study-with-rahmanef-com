@@ -1,0 +1,50 @@
+{
+  "$schema": "https://resource.rahmanef.com/slice-schema.json",
+  "slug": "announcements",
+  "version": "0.1.0",
+  "category": "community",
+  "kind": "fullstack",
+  "title": "Announcements — in-app + Discord webhook",
+  "description": "Tenant announcements for belajar-with-rahmanef.com R12: instructor+ post an announcement (create), members read the feed newest-first (list), and each new post is fanned out to the community Discord via an internal action. P0: tenants.discordWebhookUrl is read ONLY inside the internal action (never an arg, never a public return value); the create mutation schedules the action with ctx.scheduler.runAfter(0). Reads the shared memberships table via requireTenantRole; never imports another feature. AnnouncementsView mounts at /t/[slug]/pengumuman.",
+  "namespace": "@/features/announcements",
+  "convex": {
+    "tablesExport": "",
+    "schemaPath": "convex/schema.ts",
+    "rootPaths": ["convex/features/announcements"]
+  },
+  "frontend": { "slicePath": "slices/announcements", "configExport": "announcementsFeature" },
+  "deps": {
+    "npm": [],
+    "shadcn": ["button", "input", "label", "card", "skeleton", "empty"],
+    "env": [],
+    "peers": []
+  },
+  "contract": {
+    "barrel": {
+      "views": ["AnnouncementsView"],
+      "components": ["AnnouncementCard", "AnnouncementForm"],
+      "hooks": ["useAnnouncements", "useCreateAnnouncement"],
+      "api": ["announcementsApi"],
+      "lib": ["announcementErrorMessage", "extractAnnouncementsError"],
+      "consumerSeams": {
+        "app#alpha": [
+          "/t/[slug]/pengumuman ← <AnnouncementsView tenantId canManage>",
+          "canManage = isInstructorPlus(membership.role) resolved from the tenants barrel"
+        ]
+      }
+    },
+    "convexFunctions": {
+      "member": ["features/announcements/queries:list"],
+      "instructor": ["features/announcements/mutations:create"],
+      "internal": [
+        "features/announcements/discord:postToDiscord",
+        "features/announcements/discord:loadForDiscord",
+        "features/announcements/discord:markPostedToDiscord"
+      ]
+    }
+  },
+  "registers": [],
+  "license": "MIT",
+  "tags": ["community", "announcements", "discord", "webhook", "multi-tenant"],
+  "providers": []
+}

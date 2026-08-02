@@ -1,0 +1,39 @@
+{
+  "$schema": "../../docs/slice.manifest.schema.json",
+  "name": "comments",
+  "version": "0.1.0",
+  "description": "Diskusi per lesson (fase-2 #16): member posts + depth-1 replies, soft delete (author/instructor+) projected as a placeholder — body never leaks after deletion. tenantId from the lesson row (never args), bounded indexed reads, per-user-per-lesson anti-spam cap. One mounted view: LessonComments({ lessonId }).",
+  "category": "community",
+  "stability": "beta",
+  "deps": {
+    "shared": ["features/defineFeature"],
+    "slices": ["responsive-dialog"],
+    "convexFeatures": ["comments"],
+    "npm": { "sonner": "^1.7.1", "lucide-react": "^0.460.0" },
+    "env": []
+  },
+  "files": {
+    "include": ["**/*"],
+    "exclude": ["__tests__/**", "*.test.ts", "*.test.tsx"]
+  },
+  "convexFiles": {
+    "include": ["**/*.ts"],
+    "exclude": ["*.test.ts", "test.helpers.ts"]
+  },
+  "permissions": ["comments.read", "comments.write", "comments.moderate"],
+  "schemaTables": [
+    {
+      "name": "comments",
+      "namespaced": false,
+      "indexes": ["by_lesson", "by_parent", "by_user"]
+    }
+  ],
+  "compatibility": {
+    "next": ">=15 <17",
+    "react": "^19",
+    "convex": "^1.16",
+    "tailwind": "4",
+    "auth": "convex-auth"
+  },
+  "notes": "0.1.0 (2026-07-09, agent beta): STATUS row #16 (wave v1.2). Schema table `comments` pre-added by alpha (DATA-MODEL SSOT) — implemented exactly; no schema edits. Depth-1 invariant + same-lesson parent + not-deleted parent enforced in addComment (VALIDATION_FAILED). Soft delete only (deletedAt) — reads return {deleted:true, bodyMd:null, author:null} placeholders; leak asserted against in queries.test.ts. Draft/archived-course lessons stay instructor+ (mirrors courses read rules). Author display joined from profiles (shared-table read, sanctioned). Anti-spam: >=20 comments/user/lesson → RATE_LIMITED (bounded by_lesson scan). Copy-first: adapted from rr `comments` (thread building, adapter seams) — simplified to fixed depth-1, no polymorphic TargetRef, no forbiddenWords."
+}

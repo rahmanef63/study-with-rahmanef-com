@@ -1,0 +1,22 @@
+{
+  "$schema": "https://resource.rahmanef.com/slice-schema.json",
+  "slug": "responsive-dialog",
+  "version": "0.1.0",
+  "category": "ui",
+  "kind": "ui",
+  "title": "Responsive Dialog (Sheet ↔ Modal)",
+  "description": "Facade slice over shared/ui/components/ResponsiveDialog.tsx. Sheet on mobile, Dialog on desktop, same API. Replaces raw <dialog> everywhere (kitab rule #2).",
+  "namespace": "@/features/responsive-dialog",
+  "convex": { "tablesExport": "", "schemaPath": "", "rootPaths": [] },
+  "frontend": { "slicePath": "frontend/slices/responsive-dialog", "configExport": "" },
+  "deps": {
+    "npm": [],
+    "shadcn": ["dialog", "sheet"],
+    "env": [],
+    "peers": []
+  },
+  "registers": [],
+  "license": "MIT",
+  "tags": ["ui", "dialog", "modal", "sheet", "responsive", "primitive"],
+  "providers": []
+}

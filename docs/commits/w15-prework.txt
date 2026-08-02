@@ -1,0 +1,19 @@
+docs(wave-v1.5): pre-work KONTEN — 3 kursus seed baru + prompts + board
+
+Fase v1.5 = konten kurikulum (keputusan owner 2026-07-16; rotasi #12
+ditunda owner, tetap open).
+
+- docs/AGENT-PROMPTS.md: rewrite wave v1.5 "KONTEN" — mode varian konten
+  (satu file seed per worker, pola seedWebDev, idempoten per slug, aturan
+  konten: Bahasa ID + istilah EN, indented code block dalam template
+  literal, links gratis 2-4/lesson, kuis 3-5 soal 60-70%, zero-cost law,
+  daftar slug terlarang) + prompt beta #31 (AI utk Produktivitas Kerja) /
+  gamma #32 (Analisis Data dengan AI) / delta #33 (Orkestrasi Multi-Agent
+  — studi kasus platform ini sendiri) / vps #34 (deploy modul + run seed
+  + smoke).
+- docs/STATUS.md: rows #31-#34 pre-claimed/open; row #35 backlog v1.6
+  (asisten AI in-OS — cakupan & akses per keputusan owner, ANTHROPIC_API_KEY
+  di-set owner langsung via convex env, tak pernah lewat repo/chat);
+  2 proposal vps 2026-07-16 ditandai RESOLVED (635b904).
+
+Nol perubahan kode/schema — docs only.

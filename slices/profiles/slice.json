@@ -1,0 +1,76 @@
+{
+  "$schema": "https://resource.rahmanef.com/slice-schema.json",
+  "slug": "profiles",
+  "version": "0.3.0",
+  "category": "identity",
+  "title": "Profiles — Profil Pengguna + Halaman Publik",
+  "description": "Own-profile record + public profile page for belajar-with-rahmanef.com. v1: ensure-on-first-login mutation, settings form (username, displayName, bio, avatarUrl), current-profile query; username globally unique, normalized to lowercase kebab-case; explicit rename collisions reject VALIDATION_FAILED; isPlatformAdmin read-only from this slice (seed/integrator only). v1.1 (STATUS #9): anonymous etalase page /u/[username] via two public* queries (publicGetByUsername + publicListBadges) returning safe projections only (AGENTS.md §6), plus a badge wall from courseCompletions joined to published courses of active tenants. v1.3 (STATUS #24): public certificate page /sertifikat/<completionId> via publicGetCertificate (anonymous §6 etalase; valid only while the course stays published, the tenant active, and the owner profile exists; uniform NOT_FOUND otherwise), completionId added to each badge as the certificate handle, CertificateView share card with copy-link.",
+  "namespace": "@/features/profiles",
+  "convex": {
+    "schemaPath": "convex/schema.ts",
+    "rootPaths": ["convex/features/profiles"]
+  },
+  "frontend": {
+    "slicePath": "slices/profiles",
+    "configExport": "profilesFeature"
+  },
+  "deps": {
+    "npm": ["convex@^1.16.0", "@convex-dev/auth@^0.0.92", "sonner@^1.7.1"],
+    "shadcn": ["button", "card", "empty", "input", "label", "skeleton"],
+    "env": [],
+    "peers": []
+  },
+  "registers": ["registry"],
+  "audit": ["bp:public-fn-validator"],
+  "license": "MIT",
+  "tags": ["profiles", "identity", "convex", "username", "settings"],
+  "contract": {
+    "requires": {
+      "auth": "convex",
+      "convex": {
+        "tables": ["profiles", "users", "courseCompletions", "courses", "tenants"]
+      }
+    },
+    "provides": {
+      "routes": ["/pengaturan/profil", "/u/[username]", "/sertifikat/[completionId]"],
+      "tables": ["profiles"],
+      "components": [
+        "ProfileSettingsView",
+        "ProfileSettingsForm",
+        "PublicProfileView",
+        "PublicProfileCard",
+        "BadgeWall",
+        "ProfileAvatar",
+        "CertificateView",
+        "CertificateCard"
+      ],
+      "hooks": [
+        "useCurrentProfile",
+        "useEnsureProfile",
+        "useEnsureProfileOnFirstLogin",
+        "useUpdateProfile",
+        "useCheckUsername",
+        "usePublicProfile",
+        "useCertificate"
+      ],
+      "helpers": [
+        "normalizeUsername",
+        "isValidUsername",
+        "profileErrorCode"
+      ],
+      "convexFunctions": [
+        "features/profiles/queries:getCurrentProfile",
+        "features/profiles/queries:checkUsername",
+        "features/profiles/mutations:ensureProfile",
+        "features/profiles/mutations:updateProfile",
+        "features/profiles/public:publicGetByUsername",
+        "features/profiles/public:publicListBadges",
+        "features/profiles/public:publicGetCertificate"
+      ]
+    },
+    "generalization": {
+      "level": "consumer",
+      "notes": "Copy is props-driven (ProfileLabels); defaults are Bahasa Indonesia per AGENTS.md §7."
+    }
+  }
+}

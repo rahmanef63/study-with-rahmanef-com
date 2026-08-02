@@ -1,0 +1,26 @@
+feat(v1.2): comments, analytics, suggestion votes, e2e smoke (wave v1.2)
+
+Wave v1.2 (fase-2 opening) reviewed and integrated by alpha; verified
+tsc 0 errors + vitest 333/333 (47 files, +55 new specs).
+
+- comments (#16, Agent: beta): per-lesson discussion — depth-1 replies,
+  soft delete with placeholder shape (bodyMd/author null, type-asserted),
+  authz-before-read, per-lesson anti-spam cap, LessonComments view.
+- analytics (#17, Agent: gamma): instructor course analytics — derived
+  aggregates over shared tables (bounded takes), CourseAnalyticsView.
+- suggestion votes (#18, Agent: epsilon): idempotent toggleVote via
+  by_suggestion_user, derived {voteCount,myVote} on suggestion lists,
+  vote-sorted boards, SuggestionVoteButton (already wired in the view).
+- e2e (#13, Agent: zeta): anon Playwright smoke over OS-shell deep-links
+  (6 specs), auth storageState skeleton, README; FOUND a real defect:
+  komunitas-app reads payload.tenantSlug but deep-links deliver
+  payload.path (spec annotated test.fail) + kelola anon endless-skeleton
+  gap — both tracked as alpha follow-up STATUS #20.
+- package.json: e2e scripts; STATUS board rows 13/16/17/18 done, new #20.
+
+Integrator review notes: multiple worker files re-materialized from the
+Windows-side truth (mount staleness, incl. silently-stale projections.ts
+and test.helpers.ts); AnyApi-era type casts added in specs only.
+
+Agent: alpha (review+integration) — work by beta/gamma/epsilon/zeta as above
+Co-Authored-By: Claude <noreply@anthropic.com>

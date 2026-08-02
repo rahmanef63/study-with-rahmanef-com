@@ -1,0 +1,43 @@
+// tenants slice — Convex function references (one place to update if the
+// convex/features/tenants layout ever moves). Consumers (pages, other slices)
+// use these for preloadQuery/useQuery instead of hand-writing paths.
+import { api } from "@convex/_generated/api";
+import { makeFunctionReference } from "convex/server";
+import type { MyCommunity } from "./types";
+
+export const tenantsApi = {
+  /** query — public: safe tenant by slug or null (inactive = null). */
+  getPublicBySlug: api.features.tenants.queries.getPublicBySlug,
+  /** query — public: active communities for the landing etalase. */
+  listActive: api.features.tenants.queries.listActive,
+  /** query — owner: manage view (hasDiscordWebhook flag, never the URL). */
+  getManageView: api.features.tenants.queries.getManageView,
+  /** query — authed: caller's membership in a tenant or null. */
+  getMyMembership: api.features.tenants.members.getMyMembership,
+  /** query — authed: communities the caller belongs to ("Komunitas saya").
+   *  Hand-referenced so the typed `api` stays valid before the next codegen;
+   *  the pre-push convex deploy publishes the function. */
+  listMine: makeFunctionReference<"query", Record<string, never>, MyCommunity[]>(
+    "features/tenants/queries:listMine"
+  ),
+  /** query — member: bounded member roster with profile info. */
+  listMembers: api.features.tenants.members.listMembers,
+  /** mutation — authed: idempotent join as member. */
+  join: api.features.tenants.mutations.join,
+  /** mutation — owner: edit profile ("" clears optional fields). */
+  updateProfile: api.features.tenants.mutations.updateProfile,
+  /** mutation — owner: member ↔ instructor (R13 data layer). */
+  setMemberRole: api.features.tenants.mutations.setMemberRole,
+
+  // #6 (v1.1) — community request + platform-admin approval queue.
+  /** mutation — authed: request a new community (created `pending`). */
+  requestTenant: api.features.tenants.requests.requestTenant,
+  /** query — platform admin: pending community requests queue. */
+  listPending: api.features.tenants.admin.listPending,
+  /** mutation — platform admin: approve a pending request (→ active). */
+  approve: api.features.tenants.admin.approve,
+  /** mutation — platform admin: reject a pending request (→ suspended). */
+  reject: api.features.tenants.admin.reject,
+  /** query — authed: whether the caller is a platform admin (UX gate only). */
+  getMyPlatformAdmin: api.features.tenants.admin.getMyPlatformAdmin,
+};

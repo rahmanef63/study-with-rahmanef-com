@@ -1,0 +1,30 @@
+{
+  "$schema": "../../docs/slice.manifest.schema.json",
+  "name": "roadmap",
+  "version": "0.3.0",
+  "description": "CourseNav rail — the compact secondary-sidebar syllabus nav (modules→lessons + per-lesson completion) shown beside the Kelas lesson sheet, derived client-side from the courses + progress slices. No new tables/convex, no routes.",
+  "category": "lms",
+  "stability": "beta",
+  "deps": {
+    "shared": ["features/defineFeature"],
+    "slices": ["courses", "progress"],
+    "convexFeatures": [],
+    "npm": {},
+    "env": []
+  },
+  "files": {
+    "include": ["**/*"],
+    "exclude": ["__tests__/**", "*.test.ts", "*.test.tsx"]
+  },
+  "convexFiles": { "include": [], "exclude": [] },
+  "permissions": [],
+  "schemaTables": [],
+  "compatibility": {
+    "next": ">=15 <17",
+    "react": "^19",
+    "convex": "^1.16",
+    "tailwind": "4",
+    "auth": "convex-auth"
+  },
+  "notes": "0.3.0 (2026-07-10): REMOVED the Silabus⇄Roadmap toggle + the CourseRoadmap 'quest trail' view + RoadmapNode — they were a SECOND presentation of the same modules→lessons+completion data as the Silabus overview (DRY). The slice now exports only CourseNav, slimmed to a single flat nav rail (its density toggle dropped). Import path @/features/roadmap kept for stability; a future rename to a course-nav slice is the only remaining cosmetic debt. 0.2.0/0.1.0 (2026-07-08): ported the roadmap VISUAL from CareerPack skill-roadmap and rebuilt it as a quest trail + CourseNav rail on this app's courses/progress queries (now superseded). Reads the courses + progress BARRELS only (P1)."
+}

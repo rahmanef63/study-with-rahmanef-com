@@ -1,0 +1,169 @@
+{
+  "$schema": "https://resource.rahmanef.com/slice-schema.json",
+  "slug": "convex-auth",
+  "version": "0.4.0",
+  "category": "auth",
+  "title": "Convex Auth \u2014 Multi-Provider Sign-in",
+  "description": "@convex-dev/auth with Password (PBKDF2-SHA256 100k, self-hosted-friendly), Anonymous (guest), Google OAuth, and Resend magic-link. Ships a production SignInPage plus a presentational, props-driven AuthCard (v0.3) \u2014 pick methods (google, github, magic-link, password signin/signup, phone OTP, anonymous) and render the card anywhere; handlers default to a mock so it works with zero wiring. i18n via labels. No Clerk.",
+  "namespace": "@/features/convex-auth",
+  "convex": {
+    "tablesExport": "authTablesExt",
+    "schemaPath": "convex/features/auth/_schema.ts",
+    "rootPaths": [
+      "convex/features/auth"
+    ]
+  },
+  "frontend": {
+    "slicePath": "frontend/slices/convex-auth",
+    "configExport": "convexAuthConfig"
+  },
+  "deps": {
+    "npm": [
+      "@convex-dev/auth@^0.0.92",
+      "@auth/core@^0.37.4",
+      "resend@^4.0.0"
+    ],
+    "shadcn": [
+      "button",
+      "card",
+      "input",
+      "label",
+      "tabs",
+      "alert",
+      "input-otp"
+    ],
+    "env": [
+      {
+        "name": "AUTH_RESEND_KEY",
+        "scope": "convex",
+        "description": "Resend API key for magic-link sender. Optional if only Password / Google / Anonymous used."
+      },
+      {
+        "name": "JWT_PRIVATE_KEY",
+        "scope": "convex",
+        "description": "Auth signing key. Self-hosted: also push via REST update_environment_variables."
+      },
+      {
+        "name": "JWKS",
+        "scope": "convex",
+        "description": "Public JWKS, generated alongside JWT_PRIVATE_KEY."
+      },
+      {
+        "name": "SITE_URL",
+        "scope": "convex",
+        "description": "Public site origin for magic-link callback."
+      },
+      {
+        "name": "AUTH_GOOGLE_ID",
+        "scope": "convex",
+        "description": "Google OAuth client ID. Required only when Google provider enabled."
+      },
+      {
+        "name": "AUTH_GOOGLE_SECRET",
+        "scope": "convex",
+        "description": "Google OAuth client secret."
+      }
+    ],
+    "peers": []
+  },
+  "registers": [
+    "registry"
+  ],
+  "audit": [
+    "bp:public-fn-validator"
+  ],
+  "license": "MIT",
+  "tags": [
+    "auth",
+    "convex",
+    "password",
+    "magic-link",
+    "google",
+    "anonymous",
+    "no-clerk",
+    "pbkdf2"
+  ],
+  "previews": [
+    {
+      "component": "AuthCard",
+      "kind": "variants",
+      "axes": [
+        {
+          "prop": "methods",
+          "values": [
+            "password-google",
+            "magic-link",
+            "all"
+          ],
+          "default": "password-google",
+          "description": "Which sign-in methods render (maps to the AuthCard `methods` prop set)."
+        },
+        {
+          "prop": "defaultPasswordMode",
+          "values": [
+            "signin",
+            "signup"
+          ],
+          "default": "signin",
+          "description": "Initial password-block tab (AuthCard `defaultPasswordMode`)."
+        }
+      ],
+      "seed": "props-only AuthCard; mock handlers resolve { ok: true }, nothing persists"
+    }
+  ],
+  "contract": {
+    "requires": {
+      "auth": "convex",
+      "rbac": [
+        "auth.sign-in",
+        "auth.sign-out",
+        "auth.manage-account"
+      ],
+      "env": [
+        "JWT_PRIVATE_KEY",
+        "JWKS",
+        "SITE_URL",
+        "AUTH_RESEND_KEY",
+        "AUTH_GOOGLE_ID",
+        "AUTH_GOOGLE_SECRET"
+      ],
+      "convex": {
+        "prefix": "auth_",
+        "tables": [
+          "auth_users",
+          "auth_accounts",
+          "auth_sessions",
+          "auth_verifiers"
+        ]
+      }
+    },
+    "provides": {
+      "tools": [
+        "convex-auth.configure"
+      ],
+      "routes": [
+        "/sign-in"
+      ],
+      "tables": [
+        "auth_users",
+        "auth_accounts",
+        "auth_sessions",
+        "auth_verifiers"
+      ],
+      "components": [
+        "SignInPage"
+      ],
+      "hooks": [
+        "useAuthFlow"
+      ],
+      "helpers": [
+        "extractAuthError",
+        "validatePassword",
+        "looksLikeAutofillBug"
+      ]
+    },
+    "generalization": {
+      "level": "portable"
+    }
+  }
+}

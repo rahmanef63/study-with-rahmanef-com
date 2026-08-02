@@ -1,0 +1,44 @@
+{
+  "$schema": "../../docs/slice.manifest.schema.json",
+  "name": "progress",
+  "version": "0.1.0",
+  "description": "Self-paced progress: idempotent markLessonComplete, derived-count progress reads, and idempotent courseCompletion (badge) on the final lesson. userId from ctx never args (P0). Fills the courses barrel seams; no routes of its own.",
+  "category": "lms",
+  "stability": "beta",
+  "deps": {
+    "shared": ["features/defineFeature"],
+    "slices": [],
+    "convexFeatures": ["progress"],
+    "npm": {},
+    "env": []
+  },
+  "files": {
+    "include": ["**/*"],
+    "exclude": ["__tests__/**", "*.test.ts", "*.test.tsx"]
+  },
+  "convexFiles": {
+    "include": ["**/*.ts"],
+    "exclude": ["*.test.ts", "test.helpers.ts"]
+  },
+  "permissions": ["progress.read", "progress.write"],
+  "schemaTables": [
+    {
+      "name": "lessonCompletions",
+      "namespaced": false,
+      "indexes": ["by_user_lesson", "by_user_course", "by_course"]
+    },
+    {
+      "name": "courseCompletions",
+      "namespaced": false,
+      "indexes": ["by_user", "by_user_course"]
+    }
+  ],
+  "compatibility": {
+    "next": ">=15 <17",
+    "react": "^19",
+    "convex": "^1.16",
+    "tailwind": "4",
+    "auth": "convex-auth"
+  },
+  "notes": "0.1.0 (2026-07-06, agent epsilon): v1 scope of STATUS row #3 (after #2 courses barrel review). Owns lessonCompletions + courseCompletions; READS the shared lessons/courses tables directly (progress derivation is the DATA-MODEL's own design) and never imports the courses feature. Instructor-facing completion aggregates ('agregat: instructor+') deferred — proposed for a later row."
+}

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://resource.rahmanef.com/slice-schema.json",
+  "slug": "notifications",
+  "version": "0.1.0",
+  "category": "community",
+  "kind": "fullstack",
+  "title": "Notifications — inbox in-app",
+  "description": "In-app notification inbox (wave v1.3, STATUS #21) for belajar-with-rahmanef.com. Per-user rows (kind: comment_reply | resource_reviewed | suggestion_status) written ONLY through the internal producer target notifications:create, scheduled fire-and-forget from source features (producer #1: comments addComment reply → parent author; never for self-replies — P0, tested). Recipients read/mark exclusively their own rows (userId from ctx, by_user_read index; other users' rows answer NOT_FOUND). listMine is unread-first + bounded; unreadCount capped for the badge. UI: NotificationBell (unread badge + popover) and NotificationInbox (mark read on click, mark-all-read), deep-linking via the onNavigate seam. Pattern: rr `notifications-center` (bell + popover) adapted onto our Convex hooks.",
+  "namespace": "@/features/notifications",
+  "convex": {
+    "tablesExport": "",
+    "schemaPath": "convex/schema.ts",
+    "rootPaths": ["convex/features/notifications"]
+  },
+  "frontend": { "slicePath": "slices/notifications", "configExport": "notificationsFeature" },
+  "deps": {
+    "npm": ["convex", "sonner", "lucide-react"],
+    "shadcn": ["button", "popover", "scroll-area", "separator", "skeleton"],
+    "env": [],
+    "peers": []
+  },
+  "contract": {
+    "barrel": {
+      "views": ["NotificationBell", "NotificationInbox"],
+      "components": ["NotificationRow", "NotificationsEmptyState"],
+      "hooks": ["useNotifications", "useUnreadCount", "useMarkRead", "useMarkAllRead"],
+      "lib": ["formatRelativeTime", "notificationsErrorMessage", "extractNotificationsError"],
+      "consumerSeams": {
+        "os-shell": [
+          "shell header (signed-in) ← <NotificationBell onNavigate={openDeepLink} />"
+        ]
+      }
+    },
+    "convexFunctions": {
+      "member": [
+        "features/notifications/notifications:markRead",
+        "features/notifications/notifications:markAllRead",
+        "features/notifications/queries:listMine",
+        "features/notifications/queries:unreadCount"
+      ],
+      "instructor": []
+    }
+  },
+  "registers": [],
+  "license": "MIT",
+  "tags": ["community", "notifications", "inbox", "bell", "multi-tenant"],
+  "providers": []
+}

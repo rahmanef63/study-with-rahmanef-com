@@ -1,0 +1,22 @@
+test(e2e): terapkan 2 proposal vps pasca-deploy v1.4 (spec 8 + handle profil)
+
+Menindaklanjuti laporan vps #30 (docs/reports/vps-2026-07-16.md) — keduanya
+di-ACCEPT alpha:
+
+1. Spec 8 (/sertifikat/<bogus-id>): Convex client SELALU console.error setiap
+   error yang dilempar server, jadi NOT_FOUND yang by-design pada id ngawur
+   pasti tercatat saat lari lawan backend nyata — asersi zero-console-error
+   tak pernah lulus padahal UI benar (copy not-found tampil, nol crash).
+   Fix: filter HANYA error NOT_FOUND/"Sertifikat tidak ditemukan" yang
+   diharapkan pada spec itu; error lain tetap menggagalkan spec. Allowlist
+   global TIDAK dilonggarkan.
+
+2. Default E2E_USERNAME "rahman" -> "abdurrahman-fakhrul" (handle nyata di
+   prod). Spec 5 kini menguji branch KUAT badge-wall alih-alih fail-soft
+   not-found. Tetap bisa dioverride via env.
+
+Post-review §4 hotfix vps 54280bf (regen typed api + drop env export
+artifact CLI 1.42.1): diff mekanis murni — ACCEPTED.
+
+Board: #30 done (vps). Sisa SATU-SATUNYA: #12 rotasi AUTH_GOOGLE_SECRET
+(owner, Google Console -> npx convex env set AUTH_GOOGLE_SECRET <val> --prod).

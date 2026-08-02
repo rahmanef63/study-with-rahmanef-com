@@ -1,0 +1,39 @@
+{
+  "$schema": "../../docs/slice.manifest.schema.json",
+  "name": "announcements",
+  "version": "0.1.0",
+  "description": "Tenant announcements (R12): instructor+ create, member list newest-first, and Discord webhook fan-out via an internal action. discordWebhookUrl is read only inside the internal action (never an arg/public return, P0). create schedules the action with ctx.scheduler.runAfter(0). AnnouncementsView mounts at /t/[slug]/pengumuman.",
+  "category": "community",
+  "stability": "beta",
+  "deps": {
+    "shared": ["features/defineFeature"],
+    "slices": [],
+    "convexFeatures": ["announcements"],
+    "npm": {},
+    "env": []
+  },
+  "files": {
+    "include": ["**/*"],
+    "exclude": ["__tests__/**", "*.test.ts", "*.test.tsx"]
+  },
+  "convexFiles": {
+    "include": ["**/*.ts"],
+    "exclude": ["*.test.ts", "test.helpers.ts"]
+  },
+  "permissions": ["announcements.read", "announcements.write"],
+  "schemaTables": [
+    {
+      "name": "announcements",
+      "namespaced": false,
+      "indexes": ["by_tenant"]
+    }
+  ],
+  "compatibility": {
+    "next": ">=15 <17",
+    "react": "^19",
+    "convex": "^1.16",
+    "tailwind": "4",
+    "auth": "convex-auth"
+  },
+  "notes": "0.1.0 (2026-07-06, agent zeta): STATUS row #10 (v1.1). Owns the announcements table (by_tenant). Discord posting is an internal action reading tenants.discordWebhookUrl server-side only; the URL never appears in any public function's args or results. Function refs use makeFunctionReference (convex/_generated regen is integrator-only) — swap to internal.features.announcements.* after alpha runs convex dev/deploy. Full markdown rendering of the body deferred (adapt rr `markdown` read surface later); v1 renders plain text with preserved line breaks (XSS-safe)."
+}

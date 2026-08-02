@@ -1,0 +1,6 @@
+# Recorded auth storage state — live session tokens, NEVER commit.
+.auth/
+
+# Playwright artifacts (outputDir + html reporter point here — playwright.config.ts).
+test-results/
+playwright-report/

@@ -1,0 +1,164 @@
+"use client";
+
+import { useLayoutEffect, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import type { AppDescriptor } from "../lib/types";
+import { AppIcon } from "./app-icon";
+import { Slot } from "../registry/feature-registry";
+import { MobileAppLibrary } from "./mobile-app-library";
+import { AppActionSheet, AppsGrid } from "./mobile-home-parts";
+import { ShellContextMenu, useShellContextMenu } from "./shells/context-menu";
+
+// Paged iPhone home: [Today widgets] · [App grid] · [App Library]. The status
+// clock, dock, page dots and home-indicator persist across pages.
+export function MobileHome({
+  apps,
+  dockApps,
+  inactive = false,
+  onLaunch,
+  onSearch,
+  onControlCenter,
+  onNotifications,
+  indicator,
+}: {
+  apps: AppDescriptor[];
+  dockApps: AppDescriptor[];
+  inactive?: boolean; // an app layer covers the home — pull it from tab/AT order
+  onLaunch: (app: AppDescriptor) => void;
+  onSearch: () => void;
+  onControlCenter: () => void;
+  onNotifications?: () => void;
+  indicator: React.ReactNode;
+}) {
+  const pagerRef = useRef<HTMLDivElement>(null);
+  const [page, setPage] = useState(1); // 0 widgets · 1 apps · 2 library
+  const [ctxApp, setCtxApp] = useState<AppDescriptor | null>(null); // long-press sheet
+  const menu = useShellContextMenu("ios", "mobile"); // home background long-press menu
+
+  // Open on the app grid (the middle page), like iPhone's default home.
+  useLayoutEffect(() => {
+    const el = pagerRef.current;
+    if (el) el.scrollLeft = el.clientWidth;
+  }, []);
+
+  const onScroll = () => {
+    const el = pagerRef.current;
+    if (el) setPage(Math.round(el.scrollLeft / el.clientWidth));
+  };
+
+  // Swipe DOWN from the top safe-area: LEFT half → Notification Center,
+  // RIGHT half → Control Center (iPhone's split gesture).
+  const onTopPointerDown = (e: React.PointerEvent) => {
+    const sy = e.clientY;
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const left = e.clientX - rect.left < rect.width / 2;
+    let fired = false;
+    const cleanup = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", cleanup);
+    };
+    const move = (ev: PointerEvent) => {
+      if (!fired && ev.clientY - sy > 40) {
+        fired = true;
+        cleanup();
+        if (left && onNotifications) onNotifications();
+        else onControlCenter();
+      }
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", cleanup);
+  };
+
+  // Home-background long-press / right-click → the registry menu for this
+  // shell. Native long-press fires contextmenu on touch; app icons keep their
+  // own long-press sheet (the closest() guard skips presses on controls).
+  const onHomeContext = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest("button,a,input")) return;
+    menu.open(e);
+  };
+
+  return (
+    <div className="absolute inset-0 flex flex-col" inert={inactive} aria-hidden={inactive} onContextMenu={onHomeContext}>
+      {/* Top safe-area spacer: reserves the notch / Dynamic-Island zone (a real
+          phone's hardware lives here) and owns the swipe-down gesture →
+          Notification Center (left half) / Control Center (right half).
+          Deliberately empty — no status clock (not useful in a VPS cockpit). */}
+      <div
+        className="shrink-0 [touch-action:none]"
+        style={{ height: "calc(2.25rem + var(--sai-top))" }}
+        onPointerDown={onTopPointerDown}
+      />
+
+      <div
+        ref={pagerRef}
+        onScroll={onScroll}
+        className="flex min-h-0 flex-1 snap-x snap-mandatory overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        <Page active={page === 0}>
+          {/* Own scroller so tall Today widgets scroll (pages 1/2 already do) */}
+          <div className="h-full overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <Slot region="today" />
+          </div>
+        </Page>
+        <Page active={page === 1}>
+          <AppsGrid apps={apps} onLaunch={onLaunch} onSearch={onSearch} onContext={setCtxApp} />
+        </Page>
+        <Page active={page === 2}>
+          <MobileAppLibrary apps={apps} onOpen={onLaunch} />
+        </Page>
+      </div>
+
+      <div className="flex justify-center gap-0.5 pb-1.5 pt-1">
+        {[0, 1, 2].map((i) => (
+          <button
+            key={i}
+            type="button"
+            aria-label={`Go to page ${i + 1}`}
+            aria-current={i === page}
+            onClick={() => pagerRef.current?.scrollTo({ left: i * pagerRef.current.clientWidth, behavior: "smooth" })}
+            className="grid place-items-center p-1.5"
+          >
+            <span className={cn("size-[7px] rounded-full transition-colors", i === page ? "bg-white/90" : "bg-white/40")} />
+          </button>
+        ))}
+      </div>
+
+      {dockApps.length > 0 && (
+        <div
+          className="glass mx-3 mb-3.5 flex justify-around rounded-[30px] border border-white/15 px-3.5 py-3"
+          style={{ background: "var(--glass-bar)", boxShadow: "inset 0 0.5px 0 var(--glass-hi), 0 12px 34px rgba(0,0,0,0.30)" }}
+        >
+          {dockApps.map((app) => (
+            <Button key={app.id} type="button" variant="ghost" size="icon" aria-label={app.title} onClick={() => onLaunch(app)} className="h-auto w-auto hover:bg-transparent size-[60px] p-0">
+              <AppIcon app={app} />
+            </Button>
+          ))}
+        </div>
+      )}
+
+      {indicator}
+
+      {ctxApp && (
+        <AppActionSheet
+          app={ctxApp}
+          onOpen={() => { setCtxApp(null); onLaunch(ctxApp); }}
+          onClose={() => setCtxApp(null)}
+        />
+      )}
+
+      <ShellContextMenu state={menu.state} onClose={menu.close} />
+    </div>
+  );
+}
+
+// Off-canvas pages sit at ±100vw but would otherwise stay in tab/AT order —
+// inert pulls them out; the swipe still works because the scroll gesture
+// belongs to the pager container, not the (inert) page content.
+function Page({ active, children }: { active: boolean; children: React.ReactNode }) {
+  return (
+    <section inert={!active} aria-hidden={!active} className="h-full w-full shrink-0 snap-center overflow-hidden">
+      {children}
+    </section>
+  );
+}

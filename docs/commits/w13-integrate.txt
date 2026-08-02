@@ -1,0 +1,57 @@
+feat(v1.3): notifications inbox + producers, tenant search, public certificate, e2e hardening (#21-#25)
+
+Wave v1.3 — 5 worker paralel, direview & diverifikasi alpha
+(tsc --noEmit bersih; vitest 401/401 hijau, 58 file — naik dari 336).
+
+beta #21 — slices/notifications + convex/features/notifications:
+- internal mutation `create` (validators; title trim; href relative-only —
+  open-redirect guard), queries listMine/unreadCount (requireUser, by_user_read,
+  bounded take), markRead/markAllRead (own-rows-only: foreign row -> NOT_FOUND
+  tanpa existence oracle; idempoten).
+- Producer comment_reply di convex/features/comments (notify.ts):
+  scheduler.runAfter(0, internal...create); self-reply TIDAK pernah notif (P0,
+  tested); deep-link /kelas/<tenant>/<course>/lesson/<id>; fallback "Seseorang"
+  tanpa bocor email.
+- UI barrel: NotificationBell + NotificationInbox (mount = row #27).
+
+epsilon #22 — convex/features/resources producers:
+- resources.curate -> resource_reviewed; suggestions.setStatus ->
+  suggestion_status; keduanya via scheduleNotify (guard aktor==submitter,
+  tested); re-set status sama = idempoten, tanpa spam. Versi slice 0.2.1.
+
+gamma #23 — slices/search + convex/features/search:
+- searchInTenant: requireTenantRole(member) first; q 2..60; courses
+  search_title (published, take 10) + lessons search_content (take 15) dengan
+  draft/archived-guard per lesson hit; proyeksi eksplisit {kind,title,
+  courseSlug,lessonId?,snippet?} — snippet plain-text <=121 char; 12 spec
+  (authz-denied, cross-tenant, bounded, shape exact).
+- SearchView dengan seam onNavigate (mount = row #27).
+
+delta #24 — profiles sertifikat publik:
+- publicGetCertificate (etalase §6, whitelist header diperbarui): normalizeId
+  string arg; NOT_FOUND seragam utk semua kasus invalid; hanya course
+  published + tenant active + profile ada; proyeksi 5 kunci tanpa id apa pun.
+- publicListBadges +completionId (satu-satunya id yang disahkan — handle
+  sertifikat); key set di-assert. CertificateView/Card + useCertificate +
+  labels ID. Mount /sertifikat/<completionId> = row #27.
+
+zeta #25 — e2e hardening:
+- Spec 2 test.fail DIHAPUS (fix komunitas-app 5e805af terbukti); spec 6
+  di-tighten ke gate "Masuk untuk mengelola"; spec 7 lesson anon; spec 8
+  /sertifikat bogus-id (test.fixme nunggu mount #27); spec 9 usulan anon —
+  TEMUAN: resources-app tanpa anon branch (crash ke app/error.tsx), gate
+  masuk row #27.
+
+alpha — integrasi & perbaikan:
+- convex/seedWebDev.ts: kurikulum "Bikin Aplikasi Web dengan AI — dari Nol
+  sampai Live" (6 modul / 14 lesson / 4 kuis: HTML-CSS-JS, context
+  engineering, harness engineering, React, Next.js, Convex, deploy
+  Vercel/Netlify) — idempoten per slug kelas.
+- Perbaikan type-noise AnyApi sisa v1.2 yang tak pernah masuk repo:
+  aggregates.test.ts + comments/queries.test.ts (anotasi (x: any)) +
+  comments.test.ts (Id<"comments"> pin) — kini dikommit benar.
+- STATUS: #21-#25 done; row #27 baru (mounting bell/inbox + SearchView +
+  /sertifikat + anon-gate resources-app; pola #20 — tidak memblokir #26);
+  drift log entri staleness wave v1.3.
+
+Wave berikutnya: vps #26 (deploy Cloud + smoke) -> alpha #27 (mounting UI).

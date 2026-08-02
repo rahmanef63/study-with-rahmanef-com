@@ -1,0 +1,61 @@
+{
+  "$schema": "https://resource.rahmanef.com/slice-schema.json",
+  "slug": "quiz",
+  "version": "0.1.0",
+  "category": "lms",
+  "kind": "fullstack",
+  "title": "Quiz — MCQ builder + attempt + auto-grade",
+  "description": "One MCQ quiz per module. Instructors author questions (2–6 options, one correct key, optional explanation, passing score %); members take it and are graded SERVER-SIDE. Correct answers and explanations never reach the client before submit — the taking query strips them and re-projects to { prompt, options }. Draft-course quizzes are invisible to plain members. Built for belajar-with-rahmanef.com R6 (docs/PRD.md), STATUS row #8.",
+  "namespace": "@/features/quiz",
+  "convex": {
+    "tablesExport": "",
+    "schemaPath": "convex/schema.ts",
+    "rootPaths": ["convex/features/quiz"]
+  },
+  "frontend": { "slicePath": "slices/quiz", "configExport": "quizFeature" },
+  "deps": {
+    "npm": [],
+    "shadcn": ["alert-dialog", "button", "card", "input", "label", "skeleton"],
+    "env": [],
+    "peers": []
+  },
+  "contract": {
+    "barrel": {
+      "components": [
+        "QuizResultCard",
+        "QuizQuestionCard",
+        "QuizQuestionEditor",
+        "QuizBuilderForm"
+      ],
+      "views": ["QuizBuilderView", "QuizTakeView"],
+      "hooks": [
+        "useQuizForTaking",
+        "useQuizForManage",
+        "useMyAttempts",
+        "useQuizBuilderMutations",
+        "useSubmitAttempt"
+      ],
+      "lib": ["quizErrorMessage", "extractQuizError"],
+      "consumerSeams": {
+        "integrator#8": ["QuizBuilderView", "QuizTakeView", "QuizResultCard"]
+      }
+    },
+    "convexFunctions": {
+      "public": [
+        "features/quiz/taking:getQuizForTaking",
+        "features/quiz/taking:listMyAttempts",
+        "features/quiz/attempts:submitAttempt"
+      ],
+      "instructorPlus": [
+        "features/quiz/manage:getForManage",
+        "features/quiz/builder:createQuiz",
+        "features/quiz/builder:updateQuiz",
+        "features/quiz/builder:deleteQuiz"
+      ]
+    }
+  },
+  "registers": [],
+  "license": "MIT",
+  "tags": ["lms", "quiz", "mcq", "assessment", "multi-tenant"],
+  "providers": []
+}
