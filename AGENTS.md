@@ -84,7 +84,7 @@ Quality gate: `audit-bp` score ≥80 to ship (pulls latest Next 16 / React 19 / 
 1. `npx tsc --noEmit` green.
 2. `convex-test` for every mutation/query **including the authz-denied path** (unauthenticated + wrong-role callers rejected) — P0.
 3. Barrel API test (the contract consumers rely on).
-4. Slice metadata pair present, versions in sync (`audit:slices`); no file >200 LOC (`audit:file-size`).
+4. Slice metadata pair present, versions in sync (`audit:slices`); no non-test file >200 LOC (`audit:file-size`); `*.test.ts` is exempt — a thorough spec file is not the debt this rule exists to prevent.
 5. No cross-slice imports except barrels; no hardcoded URLs/copy (props-driven).
 6. `audit-bp` ≥80 where the tooling exists.
 7. `docs/STATUS.md` row updated to `review` (or `done` after integrator merge) with the branch + last commit hash.
@@ -92,7 +92,7 @@ Quality gate: `audit-bp` score ≥80 to ship (pulls latest Next 16 / React 19 / 
 ## 6. Security P0s (absolute — stop and report if your task conflicts)
 
 - `v.*` validators on **every** public Convex function; authz helper (`requireUser` / `requireTenantRole` / `requirePlatformAdmin` from `convex/_shared/auth.ts`) is the **first line** of every handler. Route/layout guards are UX, not security.
-- **Anonymous public-read exception (etalase).** A QUERY may skip the authz helper ONLY if ALL of these hold: (1) its name starts with `public` OR it is declared in an `ANONYMOUS ETALASE WHITELIST` comment at the top of the slice's queries file (auditable either way); (2) it reads exclusively `active`/`published` rows through an index; (3) it returns an explicit safe projection — never raw docs, never `discordWebhookUrl`, drafts, member lists, quiz answers, or user data beyond public-profile fields. Serves PRD R2/R3 (landing & etalase). Mutations and internal lookups NEVER qualify — a protected by-ID read authenticates BEFORE touching the DB.
+- **Anonymous public-read exception (etalase).** A QUERY may skip the authz helper ONLY if ALL of these hold: (1) its name starts with `public` OR it is declared in an `ANONYMOUS ETALASE WHITELIST` comment at the top of the slice's queries file (auditable either way); (2) it reads exclusively `active`/`published` rows **through an index — or, for a permalink, a by-id `get` that re-checks every status the index range would have enforced BEFORE projecting**; (3) it returns an explicit safe projection — never raw docs, never `discordWebhookUrl`, drafts, member lists, quiz answers, or user data beyond public-profile fields. Serves PRD R2/R3 (landing & etalase). Mutations and internal lookups NEVER qualify — a protected by-ID read authenticates BEFORE touching the DB.
 - Secrets never reach the client: no sensitive `NEXT_PUBLIC_*`; `tenants.discordWebhookUrl` never appears in any query result (Discord posting via internal action only); `quizzes.questions[].correctIndex`/`explanation` stripped from all public reads — grading is server-side.
 - Every `'use server'` export authenticates AND authorizes.
 - No bare `.collect()` — `.withIndex(...)` + `.take(n)`/pagination (bounded-table exception needs a `// TODO(rr): bounded table` marker).

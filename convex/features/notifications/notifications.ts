@@ -21,10 +21,14 @@ export const create = internalMutation({
   args: {
     userId: v.id("users"), // recipient
     tenantId: v.id("tenants"),
+    // v1.8 (#29/#31): + post_reply, event_soon. resource_reviewed /
+    // suggestion_status stay declared (retired-but-retained prod rows).
     kind: v.union(
       v.literal("comment_reply"),
       v.literal("resource_reviewed"),
-      v.literal("suggestion_status")
+      v.literal("suggestion_status"),
+      v.literal("post_reply"),
+      v.literal("event_soon")
     ),
     title: v.string(),
     body: v.optional(v.string()),

@@ -38,6 +38,14 @@ erDiagram
   users ||--o{ suggestions : "submits"
   tenants ||--o{ announcements : "posts"
   users ||--o{ announcements : "authors"
+  tenants ||--o{ posts : "feeds"
+  users ||--o{ posts : "authors"
+  posts ||--o{ postLikes : "liked by"
+  users ||--o{ postLikes : "likes"
+  posts ||--o{ comments : "replies"
+  lessons ||--o{ comments : "replies"
+  tenants ||--o{ events : "schedules"
+  users ||--o{ events : "creates"
 
   users {
     string authFields "from @convex-dev/auth"
@@ -58,6 +66,37 @@ erDiagram
     id tenantId FK
     id userId FK
     string role "owner / instructor / member"
+    number points "optional — level DERIVED"
+  }
+  posts {
+    id tenantId FK
+    id authorId FK
+    string kind "diskusi / pengumuman / usulan / sumber"
+    bool pinned
+    number lastActivityAt
+    number likeCount "DENORMALISED counter"
+    number commentCount "DENORMALISED counter"
+    number deletedAt "optional — soft delete"
+  }
+  postLikes {
+    id tenantId FK
+    id postId FK
+    id userId FK
+  }
+  comments {
+    id tenantId FK
+    id lessonId FK "optional — XOR postId"
+    id postId FK "optional — XOR lessonId"
+    id userId FK
+    id parentId FK "optional — depth 1"
+  }
+  events {
+    id tenantId FK
+    number startsAt
+    number endsAt "optional"
+    string locationUrl "optional — link only"
+    id createdBy FK
+    number canceledAt "optional — soft cancel"
   }
   courses {
     id tenantId FK
@@ -185,10 +224,12 @@ export default defineSchema({
     tenantId: v.id("tenants"),
     userId: v.id("users"),
     role: v.union(v.literal("owner"), v.literal("instructor"), v.literal("member")),
+    points: v.optional(v.number()),  // v1.8 (#30) — LEVEL DIDERIVASI, tak pernah disimpan
   })
     .index("by_tenant", ["tenantId"])
     .index("by_user", ["userId"])
-    .index("by_tenant_user", ["tenantId", "userId"]),
+    .index("by_tenant_user", ["tenantId", "userId"])
+    .index("by_tenant_points", ["tenantId", "points"]), // papan peringkat
 
   courses: defineTable({
     tenantId: v.id("tenants"),
@@ -288,17 +329,69 @@ export default defineSchema({
   }).index("by_tenant_status", ["tenantId", "status"]),
 
   comments: defineTable({
-    // fase-2 (#16): diskusi per lesson, reply 1-level (root -> replies).
+    // fase-2 (#16): reply 1-level (root -> replies).
+    // v1.8 (#29): target ganda — lessonId ATAU postId, tepat satu yang terisi
+    // (dijaga di mutation). Dual optional FK dipilih di atas polymorphic
+    // targetKind+targetId:v.string() supaya type-safety Id<> tetap utuh.
+    // Baris komentar lesson lama TETAP VALID — tanpa migrasi data.
     tenantId: v.id("tenants"),
-    lessonId: v.id("lessons"),
+    lessonId: v.optional(v.id("lessons")),
+    postId: v.optional(v.id("posts")),
     userId: v.id("users"),
     bodyMd: v.string(),
     parentId: v.optional(v.id("comments")),
     deletedAt: v.optional(v.number()),
   })
     .index("by_lesson", ["lessonId"])
+    .index("by_post", ["postId"])
     .index("by_parent", ["parentId"])
+    .index("by_user", ["userId"])
+    .index("by_lesson_user", ["lessonId", "userId"])   // anti-spam per user per lesson
+    .index("by_post_user", ["postId", "userId"]),      // anti-spam per user per post
+
+  posts: defineTable({               // v1.8 (#29/#33) — feed Diskusi
+    tenantId: v.id("tenants"),
+    authorId: v.id("users"),
+    kind: v.union(
+      v.literal("diskusi"),
+      v.literal("pengumuman"),       // instructor+ saja, dijaga di mutation
+      v.literal("usulan"),
+      v.literal("sumber"),
+    ),
+    title: v.string(),
+    bodyMd: v.string(),
+    linkUrl: v.optional(v.string()),        // post "sumber": tautan eksternal terkurasi
+    youtubeVideoId: v.optional(v.string()), // 11 char, bukan URL penuh (mengikuti lessons)
+    pinned: v.boolean(),
+    lastActivityAt: v.number(),      // di-bump saat ada komentar/like; feed diurutkan di sini
+    likeCount: v.number(),           // COUNTER TERSIMPAN — lihat Derivasi & invarian
+    commentCount: v.number(),        // COUNTER TERSIMPAN
+    deletedAt: v.optional(v.number()),
+  })
+    .index("by_tenant_pinned_activity", ["tenantId", "pinned", "lastActivityAt"])
+    .index("by_tenant_kind", ["tenantId", "kind"])
+    .index("by_author", ["authorId"])
+    .searchIndex("search_title", { searchField: "title", filterFields: ["tenantId"] }),
+
+  postLikes: defineTable({           // v1.8 (#30) — generalisasi suggestionVotes
+    tenantId: v.id("tenants"),
+    userId: v.id("users"),
+    postId: v.id("posts"),
+  })
+    .index("by_post", ["postId"])
+    .index("by_post_user", ["postId", "userId"])
     .index("by_user", ["userId"]),
+
+  events: defineTable({              // v1.8 (#31) — Kalender, BARIS DISKRIT SAJA
+    tenantId: v.id("tenants"),
+    title: v.string(),
+    description: v.optional(v.string()),
+    startsAt: v.number(),            // epoch ms UTC
+    endsAt: v.optional(v.number()),
+    locationUrl: v.optional(v.string()), // link Discord/YouTube; TANPA alamat fisik
+    createdBy: v.id("users"),
+    canceledAt: v.optional(v.number()),  // soft cancel
+  }).index("by_tenant_start", ["tenantId", "startsAt"]),
 
   suggestionVotes: defineTable({
     // fase-2 (#18): satu vote per user per usulan; count DIHITUNG, tidak disimpan.
@@ -320,7 +413,13 @@ export default defineSchema({
 });
 ```
 
-13 tabel domain (+ `siteSettings` singleton config bawaan starter, di luar hitungan domain). v1 memakai: profiles, tenants, memberships, courses, modules, lessons, lessonCompletions, courseCompletions. Sisanya v1.1 — tetap dideklarasikan sejak awal agar tidak ada migrasi.
+16 tabel domain + `notifications` (+ `siteSettings` singleton config bawaan starter, di luar hitungan domain). v1 memakai: profiles, tenants, memberships, courses, modules, lessons, lessonCompletions, courseCompletions. Sisanya v1.1/v1.8 — tetap dideklarasikan sejak awal agar tidak ada migrasi.
+
+> **Layout file (v1.8).** Definisi tabel dipecah ke `convex/_tables/{identity,learning,community,boards}.ts`
+> supaya tidak ada file yang menembus plafon 200 LOC. `convex/schema.ts` tinggal titik komposisi
+> (satu-satunya pemanggil `defineSchema`) dan tetap `export default` schema — semua `import schema from "../../schema"`
+> di test tidak berubah. Prefix `_` mengikuti konvensi `_shared/`: modul ini mengekspor definisi tabel,
+> bukan query/mutation.
 
 ## Authz & helper (convex/_shared/auth.ts)
 
@@ -343,8 +442,12 @@ Kontrak P0 untuk **setiap** query/mutation publik: (1) `args` dengan validator `
 | quizAttempts | user sendiri | user sendiri; penilaian server-side |
 | resources/suggestions | approved/open: member; pending: instructor+ & pengusul | submit: member; kurasi: instructor+ |
 | announcements | member tenant | instructor+ |
-| comments (fase-2 #16) | member tenant (lesson yang bisa ia akses); deleted → placeholder | tulis: member; soft-delete: author atau instructor+ |
+| comments (fase-2 #16, v1.8 #29) | member tenant (lesson/post yang bisa ia akses); deleted → placeholder | tulis: member; soft-delete: author atau instructor+ |
 | suggestionVotes (fase-2 #18) | count agregat: member tenant | toggle: user sendiri (unik via by_suggestion_user) |
+| posts (v1.8 #29/#33) | **anonim** (proyeksi aman `toPublicPost`, tenant `active`, `deletedAt` disembunyikan) — DECISIONS #29 mewajibkan permalink yang bisa di-index, dan DECISIONS mengungguli dokumen ini (AGENTS.md §1). Menulis balasan/like tetap member | tulis: member (cap harian per user WAJIB); `kind: "pengumuman"` & `pinned`: instructor+; edit/soft-delete: **masih anggota** DAN (author atau instructor+) |
+| postLikes (v1.8 #30) | "sudah saya like?" milik sendiri via by_post_user; agregat dibaca dari `posts.likeCount` | toggle: user sendiri (unik via by_post_user) |
+| events (v1.8 #31) | **anonim, TERBATAS**: judul/deskripsi/waktu terbuka (sinyal "komunitas ini hidup" = gunanya kalender); `locationUrl` (link gabung sesi live) **hanya member** — anon cuma dapat `hasLocation` | instructor+ (buat/ubah/batal; `createRecurring` maks 12 baris diskrit, tanpa recurrence rule) |
+| memberships.points (v1.8 #30) | **member tenant** — papan peringkat TIDAK pernah anonim: yang bocor bukan field profilnya (itu sudah publik di `/u/<username>`) melainkan **edge keanggotaan**, dan §6 melarang "member lists" di etalase | sistem saja — di-patch oleh mutation like, tidak pernah ditulis client; level diturunkan, tidak pernah disimpan |
 
 ## Catatan keamanan (P0)
 
@@ -361,6 +464,18 @@ Kontrak P0 untuk **setiap** query/mutation publik: (1) `args` dengan validator `
 - **Slug unik:** `tenants.slug` global (`by_slug`); `courses.slug` per tenant (`by_tenant_slug`) — cek sebelum insert, tolak `VALIDATION_FAILED`.
 - **Hapus lesson/module** hanya boleh jika belum ada completion terkait; jika sudah ada → arsipkan course, jangan hapus. Menjaga progress member tidak korup.
 - **`youtubeVideoId`** divalidasi format ID (11 char) di mutation — bukan URL penuh, mencegah embed sembarang domain.
+- **`posts.likeCount` / `posts.commentCount` DISIMPAN, bukan diderivasi.** Setiap mutation yang menyentuh
+  `postLikes` / `comments` WAJIB `ctx.db.patch` counter-nya dalam transaksi yang sama. Pola lama
+  (`resources/votes.ts` `countVotes` → `.take(500)` per baris di dalam map list) O(baris × 500) per render
+  dan tidak akan sanggup menopang feed. `postLikes` tetap ada untuk keunikan + "sudah saya like?".
+- **`posts.lastActivityAt`** di-bump oleh komentar/like baru; urutan feed = `by_tenant_pinned_activity`
+  (pinned dulu, aktivitas terbaru dulu) dalam SATU rentang index.
+- **`comments` XOR target:** tepat satu dari `lessonId` / `postId` terisi. Keduanya kosong atau keduanya
+  terisi → `VALIDATION_FAILED` di mutation (schema tidak bisa menyatakan XOR).
+- **Level = derivasi dari `memberships.points`**, tidak pernah disimpan (pola sama dengan
+  `convex/features/progress/derive.ts`). Baca `points ?? 0` — baris lama tidak punya field ini.
+- **`events` TANPA recurrence rule.** "Ulangi mingguan × N" = N baris diskrit dalam satu mutation.
+  RRULE/exception/expansi timezone adalah perangkap over-engineering di fitur ini (#31).
 \n\n> **Fase-2 additions (2026-07-07, wave v1.2):** `comments` (reply 1-level; depth dijaga di mutation — parentId harus root; soft delete `deletedAt`, body diganti placeholder di query) dan `suggestionVotes` (idempotent toggle; jumlah vote = count via `by_suggestion`, tak pernah disimpan). Keduanya mengikuti seluruh P0 (validators, authz-first, auth-before-read, bounded reads).\n
 
 > **Fase-2 additions (2026-07-11, wave v1.3):** `notifications` (inbox per user: kind comment_reply|resource_reviewed|suggestion_status, readAt nullable; index by_user, by_user_read; producer = internal mutation dijadwalkan dari feature sumber — pola zeta/discord) dan **search indexes**: `lessons.search_content` (searchField contentMd, filter tenantId) + `courses.search_title` (filter tenantId, status). Query pencarian WAJIB draft-guard (hanya published untuk member) & bounded take.
@@ -368,3 +483,17 @@ Kontrak P0 untuk **setiap** query/mutation publik: (1) `args` dengan validator `
 > **Wave v1.7 additions (2026-07-16):** index baru `lessonCompletions.by_user` (["userId"]) — additive, untuk "Lanjutkan belajar" lintas perangkat (#37): query `progress.recentCourses` (requireUser; scan bounded 60 desc → dedupe per course → hanya course published + tenant active → proyeksi {tenantSlug, courseSlug, title, lastAt} cap 6). TANPA tabel baru. Catatan v1.6 (#35): fitur asisten TIDAK menambah tabel/index apa pun (riwayat chat = state client); modulnya dorman & DIPARKIR di UI sampai owner mengaktifkan (`PARKED_APP_IDS`, os-root.tsx).
 >
 > **Wave v1.4 additions (2026-07-13):** `notifications.kind` bertambah literal **`announcement`** (#28). Producer: announcements.create → SATU `ctx.scheduler.runAfter(0, internal…notifications.createMany)` yang membaca memberships `by_tenant` dengan **bounded take (≤ 200)** lalu insert per-member DI DALAM satu internal mutation (bukan satu scheduler per member); pengirim tidak menotifikasi dirinya sendiri. TANPA tabel/index baru. Pencarian (#29) meluas ke `resources` (approved-only, index `by_tenant_status` + filter judul di memori, bounded take — TANPA search index baru dulu; upgrade ke searchIndex kalau terbukti kurang) dan hasil `SearchHit` bertambah kind `resource` {title, url}.
+>
+> **Wave v1.8 additions (2026-08-09, pivot Skool — DECISIONS #29/#30/#31/#33):**
+> tabel baru **`posts`** (feed Diskusi; `kind` diskusi|pengumuman|usulan|sumber; counter `likeCount`/`commentCount`
+> DISIMPAN; `lastActivityAt` untuk urutan feed; index `by_tenant_pinned_activity`, `by_tenant_kind`, `by_author`
+> + searchIndex `search_title` filter `tenantId`), **`postLikes`** (unik per user per post),
+> **`events`** (Kalender; baris diskrit, TANPA recurrence; index `by_tenant_start`).
+> Perubahan non-breaking: `comments.lessonId` jadi **optional** + `postId` optional + index `by_post` & `by_post_user`
+> (semua baris komentar lesson lama tetap valid, tanpa migrasi); `memberships.points` optional + index
+> `by_tenant_points` (level DIDERIVASI). `notifications.kind` bertambah **`post_reply`** dan **`event_soon`**.
+> `resource_reviewed` / `suggestion_status` **PENSIUN TAPI DIPERTAHANKAN**: baris produksi masih membawanya dan
+> menyempitkan union pada tabel yang sudah terisi akan menggagalkan deploy — hapus hanya setelah backfill/purge.
+> Idem `resources` / `suggestions` / `suggestionVotes` / `announcements`: digantikan `posts`, tetap dideklarasikan
+> sampai backfill selesai. Definisi tabel pindah ke `convex/_tables/*` (plafon 200 LOC); `convex/schema.ts`
+> tetap `export default` schema yang sama.

@@ -45,3 +45,33 @@ export function assertUnderCommentLimit(currentCount: number): void {
     );
   }
 }
+
+// ── POST branch (v1.8 #29) ────────────────────────────────────────────────
+// Same shape, same reasoning, counted through by_post_user so the cap fires no
+// matter how long the thread already is.
+
+export const MAX_COMMENTS_PER_USER_PER_POST = 20;
+export const POST_SCAN_TAKE = MAX_COMMENTS_PER_USER_PER_POST + 1;
+
+/** Count a user's comments on a post (by_post_user, exact up to the cap; incl. soft-deleted). */
+export async function countUserCommentsOnPost(
+  ctx: MutationCtx,
+  postId: Id<"posts">,
+  userId: Id<"users">
+): Promise<number> {
+  const rows = await ctx.db
+    .query("comments")
+    .withIndex("by_post_user", (q) => q.eq("postId", postId).eq("userId", userId))
+    .take(POST_SCAN_TAKE);
+  return rows.length;
+}
+
+/** Reject the write when the caller is already at/over the per-post cap. */
+export function assertUnderPostCommentLimit(currentCount: number): void {
+  if (currentCount >= MAX_COMMENTS_PER_USER_PER_POST) {
+    fail(
+      "RATE_LIMITED",
+      `Maksimal ${MAX_COMMENTS_PER_USER_PER_POST} balasan per post — lanjutkan diskusi panjang di Discord ya`
+    );
+  }
+}

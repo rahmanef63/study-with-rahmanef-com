@@ -8,7 +8,7 @@
 import { v } from "convex/values";
 import type { Doc, Id } from "../../_generated/dataModel";
 import { query, type QueryCtx } from "../../_generated/server";
-import { requireMemberForLesson } from "./access";
+import { requireMemberForLesson, requireMemberForPost } from "./access";
 import {
   toCommentItem,
   type CommentAuthor,
@@ -52,6 +52,30 @@ export const listByLesson = query({
     const rows = await ctx.db
       .query("comments")
       .withIndex("by_lesson", (q) => q.eq("lessonId", args.lessonId))
+      .order("desc") // newest first — the take-bound trims OLD comments only
+      .take(LIST_TAKE);
+    const authors = await joinAuthors(ctx, rows);
+    return {
+      canModerate: membership.role !== "member",
+      items: rows.map((c) => toCommentItem(c, authors.get(c.userId) ?? null, userId)),
+    };
+  },
+});
+
+/**
+ * Flat comment list for a Diskusi POST (v1.8 #29) — same projection, same
+ * placeholder contract, same client-side nesting as listByLesson; only the
+ * index differs (by_post). Still MEMBER-gated: the post BODY is anonymously
+ * readable via posts.publicGetPost, its replies are not — that is the
+ * membership incentive, and it keeps a logged-out crawler off user comments.
+ */
+export const listByPost = query({
+  args: { postId: v.id("posts") },
+  handler: async (ctx, args): Promise<LessonCommentsResult> => {
+    const { userId, membership } = await requireMemberForPost(ctx, args.postId);
+    const rows = await ctx.db
+      .query("comments")
+      .withIndex("by_post", (q) => q.eq("postId", args.postId))
       .order("desc") // newest first — the take-bound trims OLD comments only
       .take(LIST_TAKE);
     const authors = await joinAuthors(ctx, rows);

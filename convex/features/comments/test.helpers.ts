@@ -118,6 +118,43 @@ export async function seedComment(
   );
 }
 
+/** Direct-insert a Diskusi post row (v1.8 #29 target — fixture only). */
+export async function seedPost(
+  t: T,
+  fx: TenantFixture,
+  authorId: Id<"users">,
+  extra: Partial<Pick<Doc<"posts">, "title" | "commentCount" | "lastActivityAt" | "deletedAt">> = {}
+): Promise<Id<"posts">> {
+  return await t.run(async (ctx) =>
+    ctx.db.insert("posts", {
+      tenantId: fx.tenantId,
+      authorId,
+      kind: "diskusi",
+      title: extra.title ?? "Post fixture",
+      bodyMd: "Isi post fixture.",
+      pinned: false,
+      lastActivityAt: extra.lastActivityAt ?? Date.now(),
+      likeCount: 0,
+      commentCount: extra.commentCount ?? 0,
+      deletedAt: extra.deletedAt,
+    })
+  );
+}
+
+/** Direct-insert a comment on a POST (bypasses the mutation — fixture only). */
+export async function seedPostComment(
+  t: T,
+  fx: TenantFixture,
+  postId: Id<"posts">,
+  userId: Id<"users">,
+  bodyMd: string,
+  extra: Partial<Pick<Doc<"comments">, "parentId" | "deletedAt">> = {}
+): Promise<Id<"comments">> {
+  return await t.run(async (ctx) =>
+    ctx.db.insert("comments", { tenantId: fx.tenantId, postId, userId, bodyMd, ...extra })
+  );
+}
+
 /** Profile row so the author join resolves a display name. */
 export async function seedProfile(
   t: T,

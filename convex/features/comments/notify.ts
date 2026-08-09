@@ -6,24 +6,10 @@
 // P0 (#21): NEVER fires for a self-reply (recipient must differ from the
 // actor — asserted in convex/features/notifications/producer.test.ts). No PII
 // beyond the replier's displayName; copy is Bahasa Indonesia.
-import { makeFunctionReference } from "convex/server";
 import type { Doc, Id } from "../../_generated/dataModel";
 import type { MutationCtx } from "../../_generated/server";
-
-// Duplicated typed ref (contract: convex/features/notifications/refs.ts) —
-// convex features have no barrel, so cross-feature code shares the PATH STRING
-// only (precedent: per-feature test.helpers duplication).
-const createNotificationRef = makeFunctionReference<
-  "mutation",
-  {
-    userId: Id<"users">;
-    tenantId: Id<"tenants">;
-    kind: "comment_reply" | "resource_reviewed" | "suggestion_status";
-    title: string;
-    body?: string;
-    href?: string;
-  }
->("features/notifications/notifications:create");
+import { createNotificationRef } from "../notifications/refs";
+import { postHref, replierName, schedulePostReplyNotification, snippet } from "../posts/notify";
 
 /** Max lesson-title chars quoted in the notification body (bounded copy). */
 const TITLE_SNIPPET = 60;
@@ -73,5 +59,45 @@ export async function maybeScheduleReplyNotification(
     title: "Balasan baru di diskusimu",
     body: `${who} membalas komentarmu di lesson "${lessonTitle}".`,
     href: `/k/${tenant.slug}/kelas/${course.slug}/${args.lesson._id}`,
+  });
+}
+
+/**
+ * Producer hook #2 (v1.8 #29) — notifications for a comment on a POST.
+ * At most two rows, both fire-and-forget and both self-guarded:
+ *   1. the POST author, kind "post_reply" (every comment, root or reply);
+ *   2. the PARENT comment author, kind "comment_reply" — only for a reply, and
+ *      skipped when that author is the post author (already covered by #1) or
+ *      the replier themselves. So nobody is ever notified twice about one
+ *      comment, and nobody is ever notified about their own.
+ */
+export async function maybeSchedulePostCommentNotifications(
+  ctx: MutationCtx,
+  args: {
+    post: Doc<"posts">;
+    parentId: Id<"comments"> | undefined;
+    /** The comment author (actor) — from ctx auth, never from client args. */
+    replierId: Id<"users">;
+  }
+): Promise<void> {
+  await schedulePostReplyNotification(ctx, { post: args.post, replierId: args.replierId });
+  if (args.parentId === undefined) return;
+
+  const parent = await ctx.db.get(args.parentId);
+  if (parent === null) return; // dangling — skip silently
+  if (parent.userId === args.replierId) return; // self-reply → no notification (P0)
+  if (parent.userId === args.post.authorId) return; // already notified as the post author
+
+  const tenant = await ctx.db.get(args.post.tenantId);
+  if (tenant === null) return;
+  await ctx.scheduler.runAfter(0, createNotificationRef, {
+    userId: parent.userId,
+    tenantId: args.post.tenantId,
+    kind: "comment_reply",
+    title: "Balasan baru di komentarmu",
+    body: `${await replierName(ctx, args.replierId)} membalas komentarmu di "${snippet(
+      args.post.title
+    )}".`,
+    href: postHref(tenant.slug, args.post._id),
   });
 }

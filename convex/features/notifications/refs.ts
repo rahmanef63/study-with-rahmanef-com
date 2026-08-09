@@ -19,7 +19,15 @@ export type CreateNotificationArgs = {
   /** Recipient — NEVER the actor (producers must not self-notify, P0 #21). */
   userId: Id<"users">;
   tenantId: Id<"tenants">;
-  kind: "comment_reply" | "resource_reviewed" | "suggestion_status";
+  // v1.8 (#29/#31): post_reply + event_soon joined the union. resource_reviewed
+  // and suggestion_status are RETIRED-BUT-RETAINED — populated prod rows still
+  // carry them, so narrowing this union would break the deploy.
+  kind:
+    | "comment_reply"
+    | "resource_reviewed"
+    | "suggestion_status"
+    | "post_reply"
+    | "event_soon";
   /** Bahasa Indonesia; no PII beyond displayName. */
   title: string;
   body?: string;

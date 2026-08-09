@@ -4,8 +4,9 @@
 // guard is the status filter (only `active` tenants are visible, R6) plus the
 // safe projection (never `discordWebhookUrl`, DATA-MODEL.md security note #1).
 //
-// ANONYMOUS ETALASE WHITELIST (AGENTS.md §6): getPublicBySlug, listActive —
-// active rows only via index, safe projection (toPublicTenant), no auth by
+// ANONYMOUS ETALASE WHITELIST (AGENTS.md §6): getPublicBySlug,
+// getPublicStatsBySlug, listActive — active rows only via index, safe
+// projection (toPublicTenant / counts only, never a member list), no auth by
 // design. Every OTHER query in this file authenticates on its first line.
 import { v } from "convex/values";
 import { query } from "../../_generated/server";
