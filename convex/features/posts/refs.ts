@@ -32,17 +32,5 @@ export const loadForDiscordRef = makeFunctionReference<"query", PostRef, Discord
 );
 
 /** Phases of the one-shot legacy-board backfill, in execution order. */
-export const BACKFILL_PHASES = [
-  "announcements",
-  "resources",
-  "suggestions",
-  "votes",
-] as const;
 
-export type BackfillPhase = (typeof BACKFILL_PHASES)[number];
 
-/** internalMutation — self-rescheduling backfill (see backfill.ts). */
-export const backfillRunRef = makeFunctionReference<
-  "mutation",
-  { phase?: BackfillPhase; cursor?: number }
->("features/posts/backfill:run");

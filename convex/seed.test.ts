@@ -76,7 +76,6 @@ test("seedContent pins ONE welcome pengumuman, and re-running adds nothing", asy
     expect(posts).toHaveLength(1);
     expect(posts[0].kind).toBe("pengumuman");
     expect(posts[0].pinned).toBe(true);
-    expect(await ctx.db.query("announcements").collect()).toHaveLength(0);
   });
 });
 
@@ -113,11 +112,9 @@ test("seedEngagement fills every post kind and scores the leaderboard", async ()
     const memberships = await ctx.db.query("memberships").collect();
     expect(memberships.reduce((n, m) => n + (m.points ?? 0), 0)).toBe(scoring);
 
-    // None of the retired boards was touched.
-    expect(await ctx.db.query("resources").collect()).toHaveLength(0);
-    expect(await ctx.db.query("suggestions").collect()).toHaveLength(0);
-    expect(await ctx.db.query("suggestionVotes").collect()).toHaveLength(0);
-    expect(await ctx.db.query("announcements").collect()).toHaveLength(0);
+    // The retired boards used to be asserted at zero here. They are no longer
+    // in the schema at all (backfilled, purged and dropped 2026-08-09), so the
+    // property is now structural — a seed CANNOT write them.
   });
 
   const before = await t.run(async (ctx) => ({
@@ -161,8 +158,6 @@ test("seedWorld builds each extra community a pinned welcome + sumber posts", as
     // Every post belongs to the tenant it was seeded into — no cross-tenant leak.
     const tenants = new Set((await ctx.db.query("tenants").collect()).map((x) => x._id));
     for (const p of posts) expect(tenants.has(p.tenantId)).toBe(true);
-    expect(await ctx.db.query("announcements").collect()).toHaveLength(0);
-    expect(await ctx.db.query("resources").collect()).toHaveLength(0);
   });
 
   const second = await t.mutation(internal.seed.seedWorld, { ownerEmail: args.ownerEmail });

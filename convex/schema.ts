@@ -10,7 +10,7 @@
 import { authTables } from "@convex-dev/auth/server";
 import { defineSchema } from "convex/server";
 
-import { announcements, notifications, resources, suggestionVotes, suggestions } from "./_tables/boards";
+import { notifications } from "./_tables/boards";
 import { comments, events, postLikes, posts } from "./_tables/community";
 import { memberships, profiles, tenants } from "./_tables/identity";
 import {
@@ -46,10 +46,7 @@ export default defineSchema({
   comments,
   events,
 
-  // legacy boards + inbox (see ./tables/boards.ts for the retirement note)
-  resources,
-  suggestions,
-  suggestionVotes,
+  // in-app inbox (the three legacy boards folded into `posts` — see
+  // ./_tables/boards.ts for the retirement note)
   notifications,
-  announcements,
 });

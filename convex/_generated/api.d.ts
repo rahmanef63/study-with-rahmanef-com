@@ -55,9 +55,6 @@ import type * as features_notifications_refs from "../features/notifications/ref
 import type * as features_notifications_validate from "../features/notifications/validate.js";
 import type * as features_posts_access from "../features/posts/access.js";
 import type * as features_posts_antiSpam from "../features/posts/antiSpam.js";
-import type * as features_posts_backfill from "../features/posts/backfill.js";
-import type * as features_posts_backfillMap from "../features/posts/backfillMap.js";
-import type * as features_posts_backfillVotes from "../features/posts/backfillVotes.js";
 import type * as features_posts_discord from "../features/posts/discord.js";
 import type * as features_posts_errors from "../features/posts/errors.js";
 import type * as features_posts_likes from "../features/posts/likes.js";
@@ -160,9 +157,6 @@ declare const fullApi: ApiFromModules<{
   "features/notifications/validate": typeof features_notifications_validate;
   "features/posts/access": typeof features_posts_access;
   "features/posts/antiSpam": typeof features_posts_antiSpam;
-  "features/posts/backfill": typeof features_posts_backfill;
-  "features/posts/backfillMap": typeof features_posts_backfillMap;
-  "features/posts/backfillVotes": typeof features_posts_backfillVotes;
   "features/posts/discord": typeof features_posts_discord;
   "features/posts/errors": typeof features_posts_errors;
   "features/posts/likes": typeof features_posts_likes;
