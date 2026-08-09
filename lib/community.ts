@@ -21,7 +21,11 @@ export const communityHref = {
   quiz: (slug: string, courseSlug: string, moduleId: string) =>
     `/k/${enc(slug)}/kelas/${enc(courseSlug)}/kuis/${enc(moduleId)}`,
   diskusi: (slug: string) => `/k/${enc(slug)}/diskusi`,
+  /** Post permalink — the shareable, indexable unit of the Diskusi feed. */
+  post: (slug: string, postId: string) => `/k/${enc(slug)}/post/${enc(postId)}`,
   anggota: (slug: string) => `/k/${enc(slug)}/anggota`,
+  peringkat: (slug: string) => `/k/${enc(slug)}/peringkat`,
+  kalender: (slug: string) => `/k/${enc(slug)}/kalender`,
   tentang: (slug: string) => `/k/${enc(slug)}/tentang`,
   cari: (slug: string) => `/k/${enc(slug)}/cari`,
   kelola: (slug: string) => `/k/${enc(slug)}/kelola`,
@@ -36,6 +40,11 @@ export type CommunityTab = {
   /** Exact match only — the Kelas tab is the index route, so a prefix match
    *  would light it up on every child page. */
   exact?: boolean;
+  /** Extra path prefixes that should also light this tab. A post permalink
+   *  lives at /k/<slug>/post/<id>, a SIBLING of /diskusi rather than a child,
+   *  so without this the strip goes blank-active and the reader loses their
+   *  place in the IA. */
+  alsoMatch?: ((slug: string) => string)[];
 };
 
 /**
@@ -44,13 +53,17 @@ export type CommunityTab = {
  * renders a dead end, which is worse.
  *
  * Not here on purpose:
- * - "Peringkat" (leaderboard) — ships with the posts/points model.
- * - "Kalender" — ships as discrete event rows once there is a live cadence.
  * - "Kelola" — instructor+ only, surfaced as a header link, never a learner tab.
  */
 export const COMMUNITY_TABS: CommunityTab[] = [
   { key: "kelas", label: "Kelas", href: communityHref.home, exact: true },
-  { key: "diskusi", label: "Diskusi", href: communityHref.diskusi },
+  { key: "diskusi", label: "Diskusi", href: communityHref.diskusi, alsoMatch: [(slug) => `/k/${enc(slug)}/post/`] },
   { key: "anggota", label: "Anggota", href: communityHref.anggota },
+  // Member-only board (listTop is requireTenantRole(member)); the route itself
+  // renders GabungDulu to a stranger rather than 404ing, so it is safe to list.
+  { key: "peringkat", label: "Peringkat", href: communityHref.peringkat },
+  // Public tab: publicListUpcoming/publicListPast are on the anonymous etalase
+  // whitelist, so this renders real HTML for a crawler; only the join link is gated.
+  { key: "kalender", label: "Kalender", href: communityHref.kalender },
   { key: "tentang", label: "Tentang", href: communityHref.tentang },
 ];

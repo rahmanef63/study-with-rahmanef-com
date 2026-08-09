@@ -1,0 +1,44 @@
+{
+  "$schema": "../../docs/slice.manifest.schema.json",
+  "name": "posts",
+  "version": "0.1.0",
+  "description": "Diskusi feed (v1.8 #29/#30): anonymous cursor-paginated read + shareable post permalink, member-gated composer/likes/replies. Four fixed kinds, no categories table; pengumuman is instructor+. Likes are idempotent and score the author. No file upload (PRD non-goal). One mounted view: FeedView.",
+  "category": "community",
+  "stability": "beta",
+  "deps": {
+    "shared": ["features/defineFeature"],
+    "slices": ["courses", "comments", "tenants"],
+    "convexFeatures": ["posts"],
+    "npm": { "sonner": "^1.7.1", "lucide-react": "^0.460.0" },
+    "env": []
+  },
+  "files": {
+    "include": ["**/*"],
+    "exclude": ["__tests__/**", "*.test.ts", "*.test.tsx"]
+  },
+  "convexFiles": {
+    "include": ["**/*.ts"],
+    "exclude": ["*.test.ts", "test.helpers.ts"]
+  },
+  "permissions": ["posts.read", "posts.write", "posts.moderate"],
+  "schemaTables": [
+    {
+      "name": "posts",
+      "namespaced": false,
+      "indexes": ["by_tenant_pinned_activity", "by_author"]
+    },
+    {
+      "name": "postLikes",
+      "namespaced": false,
+      "indexes": ["by_post_user", "by_post", "by_user"]
+    }
+  ],
+  "compatibility": {
+    "next": ">=15 <17",
+    "react": "^19",
+    "convex": "^1.16",
+    "tailwind": "4",
+    "auth": "convex-auth"
+  },
+  "notes": "0.1.0 (2026-08-09, frontend wave v1.8): STATUS row #29/#30. Backend was already landed by the convex wave — this slice is the UI only; convex/features/posts was NOT modified. SSR contract: the integrator's server page reads publicListFeed's first page anonymously (safeQuery) and hands it to FeedView as `initialPosts`, which renders it on the first render (server AND client) so the feed is indexable HTML with no hydration flicker; the live paginated query takes over once the socket answers, and a kind filter falls back to nothing rather than to the unfiltered server page. Markdown is NOT re-implemented: PostBody delegates to MarkdownView (@/features/courses), the app's single safe-subset renderer; the feed card uses a pure plain-text collapse (lib/excerpt.ts) instead of parsing markdown per card. Kind tones read the --chart-* sprite ramp (token-only, no hex). RATE_LIMITED reuses the server's Bahasa sentence (lib/errors.ts) — the 10/day (3/day with a link) cap is expected to fire in normal use."
+}

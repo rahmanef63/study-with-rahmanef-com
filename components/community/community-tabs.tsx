@@ -16,7 +16,10 @@ export function CommunityTabs({ slug }: { slug: string }) {
       <ul className="flex min-w-max gap-1 px-1">
         {COMMUNITY_TABS.map((tab) => {
           const href = tab.href(slug);
-          const active = tab.exact ? pathname === href : pathname.startsWith(href);
+          const active = tab.exact
+            ? pathname === href
+            : pathname.startsWith(href) ||
+              (tab.alsoMatch?.some((prefix) => pathname.startsWith(prefix(slug))) ?? false);
           return (
             <li key={tab.key}>
               <Link

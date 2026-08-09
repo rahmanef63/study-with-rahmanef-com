@@ -9,11 +9,18 @@ import type { Id } from "@convex/_generated/dataModel";
 import { mergeCommentsCopy, type CommentsCopyOverride } from "../config/copy";
 import { commentsErrorMessage } from "../lib/errors";
 
+/**
+ * EXACTLY ONE of lessonId / postId (v1.8 #29). The XOR cannot be expressed in
+ * the Convex validator, so the mutation asserts it (VALIDATION_FAILED) and the
+ * union below keeps a caller from passing both by accident.
+ */
 export type AddCommentInput = {
-  lessonId: Id<"lessons">;
   bodyMd: string;
   parentId?: Id<"comments">;
-};
+} & (
+  | { lessonId: Id<"lessons">; postId?: never }
+  | { postId: Id<"posts">; lessonId?: never }
+);
 
 export function useAddComment(copyOverride?: CommentsCopyOverride) {
   const copy = mergeCommentsCopy(copyOverride);

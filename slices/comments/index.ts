@@ -1,18 +1,25 @@
 // comments slice — public barrel (THE contract; barrel-only cross-slice
-// imports, rr-conventions P1). Integration point for alpha (#16): mount
-//   <LessonComments lessonId={lesson._id} />
-// under the lesson content in the lesson window-app. The component is
-// self-contained — reads, writes, and the viewer's moderation flag all come
-// from the Convex feature; no extra props required.
+// imports, rr-conventions P1). Two integration points:
+//   <LessonComments lessonId={lesson._id} />  ← under the lesson content (#16)
+//   <PostComments postId={post._id} />        ← under a Diskusi permalink (#29)
+// Exactly one target; the component is otherwise self-contained — reads,
+// writes, and the viewer's moderation flag all come from the Convex feature.
 //
 // Convex surface (not re-exported; call via api.features.comments.*):
-//   comments:addComment · comments:softDelete · queries:listByLesson
+//   comments:addComment · comments:softDelete · queries:listByLesson ·
+//   queries:listByPost
 
 // feature descriptor
 export { commentsFeature } from "./config";
 
-// connected view (integrator mounts this)
-export { LessonComments, type LessonCommentsProps } from "./views/lesson-comments";
+// connected view (integrator mounts this). `PostComments` is the SAME component
+// under the name that reads right at a Diskusi permalink call site — the thread
+// UI is never forked, only the target prop differs (v1.8 #29).
+export {
+  LessonComments,
+  LessonComments as PostComments,
+  type LessonCommentsProps,
+} from "./views/lesson-comments";
 
 // presentational components (props-driven, portable)
 export { CommentForm, type CommentFormProps } from "./components/comment-form";
@@ -22,7 +29,7 @@ export { CommentsEmptyState, type CommentsEmptyStateProps } from "./components/c
 export { DeleteCommentDialog, type DeleteCommentDialogProps } from "./components/delete-comment-dialog";
 
 // hooks (reads + writes)
-export { useLessonComments } from "./hooks/use-lesson-comments";
+export { useLessonComments, usePostComments } from "./hooks/use-lesson-comments";
 export { useAddComment, useDeleteComment, type AddCommentInput } from "./hooks/use-comment-mutations";
 
 // lib (pure — safe for server or client)

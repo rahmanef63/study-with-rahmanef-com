@@ -1,11 +1,11 @@
 {
   "$schema": "https://resource.rahmanef.com/slice-schema.json",
   "slug": "comments",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "category": "community",
   "kind": "fullstack",
   "title": "Comments — diskusi per lesson",
-  "description": "Per-lesson discussion (fase-2, STATUS #16) for belajar-with-rahmanef.com. Members of the lesson's tenant post comments and depth-1 replies (parentId must be a ROOT comment of the same lesson — enforced in the mutation, VALIDATION_FAILED otherwise); soft delete by the author or instructor+ sets deletedAt and reads project a placeholder — the body never leaks after deletion (P0, asserted in tests). tenantId always derives from the lesson row, never from args. Light anti-spam: per-user-per-lesson cap via the by_lesson index. Adapted from the rr `comments` slice (threaded pattern) simplified to a fixed depth-1 model on our own schema. One mounted view: LessonComments({ lessonId }).",
+  "description": "Per-lesson discussion (fase-2, STATUS #16) for belajar-with-rahmanef.com. Members of the lesson's tenant post comments and depth-1 replies (parentId must be a ROOT comment of the same lesson — enforced in the mutation, VALIDATION_FAILED otherwise); soft delete by the author or instructor+ sets deletedAt and reads project a placeholder — the body never leaks after deletion (P0, asserted in tests). tenantId always derives from the lesson row, never from args. Light anti-spam: per-user-per-lesson cap via the by_lesson index. Adapted from the rr `comments` slice (threaded pattern) simplified to a fixed depth-1 model on our own schema. Since 0.2.0 (#29): the SAME thread hangs off a Diskusi POST — queries:listByPost (MEMBER-gated, by_post index) plus the addComment XOR target; the view takes `postId` instead of `lessonId` and is re-exported as PostComments. Post replies patch posts.commentCount + lastActivityAt in the same transaction. One mounted view, two targets: LessonComments({ lessonId }) / PostComments({ postId }).",
   "namespace": "@/features/comments",
   "convex": {
     "tablesExport": "",

@@ -1,0 +1,77 @@
+{
+  "$schema": "https://resource.rahmanef.com/slice-schema.json",
+  "slug": "posts",
+  "version": "0.1.0",
+  "category": "community",
+  "kind": "fullstack",
+  "title": "Posts — Diskusi feed + post permalink",
+  "description": "The community feed (v1.8 #29/#30) for belajar-with-rahmanef.com: members write posts in four FIXED kinds (diskusi | pengumuman | usulan | sumber — a hardcoded union, deliberately NOT a categories table), the feed itself is anonymously readable and cursor-paginated so a post permalink unfurls and indexes for a logged-out recipient. Pinned rows sort first inside one index range (by_tenant_pinned_activity). The COMPOSER, likes and the comment thread stay member-gated — that is the membership incentive. `pengumuman` additionally requires instructor+ (UX-hidden here, re-checked server-side). Likes are idempotent and score the post AUTHOR +1 point. NO FILE UPLOAD (PRD non-goal): a post carries markdown plus at most one http(s) link and one 11-char YouTube id, the embed rendering only on the permalink. Markdown is rendered through the app's single safe-subset renderer (MarkdownView from @/features/courses), never a second parser. The daily post cap WILL be hit, so RATE_LIMITED surfaces the server's Bahasa sentence, never a code. One mounted view: FeedView.",
+  "namespace": "@/features/posts",
+  "convex": {
+    "tablesExport": "",
+    "schemaPath": "convex/schema.ts",
+    "rootPaths": ["convex/features/posts"]
+  },
+  "frontend": { "slicePath": "slices/posts", "configExport": "postsFeature" },
+  "deps": {
+    "npm": ["convex", "sonner", "lucide-react"],
+    "shadcn": ["button", "card", "input", "label", "skeleton", "empty"],
+    "env": [],
+    "peers": [
+      { "slug": "courses", "reason": "MarkdownView + YoutubeEmbed — the app's one safe-subset markdown/embed pair" },
+      { "slug": "comments", "reason": "the permalink thread mounts <PostComments postId />" },
+      { "slug": "tenants", "reason": "useMyMembership drives the composer/like UX gate" }
+    ]
+  },
+  "contract": {
+    "barrel": {
+      "views": ["FeedView"],
+      "components": ["PostCard", "PostBody", "CategoryChips", "PostComposer"],
+      "hooks": [
+        "usePostFeed",
+        "useMyPosts",
+        "useMyLikedPostIds",
+        "useCreatePost",
+        "useToggleLike"
+      ],
+      "lib": [
+        "POST_KINDS",
+        "postKindLabel",
+        "postKindTone",
+        "parsePostKind",
+        "toExcerpt",
+        "toPlainText",
+        "formatRelativeTime",
+        "toIsoDate",
+        "postsErrorMessage",
+        "extractPostsError",
+        "isRateLimited"
+      ],
+      "consumerSeams": {
+        "app-shell": [
+          "/k/[slug]/diskusi ← <FeedView tenantId initialPosts postHref profileHref loginHref />",
+          "/k/[slug]/post/[postId] ← <PostBody bodyMd /> + generateMetadata + opengraph-image"
+        ]
+      }
+    },
+    "convexFunctions": {
+      "anonymous": [
+        "features/posts/queries:publicListFeed",
+        "features/posts/queries:publicGetPost"
+      ],
+      "member": [
+        "features/posts/posts:create",
+        "features/posts/posts:edit",
+        "features/posts/posts:softDelete",
+        "features/posts/likes:toggleLike",
+        "features/posts/likes:myLikedPostIds",
+        "features/posts/queries:listMine"
+      ],
+      "instructor": ["features/posts/posts:togglePin"]
+    }
+  },
+  "registers": [],
+  "license": "MIT",
+  "tags": ["community", "posts", "feed", "discussion", "permalink", "multi-tenant"],
+  "providers": []
+}

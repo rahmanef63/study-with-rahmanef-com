@@ -28,6 +28,19 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-08-09",
+    version: "v2.2",
+    title: "Diskusi, Papan Skor, dan Kalender",
+    tags: ["Baru"],
+    points: [
+      "Tab Diskusi sekarang jadi papan tulisan komunitas — tulis pertanyaan, pengumuman, usulan, atau bagikan sumber belajar, lalu saring lewat kategori di atas.",
+      "Setiap tulisan punya tautan sendiri yang bisa dibagikan: ditempel ke WhatsApp langsung muncul judul dan cuplikannya. Ini yang dulu tidak ada — tidak ada satu pun hal di dalam komunitas yang punya alamat sendiri.",
+      "Suka sebuah tulisan = 1 poin untuk penulisnya. Poin dan levelnya tampil di tab Peringkat (khusus anggota). Level cuma penanda keaktifan — tidak ada kelas yang dikunci di baliknya, semuanya tetap gratis.",
+      "Tab Kalender baru: jadwal sesi live komunitas. Jadwalnya terbuka untuk siapa saja, tautan gabungnya khusus anggota. Pengajar bisa membuat jadwal berulang mingguan sampai 12 kali sekaligus.",
+      "Ada batas 10 tulisan per hari per orang (3 di antaranya boleh berisi tautan) supaya papannya tidak jadi tempat spam.",
+    ],
+  },
+  {
+    date: "2026-08-09",
     version: "v2.1",
     title: "Tampilan baru: mesin arcade",
     tags: ["Tampilan"],
