@@ -13,6 +13,8 @@ import {
   requireInstructorForPost,
 } from "./access";
 import { assertUnderDailyPostLimit, countRecentPostsByUser } from "./antiSpam";
+import { scheduleAnnouncementFanout } from "./notify";
+import { postToDiscordRef } from "./refs";
 import {
   assertBody,
   assertLinkUrl,
@@ -71,7 +73,7 @@ export const create = mutation({
       link.value !== undefined
     );
 
-    return ctx.db.insert("posts", {
+    const postId = await ctx.db.insert("posts", {
       tenantId: args.tenantId,
       authorId: userId,
       kind: args.kind,
@@ -84,6 +86,22 @@ export const create = mutation({
       likeCount: 0,
       commentCount: 0,
     });
+
+    // A pengumuman keeps everything the retired announcements board did (#33):
+    // the Discord webhook and the in-app member fan-out. Both are
+    // fire-and-forget — runAfter(0) keeps the mutation fast and the write
+    // atomic, and neither failure may fail the create (the post is saved and
+    // the feed already shows it). The webhook URL is NEVER touched here; the
+    // internal action reads it server-side (DATA-MODEL security note #1).
+    if (args.kind === "pengumuman") {
+      const post = await ctx.db.get(postId);
+      if (post !== null) {
+        await ctx.scheduler.runAfter(0, postToDiscordRef, { postId });
+        await scheduleAnnouncementFanout(ctx, { post, senderId: userId });
+      }
+    }
+
+    return postId;
   },
 });
 

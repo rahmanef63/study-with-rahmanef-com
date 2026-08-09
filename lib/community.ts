@@ -21,6 +21,15 @@ export const communityHref = {
   quiz: (slug: string, courseSlug: string, moduleId: string) =>
     `/k/${enc(slug)}/kelas/${enc(courseSlug)}/kuis/${enc(moduleId)}`,
   diskusi: (slug: string) => `/k/${enc(slug)}/diskusi`,
+  /**
+   * Diskusi opened on ONE category. `?kind=` is a real deep link, not a
+   * fragment: the feed's category filter is component state, so there is no
+   * #anchor to scroll to — the page reads this param and starts the filter
+   * there. Used by the Silabus "Sumber belajar" card and by the retired
+   * /resources + /pengumuman redirects in next.config.mjs.
+   */
+  diskusiKind: (slug: string, kind: string) =>
+    `/k/${enc(slug)}/diskusi?kind=${enc(kind)}`,
   /** Post permalink — the shareable, indexable unit of the Diskusi feed. */
   post: (slug: string, postId: string) => `/k/${enc(slug)}/post/${enc(postId)}`,
   anggota: (slug: string) => `/k/${enc(slug)}/anggota`,

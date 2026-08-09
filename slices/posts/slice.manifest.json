@@ -1,7 +1,7 @@
 {
   "$schema": "../../docs/slice.manifest.schema.json",
   "name": "posts",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Diskusi feed (v1.8 #29/#30): anonymous cursor-paginated read + shareable post permalink, member-gated composer/likes/replies. Four fixed kinds, no categories table; pengumuman is instructor+. Likes are idempotent and score the author. No file upload (PRD non-goal). One mounted view: FeedView.",
   "category": "community",
   "stability": "beta",
@@ -40,5 +40,5 @@
     "tailwind": "4",
     "auth": "convex-auth"
   },
-  "notes": "0.1.0 (2026-08-09, frontend wave v1.8): STATUS row #29/#30. Backend was already landed by the convex wave — this slice is the UI only; convex/features/posts was NOT modified. SSR contract: the integrator's server page reads publicListFeed's first page anonymously (safeQuery) and hands it to FeedView as `initialPosts`, which renders it on the first render (server AND client) so the feed is indexable HTML with no hydration flicker; the live paginated query takes over once the socket answers, and a kind filter falls back to nothing rather than to the unfiltered server page. Markdown is NOT re-implemented: PostBody delegates to MarkdownView (@/features/courses), the app's single safe-subset renderer; the feed card uses a pure plain-text collapse (lib/excerpt.ts) instead of parsing markdown per card. Kind tones read the --chart-* sprite ramp (token-only, no hex). RATE_LIMITED reuses the server's Bahasa sentence (lib/errors.ts) — the 10/day (3/day with a link) cap is expected to fire in normal use."
+  "notes": "0.2.0 (2026-08-09): FeedView gained `initialKind` — the category the feed OPENS on, so a consumer can deep-link one kind (`/k/<slug>/diskusi?kind=sumber`). Needed because the three retired boards (#33) left behind real inbound links — the Silabus 'Sumber belajar' card and the persisted /resources + /pengumuman redirects — and the filter is component state, so there is no #anchor for a fragment to reach. Starting position only: the chips still never re-navigate. 0.1.0 (2026-08-09, frontend wave v1.8): STATUS row #29/#30. Backend was already landed by the convex wave — this slice is the UI only; convex/features/posts was NOT modified. SSR contract: the integrator's server page reads publicListFeed's first page anonymously (safeQuery) and hands it to FeedView as `initialPosts`, which renders it on the first render (server AND client) so the feed is indexable HTML with no hydration flicker; the live paginated query takes over once the socket answers, and a kind filter falls back to nothing rather than to the unfiltered server page. Markdown is NOT re-implemented: PostBody delegates to MarkdownView (@/features/courses), the app's single safe-subset renderer; the feed card uses a pure plain-text collapse (lib/excerpt.ts) instead of parsing markdown per card. Kind tones read the --chart-* sprite ramp (token-only, no hex). RATE_LIMITED reuses the server's Bahasa sentence (lib/errors.ts) — the 10/day (3/day with a link) cap is expected to fire in normal use."
 }

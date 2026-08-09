@@ -106,24 +106,35 @@ export async function seedCourseWithLesson(
   });
 }
 
-export type SeedResourceOpts = {
-  status: "pending" | "approved" | "rejected";
+export type SeedPostOpts = {
   title: string;
-  url?: string;
-  note?: string;
+  kind?: "diskusi" | "pengumuman" | "usulan" | "sumber";
+  bodyMd?: string;
+  linkUrl?: string;
+  /** Soft-deleted rows must never reach a search result (P0). */
+  deleted?: boolean;
+  /** Defaults to the member; pass another id to test cross-author feeds. */
+  authorId?: Id<"users">;
 };
 
-/** Resource row (#29) — status controllable to assert pending/rejected never leak. */
-export async function seedResource(t: T, fx: TenantFixture, opts: SeedResourceOpts) {
+/**
+ * Diskusi post row (v1.8 #33) — the third search source. Replaces the retired
+ * seedResource helper; `deleted` is the invariant that used to be `status`.
+ */
+export async function seedPost(t: T, fx: TenantFixture, opts: SeedPostOpts) {
   return await t.run(async (ctx) => {
-    return await ctx.db.insert("resources", {
+    return await ctx.db.insert("posts", {
       tenantId: fx.tenantId,
+      authorId: opts.authorId ?? fx.memberId,
+      kind: opts.kind ?? "sumber",
       title: opts.title,
-      url: opts.url ?? "https://contoh.id/sumber",
-      note: opts.note,
-      submittedBy: fx.memberId,
-      status: opts.status,
-      reviewedBy: opts.status === "pending" ? undefined : fx.ownerId,
+      bodyMd: opts.bodyMd ?? "Catatan internal yang TIDAK boleh bocor",
+      linkUrl: opts.linkUrl,
+      pinned: false,
+      lastActivityAt: Date.now(),
+      likeCount: 0,
+      commentCount: 0,
+      deletedAt: opts.deleted === true ? Date.now() : undefined,
     });
   });
 }

@@ -2,9 +2,15 @@
 > HISTORY: `slices/appshell`, `slices/os-shell`, `slices/theme-presets`, `slices/asisten`,
 > `slices/pageviews` and the catch-all `app/[[...slug]]` were DELETED. The frontend is now a tabbed
 > community app on real Next.js routes — see **AGENTS.md §0** and the **DECISIONS.md addendum** for the
-> current route map. The Convex backend, the domain slices and their views are unchanged, so the
-> per-slice responsibilities and tables in this file remain accurate; only the "Window-app · deep-link"
-> column is dead.
+> current route map. Only the "Window-app · deep-link" column is dead.
+>
+> **ALSO SUPERSEDED (2026-08-09 — DECISIONS #33).** `slices/resources` and `slices/announcements` are
+> DELETED, together with `convex/features/resources` and `convex/features/announcements`. The three
+> boards they hosted (resource board · suggestion box · pengumuman) are now post **kinds** on ONE
+> Diskusi feed — `slices/posts` + `convex/features/posts`, table `posts`/`postLikes` — and the
+> submit→kurasi gate is gone entirely (moderation is post-hoc: `softDelete` + `togglePin`). The four
+> source tables (`resources`, `suggestions`, `suggestionVotes`, `announcements`) still exist in
+> `convex/_tables/boards.ts` awaiting the prod backfill; nothing reads or writes them any more.
 
 # Rencana Vertical Slice
 
@@ -25,9 +31,10 @@ Kolom **Route utama** lama sudah **RETIRED**: tiap surface domain sekarang jadi 
 | `courses` | v1 | CRUD kelas/modul/lesson; viewer lesson (YouTube + markdown + links) | courses, modules, lessons | `kelas` (`/kelas/<tenant>/<course>[/lesson/<id>]`); tab di `kelola` |
 | `progress` | v1 | tandai selesai, progress bar, penyelesaian kelas | lessonCompletions, courseCompletions | embed di `kelas` (progress ring di kartu + player) |
 | `profiles` | v1 minimal · publik + badge v1.1 | profil user, username, badge wall | profiles | `profil` (`/profil/<username>`); edit di `pengaturan` |
-| `resources` | v1.1 | resource board + suggestion box (submit → kurasi) | resources, suggestions | `resources` (`/resources/<tenant>`) |
+| ~~`resources`~~ | v1.1 → **DIHAPUS v1.8 (#33)** | ~~resource board + suggestion box (submit → kurasi)~~ → `posts` kind `sumber`/`usulan` | ~~resources, suggestions, suggestionVotes~~ | — |
 | `quiz` | v1.1 | builder MCQ, pengerjaan, auto-grade | quizzes, quizAttempts | `kuis` (`/kuis/<tenant>/<course>/<module>`); tab builder di `kelola` |
-| `announcements` | v1.1 | pengumuman in-app + internal action Discord webhook | announcements | `pengumuman` (`/pengumuman/<tenant>`); toast + badge di dock icon Komunitas |
+| ~~`announcements`~~ | v1.1 → **DIHAPUS v1.8 (#33)** | ~~pengumuman in-app + Discord webhook~~ → `posts` kind `pengumuman`; webhook pindah ke `convex/features/posts/discord.ts` | ~~announcements~~ | — |
+| `posts` | v1.8 (#29/#30/#33) | Diskusi feed: 4 kind tetap (diskusi · pengumuman · usulan · sumber), likes + poin, permalink anonim, `?kind=` deep-link | posts, postLikes | `/k/<slug>/diskusi`, `/k/<slug>/post/<id>` |
 
 ### Slice frontend OS (baru — pivot 2026-07, frontend-only, tanpa tabel Convex)
 
@@ -55,16 +62,12 @@ flowchart TD
   APPS --> DCRS["slices/courses"]
   APPS --> DPRG["slices/progress"]
   APPS --> DPRO["slices/profiles"]
-  APPS --> DRES["slices/resources"]
   APPS --> DQZ["slices/quiz"]
-  APPS --> DANN["slices/announcements"]
   DTEN --> CVX[("convex/features/*<br/>self-hosted")]
   DCRS --> CVX
   DPRG --> CVX
   DPRO --> CVX
-  DRES --> CVX
   DQZ --> CVX
-  DANN --> CVX
   OSS -->|capabilities seam| CVX
 ```
 

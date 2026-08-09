@@ -86,7 +86,6 @@ specs fail on purpose — update them together with their SSOT:
 | 6 kelola | "Masuk untuk mengelola" (anon gate) | `kelola-app.tsx` |
 | 7 lesson anon | spec 3 etalase + "Login untuk gabung" + `iframe` count 0 | `kelas-app.tsx` (member gate) · `slices/tenants/config/labels.ts` |
 | 8 sertifikat | `/tidak ditemukan/i` — **fixme**, waiting on mounting #24 | `profil-app`/CertificateView (not mounted yet) |
-| 9 usulan anon | login gate `/masuk untuk\|login untuk\|silakan login/i` — **test.fail** (open defect) | `resources-app.tsx` (no anon branch yet) |
 
 Every spec also asserts **no-crash**: the Next.js overlay AND the
 `app/error.tsx` page ("Ada yang tidak beres") both count as a crash.
@@ -102,7 +101,6 @@ Live annotations (delete when they flip):
 
 - **Spec 8 `test.fixme`** — the `/sertifikat/<id>` route is not mounted yet; turn
   it on after alpha's #24 integration.
-- **Spec 9 `test.fail`** — open defect: `resources-app` has no anon branch → the
   suggestions query throws NOT_AUTHENTICATED all the way up to `app/error.tsx`.
   The spec asserts the INTENDED behavior (a login gate like `kelola-app`'s); once
   the gate lands, the spec turns into an "unexpected pass" → drop the annotation

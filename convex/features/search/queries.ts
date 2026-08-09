@@ -1,6 +1,6 @@
-// search feature — per-tenant full-text search (#23, extended #29): published
-// course titles (courses.search_title) + lesson content (lessons.search_content)
-// + APPROVED resources by title (by_tenant_status index, in-memory filter).
+// search feature — per-tenant full-text search (#23, extended #29, retargeted
+// v1.8 #33): published course titles (courses.search_title) + lesson content
+// (lessons.search_content) + Diskusi posts by title (posts.search_title).
 // MEMBER-ONLY: requireTenantRole(member) is the FIRST line — anonymous and
 // outsider callers are rejected before any domain row is touched (P0; pattern:
 // courses/access.ts auth-before-read). Draft-guard: the lessons search index
@@ -13,15 +13,15 @@ import { requireTenantRole } from "../../_shared/auth";
 import {
   toCourseHit,
   toLessonHit,
-  toResourceHit,
+  toPostHit,
   type SearchInTenantResult,
 } from "./projections";
 import {
   assertSearchQuery,
   COURSE_TAKE,
   LESSON_TAKE,
-  RESOURCE_SCAN_TAKE,
-  RESOURCE_TAKE,
+  POST_SCAN_TAKE,
+  POST_TAKE,
 } from "./validate";
 
 export const searchInTenant = query({
@@ -63,22 +63,23 @@ export const searchInTenant = query({
       return course === undefined ? [] : [toLessonHit(lesson, course)];
     });
 
-    // Resources (#29): APPROVED-only, filtered STRUCTURALLY in the index —
-    // pending/rejected rows are never even read (P0). Title match is an
-    // in-memory case-insensitive contains over a bounded take; NO new search
-    // index (DATA-MODEL wave v1.4 — upgrade to searchIndex only if weak).
-    const needle = q.toLowerCase();
-    const resources = await ctx.db
-      .query("resources")
-      .withIndex("by_tenant_status", (idx) =>
-        idx.eq("tenantId", args.tenantId).eq("status", "approved")
+    // Posts (v1.8 #33): the third source is the Diskusi feed. The curation gate
+    // it replaced is gone, so there is no approved/pending/rejected filter to
+    // apply — the only thing hidden is a SOFT-DELETED post, and the search index
+    // carries no deletedAt column, so that guard runs AFTER the bounded read
+    // (same shape as the lesson draft-guard above). tenantId is filtered
+    // STRUCTURALLY in the index, so another community's posts are never read.
+    const posts = await ctx.db
+      .query("posts")
+      .withSearchIndex("search_title", (s) =>
+        s.search("title", q).eq("tenantId", args.tenantId)
       )
-      .take(RESOURCE_SCAN_TAKE);
-    const resourceHits = resources
-      .filter((resource) => resource.title.toLowerCase().includes(needle))
-      .slice(0, RESOURCE_TAKE)
-      .map(toResourceHit);
+      .take(POST_SCAN_TAKE);
+    const postHits = posts
+      .filter((post) => post.deletedAt === undefined)
+      .slice(0, POST_TAKE)
+      .map(toPostHit);
 
-    return [...courses.map(toCourseHit), ...lessonHits, ...resourceHits];
+    return [...courses.map(toCourseHit), ...lessonHits, ...postHits];
   },
 });

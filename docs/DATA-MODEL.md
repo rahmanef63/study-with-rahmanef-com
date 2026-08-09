@@ -440,10 +440,10 @@ Kontrak P0 untuk **setiap** query/mutation publik: (1) `args` dengan validator `
 | courseCompletions | publik via profil (badge) | sistem — otomatis dari mutation progress |
 | quizzes | member, **tanpa** `correctIndex`/`explanation` | instructor+ |
 | quizAttempts | user sendiri | user sendiri; penilaian server-side |
-| resources/suggestions | approved/open: member; pending: instructor+ & pengusul | submit: member; kurasi: instructor+ |
-| announcements | member tenant | instructor+ |
+| ~~resources/suggestions~~ **PENSIUN v1.8 (#33)** | — gate kurasi (pending/approved/rejected · open/planned/done) DIHAPUS SELURUHNYA; tak ada fungsi yang membaca/menulisnya lagi | — → `posts` kind `sumber`/`usulan`; moderasi kini post-hoc (`softDelete`/`togglePin`) |
+| ~~announcements~~ **PENSIUN v1.8 (#33)** | — | — → `posts` kind `pengumuman` (instructor+ tetap dicek di mutation) |
 | comments (fase-2 #16, v1.8 #29) | member tenant (lesson/post yang bisa ia akses); deleted → placeholder | tulis: member; soft-delete: author atau instructor+ |
-| suggestionVotes (fase-2 #18) | count agregat: member tenant | toggle: user sendiri (unik via by_suggestion_user) |
+| ~~suggestionVotes~~ (fase-2 #18) **PENSIUN v1.8 (#33)** | — count agregat tak lagi diturunkan saat baca | — → `postLikes` (+ `posts.likeCount` DISIMPAN) |
 | posts (v1.8 #29/#33) | **anonim** (proyeksi aman `toPublicPost`, tenant `active`, `deletedAt` disembunyikan) — DECISIONS #29 mewajibkan permalink yang bisa di-index, dan DECISIONS mengungguli dokumen ini (AGENTS.md §1). Menulis balasan/like tetap member | tulis: member (cap harian per user WAJIB); `kind: "pengumuman"` & `pinned`: instructor+; edit/soft-delete: **masih anggota** DAN (author atau instructor+) |
 | postLikes (v1.8 #30) | "sudah saya like?" milik sendiri via by_post_user; agregat dibaca dari `posts.likeCount` | toggle: user sendiri (unik via by_post_user) |
 | events (v1.8 #31) | **anonim, TERBATAS**: judul/deskripsi/waktu terbuka (sinyal "komunitas ini hidup" = gunanya kalender); `locationUrl` (link gabung sesi live) **hanya member** — anon cuma dapat `hasLocation` | instructor+ (buat/ubah/batal; `createRecurring` maks 12 baris diskrit, tanpa recurrence rule) |

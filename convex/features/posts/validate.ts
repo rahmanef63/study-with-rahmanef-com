@@ -63,3 +63,22 @@ export function clampPageSize(numItems: number): number {
   if (!Number.isFinite(numItems) || numItems < 1) return FEED_PAGE_MAX;
   return Math.min(Math.floor(numItems), FEED_PAGE_MAX);
 }
+
+/**
+ * Discord's webhook `content` hard cap is 2000 chars; the body is truncated
+ * below that so the title + footer always fit. Moved here from the retired
+ * announcements feature (v1.8 #33) — the formatter is pure, so it stays out of
+ * the internal action module.
+ */
+export const DISCORD_BODY_MAX = 1500;
+
+/** Build the Discord webhook message body (`{ content }`) for a pengumuman. */
+export function formatDiscordMessage(
+  title: string,
+  bodyMd: string,
+  tenantName: string
+): string {
+  const body =
+    bodyMd.length > DISCORD_BODY_MAX ? `${bodyMd.slice(0, DISCORD_BODY_MAX)}…` : bodyMd;
+  return `📢 **${title}**\n\n${body}\n\n— ${tenantName}`;
+}

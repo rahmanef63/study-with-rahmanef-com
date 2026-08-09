@@ -1,11 +1,11 @@
 {
   "$schema": "https://resource.rahmanef.com/slice-schema.json",
   "slug": "search",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "category": "lms",
   "kind": "fullstack",
-  "title": "Search — pencarian kelas, materi & sumber per komunitas",
-  "description": "Per-tenant full-text search (fase-2, STATUS #23 + #29) for belajar-with-rahmanef.com. MEMBER-ONLY: searchInTenant runs requireTenantRole(member) as its first line — anonymous and outsider callers are rejected before any domain read (P0, asserted in tests). Three bounded reads: courses.search_title (eq tenantId + eq status published, take 10), lessons.search_content (eq tenantId, take 15) with a DRAFT-GUARD pass that drops lessons whose owning course is not published — drafts never reach members (P0, asserted) — and resources via by_tenant_status (eq tenantId + eq status approved, take 50) filtered in-memory by case-insensitive title contains, top 10 — pending/rejected never appear (P0, asserted; NO new search index). Hits are safe projections {kind: course|lesson, title, courseSlug, lessonId?, snippet?} and {kind: resource, title, url} — no note/submittedBy/id; snippet is contentMd stripped of markdown and cut at 120 chars — raw contentMd never ships. Resource rows render in group \"Sumber\" as external links (target _blank + rel noopener noreferrer, NEVER onNavigate). One mounted view: SearchView({ tenantId, tenantSlug, onNavigate? }) — onNavigate is the os-shell openApp seam (next/link fallback keeps the slice portable; no os-shell import).",
+  "title": "Search — pencarian kelas, materi & diskusi per komunitas",
+  "description": "Per-tenant full-text search (fase-2, STATUS #23 + #29) for belajar-with-rahmanef.com. MEMBER-ONLY: searchInTenant runs requireTenantRole(member) as its first line — anonymous and outsider callers are rejected before any domain read (P0, asserted in tests). Three bounded reads: courses.search_title (eq tenantId + eq status published, take 10), lessons.search_content (eq tenantId, take 15) with a DRAFT-GUARD pass that drops lessons whose owning course is not published — drafts never reach members (P0, asserted) — and Diskusi posts via posts.search_title (eq tenantId, take 20) with soft-deleted rows dropped after the read, top 10 — the curated resource board and its pending/approved/rejected gate are gone (#33). Hits are safe projections {kind: course|lesson, title, courseSlug, lessonId?, snippet?} and {kind: post, title, postId, postKind} — no bodyMd/authorId/linkUrl; snippet is contentMd stripped of markdown and cut at 120 chars — raw contentMd never ships. Post rows render in group \"Diskusi\" as INTERNAL permalinks /k/<tenant>/post/<postId>. One mounted view: SearchView({ tenantId, tenantSlug, onNavigate? }) — onNavigate is the os-shell openApp seam (next/link fallback keeps the slice portable; no os-shell import).",
   "namespace": "@/features/search",
   "convex": {
     "tablesExport": "",
@@ -24,7 +24,7 @@
       "views": ["SearchView"],
       "components": ["SearchInput", "SearchResults", "SearchResultItem", "SearchEmptyState"],
       "hooks": ["useTenantSearch", "useDebouncedValue"],
-      "lib": ["buildCourseHref", "buildLessonHref", "hitHref"],
+      "lib": ["buildCourseHref", "buildLessonHref", "buildPostHref", "hitHref"],
       "consumerSeams": {
         "os-shell": [
           "search window-app ← <SearchView tenantId={tenant._id} tenantSlug={tenant.slug} onNavigate={(href) => openApp(href)} />"
@@ -38,6 +38,6 @@
   },
   "registers": [],
   "license": "MIT",
-  "tags": ["lms", "search", "full-text", "courses", "lessons", "resources", "multi-tenant"],
+  "tags": ["lms", "search", "full-text", "courses", "lessons", "posts", "multi-tenant"],
   "providers": []
 }

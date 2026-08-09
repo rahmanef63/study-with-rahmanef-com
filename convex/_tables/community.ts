@@ -36,6 +36,14 @@ export const posts = defineTable({
   .index("by_tenant_pinned_activity", ["tenantId", "pinned", "lastActivityAt"])
   .index("by_tenant_kind", ["tenantId", "kind"])
   .index("by_author", ["authorId"])
+  // Exact key for the one-shot legacy backfill (posts/backfillMap.ts). It made
+  // the migration replayable: the previous bounded scan over by_author read up
+  // to 200 posts PER SOURCE ROW, so a batch of 100 could ask for 20,000
+  // documents in one mutation — over Convex's 16,384 per-transaction ceiling —
+  // and silently stopped finding matches once an author passed 200 posts.
+  // Cheap to keep afterwards: it is also the natural "does this author already
+  // have a post with this title" lookup.
+  .index("by_author_kind_title", ["authorId", "kind", "title"])
   .searchIndex("search_title", { searchField: "title", filterFields: ["tenantId"] });
 
 // v1.8 (#30): one like per user per post — a direct generalisation of

@@ -47,6 +47,8 @@ describe("barrel type contract (compile-time, enforced by tsc)", () => {
     // IS the indexability contract of #29.
     expectTypeOf<Barrel.FeedViewProps>().toHaveProperty("initialPosts");
     expectTypeOf<Barrel.FeedViewProps>().toHaveProperty("postHref");
+    // 0.2.0: `?kind=` deep link (the retired boards' inbound links land on it).
+    expectTypeOf<Barrel.FeedViewProps>().toHaveProperty("initialKind");
     // Four fixed kinds, no categories table.
     expectTypeOf<Barrel.PostKind>().toEqualTypeOf<
       "diskusi" | "pengumuman" | "usulan" | "sumber"

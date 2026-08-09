@@ -8,13 +8,14 @@
 // crawler and there is no hydration flicker; the live socket takes over as soon
 // as the paginated query answers. A kind filter falls back to nothing, never to
 // the unfiltered server page.
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMyMembership } from "@/features/tenants";
 import type { Id } from "@convex/_generated/dataModel";
+import { parsePostKind } from "../lib/kind";
 import { CategoryChips } from "../components/category-chips";
 import { PostCard } from "../components/post-card";
 import { PostComposer } from "../components/post-composer";
@@ -29,6 +30,12 @@ export type FeedViewProps = {
   tenantId: Id<"tenants">;
   /** Server-rendered first page (unfiltered). Omit to render client-only. */
   initialPosts?: PublicPost[];
+  /**
+   * Category the feed opens on — the consumer's `?kind=` deep link, parsed
+   * with `parsePostKind`. `null`/omitted is "Semua". Only the STARTING
+   * position: the chips stay component state, so filtering never re-navigates.
+   */
+  initialKind?: PostKindFilter;
   /** Permalink builder — the slice never knows the consumer's URL shape. */
   postHref: (postId: string) => string;
   profileHref: (username: string) => string;
@@ -41,6 +48,7 @@ export type FeedViewProps = {
 export function FeedView({
   tenantId,
   initialPosts = [],
+  initialKind = null,
   postHref,
   profileHref,
   loginHref,
@@ -48,7 +56,17 @@ export function FeedView({
   className,
 }: FeedViewProps) {
   const copy = mergePostsCopy(copyOverride);
-  const [kind, setKind] = useState<PostKindFilter>(null);
+  const [kind, setKind] = useState<PostKindFilter>(initialKind);
+  // Notification rows written before the boards were folded carry hrefs ending
+  // in #sumber / #usulan / #pengumuman. A fragment never reaches the server, so
+  // next.config.mjs cannot repair those the way it repaired the path — they
+  // would land on the unfiltered feed instead of the category the notification
+  // is about. Read it once on mount and open the matching chip.
+  useEffect(() => {
+    if (initialKind !== null) return;
+    const fromHash = parsePostKind(window.location.hash.slice(1));
+    if (fromHash !== null) setKind(fromHash);
+  }, [initialKind]);
 
   const { posts: live, status, loadMore } = usePostFeed(tenantId, kind);
   // Live rows win the moment the socket answers; before that (SSR + the first

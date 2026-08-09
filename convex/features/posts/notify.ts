@@ -10,7 +10,7 @@
 // route; every producer links through postHref so the format has one home.
 import type { Doc, Id } from "../../_generated/dataModel";
 import type { MutationCtx } from "../../_generated/server";
-import { createNotificationRef } from "../notifications/refs";
+import { createManyNotificationsRef, createNotificationRef } from "../notifications/refs";
 
 /** Max post-title chars quoted in a notification body (bounded copy). */
 export const TITLE_SNIPPET = 60;
@@ -58,5 +58,62 @@ export async function schedulePostReplyNotification(
     title: "Balasan baru di postinganmu",
     body: `${await replierName(ctx, args.replierId)} membalas "${snippet(args.post.title)}".`,
     href: postHref(tenant.slug, args.post._id),
+  });
+}
+
+// ── pengumuman fan-out (#28, MOVED from the retired announcements feature) ──
+//
+// Memberships read bound = the notifications-side CREATE_MANY_CAP (200).
+// Recipients are always < this after the sender is dropped, so the scheduled
+// createMany can never trip its own cap from this producer.
+export const MEMBER_FANOUT_TAKE = 200;
+
+/** Notifications-side MAX_TITLE (validate.ts) — defensive truncation bound. */
+const NOTIFICATION_TITLE_MAX = 120;
+
+/**
+ * Schedule the "announcement" inbox fan-out for every tenant member EXCEPT the
+ * sender, when a `kind: "pengumuman"` post lands. ONE
+ * ctx.scheduler.runAfter(0, createMany, …) for the whole list — never one job
+ * per member. No-ops silently when the tenant row is gone or there is no other
+ * member; dangling data must not crash the post write.
+ *
+ * P0 (#28): the sender NEVER notifies themself.
+ */
+export async function scheduleAnnouncementFanout(
+  ctx: MutationCtx,
+  args: {
+    post: Doc<"posts">;
+    /** The post author (actor) — from ctx auth, never client args. */
+    senderId: Id<"users">;
+  }
+): Promise<void> {
+  const tenant = await ctx.db.get(args.post.tenantId);
+  if (tenant === null) return; // dangling — skip silently
+
+  const memberships = await ctx.db
+    .query("memberships")
+    .withIndex("by_tenant", (q) => q.eq("tenantId", args.post.tenantId))
+    .take(MEMBER_FANOUT_TAKE);
+
+  const recipientIds = memberships
+    .map((m) => m.userId)
+    .filter((userId) => userId !== args.senderId); // no self-notify (P0)
+  if (recipientIds.length === 0) return;
+
+  // posts MAX_TITLE (140) exceeds the notifications MAX_TITLE (120), so this
+  // truncation is LOAD-BEARING, not defensive: an untruncated 140-char title
+  // would make the scheduled createMany throw VALIDATION_FAILED.
+  const title =
+    args.post.title.length > NOTIFICATION_TITLE_MAX
+      ? `${args.post.title.slice(0, NOTIFICATION_TITLE_MAX - 1)}…`
+      : args.post.title;
+
+  await ctx.scheduler.runAfter(0, createManyNotificationsRef, {
+    tenantId: args.post.tenantId,
+    kind: "announcement",
+    title,
+    href: postHref(tenant.slug, args.post._id),
+    recipientIds,
   });
 }

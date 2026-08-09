@@ -1,15 +1,21 @@
 "use client";
-// search slice — one hit row. Course/lesson render a real next/link (rr P1:
-// never raw <a> for INTERNAL navigation) whose click is INTERCEPTED when the
-// host passes onNavigate — the os-shell openApp seam (#23): the slice stays
-// portable, never imports the shell. Resource hits (#29) are EXTERNAL urls:
-// a plain anchor with target="_blank" rel="noopener noreferrer", deliberately
-// BYPASSING onNavigate (next/link is internal-routing only; noopener is the
-// safety requirement here).
-import { BookOpen, ExternalLink, FileText } from "lucide-react";
+// search slice — one hit row. EVERY kind renders a real next/link (rr P1: never
+// raw <a> for INTERNAL navigation) whose click is INTERCEPTED when the host
+// passes onNavigate — the openApp seam (#23): the slice stays portable and
+// never imports the shell. The external-anchor branch the curated resource
+// board needed is gone with it (v1.8 #33): a Diskusi post is an internal
+// permalink, and its external link (if any) lives on the post page.
+import { BookOpen, FileText, MessagesSquare } from "lucide-react";
 import Link from "next/link";
 import type { SearchHit } from "../types";
 import type { SearchCopy } from "../config/copy";
+
+/** Per-kind aria-label prefix — copy stays props-driven (rr P1). */
+const LABEL_KEY: Record<SearchHit["kind"], (copy: SearchCopy) => string> = {
+  course: (copy) => copy.openCourse,
+  lesson: (copy) => copy.openLesson,
+  post: (copy) => copy.openPost,
+};
 
 export type SearchResultItemProps = {
   hit: SearchHit;
@@ -23,7 +29,7 @@ const ROW_CLASS =
 
 function RowBody({ hit }: { hit: SearchHit }) {
   const Icon =
-    hit.kind === "course" ? BookOpen : hit.kind === "resource" ? ExternalLink : FileText;
+    hit.kind === "course" ? BookOpen : hit.kind === "post" ? MessagesSquare : FileText;
   return (
     <>
       <Icon aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
@@ -40,23 +46,6 @@ function RowBody({ hit }: { hit: SearchHit }) {
 }
 
 export function SearchResultItem({ hit, href, onNavigate, copy }: SearchResultItemProps) {
-  if (hit.kind === "resource") {
-    // External destination — new tab, no opener handle, NEVER onNavigate (#29).
-    return (
-      <li>
-        <a
-          href={href}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={`${copy.openResource}: ${hit.title}`}
-          className={ROW_CLASS}
-        >
-          <RowBody hit={hit} />
-        </a>
-      </li>
-    );
-  }
-
   return (
     <li>
       <Link
@@ -67,7 +56,7 @@ export function SearchResultItem({ hit, href, onNavigate, copy }: SearchResultIt
             onNavigate(href);
           }
         }}
-        aria-label={`${hit.kind === "course" ? copy.openCourse : copy.openLesson}: ${hit.title}`}
+        aria-label={`${LABEL_KEY[hit.kind](copy)}: ${hit.title}`}
         className={ROW_CLASS}
       >
         <RowBody hit={hit} />

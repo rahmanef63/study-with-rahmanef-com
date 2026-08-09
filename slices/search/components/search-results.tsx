@@ -1,7 +1,7 @@
 "use client";
-// search slice — grouped results (Kelas / Materi / Sumber). Presentational:
+// search slice — grouped results (Kelas / Materi / Diskusi). Presentational:
 // hits come in flat with a kind discriminator; grouping + hrefs derived here.
-// Sumber rows (#29) open their EXTERNAL url in a new tab — see SearchResultItem.
+// The third group is the Diskusi feed (v1.8 #33); every row is an internal route.
 import { hitHref } from "../lib/hrefs";
 import type { SearchHit } from "../types";
 import type { SearchCopy } from "../config/copy";
@@ -18,7 +18,7 @@ export function SearchResults({ hits, tenantSlug, onNavigate, copy }: SearchResu
   const groups = [
     { label: copy.groupCourses, items: hits.filter((h) => h.kind === "course") },
     { label: copy.groupLessons, items: hits.filter((h) => h.kind === "lesson") },
-    { label: copy.groupResources, items: hits.filter((h) => h.kind === "resource") },
+    { label: copy.groupPosts, items: hits.filter((h) => h.kind === "post") },
   ].filter((group) => group.items.length > 0);
 
   return (
@@ -34,8 +34,8 @@ export function SearchResults({ hits, tenantSlug, onNavigate, copy }: SearchResu
                 key={
                   hit.kind === "lesson"
                     ? hit.lessonId
-                    : hit.kind === "resource"
-                      ? `resource-${hit.url}`
+                    : hit.kind === "post"
+                      ? hit.postId
                       : `course-${hit.courseSlug}`
                 }
                 hit={hit}

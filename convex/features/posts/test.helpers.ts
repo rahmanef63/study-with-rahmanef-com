@@ -35,11 +35,15 @@ export type TenantFixture = {
   outsiderId: Id<"users">;
 };
 
+/** Discord webhook used by the pengumuman specs — asserted never to leak (P0). */
+export const TEST_WEBHOOK_URL = "https://discord.com/api/webhooks/123/rahasia-abc";
+
 /** Tenant (active by default) + one user per role (outsider has NO membership). */
 export async function seedTenantFixture(
   t: T,
   slug = "komunitas-test",
-  status: "pending" | "active" | "suspended" = "active"
+  status: "pending" | "active" | "suspended" = "active",
+  opts: { withWebhook?: boolean } = {}
 ): Promise<TenantFixture> {
   return await t.run(async (ctx) => {
     const ownerId = await ctx.db.insert("users", { email: `owner@${slug}.id` });
@@ -52,6 +56,7 @@ export async function seedTenantFixture(
       description: "Tenant fixture untuk spec posts",
       status,
       ownerId,
+      discordWebhookUrl: opts.withWebhook === true ? TEST_WEBHOOK_URL : undefined,
     });
     await ctx.db.insert("memberships", { tenantId, userId: ownerId, role: "owner" });
     await ctx.db.insert("memberships", { tenantId, userId: instructorId, role: "instructor" });

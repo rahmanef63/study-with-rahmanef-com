@@ -1,13 +1,13 @@
 /// <reference types="vite/client" />
 // Projection-safety specs (P0: explicit shapes, no raw docs) — moved out of
-// queries.test.ts in #29 for the 200-LOC audit, and EXTENDED with the resource
-// kind: {kind, title, url} EXACTLY — no note/submittedBy/_id ever leaks.
+// queries.test.ts in #29 for the 200-LOC audit; retargeted in #33 to the post
+// kind: {kind, title, postId, postKind} EXACTLY — no bodyMd/authorId/linkUrl.
 import { expect, test } from "vitest";
 import { api } from "../../_generated/api";
 import {
   asUser,
   seedCourseWithLesson,
-  seedResource,
+  seedPost,
   seedTenantFixture,
   setup,
 } from "./test.helpers";
@@ -24,16 +24,16 @@ async function fixture() {
     lessonTitle: "Klorofil dan cahaya",
     contentMd: "# Judul\n\nFotosintesis mengubah **energi** dari [cahaya](https://example.com).",
   });
-  await seedResource(t, fx, {
-    status: "approved",
+  await seedPost(t, fx, {
     title: "PDF Fotosintesis Ringkas",
-    url: "https://contoh.id/fotosintesis.pdf",
-    note: "Catatan internal yang TIDAK boleh bocor",
+    kind: "sumber",
+    linkUrl: "https://contoh.id/fotosintesis.pdf",
+    bodyMd: "Catatan internal yang TIDAK boleh bocor",
   });
   return { t, fx };
 }
 
-test("hit shapes are EXACT per kind — resource is {kind,title,url} PERSIS", async () => {
+test("hit shapes are EXACT per kind — post is {kind,title,postId,postKind} PERSIS", async () => {
   const { t, fx } = await fixture();
   const hits = await t
     .withIdentity(asUser(fx.memberId))
@@ -41,16 +41,18 @@ test("hit shapes are EXACT per kind — resource is {kind,title,url} PERSIS", as
 
   // All three kinds present in this fixture.
   expect(new Set(hits.map((h: { kind: string }) => h.kind))).toEqual(
-    new Set(["course", "lesson", "resource"])
+    new Set(["course", "lesson", "post"])
   );
 
   for (const hit of hits) {
     if (hit.kind === "course") {
       expect(Object.keys(hit).sort()).toEqual(["courseSlug", "kind", "title"]);
-    } else if (hit.kind === "resource") {
-      // EXACT shape (#29): no note, no submittedBy, no id, no status.
-      expect(Object.keys(hit).sort()).toEqual(["kind", "title", "url"]);
-      expect(hit.url).toBe("https://contoh.id/fotosintesis.pdf");
+    } else if (hit.kind === "post") {
+      // EXACT shape (#33): no bodyMd, no authorId, no linkUrl, no counters.
+      expect(Object.keys(hit).sort()).toEqual(["kind", "postId", "postKind", "title"]);
+      expect(hit.postKind).toBe("sumber");
+      expect(JSON.stringify(hit)).not.toContain("Catatan internal");
+      expect(JSON.stringify(hit)).not.toContain("fotosintesis.pdf");
     } else {
       expect(Object.keys(hit).sort()).toEqual([
         "courseSlug",

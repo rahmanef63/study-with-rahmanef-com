@@ -11,9 +11,8 @@
 // are permanently anonymous), which is why the whole console is a client island.
 import { useState } from "react";
 import Link from "next/link";
-import { BarChart3, BookOpen, ListChecks, Lock, Megaphone, Users, IdCard, type LucideIcon } from "lucide-react";
+import { BarChart3, BookOpen, ListChecks, Lock, Users, IdCard, type LucideIcon } from "lucide-react";
 import type { Id } from "@convex/_generated/dataModel";
-import { AnnouncementsView } from "@/features/announcements";
 import { TenantSettingsView, useMyMembership } from "@/features/tenants";
 import { Button } from "@/components/ui/button";
 import { SectionHeader } from "@/components/mockup-kit";
@@ -24,17 +23,14 @@ import { KelolaKelasTab } from "./kelola-kelas-tab";
 import { KelolaKuisTab } from "./kelola-kuis-tab";
 import { KelolaStatistikTab } from "./kelola-statistik-tab";
 
-type TabKey = "kelas" | "kuis" | "pengumuman" | "anggota" | "komunitas" | "statistik";
+// "pengumuman" is gone (v1.8 #33): an announcement is now a `posts` row with
+// kind "pengumuman", written from the Diskusi composer (instructor+ only) and
+// pinned there — a dedicated console tab for one post kind was the "ribet".
+type TabKey = "kelas" | "kuis" | "anggota" | "komunitas" | "statistik";
 
 const TABS: { key: TabKey; label: string; icon: LucideIcon; blurb: string }[] = [
   { key: "kelas", label: "Kelas", icon: BookOpen, blurb: "Susun kelas, modul, dan materi." },
   { key: "kuis", label: "Kuis", icon: ListChecks, blurb: "Bangun bank soal per modul." },
-  {
-    key: "pengumuman",
-    label: "Pengumuman",
-    icon: Megaphone,
-    blurb: "Kirim kabar ke seluruh anggota.",
-  },
   { key: "anggota", label: "Anggota & peran", icon: Users, blurb: "Lihat anggota, atur perannya." },
   {
     key: "komunitas",
@@ -123,6 +119,21 @@ export function KelolaConsole({
         })}
       </div>
 
+      {/* The "Pengumuman" tab used to be here. Dropping it silently would leave
+          an instructor hunting for a console screen that no longer exists, so
+          the console says where the capability went — once, quietly. */}
+      <p className="text-xs text-muted-foreground">
+        Mau kirim pengumuman?{" "}
+        <Link
+          href={communityHref.diskusiKind(slug, "pengumuman")}
+          className="underline underline-offset-4 hover:text-foreground"
+        >
+          Tulis di Diskusi
+        </Link>{" "}
+        lalu pilih kategori <strong className="font-medium">Pengumuman</strong>. Sematkan
+        posnya kalau mau tampil paling atas.
+      </p>
+
       <section className="min-w-0 space-y-5">
         <SectionHeader
           title={active.label}
@@ -136,7 +147,6 @@ export function KelolaConsole({
         <div className="min-w-0">
           {tab === "kelas" ? <KelolaKelasTab tenantId={tenantId} /> : null}
           {tab === "kuis" ? <KelolaKuisTab tenantId={tenantId} /> : null}
-          {tab === "pengumuman" ? <AnnouncementsView tenantId={tenantId} canManage /> : null}
           {tab === "anggota" ? <KelolaAnggotaTab tenantId={tenantId} /> : null}
           {tab === "komunitas" ? <TenantSettingsView slug={slug} /> : null}
           {tab === "statistik" ? <KelolaStatistikTab tenantId={tenantId} /> : null}

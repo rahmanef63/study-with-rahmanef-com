@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { api } from "@convex/_generated/api";
-import { FeedView, FEED_PAGE_SIZE } from "@/features/posts";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
 import { communityHref } from "@/lib/community";
 import { safeQuery } from "@/lib/convex-server";
+import { PapanDiskusi } from "./_components/papan-diskusi";
+import { FEED_PAGE_SIZE, parsePostKind } from "@/features/posts";
 
 // Diskusi — the community feed (#29). This page is the reason the feed exists
 // as real HTML: publicListFeed and publicGetPost are on the anonymous etalase
@@ -13,6 +14,10 @@ import { safeQuery } from "@/lib/convex-server";
 // and for anyone who lands here logged out. The composer, likes and replies
 // hydrate as a member-gated client island inside <FeedView/>.
 type Params = { slug: string };
+// `?kind=sumber` etc. — the Silabus "Sumber belajar" card and the retired
+// /resources + /pengumuman redirects land here. Anything unrecognised parses
+// back to null ("Semua"), so a junk param can never render an empty board.
+type Search = { kind?: string | string[] };
 
 const FEED_TITLE = "Diskusi";
 const FEED_DESCRIPTION =
@@ -34,7 +39,17 @@ export async function generateMetadata({
   };
 }
 
-async function DiskusiBody({ slug }: { slug: string }) {
+async function DiskusiBody({
+  slug,
+  searchParams,
+}: {
+  slug: string;
+  searchParams: Promise<Search>;
+}) {
+  // Awaited HERE, inside the Suspense boundary, not in the page shell: the
+  // header above must not wait on request data to paint.
+  const { kind } = await searchParams;
+  const initialKind = parsePostKind(Array.isArray(kind) ? kind[0] : kind);
   const tenant = await safeQuery(api.features.tenants.queries.getPublicBySlug, { slug });
   // An unknown slug already 404s in the layout, so null here means Convex is
   // unreachable — say so instead of rendering an empty page.
@@ -62,17 +77,22 @@ async function DiskusiBody({ slug }: { slug: string }) {
   });
 
   return (
-    <FeedView
+    <PapanDiskusi
       tenantId={tenant._id}
+      slug={slug}
       initialPosts={firstPage?.page ?? []}
-      postHref={(postId) => communityHref.post(slug, postId)}
-      profileHref={(username) => communityHref.profile(username)}
-      loginHref={`/masuk?next=${encodeURIComponent(communityHref.diskusi(slug))}`}
+      initialKind={initialKind}
     />
   );
 }
 
-export default async function DiskusiPage({ params }: { params: Promise<Params> }) {
+export default async function DiskusiPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<Params>;
+  searchParams: Promise<Search>;
+}) {
   const { slug } = await params;
   return (
     <div className="space-y-6">
@@ -93,7 +113,7 @@ export default async function DiskusiPage({ params }: { params: Promise<Params> 
           </div>
         }
       >
-        <DiskusiBody slug={slug} />
+        <DiskusiBody slug={slug} searchParams={searchParams} />
       </Suspense>
     </div>
   );

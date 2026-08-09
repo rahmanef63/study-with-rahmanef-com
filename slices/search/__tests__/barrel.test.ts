@@ -13,7 +13,7 @@ import {
   MIN_QUERY_LENGTH,
   SEARCH_DEBOUNCE_MS,
 } from "../config/limits";
-import { buildCourseHref, buildLessonHref, hitHref } from "../lib/hrefs";
+import { buildCourseHref, buildLessonHref, buildPostHref, hitHref } from "../lib/hrefs";
 import {
   MAX_QUERY_LENGTH as SERVER_MAX,
   MIN_QUERY_LENGTH as SERVER_MIN,
@@ -42,17 +42,20 @@ describe("barrel type contract (compile-time, enforced by tsc)", () => {
     // P0 type shape: hits are the safe projection — kind discriminator,
     // lesson carries lessonId + snippet, course carries neither.
     expectTypeOf<Barrel.SearchHit["kind"]>().toEqualTypeOf<
-      "course" | "lesson" | "resource"
+      "course" | "lesson" | "post"
     >();
     expectTypeOf<Barrel.LessonHit>().toHaveProperty("snippet");
     expectTypeOf<Barrel.LessonHit["snippet"]>().toEqualTypeOf<string>();
     expectTypeOf<Barrel.CourseHit>().not.toHaveProperty("snippet");
-    // Resource hit (#29, v0.2.0): EXACTLY {kind, title, url} — no note,
-    // no submittedBy, no id (server projection asserted in convex specs).
-    expectTypeOf<Barrel.ResourceHit["url"]>().toEqualTypeOf<string>();
-    expectTypeOf<Barrel.ResourceHit>().not.toHaveProperty("note");
-    expectTypeOf<Barrel.ResourceHit>().not.toHaveProperty("submittedBy");
-    expectTypeOf<keyof Barrel.ResourceHit>().toEqualTypeOf<"kind" | "title" | "url">();
+    // Post hit (#33, v0.3.0): EXACTLY {kind, title, postId, postKind} — no
+    // bodyMd, no authorId, no linkUrl (server projection asserted in the
+    // convex specs). The curated-resource hit it replaced is gone.
+    expectTypeOf<Barrel.PostHit>().not.toHaveProperty("bodyMd");
+    expectTypeOf<Barrel.PostHit>().not.toHaveProperty("authorId");
+    expectTypeOf<Barrel.PostHit>().not.toHaveProperty("linkUrl");
+    expectTypeOf<keyof Barrel.PostHit>().toEqualTypeOf<
+      "kind" | "title" | "postId" | "postKind"
+    >();
     expect(true).toBe(true); // runtime anchor so the test registers
   });
 });
@@ -61,7 +64,7 @@ describe("barrel runtime contract (alias-free modules)", () => {
   test("feature descriptor + metadata pair versions in sync (audit:slices)", () => {
     expect(searchFeature.slug).toBe("search");
     expect(sliceJson.version).toBe(manifest.version);
-    expect(sliceJson.version).toBe("0.2.0"); // #29 resource group bump
+    expect(sliceJson.version).toBe("0.3.0"); // #33 resource group → Diskusi posts
     expect(sliceJson.slug).toBe("search");
     expect(manifest.name).toBe("search");
   });
@@ -88,9 +91,7 @@ describe("barrel runtime contract (alias-free modules)", () => {
     expect(
       hitHref("belajar-ai", { kind: "course", title: "X", courseSlug: "dasar-ai" })
     ).toBe("/k/belajar-ai/kelas/dasar-ai");
-    // Resource href IS the external url — untouched, never rewritten (#29).
-    expect(
-      hitHref("belajar-ai", { kind: "resource", title: "X", url: "https://contoh.id/x" })
-    ).toBe("https://contoh.id/x");
+    // Post href is the INTERNAL permalink (#33) — no external-url branch left.
+    expect(buildPostHref("belajar-ai", "j57abc")).toBe("/k/belajar-ai/post/j57abc");
   });
 });

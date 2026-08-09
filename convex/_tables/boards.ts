@@ -4,8 +4,22 @@
 //
 // RETIRED-BUT-RETAINED (#29/#33): `resources`, `suggestions`, `suggestionVotes`
 // and `announcements` are superseded by `posts` (kind sumber / usulan /
-// pengumuman). They stay declared because production rows still exist; drop
-// them only after a backfill into `posts`.
+// pengumuman). Every feature that read or wrote them is DELETED — these four
+// definitions are the last thing keeping them alive, and they stay ONLY because
+// production rows still exist and `defineSchema` validates every declared table.
+//
+// AWAITING THE BACKFILL. The migration is written and tested:
+//   convex/features/posts/backfill.ts  (run → migrate, remaining → verify)
+// Sequence: run `backfill:run` to completion against prod → assert
+// `backfill:remaining` reports announcements/resources/suggestions/votes all 0
+// (`rejectedResources` may be non-zero — those are skipped by design, #33) →
+// THEN drop these four tables and the backfill module in a separate commit.
+//
+// NO WRITER LEFT. convex/seed.ts was the last one outside the backfill; it now
+// seeds `posts` + `postLikes` through convex/_seed/posts.ts, so a re-run can no
+// longer re-create unmigrated rows (asserted in convex/seed.test.ts). The only
+// code that still names these tables is the backfill and its tests, which the
+// table-drop commit deletes along with the definitions below.
 import { defineTable } from "convex/server";
 import { v } from "convex/values";
 

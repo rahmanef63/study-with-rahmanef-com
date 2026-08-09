@@ -17,12 +17,20 @@ export function buildLessonHref(
 }
 
 /**
- * Href for any hit — dispatches on the kind discriminator. A resource hit's
- * href is its EXTERNAL url (#29): the item renders it target="_blank"
- * rel="noopener noreferrer" and never routes it through onNavigate/openApp.
+ * Diskusi post permalink. Mirrors convex/features/posts/notify.ts postHref —
+ * the notification deep-link and the search deep-link must never drift.
+ */
+export function buildPostHref(tenantSlug: string, postId: string): string {
+  return `/k/${encodeURIComponent(tenantSlug)}/post/${encodeURIComponent(postId)}`;
+}
+
+/**
+ * Href for any hit — dispatches on the kind discriminator. Every kind is now an
+ * INTERNAL route: the third source became the Diskusi feed (v1.8 #33), so the
+ * external-url special case the curated resource board needed is gone.
  */
 export function hitHref(tenantSlug: string, hit: SearchHit): string {
-  if (hit.kind === "resource") return hit.url;
+  if (hit.kind === "post") return buildPostHref(tenantSlug, hit.postId);
   return hit.kind === "course"
     ? buildCourseHref(tenantSlug, hit.courseSlug)
     : buildLessonHref(tenantSlug, hit.courseSlug, hit.lessonId);

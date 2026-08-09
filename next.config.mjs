@@ -44,9 +44,12 @@ const nextConfig = {
       { source: "/kelas/:tenant/:course", destination: "/k/:tenant/kelas/:course", permanent: true },
       { source: "/kelas/:tenant", destination: "/k/:tenant", permanent: true },
       { source: "/komunitas/:slug", destination: "/k/:slug", permanent: true },
-      // The three boards now live as sections of one Diskusi page.
-      { source: "/resources/:tenant", destination: "/k/:tenant/diskusi#sumber", permanent: true },
-      { source: "/pengumuman/:tenant", destination: "/k/:tenant/diskusi#pengumuman", permanent: true },
+      // The three boards are now post KINDS on one Diskusi feed (#33). `?kind=`
+      // and not `#sumber`: the category filter is component state, so a
+      // fragment would have nothing on the page to scroll to. The Diskusi page
+      // parses this param (parsePostKind) and opens the feed on that chip.
+      { source: "/resources/:tenant", destination: "/k/:tenant/diskusi?kind=sumber", permanent: true },
+      { source: "/pengumuman/:tenant", destination: "/k/:tenant/diskusi?kind=pengumuman", permanent: true },
       { source: "/cari/:tenant", destination: "/k/:tenant/cari", permanent: true },
       { source: "/kelola/:tenant/:path*", destination: "/k/:tenant/kelola", permanent: true },
       // Public profile moved off the OS app slug onto a short handle route.

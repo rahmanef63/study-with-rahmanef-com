@@ -140,7 +140,7 @@ test("results are tenant-scoped: matching rows in another tenant never leak", as
 
 // ── projection safety (P0) ─────────────────────────────────────────────────
 // Exact-shape + snippet specs live in projection.test.ts (#29 moved them out
-// to keep this file under the 200-LOC audit; resource specs: resources.test.ts).
+// to keep this file under the 200-LOC audit; post-source specs: posts.test.ts).
 
 // ── bounded reads ──────────────────────────────────────────────────────────
 

@@ -3,18 +3,18 @@
 
 export const SEARCH_COPY = {
   sectionTitle: "Pencarian",
-  sectionSubtitle: "Cari kelas, materi, dan sumber di komunitas ini",
-  placeholder: "Cari kelas, materi, atau sumber…",
+  sectionSubtitle: "Cari kelas, materi, dan diskusi di komunitas ini",
+  placeholder: "Cari kelas, materi, atau diskusi…",
   inputLabel: "Kata kunci pencarian",
   hintMin: "Ketik minimal 2 karakter untuk mulai mencari",
   groupCourses: "Kelas",
   groupLessons: "Materi",
-  groupResources: "Sumber",
+  groupPosts: "Diskusi",
   emptyTitle: "Tidak ada hasil",
   emptyHint: "Coba kata kunci lain — misalnya judul kelas atau topik materi.",
   openCourse: "Buka kelas",
   openLesson: "Buka materi",
-  openResource: "Buka sumber (tab baru)",
+  openPost: "Buka diskusi",
 } as const;
 
 export type SearchCopy = { [K in keyof typeof SEARCH_COPY]: string };

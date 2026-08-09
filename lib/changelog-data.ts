@@ -28,6 +28,20 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-08-09",
+    version: "v2.3",
+    title: "Tiga papan lama jadi satu",
+    tags: ["Perbaikan", "Baru"],
+    points: [
+      "Pengumuman, Sumber belajar, dan Usulan tidak lagi jadi tiga halaman terpisah — semuanya sekarang kategori di papan Diskusi. Isi lamanya dipindahkan, tidak ada yang hilang.",
+      "Antrean kurasi dihapus. Dulu tautan atau usulan yang kamu kirim menunggu disetujui pengajar dulu — dan seringkali hilang dari pandanganmu sendiri sambil menunggu. Sekarang langsung tayang; pengajar bisa menghapus atau menyematkan setelahnya.",
+      "Pengajar menulis pengumuman lewat kotak tulis di Diskusi (pilih kategori Pengumuman). Tetap otomatis terkirim ke channel Discord komunitas seperti sebelumnya.",
+      "Menyukai sebuah tulisan lama kamu tetap dihitung — suara dari kotak usulan lama ikut dipindahkan jadi suka, lengkap dengan poinnya di Peringkat.",
+      "Pencarian sekarang juga menelusuri tulisan di Diskusi, bukan cuma judul kelas dan isi materi.",
+      "Tautan lama seperti /resources/... dan /pengumuman/... tetap jalan, otomatis diarahkan ke kategori yang benar di Diskusi.",
+    ],
+  },
+  {
+    date: "2026-08-09",
     version: "v2.2",
     title: "Diskusi, Papan Skor, dan Kalender",
     tags: ["Baru"],

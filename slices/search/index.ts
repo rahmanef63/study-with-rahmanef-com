@@ -7,9 +7,9 @@
 // still open the right window via URL-sync).
 //
 // Convex surface (not re-exported; call via api.features.search.*):
-//   queries:searchInTenant — MEMBER-ONLY, drafts never returned; since 0.2.0
-//   (#29) hits also include kind "resource" {kind, title, url} (approved-only)
-//   rendered as an external-link group "Sumber" (new tab, not onNavigate).
+//   queries:searchInTenant — MEMBER-ONLY, drafts never returned; since 0.3.0
+//   (#33) the third source is the Diskusi feed: kind "post"
+//   {kind, title, postId, postKind}, rendered as the internal group "Diskusi".
 
 // feature descriptor
 export { searchFeature } from "./config";
@@ -28,7 +28,7 @@ export { useTenantSearch, type TenantSearchState } from "./hooks/use-tenant-sear
 export { useDebouncedValue } from "./hooks/use-debounced-value";
 
 // lib (pure — safe for server or client)
-export { buildCourseHref, buildLessonHref, hitHref } from "./lib/hrefs";
+export { buildCourseHref, buildLessonHref, buildPostHref, hitHref } from "./lib/hrefs";
 
 // copy (props-driven defaults)
 export {
@@ -45,7 +45,7 @@ export { MAX_QUERY_LENGTH, MIN_QUERY_LENGTH, SEARCH_DEBOUNCE_MS } from "./config
 export type {
   CourseHit,
   LessonHit,
-  ResourceHit,
+  PostHit,
   SearchErrorCode,
   SearchHit,
   SearchInTenantResult,

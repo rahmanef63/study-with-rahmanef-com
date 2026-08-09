@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as _seed_posts from "../_seed/posts.js";
 import type * as _shared_auth from "../_shared/auth.js";
 import type * as _tables_boards from "../_tables/boards.js";
 import type * as _tables_community from "../_tables/community.js";
@@ -19,13 +20,6 @@ import type * as features_analytics_aggregate from "../features/analytics/aggreg
 import type * as features_analytics_constants from "../features/analytics/constants.js";
 import type * as features_analytics_errors from "../features/analytics/errors.js";
 import type * as features_analytics_queries from "../features/analytics/queries.js";
-import type * as features_announcements_discord from "../features/announcements/discord.js";
-import type * as features_announcements_errors from "../features/announcements/errors.js";
-import type * as features_announcements_mutations from "../features/announcements/mutations.js";
-import type * as features_announcements_notify from "../features/announcements/notify.js";
-import type * as features_announcements_queries from "../features/announcements/queries.js";
-import type * as features_announcements_refs from "../features/announcements/refs.js";
-import type * as features_announcements_validate from "../features/announcements/validate.js";
 import type * as features_comments_access from "../features/comments/access.js";
 import type * as features_comments_antiSpam from "../features/comments/antiSpam.js";
 import type * as features_comments_comments from "../features/comments/comments.js";
@@ -61,12 +55,17 @@ import type * as features_notifications_refs from "../features/notifications/ref
 import type * as features_notifications_validate from "../features/notifications/validate.js";
 import type * as features_posts_access from "../features/posts/access.js";
 import type * as features_posts_antiSpam from "../features/posts/antiSpam.js";
+import type * as features_posts_backfill from "../features/posts/backfill.js";
+import type * as features_posts_backfillMap from "../features/posts/backfillMap.js";
+import type * as features_posts_backfillVotes from "../features/posts/backfillVotes.js";
+import type * as features_posts_discord from "../features/posts/discord.js";
 import type * as features_posts_errors from "../features/posts/errors.js";
 import type * as features_posts_likes from "../features/posts/likes.js";
 import type * as features_posts_notify from "../features/posts/notify.js";
 import type * as features_posts_posts from "../features/posts/posts.js";
 import type * as features_posts_projections from "../features/posts/projections.js";
 import type * as features_posts_queries from "../features/posts/queries.js";
+import type * as features_posts_refs from "../features/posts/refs.js";
 import type * as features_posts_validate from "../features/posts/validate.js";
 import type * as features_profiles_mutations from "../features/profiles/mutations.js";
 import type * as features_profiles_public from "../features/profiles/public.js";
@@ -88,16 +87,6 @@ import type * as features_quiz_grade from "../features/quiz/grade.js";
 import type * as features_quiz_manage from "../features/quiz/manage.js";
 import type * as features_quiz_taking from "../features/quiz/taking.js";
 import type * as features_quiz_validate from "../features/quiz/validate.js";
-import type * as features_resources_access from "../features/resources/access.js";
-import type * as features_resources_antiSpam from "../features/resources/antiSpam.js";
-import type * as features_resources_errors from "../features/resources/errors.js";
-import type * as features_resources_notify from "../features/resources/notify.js";
-import type * as features_resources_projections from "../features/resources/projections.js";
-import type * as features_resources_queries from "../features/resources/queries.js";
-import type * as features_resources_resources from "../features/resources/resources.js";
-import type * as features_resources_suggestions from "../features/resources/suggestions.js";
-import type * as features_resources_validate from "../features/resources/validate.js";
-import type * as features_resources_votes from "../features/resources/votes.js";
 import type * as features_search_errors from "../features/search/errors.js";
 import type * as features_search_projections from "../features/search/projections.js";
 import type * as features_search_queries from "../features/search/queries.js";
@@ -124,6 +113,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  "_seed/posts": typeof _seed_posts;
   "_shared/auth": typeof _shared_auth;
   "_tables/boards": typeof _tables_boards;
   "_tables/community": typeof _tables_community;
@@ -135,13 +125,6 @@ declare const fullApi: ApiFromModules<{
   "features/analytics/constants": typeof features_analytics_constants;
   "features/analytics/errors": typeof features_analytics_errors;
   "features/analytics/queries": typeof features_analytics_queries;
-  "features/announcements/discord": typeof features_announcements_discord;
-  "features/announcements/errors": typeof features_announcements_errors;
-  "features/announcements/mutations": typeof features_announcements_mutations;
-  "features/announcements/notify": typeof features_announcements_notify;
-  "features/announcements/queries": typeof features_announcements_queries;
-  "features/announcements/refs": typeof features_announcements_refs;
-  "features/announcements/validate": typeof features_announcements_validate;
   "features/comments/access": typeof features_comments_access;
   "features/comments/antiSpam": typeof features_comments_antiSpam;
   "features/comments/comments": typeof features_comments_comments;
@@ -177,12 +160,17 @@ declare const fullApi: ApiFromModules<{
   "features/notifications/validate": typeof features_notifications_validate;
   "features/posts/access": typeof features_posts_access;
   "features/posts/antiSpam": typeof features_posts_antiSpam;
+  "features/posts/backfill": typeof features_posts_backfill;
+  "features/posts/backfillMap": typeof features_posts_backfillMap;
+  "features/posts/backfillVotes": typeof features_posts_backfillVotes;
+  "features/posts/discord": typeof features_posts_discord;
   "features/posts/errors": typeof features_posts_errors;
   "features/posts/likes": typeof features_posts_likes;
   "features/posts/notify": typeof features_posts_notify;
   "features/posts/posts": typeof features_posts_posts;
   "features/posts/projections": typeof features_posts_projections;
   "features/posts/queries": typeof features_posts_queries;
+  "features/posts/refs": typeof features_posts_refs;
   "features/posts/validate": typeof features_posts_validate;
   "features/profiles/mutations": typeof features_profiles_mutations;
   "features/profiles/public": typeof features_profiles_public;
@@ -204,16 +192,6 @@ declare const fullApi: ApiFromModules<{
   "features/quiz/manage": typeof features_quiz_manage;
   "features/quiz/taking": typeof features_quiz_taking;
   "features/quiz/validate": typeof features_quiz_validate;
-  "features/resources/access": typeof features_resources_access;
-  "features/resources/antiSpam": typeof features_resources_antiSpam;
-  "features/resources/errors": typeof features_resources_errors;
-  "features/resources/notify": typeof features_resources_notify;
-  "features/resources/projections": typeof features_resources_projections;
-  "features/resources/queries": typeof features_resources_queries;
-  "features/resources/resources": typeof features_resources_resources;
-  "features/resources/suggestions": typeof features_resources_suggestions;
-  "features/resources/validate": typeof features_resources_validate;
-  "features/resources/votes": typeof features_resources_votes;
   "features/search/errors": typeof features_search_errors;
   "features/search/projections": typeof features_search_projections;
   "features/search/queries": typeof features_search_queries;

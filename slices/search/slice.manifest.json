@@ -1,8 +1,8 @@
 {
   "$schema": "../../docs/slice.manifest.schema.json",
   "name": "search",
-  "version": "0.2.0",
-  "description": "Pencarian per komunitas (fase-2 #23 + #29): member-only full-text search atas judul kelas published (courses.search_title, take 10) + isi materi (lessons.search_content, take 15) dengan draft-guard — lesson milik kelas non-published dibuang di query — + papan sumber APPROVED-only (index by_tenant_status, take 50, filter judul in-memory case-insensitive, top 10; TANPA search index baru). Hasil = safe projections {kind, title, courseSlug, lessonId?, snippet? (contentMd tanpa markdown, 120 char)} dan {kind: resource, title, url}. Grup \"Sumber\" dibuka sebagai link eksternal (tab baru, noopener noreferrer — bukan onNavigate). One mounted view: SearchView({ tenantId, tenantSlug, onNavigate? }).",
+  "version": "0.3.0",
+  "description": "Pencarian per komunitas (fase-2 #23 + #29): member-only full-text search atas judul kelas published (courses.search_title, take 10) + isi materi (lessons.search_content, take 15) dengan draft-guard — lesson milik kelas non-published dibuang di query — + post Diskusi (posts.search_title, eq tenantId, take 20; baris soft-deleted dibuang setelah read, top 10) — papan sumber lama beserta gerbang kurasinya sudah dihapus (#33). Hasil = safe projections {kind, title, courseSlug, lessonId?, snippet? (contentMd tanpa markdown, 120 char)} dan {kind: post, title, postId, postKind}. Grup \"Diskusi\" memakai permalink INTERNAL /k/<tenant>/post/<postId>. One mounted view: SearchView({ tenantId, tenantSlug, onNavigate? }).",
   "category": "lms",
   "stability": "beta",
   "deps": {

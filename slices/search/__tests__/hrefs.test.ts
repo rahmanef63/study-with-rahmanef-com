@@ -1,7 +1,7 @@
 // Pure unit specs for the deep-link href builders (one behavior cluster).
 import { describe, expect, test } from "vitest";
-import { buildCourseHref, buildLessonHref, hitHref } from "../lib/hrefs";
-import type { LessonHit, SearchHit } from "../types";
+import { buildCourseHref, buildLessonHref, buildPostHref, hitHref } from "../lib/hrefs";
+import type { LessonHit, PostHit, SearchHit } from "../types";
 
 describe("href builders", () => {
   test("course href follows /k/<tenant>/kelas/<course>", () => {
@@ -28,12 +28,14 @@ describe("href builders", () => {
     expect(hitHref("belajar-ai", lesson)).toBe("/k/belajar-ai/kelas/dasar-ai/j57abc");
   });
 
-  test("resource href is the EXTERNAL url as-is — tenantSlug never applied (#29)", () => {
-    const resource: SearchHit = {
-      kind: "resource",
+  test("post href is the INTERNAL permalink /k/<tenant>/post/<postId> (#33)", () => {
+    expect(buildPostHref("belajar-ai", "j97xyz")).toBe("/k/belajar-ai/post/j97xyz");
+    const post = {
+      kind: "post",
       title: "Panduan Prompt",
-      url: "https://contoh.id/panduan?ref=1",
-    };
-    expect(hitHref("belajar-ai", resource)).toBe("https://contoh.id/panduan?ref=1");
+      postId: "j97xyz",
+      postKind: "sumber",
+    } as unknown as PostHit; // Id<"posts"> is a branded string
+    expect(hitHref("belajar-ai", post)).toBe("/k/belajar-ai/post/j97xyz");
   });
 });
