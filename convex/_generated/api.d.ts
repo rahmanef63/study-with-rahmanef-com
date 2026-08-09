@@ -8,7 +8,19 @@
  * @module
  */
 
+import type * as _seed_bootstrap from "../_seed/bootstrap.js";
+import type * as _seed_communitiesData from "../_seed/communitiesData.js";
+import type * as _seed_communityKarierDigital from "../_seed/communityKarierDigital.js";
+import type * as _seed_communityKreatorKonten from "../_seed/communityKreatorKonten.js";
+import type * as _seed_courseDasarAi from "../_seed/courseDasarAi.js";
+import type * as _seed_coursePromptEngineering from "../_seed/coursePromptEngineering.js";
+import type * as _seed_coursesData from "../_seed/coursesData.js";
+import type * as _seed_engagementData from "../_seed/engagementData.js";
 import type * as _seed_posts from "../_seed/posts.js";
+import type * as _seed_seedContent from "../_seed/seedContent.js";
+import type * as _seed_seedEngagement from "../_seed/seedEngagement.js";
+import type * as _seed_seedWorld from "../_seed/seedWorld.js";
+import type * as _seed_types from "../_seed/types.js";
 import type * as _shared_auth from "../_shared/auth.js";
 import type * as _tables_boards from "../_tables/boards.js";
 import type * as _tables_community from "../_tables/community.js";
@@ -110,7 +122,19 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  "_seed/bootstrap": typeof _seed_bootstrap;
+  "_seed/communitiesData": typeof _seed_communitiesData;
+  "_seed/communityKarierDigital": typeof _seed_communityKarierDigital;
+  "_seed/communityKreatorKonten": typeof _seed_communityKreatorKonten;
+  "_seed/courseDasarAi": typeof _seed_courseDasarAi;
+  "_seed/coursePromptEngineering": typeof _seed_coursePromptEngineering;
+  "_seed/coursesData": typeof _seed_coursesData;
+  "_seed/engagementData": typeof _seed_engagementData;
   "_seed/posts": typeof _seed_posts;
+  "_seed/seedContent": typeof _seed_seedContent;
+  "_seed/seedEngagement": typeof _seed_seedEngagement;
+  "_seed/seedWorld": typeof _seed_seedWorld;
+  "_seed/types": typeof _seed_types;
   "_shared/auth": typeof _shared_auth;
   "_tables/boards": typeof _tables_boards;
   "_tables/community": typeof _tables_community;
