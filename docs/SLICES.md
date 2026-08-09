@@ -1,3 +1,11 @@
+> **⚠️ SUPERSEDED IN PART (2026-08-09 — pivot rute).** Everything below that describes the OS desktop is
+> HISTORY: `slices/appshell`, `slices/os-shell`, `slices/theme-presets`, `slices/asisten`,
+> `slices/pageviews` and the catch-all `app/[[...slug]]` were DELETED. The frontend is now a tabbed
+> community app on real Next.js routes — see **AGENTS.md §0** and the **DECISIONS.md addendum** for the
+> current route map. The Convex backend, the domain slices and their views are unchanged, so the
+> per-slice responsibilities and tables in this file remain accurate; only the "Window-app · deep-link"
+> column is dead.
+
 # Rencana Vertical Slice
 
 > Konvensi rr berlaku penuh: `slices/<slug>/` + `convex/features/<slug>/`, metadata pair, barrel-only imports, ≤200 LOC/file, props-driven.

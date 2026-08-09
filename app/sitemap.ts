@@ -23,8 +23,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   for (const tenant of tenants) {
     const base = `${SITE_ORIGIN}/k/${tenant.slug}`;
     entries.push(
+      // /k/<slug> IS the course list (Kelas is the index tab), so there is no
+      // separate /kelas entry to advertise.
       { url: base, lastModified: now, changeFrequency: "daily", priority: 0.9 },
-      { url: `${base}/kelas`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
       { url: `${base}/tentang`, lastModified: now, changeFrequency: "monthly" }
     );
 

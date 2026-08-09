@@ -6,7 +6,17 @@ const DEFAULT_COMMUNITY = process.env.NEXT_PUBLIC_DEFAULT_COMMUNITY_SLUG ?? "bel
 
 const nextConfig = {
   output: "standalone",
-  cacheComponents: true,
+  // cacheComponents (PPR) is OFF. It was turned on so the ONE catch-all route
+  // that rendered the OS desktop stayed statically prerenderable — a goal that
+  // died with the desktop. Every page now reads request data (params, or a
+  // Convex etalase query), so under PPR each one needs its whole body inside a
+  // Suspense boundary or the build fails with "uncached data accessed outside
+  // <Suspense>"; the only way to satisfy that globally is a root boundary whose
+  // fallback becomes the first paint of the entire site, which is exactly the
+  // splash-screen behaviour we just deleted. Conventional SSR gives crawlers
+  // and first paint the same real HTML, and this deploys to a single Node
+  // server on Dokploy where a prerendered shell buys nothing.
+  // The per-page <Suspense> boundaries stay: they still stream.
   experimental: {
     serverActions: {
       bodySizeLimit: "5mb",

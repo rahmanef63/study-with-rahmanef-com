@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
+import { cache, Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Search } from "lucide-react";
 import { api } from "@convex/_generated/api";
 import { LogoMark } from "@/components/brand/logo";
 import { CommunityActions } from "@/components/community/community-actions";
@@ -20,9 +21,15 @@ import { communityHref } from "@/lib/community";
 // (<CommunityActions/>) because server components here are always anonymous.
 type Params = { slug: string };
 
-async function getTenant(slug: string) {
-  return safeQuery(api.features.tenants.queries.getPublicBySlug, { slug });
-}
+// cache(): generateMetadata and the header child both need the tenant, and
+// fetchQuery has no per-request dedupe of its own — without this every page
+// under /k costs two identical Convex round trips before it renders anything.
+const getTenant = cache(async (slug: string) =>
+  safeQuery(api.features.tenants.queries.getPublicBySlug, { slug })
+);
+const getStats = cache(async (slug: string) =>
+  safeQuery(api.features.tenants.queries.getPublicStatsBySlug, { slug })
+);
 
 export async function generateMetadata({
   params,
@@ -49,7 +56,7 @@ export async function generateMetadata({
 async function CommunityHeader({ slug }: { slug: string }) {
   const [tenant, stats] = await Promise.all([
     getTenant(slug),
-    safeQuery(api.features.tenants.queries.getPublicStatsBySlug, { slug }),
+    getStats(slug),
   ]);
   // notFound() here (not in the layout body) so an unknown slug renders the
   // real 404 page instead of an empty shell with tabs.
@@ -90,15 +97,30 @@ export default async function CommunityLayout({
   return (
     <div className="min-h-dvh bg-background">
       <header className="border-b bg-card/40">
-        <div className="mx-auto w-full max-w-5xl px-5">
+        {/* @container: every reused slice view and mockup-kit primitive sizes
+            itself with container queries (a leftover of the windowed shell,
+            which established the container). A real route has to declare one or
+            those variants never match and the views collapse to one column. */}
+        <div className="@container mx-auto w-full max-w-5xl px-5">
           <div className="flex min-h-12 items-center justify-between gap-3 text-sm">
             <Link href="/" className="inline-flex items-center gap-2 font-medium">
               <LogoMark className="size-4 text-primary" aria-hidden />
               <span className="text-muted-foreground">belajar·with·rahmanef</span>
             </Link>
-            <Link href="/komunitas" className="text-muted-foreground hover:text-foreground">
-              Komunitas lain
-            </Link>
+            <div className="flex items-center gap-3">
+              {/* Search is a tool, not a destination — a header affordance
+                  instead of a sixth tab competing for a learner's attention. */}
+              <Link
+                href={communityHref.cari(slug)}
+                className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+              >
+                <Search className="size-3.5" aria-hidden />
+                Cari
+              </Link>
+              <Link href="/komunitas" className="text-muted-foreground hover:text-foreground">
+                Komunitas lain
+              </Link>
+            </div>
           </div>
           {/* Own boundary: the awaited etalase reads are dynamic. The tab strip
               below renders immediately so navigation never waits on data. */}
@@ -117,7 +139,7 @@ export default async function CommunityLayout({
           </div>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-5xl px-5 py-8">{children}</main>
+      <main className="@container mx-auto w-full max-w-5xl px-5 py-8">{children}</main>
     </div>
   );
 }

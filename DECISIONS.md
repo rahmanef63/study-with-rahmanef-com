@@ -101,3 +101,37 @@ flowchart TD
 
 - **Rotasi secret** (STATUS #12, dipegang Rahman, URGENT) — belum berubah.
 - **AI tutor asli** — blocked di owner set API key + deploy manual.
+
+
+---
+
+## Addendum 2026-08-09 — pivot rute (Skool-style), SUPERSEDE #21 · #22 · #24
+
+Owner (Rahman) menilai metafora OS **overkill**: berbagi sesuatu jadi ribet, dan banyak fitur membingungkan. Keputusan: platform dijadikan **klon Skool.com** — aplikasi komunitas bertab di atas rute Next.js biasa.
+
+| # | Topik | Keputusan | Catatan |
+|---|---|---|---|
+| 26 | Kerangka UI | **Rute Next.js biasa + tab strip**, bukan OS desktop | SUPERSEDE #21. `slices/appshell` (16.366 LOC), `slices/os-shell` (4.901), `slices/theme-presets` (1.154) DIHAPUS. Shell komunitas = `app/k/[slug]/layout.tsx` (~140 LOC). |
+| 27 | Routing | **Rute nyata**, catch-all dihapus | SUPERSEDE #22. `/` → redirect ke `/k/<DEFAULT_COMMUNITY_SLUG>`; direktori turun ke `/komunitas`. 14 redirect permanen menutupi deep-link lama (WAJIB: `notifications.href` menyimpan path lama). |
+| 28 | URL tenant/course | `/k/<tenant>` · `/k/<tenant>/kelas/<course>[/<lessonId>]` | SUPERSEDE #24. SSOT href = `lib/community.ts` `communityHref`. Profil pindah `/profil/<u>` → `/u/<u>`. |
+| 29 | Diskusi in-app | **DIBANGUN** — dan Discord tetap first-class | SUPERSEDE #13 & PRD §5 non-goal "chat/forum in-app". Owner memilih dua-duanya menonjol, dengan pembagian tugas tegas: **Diskusi** = post async yang punya permalink & bisa di-index (pengumuman · sumber · usulan · tanya-jawab); **Discord** = obrolan realtime + jadwal live. Bukan dua tempat untuk hal yang sama. Fase sekarang: tab Diskusi = tiga board lama dalam satu halaman; model `posts` menyusul. |
+| 30 | Gamifikasi | **Peringkat: poin dari like saja**, TANPA kunci kelas per level | Menunggu ≥20 poster aktif sebelum tab dipasang. Kunci-kelas-per-level DITOLAK: bertentangan dengan prinsip charity/gratis (§2.1). |
+| 31 | Kalender | **DIBANGUN**, versi paling tipis | Baris `events` diskrit, TANPA recurrence rule ("ulangi mingguan × N" = N baris dalam satu mutation). Menyusul setelah Diskusi. |
+| 32 | Kuis & sertifikat | **DIPERTAHANKAN** meski Skool tidak punya | Justru pembeda platform belajar dari chat room; backend sudah jadi & teruji. Kuis turun jadi langkah di dalam modul; sertifikat NAIK jadi rute SSR + OG (artefak paling layak dibagikan, R11). |
+| 33 | Kurasi resources | **Gerbang pending/approved/rejected DIHAPUS** | Moderasi post-hoc (hapus + sematkan). Sumber "ribet" terbesar, dan bug window-tertua membuat submission member hilang dari matanya sendiri. **Cap post per user WAJIB ikut** saat model `posts` mendarat — join komunitas itu self-serve terbuka. |
+| 34 | Asisten AI "Alfa" | **DIHAPUS** | Diparkir sejak 2026-07-16 tapi masih dibuild + 16 spec di CI, dan satu-satunya permukaan biaya tak terbatas (POST ke api.anthropic.com tanpa kuota per-user). Bertentangan dengan §0 "zero running cost is product law". Riwayat git = arsipnya. |
+| 35 | SSR | **Anonim saja** | `ConvexAuthProvider` menyimpan token di localStorage dan `proxy.ts` masih stub, jadi server component tidak punya sesi. Hanya query etalase anonim (§6) yang boleh dibaca server-side, lewat `safeQuery()` yang tidak pernah throw. |
+
+### Arsitektur (sesudah pivot)
+
+```mermaid
+flowchart TD
+  U["Browser · /k/<slug>/…"] --> RT["Next App Router (rute nyata)"]
+  RT --> LAY["app/k/[slug]/layout.tsx<br/>header + tab strip (server)"]
+  LAY --> PG["page.tsx per tab"]
+  PG --> SRV["safeQuery (anon etalase)<br/>h1 · deskripsi · daftar kelas jadi HTML"]
+  PG --> CLI["client island<br/>view slice + useQuery (member-gated)"]
+  SRV --> CVX[("Convex Cloud<br/>tenants · courses · progress · quiz …")]
+  CLI --> CVX
+  RT --> META["generateMetadata + opengraph-image<br/>tiap halaman yang bisa dibagikan"]
+```

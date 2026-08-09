@@ -6,7 +6,19 @@ Binding contract for EVERY AI agent working in this repo. Read this file fully b
 
 Charity AI-learning platform & community (Bahasa Indonesia). Multi-tenant LMS-lite: communities (tenants) → courses → modules → lessons (YouTube embed + markdown + links), self-paced progress tracking, MCQ quizzes, curated resource sharing, Discord-first discussion. Zero running cost beyond VPS + domain — this constraint is product law, not preference.
 
-**Frontend shell (updated 2026-07-07 — OS pivot).** The UI was rebuilt from route-based pages into a windowed **OS desktop**. ONE catch-all `app/[[...slug]]/page.tsx` renders the desktop for every path, mounted on the vendored `slices/appshell` framework and wired through `slices/os-shell/` (manifest + capabilities seam + 10 window-apps that REUSE the existing slice views). The old route groups `app/(public)`, `app/t/[slug]`, `app/u/[username]` are **RETIRED**; `app/admin` + `app/api` remain. Paths are now shareable **deep-link URLs** that open windows via History-API URL-sync — e.g. `/komunitas/<tenant>`, `/kelas/<tenant>/<course>`, `/profil/<username>`, `/pengaturan`, `/masuk`. **Backend UNCHANGED**: same Convex schema, authz, and `convex/features/<slice>` functions — DATA-MODEL.md stays valid; only the frontend host changed (routes → OS windows).
+**Frontend shell (updated 2026-08-09 — route pivot; SUPERSEDES the 2026-07-07 OS pivot).** The windowed OS desktop is GONE. `slices/appshell` (16,366 LOC), `slices/os-shell` (4,901), `slices/theme-presets` (1,154) and the catch-all `app/[[...slug]]/page.tsx` were all deleted. The UI is now a plain Skool.com-style tabbed community app on REAL Next.js routes:
+
+- `/` → redirects to `/k/<DEFAULT_COMMUNITY_SLUG>` (single-community-first; the directory is demoted to `/komunitas`).
+- `app/k/[slug]/layout.tsx` is the community shell: server-rendered header + a four-tab strip — **Kelas · Diskusi · Anggota · Tentang** (`lib/community.ts` `COMMUNITY_TABS` is the SSOT; NEVER list a tab whose route does not exist). Search hangs off the header at `/k/<slug>/cari`; `Kelola` is an instructor+ header link, never a learner tab.
+- Course/lesson/quiz live under `/k/<slug>/kelas/…`; the public profile is `/u/<username>`; the certificate is `/sertifikat/<completionId>`.
+- Every internal href comes from `lib/community.ts` `communityHref` — no hardcoded paths.
+- 14 permanent redirects in `next.config.mjs` cover every retired OS deep link. They are LOAD-BEARING, not polish: `notifications.href` rows written before the pivot still hold the old paths.
+
+**Server rendering is ANONYMOUS-ONLY.** `components/convex-provider.tsx` mounts `ConvexAuthProvider` (tokens in localStorage) and `proxy.ts` is a pass-through stub, so a server component has no session. `lib/convex-server.ts` `safeQuery()` is the only server read path and it NEVER throws (a Convex outage must not turn a shareable page into a 500). Only queries on the ANONYMOUS ETALASE WHITELIST (§6) may go through it; anything membership-gated stays a client island using the slice hooks. Making SSR authed is a separate, named migration (swap to `ConvexAuthNextjsProvider` + `convexAuthNextjsMiddleware` in `proxy.ts`), never a side effect of a routing change.
+
+**`cacheComponents` (PPR) is OFF** — it existed to keep the OS catch-all statically prerenderable. Every page now reads request data, so under PPR each needs its whole body inside Suspense or the build fails; the only global fix is a root boundary whose fallback becomes the first paint of the entire site, which is the splash behaviour the pivot removed.
+
+**Backend UNCHANGED**: same Convex schema, authz, and `convex/features/<slice>` functions — DATA-MODEL.md stays valid; only the frontend host changed (OS windows → routes).
 
 ## 1. Binding documents — read order & precedence
 
@@ -35,7 +47,7 @@ Pre-mapped for this project (verified against the catalog 2026-07-05):
 | Need (req.) | rr slice | Action |
 |---|---|---|
 | Google sign-in (R1) | `convex-auth` | install, google provider only |
-| Workspace shell | `dashboard-shell` → `slices/appshell` | superseded by the OS desktop shell (one outer chrome); see §0 |
+| Workspace shell | — | RETIRED. `slices/appshell` deleted 2026-08-09; the shell is `app/k/[slug]/layout.tsx` (~140 LOC). Do NOT reinstall it. |
 | Landing header/footer (R2) | `marketing-chrome` | install |
 | Landing sections (R2) | `sections` | install/adapt |
 | Theme switcher | `theme-presets` | install |
@@ -93,7 +105,7 @@ Quality gate: `audit-bp` score ≥80 to ship (pulls latest Next 16 / React 19 / 
 - **Do NOT build, even if it seems helpful** (PRD non-goals): in-app chat/forum, payments, email sending, PDF certificates, native mobile app, file upload, self-hosted video.
 - **UI:** shadcn primitives only; theme tokens only (no hex); mobile-first; exactly one shell chrome; workspace surfaces full-bleed `h-dvh` without marketing chrome.
 - **Convex module naming (discovered 2026-07-06, hotfix 86ca386):** non-test module files under `convex/**` must be camelCase — Convex forbids `-` in module paths and the whole deploy fails (`*.test.ts` exempt: Convex excludes them). Slice frontend files stay kebab-case per rr P2. Until a CI guard exists, this rule is prompt-enforced (treat as P1).
-- **Tenancy:** every domain table carries `tenantId` and every query scopes by it (index `by_tenant*`). The tenant now appears in the OS shell's deep-link URLs (`/komunitas/<tenant>`, `/kelas/<tenant>/…`) that open as windows — the old `/t/[slug]` route group is retired (see §0).
+- **Tenancy:** every domain table carries `tenantId` and every query scopes by it (index `by_tenant*`). The tenant is the `/k/<slug>` route segment (see §0).
 
 ## 8. When blocked
 
@@ -103,7 +115,7 @@ Quality gate: `audit-bp` score ≥80 to ship (pulls latest Next 16 / React 19 / 
 
 ## 9. Quick facts
 
-- Live host: **https://study-with.rahmanef.com** (repo: study-with-rahmanef-com; project codename tetap belajar-with-rahmanef.com — brand decision pending, Rahman). Frontend = windowed OS desktop on one catch-all route; deep-link URLs `/komunitas/<tenant>` · `/kelas/<tenant>/<course>` · `/profil/<username>` · `/pengaturan` · `/masuk`; `app/admin` + `app/api` remain. (Old route groups `app/(public)`, `app/t/[slug]`, `app/u/[username]` retired — see §0.)
+- Live host: **https://study-with.rahmanef.com** (repo: study-with-rahmanef-com; project codename tetap belajar-with-rahmanef.com — brand decision pending, Rahman). Frontend = routed tabbed community app; `/k/<slug>` (Kelas) · `/k/<slug>/diskusi` · `/k/<slug>/anggota` · `/k/<slug>/tentang` · `/k/<slug>/cari` · `/k/<slug>/kelola` · `/u/<username>` · `/sertifikat/<id>` · `/komunitas` · `/masuk` · `/pengaturan` · `/notifikasi` · `/changelog`; `app/admin` + `app/api` remain.
 - Hosting: Next app di Dokploy VPS; backend **Convex Cloud `rare-toucan-552`** (self-hosted retired 2026-07-10; deploy via `npx convex deploy` + CONVEX_DEPLOY_KEY).
 - Releases: v1 = R1–R6 (build steps 0–4 in SLICES.md), v1.1 = R7–R13 (steps 5–9).
 - First tenant is seeded (Rahman's community); the "open a community" request form ships in v1.1.

@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
+import { cache, Suspense } from "react";
 import Link from "next/link";
 import { api } from "@convex/_generated/api";
 import { CertificateView } from "@/features/profiles";
 import { TombolBagikan } from "@/components/tombol-bagikan";
 import { Skeleton } from "@/components/ui/skeleton";
 import { absoluteUrl, safeQuery } from "@/lib/convex-server";
+import { communityHref } from "@/lib/community";
 
 // Public certificate — a REAL route, server-rendered, with its own OG card.
 //
@@ -19,9 +20,11 @@ type Params = { completionId: string };
 
 const certificatePath = (id: string) => `/sertifikat/${encodeURIComponent(id)}`;
 
-async function getCertificate(completionId: string) {
-  return safeQuery(api.features.profiles.public.publicGetCertificate, { completionId });
-}
+// cache(): generateMetadata, the server block and the OG route all need the
+// same read; fetchQuery does not dedupe per request.
+const getCertificate = cache(async (completionId: string) =>
+  safeQuery(api.features.profiles.public.publicGetCertificate, { completionId })
+);
 
 export async function generateMetadata({
   params,
@@ -60,7 +63,7 @@ async function CertificateHeading({ completionId }: { completionId: string }) {
       <h1 className="text-balance font-serif text-3xl @sm:text-4xl">{cert.courseTitle}</h1>
       <p className="text-pretty text-muted-foreground">
         Diselesaikan oleh{" "}
-        <Link href={`/u/${cert.username}`} className="font-medium text-foreground underline-offset-4 hover:underline">
+        <Link href={communityHref.profile(cert.username)} className="font-medium text-foreground underline-offset-4 hover:underline">
           {cert.displayName}
         </Link>{" "}
         di komunitas {cert.tenantName} · {earned}

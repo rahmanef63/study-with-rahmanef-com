@@ -1,21 +1,25 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
+import { cache, Suspense } from "react";
 import { api } from "@convex/_generated/api";
-import { PublicProfileView } from "@/features/profiles";
 import { TombolBagikan } from "@/components/tombol-bagikan";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ProfilView } from "./profil-view";
 import { absoluteUrl, safeQuery } from "@/lib/convex-server";
+import { communityHref } from "@/lib/community";
 
 // Public profile + badge wall — a REAL route (the OS served this as
 // /profil/<username>, a window with no metadata and no server HTML).
 // publicGetByUsername is on the anonymous etalase whitelist (AGENTS.md §6).
 type Params = { username: string };
 
-const profilePath = (u: string) => `/u/${encodeURIComponent(u)}`;
+// SSOT for internal hrefs (lib/community.ts).
+const profilePath = communityHref.profile;
 
-async function getProfile(username: string) {
-  return safeQuery(api.features.profiles.public.publicGetByUsername, { username });
-}
+// cache(): generateMetadata, the server block and the OG route all need the
+// same read; fetchQuery does not dedupe per request.
+const getProfile = cache(async (username: string) =>
+  safeQuery(api.features.profiles.public.publicGetByUsername, { username })
+);
 
 export async function generateMetadata({
   params,
@@ -64,11 +68,7 @@ export default async function ProfilPublikPage({ params }: { params: Promise<Par
       <Suspense fallback={<Skeleton className="mb-6 h-24 w-full rounded-xl" />}>
         <ProfileHeading username={username} />
       </Suspense>
-      <PublicProfileView
-        username={username}
-        shareUrl={absoluteUrl(profilePath(username))}
-        certificateHref={(completionId) => `/sertifikat/${completionId}`}
-      />
+      <ProfilView username={username} />
     </main>
   );
 }

@@ -23,7 +23,10 @@ export const communityHref = {
   diskusi: (slug: string) => `/k/${enc(slug)}/diskusi`,
   anggota: (slug: string) => `/k/${enc(slug)}/anggota`,
   tentang: (slug: string) => `/k/${enc(slug)}/tentang`,
+  cari: (slug: string) => `/k/${enc(slug)}/cari`,
   kelola: (slug: string) => `/k/${enc(slug)}/kelola`,
+  /** Public profile. Not under /k — a person is not scoped to a community. */
+  profile: (username: string) => `/u/${enc(username)}`,
 } as const;
 
 export type CommunityTab = {
