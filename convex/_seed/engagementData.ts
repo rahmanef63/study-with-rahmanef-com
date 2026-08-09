@@ -70,7 +70,8 @@ export const SEED_USULAN: SeedFeedPost[] = [
 
 // Obrolan bebas — the DEFAULT kind. Without these the Diskusi feed opens on a
 // board where nobody has simply talked to anybody.
-export const SEED_DISKUSI: SeedFeedPost[] = [
-  { title: "Halo semua, ada yang baru mulai juga?", author: "sari", likedBy: ["rahman", "budi", "dewi_a"], bodyMd: `Saya Sari, jualan keripik pisang dari rumah 🙋‍♀️ Baru banget kenal AI dan masih suka salah-salah. Ada yang sama-sama mulai dari nol? Biar nggak berasa sendirian belajarnya.` },
-  { title: "Rutinitas belajar 20 menit sehari, ada yang cocok?", author: "budi", likedBy: ["rahman", "sari"], bodyMd: `Aku coba nyisihin **20 menit tiap pagi** buat satu materi + langsung praktik. Sejauh ini lebih nempel daripada maraton 3 jam pas weekend. Kalian ritmenya gimana?` },
-];
+// SEED_DISKUSI was removed 2026-08-09. It seeded two synthetic "warga bertanya"
+// posts so the Diskusi chip would not open empty — but the owner does not want
+// invented conversation in a real community, and an empty chip on a young
+// community is the honest state, not a bug. The two rows it had already written
+// to production were deleted by features/posts/dropSeedDiskusi.ts.

@@ -79,22 +79,21 @@ test("seedContent pins ONE welcome pengumuman, and re-running adds nothing", asy
   });
 });
 
-test("seedEngagement fills every post kind and scores the leaderboard", async () => {
+test("seedEngagement fills the seedable post kinds and scores the leaderboard", async () => {
   const t = await bootstrapped();
   await t.mutation(internal.seed.seedContent, seedArgs);
 
   const first = await t.mutation(internal.seed.seedEngagement, seedArgs);
   expect(first.sumber).toBeGreaterThan(0);
   expect(first.usulan).toBeGreaterThan(0);
-  expect(first.diskusi).toBeGreaterThan(0);
   expect(first.likes).toBeGreaterThan(0);
 
   await t.run(async (ctx) => {
     const posts = await ctx.db.query("posts").collect();
-    // The feed carries all four kinds — a Diskusi board whose default kind is
-    // empty is the thing this seed exists to prevent.
+    // Three kinds, not four: "diskusi" is deliberately NOT seeded — that chip is
+    // where real members talk, and filling it meant inventing conversation.
     expect(new Set(posts.map((p) => p.kind))).toEqual(
-      new Set(["pengumuman", "sumber", "usulan", "diskusi"])
+      new Set(["pengumuman", "sumber", "usulan"])
     );
     // A "sumber" post IS its link; the retired board's `url` lives in linkUrl.
     for (const p of posts.filter((x) => x.kind === "sumber")) {
@@ -129,7 +128,6 @@ test("seedEngagement fills every post kind and scores the leaderboard", async ()
   const second = await t.mutation(internal.seed.seedEngagement, seedArgs);
   expect(second.sumber).toBe(0);
   expect(second.usulan).toBe(0);
-  expect(second.diskusi).toBe(0);
   expect(second.likes).toBe(0);
 
   // Idempotent all the way down: no duplicate post, no double-counted point.

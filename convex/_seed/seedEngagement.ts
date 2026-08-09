@@ -7,7 +7,6 @@ import type { Id } from "../_generated/dataModel";
 import type { MutationCtx } from "../_generated/server";
 import { likeSeedPost, upsertSeedPost } from "./posts";
 import {
-  SEED_DISKUSI,
   SEED_MEMBERS,
   SEED_RESOURCES,
   SEED_THREADS,
@@ -29,7 +28,7 @@ export async function runSeedEngagement(ctx: MutationCtx, args: SeedEngagementAr
     .unique();
   if (tenant === null) throw new Error(`No tenant "${args.tenantSlug}" — run seed:bootstrap first.`);
   const tenantId = tenant._id;
-  const made = { members: 0, memberships: 0, sumber: 0, comments: 0, usulan: 0, diskusi: 0, likes: 0, skipped: 0 };
+  const made = { members: 0, memberships: 0, sumber: 0, comments: 0, usulan: 0, likes: 0, skipped: 0 };
 
   // 1. members (idempotent by email) → author username map, seeded with owner.
   // Each also joins the tenant as `member` so the roster/count reflects them.
@@ -118,9 +117,10 @@ export async function runSeedEngagement(ctx: MutationCtx, args: SeedEngagementAr
   // 4. usulan + obrolan, with their likes. A like is what feeds the Peringkat
   // board, so seeding it through likeSeedPost (row + likeCount + the author's
   // points, one transaction) is what makes the leaderboard non-empty too.
-  const feed: { kind: "usulan" | "diskusi"; rows: SeedFeedPost[] }[] = [
+  // Only "usulan" is seeded now: "diskusi" is where real members talk, and
+  // seeding it meant inventing conversation (see engagementData.ts).
+  const feed: { kind: "usulan"; rows: SeedFeedPost[] }[] = [
     { kind: "usulan", rows: SEED_USULAN },
-    { kind: "diskusi", rows: SEED_DISKUSI },
   ];
   for (const { kind, rows } of feed) {
     for (const p of rows) {
