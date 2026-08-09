@@ -69,12 +69,12 @@ export function CertificateCard({
         <div className="flex flex-col items-center gap-3">
           <span
             aria-hidden="true"
-            className="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary ring-1 ring-primary/20"
+            className="flex size-14 items-center justify-center bg-primary/10 text-primary ring-1 ring-primary/20"
           >
             <Award className="size-7" />
           </span>
           <p className="eyebrow">{copy.eyebrow}</p>
-          <h1 className="font-serif text-2xl text-foreground @sm:text-3xl">
+          <h1 className="font-display text-base text-foreground @sm:text-lg">
             {copy.heading}
           </h1>
         </div>
@@ -83,14 +83,14 @@ export function CertificateCard({
 
         {/* Recipient — the big serif name (the certificate's true headline) */}
         <p className="text-sm text-muted-foreground">{copy.awardedTo}</p>
-        <p className="mt-2 break-words font-serif text-4xl leading-tight text-foreground @sm:text-5xl">
+        <p className="mt-2 break-words font-display text-xl leading-tight text-foreground @sm:text-2xl">
           {certificate.displayName}
         </p>
         <p className="mt-1.5 text-sm text-muted-foreground">@{certificate.username}</p>
 
         {/* Course + community */}
         <p className="mt-7 text-sm text-muted-foreground">{copy.courseIntro}</p>
-        <p className="mt-1 text-pretty font-serif text-xl italic text-primary @sm:text-2xl">
+        <p className="mt-1 text-pretty font-display text-sm italic text-primary @sm:text-base">
           {certificate.courseTitle}
         </p>
         <p className="mt-1.5 text-sm text-muted-foreground">

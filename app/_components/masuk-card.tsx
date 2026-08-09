@@ -21,7 +21,7 @@ export function MasukCard({ next }: { next: string }) {
       <>
         <header className="space-y-2">
           <span className="eyebrow">Sudah masuk</span>
-          <h1 className="font-serif text-3xl @sm:text-4xl">
+          <h1 className="font-display text-lg @sm:text-xl">
             Kamu sudah <em className="italic text-primary">masuk</em>.
           </h1>
           <p className="text-pretty text-muted-foreground">
@@ -42,7 +42,7 @@ export function MasukCard({ next }: { next: string }) {
     <>
       <header className="space-y-2">
         <span className="eyebrow">Masuk · Gratis selamanya</span>
-        <h1 className="font-serif text-3xl @sm:text-4xl">
+        <h1 className="font-display text-lg @sm:text-xl">
           Belajar pakai AI, <em className="italic text-primary">bareng-bareng.</em>
         </h1>
         <p className="text-pretty text-muted-foreground">{VALUE_PROP}</p>

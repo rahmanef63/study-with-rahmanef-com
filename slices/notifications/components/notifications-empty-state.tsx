@@ -11,7 +11,7 @@ export function NotificationsEmptyState({ title, hint }: NotificationsEmptyState
   return (
     <div className="flex flex-col items-center justify-center gap-3 px-6 py-10 text-center">
       <span
-        className="flex size-11 items-center justify-center rounded-full bg-muted text-muted-foreground"
+        className="flex size-11 items-center justify-center bg-muted text-muted-foreground"
         aria-hidden
       >
         <BellOff className="size-5" />

@@ -113,7 +113,7 @@ export function ManageCoursesView({
                     <div className="flex items-start justify-between gap-3">
                       <CardTitle className="min-w-0 break-words text-lg">{course.title}</CardTitle>
                       <span
-                        className={`shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-medium ${statusChip[course.status]}`}
+                        className={`shrink-0 border px-2.5 py-0.5 text-xs font-medium ${statusChip[course.status]}`}
                       >
                         {statusLabel[course.status]}
                       </span>

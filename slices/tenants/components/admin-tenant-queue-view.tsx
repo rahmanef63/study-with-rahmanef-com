@@ -84,7 +84,7 @@ export function AdminTenantQueueView({ labels, className }: AdminTenantQueueView
         </div>
         {requests.length > 0 ? (
           <span
-            className="bg-primary/10 text-primary mt-1 shrink-0 rounded-full px-2.5 py-0.5 text-sm font-medium tabular-nums"
+            className="bg-primary/10 text-primary mt-1 shrink-0 px-2.5 py-0.5 text-sm font-medium tabular-nums"
             aria-label={`${requests.length} pengajuan menunggu ditinjau`}
           >
             {requests.length}

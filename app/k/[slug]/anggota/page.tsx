@@ -33,7 +33,7 @@ async function AnggotaBody({ slug }: { slug: string }) {
     return (
       <Empty className="border">
         <EmptyHeader>
-          <EmptyTitle className="font-serif">Anggota belum bisa dimuat</EmptyTitle>
+          <EmptyTitle className="font-display">Anggota belum bisa dimuat</EmptyTitle>
           <EmptyDescription className="text-pretty">
             Koneksi ke server sedang bermasalah. Coba muat ulang halaman ini sebentar lagi.
           </EmptyDescription>

@@ -37,7 +37,7 @@ export function AnggotaMemberRow({
     <>
       <span
         aria-hidden
-        className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium text-muted-foreground"
+        className="flex size-8 shrink-0 items-center justify-center bg-muted text-sm font-medium text-muted-foreground"
       >
         {name.slice(0, 1).toUpperCase()}
       </span>
@@ -68,7 +68,7 @@ export function AnggotaMemberRow({
         <DropdownMenu>
           <DropdownMenuTrigger
             disabled={isSettingRole}
-            className="inline-flex min-h-8 shrink-0 items-center gap-1 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
+            className="inline-flex min-h-8 shrink-0 items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
             aria-label={`Ubah role ${name}`}
           >
             <RoleChip role={member.role} />

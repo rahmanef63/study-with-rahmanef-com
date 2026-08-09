@@ -23,11 +23,11 @@ import { cn } from "@/lib/utils";
 function Avatar({ url, className }: { url: string | null; className?: string }) {
   if (url) {
     // eslint-disable-next-line @next/next/no-img-element -- external OAuth avatar, no next/image
-    return <img src={url} alt="" className={cn("rounded-full object-cover", className)} />;
+    return <img src={url} alt="" className={cn("object-cover", className)} />;
   }
   return (
     <span
-      className={cn("grid place-items-center rounded-full bg-primary/15 text-primary", className)}
+      className={cn("grid place-items-center bg-primary/15 text-primary", className)}
     >
       <CircleUser className="size-[62%]" aria-hidden />
     </span>
@@ -54,7 +54,7 @@ export function PengaturanAkun() {
           <EmptyMedia variant="icon">
             <CircleUser aria-hidden />
           </EmptyMedia>
-          <EmptyTitle className="font-serif">Belum masuk</EmptyTitle>
+          <EmptyTitle className="font-display">Belum masuk</EmptyTitle>
           <EmptyDescription className="text-pretty">
             Masuk untuk melihat sesi akun dan keluar kapan saja.
           </EmptyDescription>
@@ -80,7 +80,7 @@ export function PengaturanAkun() {
         ) : null}
       </div>
       {profile?.isPlatformAdmin ? (
-        <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+        <span className="inline-flex shrink-0 items-center gap-1 bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
           <ShieldCheck className="size-3.5" aria-hidden /> Admin
         </span>
       ) : null}

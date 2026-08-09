@@ -87,7 +87,7 @@ export function AnnouncementCard({ announcement, copy, className }: Announcement
               {isNew ? <Badge tone="accent">{t.newBadge}</Badge> : null}
               {announcement.postedToDiscord ? (
                 <Badge tone="success">
-                  <span aria-hidden className="mr-1.5 size-1.5 shrink-0 rounded-full bg-current opacity-70" />
+                  <span aria-hidden className="mr-1.5 size-1.5 shrink-0 bg-current opacity-70" />
                   {t.postedToDiscord}
                 </Badge>
               ) : null}

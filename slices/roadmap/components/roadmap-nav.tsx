@@ -33,7 +33,7 @@ export type CourseNavProps = {
 };
 
 function StatusDot({ status, current }: { status: RoadmapNodeStatus; current: boolean }) {
-  const base = "grid size-5 shrink-0 place-items-center rounded-full border";
+  const base = "grid size-5 shrink-0 place-items-center border";
   if (status === "done")
     return (
       <span className={cn(base, "border-success bg-success text-success-foreground")} aria-hidden>
@@ -116,11 +116,11 @@ export function CourseNav({
         <ChevronLeft className="size-3.5 transition-transform group-hover:-translate-x-0.5" aria-hidden />
         Kembali ke peta
       </a>
-      <p className="min-w-0 truncate font-serif text-base font-medium leading-tight">{overview.course.title}</p>
+      <p className="min-w-0 truncate font-display text-base font-medium leading-tight">{overview.course.title}</p>
       {isMember && total > 0 && (
         <div className="space-y-1">
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-            <div className="h-full rounded-full bg-primary" style={{ width: `${toPercent(completed, total)}%` }} />
+          <div className="h-1.5 w-full overflow-hidden bg-muted">
+            <div className="h-full bg-primary" style={{ width: `${toPercent(completed, total)}%` }} />
           </div>
           <p className="text-[0.7rem] text-muted-foreground tabular-nums">
             {completed}/{total} selesai

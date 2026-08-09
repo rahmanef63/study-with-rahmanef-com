@@ -41,7 +41,8 @@ export function Hero({
       className={cn(
         "relative",
         gradient
-          ? "rounded-[var(--radius-win)] bg-gradient-to-b from-primary/[0.08] to-transparent to-90% px-5 py-8 @md:px-8 @md:py-10 dark:from-primary/[0.14]"
+          // Arcade marquee: hard frame + offset, never a soft gradient panel.
+          ? "border-2 border-border bg-card px-5 py-8 shadow-[4px_4px_0_0_var(--pixel-shadow)] @md:px-8 @md:py-10"
           : "py-1",
         centered && "text-center",
         className,
@@ -49,7 +50,7 @@ export function Hero({
     >
       <div className={cn("space-y-2", centered && "mx-auto flex max-w-2xl flex-col items-center")}>
         {eyebrow ? <span className="eyebrow">{eyebrow}</span> : null}
-        <h1 className="text-3xl @md:text-4xl [overflow-wrap:anywhere]">{title}</h1>
+        <h1 className="text-base @md:text-xl [overflow-wrap:anywhere]">{title}</h1>
         {description ? (
           <p className="max-w-xl text-pretty text-muted-foreground">{description}</p>
         ) : null}
@@ -86,9 +87,9 @@ export function SectionHeader({
       <div className="min-w-0 space-y-1">
         {eyebrow ? <span className="eyebrow">{eyebrow}</span> : null}
         {As === "h2" ? (
-          <h2 className="text-xl @md:text-2xl [overflow-wrap:anywhere]">{title}</h2>
+          <h2 className="text-sm @md:text-base [overflow-wrap:anywhere]">{title}</h2>
         ) : (
-          <h3 className="font-serif text-lg font-medium tracking-tight [overflow-wrap:anywhere]">{title}</h3>
+          <h3 className="font-display text-xs font-medium tracking-tight [overflow-wrap:anywhere]">{title}</h3>
         )}
       </div>
       {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
@@ -119,7 +120,7 @@ export function CommandSearch({
         onSubmit?.();
       }}
       className={cn(
-        "flex items-center gap-2.5 rounded-[var(--radius-win)] border border-border bg-card px-4 py-3 text-sm transition-colors focus-within:border-primary/50",
+        "flex items-center gap-2.5 border-2 border-border bg-card px-4 py-3 text-sm transition-colors focus-within:border-primary",
         className,
       )}
     >
@@ -156,10 +157,10 @@ export function QuickActionRow({ items, className }: { items: QuickAction[]; cla
           onClick={it.onClick}
           className="group flex w-[74px] shrink-0 flex-col items-center gap-1.5 focus-visible:outline-none"
         >
-          <span className="relative grid size-14 place-items-center rounded-[var(--radius-win)] border border-border bg-card text-muted-foreground transition-colors group-hover:border-primary/40 group-hover:text-primary group-focus-visible:ring-2 group-focus-visible:ring-ring">
+          <span className="relative grid size-14 place-items-center border-2 border-border bg-card text-muted-foreground transition-colors group-hover:border-primary group-hover:text-primary group-focus-visible:ring-2 group-focus-visible:ring-ring">
             {it.icon}
             {it.badge ? (
-              <span className="absolute -right-1 -top-1 rounded-full bg-primary px-1.5 py-0.5 text-[8px] font-bold uppercase leading-none text-primary-foreground">
+              <span className="absolute -right-1 -top-1 bg-primary px-1.5 py-0.5 text-[8px] font-bold uppercase leading-none text-primary-foreground">
                 {it.badge}
               </span>
             ) : null}
@@ -182,7 +183,7 @@ export function ViewToggle({
   onChange: (v: "list" | "grid") => void;
 }) {
   return (
-    <div className="inline-flex items-center rounded-lg border border-border p-0.5">
+    <div className="inline-flex items-center border-2 border-border p-0.5">
       {(["list", "grid"] as const).map((v) => (
         <button
           key={v}
@@ -191,7 +192,7 @@ export function ViewToggle({
           aria-pressed={value === v}
           onClick={() => onChange(v)}
           className={cn(
-            "grid size-7 place-items-center rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            "grid size-7 place-items-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
             value === v
               ? "bg-primary text-primary-foreground"
               : "text-muted-foreground hover:text-foreground",
@@ -220,7 +221,7 @@ export function FilterChip({
       type="button"
       onClick={onClick}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[13px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "inline-flex items-center gap-1.5 border-2 px-3.5 py-1.5 text-[13px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         active
           ? "border-primary/40 bg-primary/10 text-primary"
           : "border-border text-muted-foreground hover:text-foreground",
@@ -250,7 +251,7 @@ export function StatTile({
   const inner = (
     <>
       {icon ? (
-        <span className="grid size-10 shrink-0 place-items-center rounded-[var(--radius-win)] bg-primary/10 text-primary">
+        <span className="grid size-10 shrink-0 place-items-center border-2 border-primary/40 bg-primary/10 text-primary">
           {icon}
         </span>
       ) : null}
@@ -263,7 +264,7 @@ export function StatTile({
     </>
   );
   const base =
-    "flex items-center gap-3.5 rounded-[var(--radius-win)] border border-border bg-card p-4 text-left";
+    "flex items-center gap-3.5 border-2 border-border bg-card p-4 text-left shadow-[3px_3px_0_0_var(--pixel-shadow)]";
   return onClick ? (
     <button
       type="button"
@@ -291,7 +292,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium",
+        "inline-flex items-center border px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide",
         tone === "accent" && "bg-primary/10 text-primary",
         tone === "muted" && "border border-border text-muted-foreground",
         tone === "success" && "bg-success/10 text-success",

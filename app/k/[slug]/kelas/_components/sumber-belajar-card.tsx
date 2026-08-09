@@ -15,7 +15,7 @@ export function SumberBelajarCard({ slug }: { slug: string }) {
       href={`${communityHref.diskusi(slug)}#sumber`}
       className="group flex h-full w-full items-center gap-3 rounded-[var(--radius-win)] border border-border bg-card p-4 text-left transition-colors hover:border-primary/30 hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+      <span className="grid size-9 shrink-0 place-items-center bg-primary/10 text-primary">
         <Library className="size-4" aria-hidden />
       </span>
       <span className="min-w-0 flex-1">

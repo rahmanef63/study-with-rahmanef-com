@@ -30,17 +30,24 @@ export function CourseCard({ course, href, progress, className }: CourseCardProp
             : "h-full overflow-hidden transition-colors hover:border-primary/50"
         }
       >
+        {/* Cover art. With no image the fallback is a pixel checkerboard drawn
+            from two gradients — an owner who never sets a cover still gets
+            something that belongs on the cabinet, not a muddy blur. */}
         <div
           aria-hidden
-          className="h-28 w-full bg-gradient-to-br from-primary/20 via-primary/10 to-muted bg-cover bg-center"
+          className="h-28 w-full border-b-2 border-border bg-card bg-cover bg-center [image-rendering:pixelated]"
           style={
             course.coverImageUrl !== undefined
               ? { backgroundImage: `url(${JSON.stringify(course.coverImageUrl)})` }
-              : undefined
+              : {
+                  backgroundImage:
+                    "repeating-conic-gradient(color-mix(in oklab, var(--primary) 16%, transparent) 0% 25%, transparent 0% 50%)",
+                  backgroundSize: "16px 16px",
+                }
           }
         />
         <CardHeader>
-          <CardTitle className="line-clamp-2 font-serif text-lg leading-snug">
+          <CardTitle className="line-clamp-2 font-display text-xs leading-snug">
             {course.title}
           </CardTitle>
           <CardDescription className="line-clamp-3 text-pretty">
@@ -52,14 +59,14 @@ export function CourseCard({ course, href, progress, className }: CourseCardProp
             <div className="space-y-1.5">
               <div className="flex items-center gap-2.5">
                 <div
-                  className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-muted"
+                  className="h-1.5 min-w-0 flex-1 overflow-hidden bg-muted"
                   role="progressbar"
                   aria-valuenow={pct}
                   aria-valuemin={0}
                   aria-valuemax={100}
                   aria-label={`Progress: ${pct}%`}
                 >
-                  <div className="h-full rounded-full bg-primary" style={{ width: `${pct}%` }} />
+                  <div className="h-full bg-primary" style={{ width: `${pct}%` }} />
                 </div>
                 {pct === 100 ? <Badge tone="success">Selesai ✓</Badge> : null}
               </div>

@@ -34,7 +34,7 @@ export default function KelolaPage({ params }: { params: Promise<Params> }) {
     <div className="@container">
       <header className="mb-6 space-y-1">
         <span className="eyebrow">Konsol pengelola</span>
-        <h2 className="font-serif text-2xl">Kelola komunitas</h2>
+        <h2 className="font-display text-base">Kelola komunitas</h2>
         <p className="max-w-xl text-pretty text-sm text-muted-foreground">
           Atur kelas, kuis, anggota, profil komunitas, dan pengumuman dari satu tempat.
         </p>

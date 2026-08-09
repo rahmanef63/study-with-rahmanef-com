@@ -42,7 +42,12 @@ describe("barrel type contract (compile-time, enforced by tsc)", () => {
     expectTypeOf<Barrel.NotificationItemData["href"]>().toEqualTypeOf<string | null>();
     expectTypeOf<Barrel.NotificationItemData>().not.toHaveProperty("userId");
     expectTypeOf<Barrel.NotificationKind>().toEqualTypeOf<
-      "comment_reply" | "resource_reviewed" | "suggestion_status" | "announcement"
+      | "comment_reply"
+      | "post_reply"
+      | "event_soon"
+      | "announcement"
+      | "resource_reviewed"
+      | "suggestion_status"
     >();
     expect(true).toBe(true); // runtime anchor so the test registers
   });

@@ -111,7 +111,7 @@ export function KelolaConsole({
               role="tab"
               aria-selected={isActive}
               onClick={() => setTab(key)}
-              className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+              className={`inline-flex min-h-11 shrink-0 items-center gap-2 border px-4 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                 isActive
                   ? "border-primary/40 bg-primary/10 text-primary"
                   : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"

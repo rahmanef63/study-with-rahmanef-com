@@ -13,7 +13,7 @@ export default async function CariPage({ params }: { params: Promise<{ slug: str
     <div className="@container space-y-6">
       <header className="space-y-1">
         <span className="eyebrow">Pencarian</span>
-        <h2 className="font-serif text-2xl">Cari kelas &amp; materi</h2>
+        <h2 className="font-display text-base">Cari kelas &amp; materi</h2>
         <p className="text-pretty text-sm text-muted-foreground">
           Telusuri judul kelas dan isi materi di komunitas ini — yang sudah terbit saja.
         </p>

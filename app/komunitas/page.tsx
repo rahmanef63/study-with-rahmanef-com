@@ -54,7 +54,7 @@ async function CommunityList() {
           <EmptyMedia variant="icon">
             <Compass aria-hidden />
           </EmptyMedia>
-          <EmptyTitle className="font-serif">Belum ada komunitas aktif</EmptyTitle>
+          <EmptyTitle className="font-display">Belum ada komunitas aktif</EmptyTitle>
           <EmptyDescription className="text-pretty">
             Komunitas pertama sedang dikurasi. Cek lagi sebentar lagi 🌱
           </EmptyDescription>
@@ -72,11 +72,11 @@ async function CommunityList() {
             className="group flex h-full flex-col gap-1.5 rounded-xl border bg-card px-5 py-4 transition-colors hover:border-primary/40 hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <span className="flex flex-wrap items-center gap-2">
-              <span className="min-w-0 font-serif text-base font-medium group-hover:text-primary">
+              <span className="min-w-0 font-display text-base font-medium group-hover:text-primary">
                 {tenant.name}
               </span>
               {tenant.track ? (
-                <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                <span className="bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
                   {tenant.track}
                 </span>
               ) : null}
@@ -99,7 +99,7 @@ export default function KomunitasPage() {
     <main className="@container mx-auto w-full max-w-3xl px-6 py-12">
       <header className="mb-8 space-y-3">
         <span className="eyebrow">Direktori</span>
-        <h1 className="font-serif text-3xl @sm:text-4xl">Komunitas belajar</h1>
+        <h1 className="font-display text-lg @sm:text-xl">Komunitas belajar</h1>
         <p className="max-w-xl text-pretty text-muted-foreground">{DESCRIPTION}</p>
         {/* The only entry point to the open-a-community flow (PRD R7). */}
         <AjukanKomunitas />

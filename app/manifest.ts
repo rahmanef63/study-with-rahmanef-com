@@ -3,8 +3,8 @@ import type { MetadataRoute } from "next";
 // PWA manifest (served at /manifest.webmanifest). display is "minimal-ui", NOT
 // "standalone": standalone hides the address bar, and with the OS desktop gone
 // the address bar IS the share affordance — an installed user must be able to
-// copy the URL of the lesson they are reading. Colors = the Editorial Warmth
-// base tokens (warm paper, terracotta) as hex, since manifests cannot read CSS
+// copy the URL of the lesson they are reading. Colors = the arcade cabinet base
+// tokens (CRT black, coin gold) as hex, since manifests cannot read CSS
 // variables.
 export default function manifest(): MetadataRoute.Manifest {
   return {
@@ -20,8 +20,8 @@ export default function manifest(): MetadataRoute.Manifest {
     scope: "/",
     display: "minimal-ui",
     orientation: "any",
-    background_color: "#fbf8f3",
-    theme_color: "#fbf8f3",
+    background_color: "#12141f",
+    theme_color: "#12141f",
     icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" }],
     shortcuts: [
       { name: "Kelas", short_name: "Kelas", url: "/" },

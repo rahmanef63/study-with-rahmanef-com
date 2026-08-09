@@ -5,16 +5,20 @@ import type { Id } from "@convex/_generated/dataModel";
 
 export type NotificationKind =
   | "comment_reply"
+  | "post_reply"
+  | "event_soon"
+  | "announcement"
+  // Retired producers. The literals stay because production rows still carry
+  // them — the schema union may only be narrowed after a backfill.
   | "resource_reviewed"
-  | "suggestion_status"
-  | "announcement"; // v1.4 #28 — producer lands with beta; type pre-extended by alpha (schema union already shipped)
+  | "suggestion_status";
 
 export type NotificationItemData = {
   _id: Id<"notifications">;
   kind: NotificationKind;
   title: string;
   body: string | null;
-  /** Relative OS-shell deep-link (e.g. /kelas/<tenant>/<course>/lesson/<id>). */
+  /** Relative in-app route (e.g. /k/<tenant>/kelas/<course>/<lessonId>). */
   href: string | null;
   createdAt: number;
   readAt: number | null;

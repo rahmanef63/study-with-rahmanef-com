@@ -33,7 +33,7 @@ async function KuisBreadcrumb({ slug, courseSlug }: { slug: string; courseSlug: 
     <div className="min-w-0 space-y-1">
       <span className="eyebrow">{tenant === null ? "Kuis modul" : `${tenant.name} · Kuis`}</span>
       {overview === null ? null : (
-        <p className="truncate text-pretty font-serif text-lg text-muted-foreground">
+        <p className="truncate text-pretty font-display text-xs text-muted-foreground">
           {overview.course.title}
         </p>
       )}

@@ -121,10 +121,10 @@ export function QuizTakeView({ moduleId, copy: copyOverride, className }: QuizTa
             aria-valuenow={answeredCount}
             aria-valuemin={0}
             aria-valuemax={quiz.questions.length}
-            className="h-1.5 w-full overflow-hidden rounded-full bg-muted"
+            className="h-1.5 w-full overflow-hidden bg-muted"
           >
             <div
-              className="h-full rounded-full bg-primary transition-all"
+              className="h-full bg-primary transition-all"
               style={{ width: `${progressPct}%` }}
             />
           </div>

@@ -71,7 +71,7 @@ async function CommunityHeader({ slug }: { slug: string }) {
     <div className="space-y-4 pt-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0 space-y-1">
-          <h1 className="text-balance font-serif text-2xl @sm:text-3xl">{tenant.name}</h1>
+          <h1 className="text-balance font-display text-base @sm:text-lg">{tenant.name}</h1>
           <p className="max-w-2xl text-pretty text-sm text-muted-foreground">
             {tenant.description}
           </p>
@@ -105,7 +105,9 @@ export default async function CommunityLayout({
           <div className="flex min-h-12 items-center justify-between gap-3 text-sm">
             <Link href="/" className="inline-flex items-center gap-2 font-medium">
               <LogoMark className="size-4 text-primary" aria-hidden />
-              <span className="text-muted-foreground">belajar·with·rahmanef</span>
+              <span className="font-display text-[0.6rem] uppercase tracking-wider text-muted-foreground">
+                belajar·with·rahmanef
+              </span>
             </Link>
             <div className="flex items-center gap-3">
               {/* Search is a tool, not a destination — a header affordance

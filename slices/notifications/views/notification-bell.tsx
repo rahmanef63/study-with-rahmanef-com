@@ -40,7 +40,7 @@ export function NotificationBell({ onNavigate, copy: copyOverride, className }: 
           <Bell className="size-4" aria-hidden />
           {unread > 0 ? (
             <span
-              className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold leading-none text-primary-foreground"
+              className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center bg-primary px-1 text-[10px] font-semibold leading-none text-primary-foreground"
               aria-hidden
             >
               {badge}

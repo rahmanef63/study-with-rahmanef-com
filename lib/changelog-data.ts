@@ -28,6 +28,18 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-08-09",
+    version: "v2.1",
+    title: "Tampilan baru: mesin arcade",
+    tags: ["Tampilan"],
+    points: [
+      "Seluruh tampilan diganti jadi konsep game arcade piksel — layar CRT gelap, huruf piksel, tombol emas koin, bingkai keras dengan bayangan kotak, dan garis scanline tipis di seluruh halaman.",
+      "Judul memakai huruf marquee ala mesin ding-dong; badan teks memakai huruf piksel yang tetap enak dibaca untuk materi panjang.",
+      "Sudut membulat dihapus di semua tempat — kotak piksel tidak punya sudut bulat. Kartu kelas yang belum punya gambar sampul kini menampilkan pola papan catur piksel, bukan blok abu-abu.",
+      "Pilihan tema warna dan tombol terang/gelap dihapus. Sekarang satu tema saja: kabinet arcade.",
+    ],
+  },
+  {
+    date: "2026-08-09",
     version: "v2.0",
     title: "Tampilan baru: halaman biasa, bukan desktop",
     tags: ["Tampilan", "Baru"],

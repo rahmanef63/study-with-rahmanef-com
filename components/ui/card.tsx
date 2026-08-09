@@ -7,7 +7,9 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card"
       className={cn(
-        "flex flex-col gap-6 rounded-xl border bg-card py-6 text-card-foreground shadow-sm",
+        // Arcade: a hard 2px frame and an offset block instead of a rounded card
+        // with a blur. --radius is 0 so `rounded-xl` would be a no-op anyway.
+        "flex flex-col gap-6 border-2 bg-card py-6 text-card-foreground shadow-[3px_3px_0_0_var(--pixel-shadow)]",
         className
       )}
       {...props}

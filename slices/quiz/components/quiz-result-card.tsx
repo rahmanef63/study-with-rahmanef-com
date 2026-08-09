@@ -37,7 +37,7 @@ export function QuizResultCard({ result, questions, copy: copyOverride, onRetry,
             <div className="min-w-0 space-y-1">
               <CardDescription className="eyebrow">{copy.yourScore}</CardDescription>
               <CardTitle
-                className={`font-serif text-5xl font-semibold tabular-nums @sm:text-6xl ${toneText}`}
+                className={`font-display text-2xl font-semibold tabular-nums @sm:text-4xl ${toneText}`}
               >
                 {result.scorePct}%
               </CardTitle>
@@ -74,7 +74,7 @@ export function QuizResultCard({ result, questions, copy: copyOverride, onRetry,
                 <div className="flex items-start gap-2">
                   <span
                     aria-hidden
-                    className={`mt-0.5 shrink-0 rounded-full p-1 ${
+                    className={`mt-0.5 shrink-0 p-1 ${
                       r.isCorrect ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
                     }`}
                   >

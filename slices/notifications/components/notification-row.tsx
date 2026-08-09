@@ -25,8 +25,8 @@ export function NotificationRow({ item, unreadLabel, onSelect }: NotificationRow
         <span
           className={
             unread
-              ? "mt-1.5 size-2 shrink-0 self-start rounded-full bg-primary"
-              : "mt-1.5 size-2 shrink-0 self-start rounded-full bg-transparent"
+              ? "mt-1.5 size-2 shrink-0 self-start bg-primary"
+              : "mt-1.5 size-2 shrink-0 self-start bg-transparent"
           }
           aria-hidden
         />

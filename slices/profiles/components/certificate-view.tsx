@@ -67,7 +67,7 @@ function CertificateSkeleton() {
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-5" aria-busy="true">
       <span className="sr-only">{DEFAULT_CERTIFICATE_LABELS.loading}</span>
       <div className="flex flex-col items-center gap-4 rounded-[var(--radius-win)] border border-border bg-card px-6 py-10 @sm:px-12 @sm:py-14">
-        <Skeleton className="size-14 rounded-full" />
+        <Skeleton className="size-14" />
         <Skeleton className="h-3 w-28" />
         <Skeleton className="h-6 w-52 max-w-full" />
         <Skeleton className="mt-4 h-9 w-64 max-w-full" />
@@ -92,7 +92,7 @@ function CertificateFallback({
   return (
     <Empty className="mx-auto max-w-2xl border">
       <EmptyHeader>
-        <EmptyTitle className="font-serif">
+        <EmptyTitle className="font-display">
           {notFound ? copy.notFoundTitle : copy.errorTitle}
         </EmptyTitle>
         <EmptyDescription className="text-pretty">

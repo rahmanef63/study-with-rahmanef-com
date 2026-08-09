@@ -65,7 +65,7 @@ export function TombolBagikan({
       size="sm"
       onClick={bagikan}
       aria-label={`Bagikan ${title}`}
-      className={cn("min-h-9 gap-1.5 rounded-full", className)}
+      className={cn("min-h-9 gap-1.5", className)}
     >
       {copied ? (
         <>

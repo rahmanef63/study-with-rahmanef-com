@@ -68,7 +68,7 @@ export function SyllabusList({
         return (
           <section key={mod._id} className="space-y-3">
             <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-              <h3 className="flex min-w-0 items-baseline gap-2.5 font-serif text-base @sm:text-lg">
+              <h3 className="flex min-w-0 items-baseline gap-2.5 font-display text-base @sm:text-xs">
                 <span className="tabular-nums text-primary/80">
                   {String(moduleIndex + 1).padStart(2, "0")}
                 </span>

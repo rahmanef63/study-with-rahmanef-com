@@ -67,7 +67,7 @@ function MemberRow({
       <div className="flex min-w-0 items-center gap-3">
         <span
           aria-hidden
-          className="bg-muted text-muted-foreground flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-medium"
+          className="bg-muted text-muted-foreground flex size-8 shrink-0 items-center justify-center text-sm font-medium"
         >
           {name.slice(0, 1).toUpperCase()}
         </span>
@@ -82,7 +82,7 @@ function MemberRow({
         <DropdownMenu>
           <DropdownMenuTrigger
             disabled={isSettingRole}
-            className="inline-flex min-h-8 shrink-0 items-center gap-1 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
+            className="inline-flex min-h-8 shrink-0 items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
             aria-label={`Ubah role ${name}`}
           >
             <RoleChip role={member.role} labels={roleLabels} />

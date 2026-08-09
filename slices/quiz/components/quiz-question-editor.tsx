@@ -46,7 +46,7 @@ export function QuizQuestionEditor({ index, question, onChange, onRemove, canRem
         <div className="flex min-w-0 items-baseline gap-2.5">
           <span
             aria-hidden
-            className="font-serif text-xl leading-none tabular-nums text-primary/70"
+            className="font-display text-sm leading-none tabular-nums text-primary/70"
           >
             {String(index + 1).padStart(2, "0")}
           </span>

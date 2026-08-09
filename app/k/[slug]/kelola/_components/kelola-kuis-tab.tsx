@@ -100,7 +100,7 @@ function CoursePicker({
               <span className={rowIconClass}>
                 <BookOpen className="size-4" aria-hidden />
               </span>
-              <span className="min-w-0 flex-1 truncate font-serif text-base font-medium">
+              <span className="min-w-0 flex-1 truncate font-display text-base font-medium">
                 {course.title}
               </span>
               <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden />

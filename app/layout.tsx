@@ -1,22 +1,22 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Hanken_Grotesk } from "next/font/google";
+import { Pixelify_Sans, Press_Start_2P } from "next/font/google";
 import { ConvexClientProvider } from "@/components/convex-provider";
-import { ThemeProviders } from "@/components/theme-provider";
 import { VersionWatcher } from "@/components/version-watcher";
 import { LocalStoragePurge } from "@/components/local-storage-purge";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
-// Hanken Grotesk (body/UI) + Fraunces (optical display serif). Distinctive,
-// warm, and — unlike Inter — not the generic default. Vars ride on <html> so
-// the "Editorial Warmth" identity in app/globals.css is the baseline
-// everywhere.
-const sans = Hanken_Grotesk({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
-const serif = Fraunces({
+// Arcade type pair. Pixelify Sans is the body face — a pixel font that still
+// has real lowercase and word shapes, so a lesson paragraph stays readable.
+// Press Start 2P is the cabinet marquee: display sizes only (globals.css caps
+// h1/h2 with clamp() because every glyph is full-width and a normal display
+// scale would overflow a phone).
+const sans = Pixelify_Sans({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
+const display = Press_Start_2P({
   subsets: ["latin"],
-  variable: "--font-serif",
+  weight: "400",
+  variable: "--font-display",
   display: "swap",
-  style: ["normal", "italic"],
 });
 
 const SITE_DESCRIPTION =
@@ -61,25 +61,22 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" suppressHydrationWarning className={`${sans.variable} ${serif.variable}`}>
-      <body className="font-sans antialiased">
-        {/* React hoists resource links to <head>; rendered here so it lands in
-            the PPR static shell of every route. */}
+    // `dark` is permanent: one theme, no switcher (see globals.css).
+    <html lang="id" className={`dark ${sans.variable} ${display.variable}`}>
+      {/* `antialiased` is deliberately OFF: subpixel smoothing muddies a pixel
+          font. The scanline overlay is a fixed pseudo-element on <body> — see
+          .scanlines in globals.css. */}
+      <body className="scanlines font-sans">
+        {/* React hoists resource links to <head>. */}
         {CONVEX_ORIGIN && <link rel="preconnect" href={CONVEX_ORIGIN} />}
-        <ThemeProviders>
-          <VersionWatcher />
-          <LocalStoragePurge />
-          {/* No Suspense wrapper here on purpose. It used to exist because the
-              OS shell's UrlSync read window.location during prerender, which
-              suspended EVERY route to a full-screen splash — its own comment
-              admitted the fallback was the first paint of the whole site. Pages
-              now own their boundaries around the specific reads that are
-              dynamic, so the static shell is real content. */}
-          <ConvexClientProvider>{children}</ConvexClientProvider>
-          {/* Inside ThemeProviders so the theme-aware Toaster's useTheme()
-              tracks the in-app light/dark toggle, not the OS media query. */}
-          <Toaster position="bottom-right" />
-        </ThemeProviders>
+        <VersionWatcher />
+        <LocalStoragePurge />
+        {/* No Suspense wrapper here on purpose. It used to exist because the
+            OS shell's UrlSync read window.location during prerender, which
+            suspended EVERY route to a full-screen splash. Pages own their own
+            boundaries around the specific reads that are dynamic. */}
+        <ConvexClientProvider>{children}</ConvexClientProvider>
+        <Toaster position="bottom-right" />
       </body>
     </html>
   );

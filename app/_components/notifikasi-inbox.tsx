@@ -39,7 +39,7 @@ export function NotifikasiInbox() {
           <EmptyMedia variant="icon">
             <LogIn aria-hidden />
           </EmptyMedia>
-          <EmptyTitle className="font-serif">Masuk untuk melihat notifikasi</EmptyTitle>
+          <EmptyTitle className="font-display">Masuk untuk melihat notifikasi</EmptyTitle>
           <EmptyDescription className="text-pretty">
             Setelah masuk, balasan dan kabar komunitasmu tampil di sini.
           </EmptyDescription>

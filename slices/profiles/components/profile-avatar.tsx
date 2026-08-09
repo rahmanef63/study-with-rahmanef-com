@@ -25,7 +25,7 @@ function deriveInitials(name: string): string {
 }
 
 export function ProfileAvatar({ name, avatarUrl, size = 96, className }: ProfileAvatarProps) {
-  const base = "shrink-0 rounded-full border border-border bg-muted bg-cover bg-center";
+  const base = "shrink-0 border border-border bg-muted bg-cover bg-center";
 
   if (avatarUrl) {
     return (

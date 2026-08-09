@@ -31,7 +31,7 @@ export function CommunityActions({
       {canManage ? (
         <Link
           href={communityHref.kelola(slug)}
-          className="inline-flex min-h-9 items-center gap-1.5 rounded-full px-3 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="inline-flex min-h-9 items-center gap-1.5 px-3 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <SlidersHorizontal className="size-3.5" aria-hidden />
           Kelola

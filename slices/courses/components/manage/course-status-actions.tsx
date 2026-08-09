@@ -40,7 +40,7 @@ export function CourseStatusActions({ courseId, status, onSetStatus, copy }: Cou
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${CHIP_CLASSES[status]}`}>
+      <span className={`inline-flex px-2.5 py-0.5 text-xs font-medium ${CHIP_CLASSES[status]}`}>
         {label}
       </span>
       {status !== "published" && (

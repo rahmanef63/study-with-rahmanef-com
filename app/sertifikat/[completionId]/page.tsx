@@ -60,7 +60,7 @@ async function CertificateHeading({ completionId }: { completionId: string }) {
   return (
     <header className="mb-6 space-y-2 text-center">
       <p className="eyebrow">Sertifikat penyelesaian</p>
-      <h1 className="text-balance font-serif text-3xl @sm:text-4xl">{cert.courseTitle}</h1>
+      <h1 className="text-balance font-display text-lg @sm:text-xl">{cert.courseTitle}</h1>
       <p className="text-pretty text-muted-foreground">
         Diselesaikan oleh{" "}
         <Link href={communityHref.profile(cert.username)} className="font-medium text-foreground underline-offset-4 hover:underline">

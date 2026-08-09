@@ -4,33 +4,76 @@
    notification center). Without this import those classes were silent no-ops. */
 @import "tw-animate-css";
 
-/* Dark is driven by next-themes' `.dark` class on <html>; key shadcn `dark:`
-   utilities off the same class (Tailwind 4 defaults them to the OS media
-   query, which ignores the in-app toggle). */
+/* ONE theme, always dark. <html> carries a permanent `class="dark"` (see
+   app/layout.tsx) and :root and .dark hold the SAME arcade palette, so every
+   `dark:` utility the shadcn kit ships still resolves as its author intended.
+   There is no switcher: a CRT cabinet does not have a light mode. */
 @custom-variant dark (&:is(.dark *));
 
 @theme {
+  /* Pixelify Sans reads as pixel art but keeps real lowercase and word shapes,
+     so lesson prose stays legible. Press Start 2P is the cabinet lettering —
+     display sizes only; it is ~2x the width of a normal face and unreadable in
+     a paragraph. */
   --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-serif), Georgia, "Times New Roman", serif;
+  --font-display: var(--font-display), var(--font-sans), monospace;
+  /* Kept so `font-serif` call sites don't fall back to Times. */
+  --font-serif: var(--font-display), var(--font-sans), monospace;
+
+  /* Hard offset shadows instead of blurs — the single highest-leverage token in
+     the whole redesign: every shadcn Card/Button/Popover instantly reads as a
+     pixel sticker with zero component edits. */
+  --shadow-2xs: 2px 2px 0 0 var(--pixel-shadow);
+  --shadow-xs: 2px 2px 0 0 var(--pixel-shadow);
+  --shadow-sm: 3px 3px 0 0 var(--pixel-shadow);
+  --shadow: 3px 3px 0 0 var(--pixel-shadow);
+  --shadow-md: 4px 4px 0 0 var(--pixel-shadow);
+  --shadow-lg: 6px 6px 0 0 var(--pixel-shadow);
+  --shadow-xl: 8px 8px 0 0 var(--pixel-shadow);
+  --shadow-2xl: 10px 10px 0 0 var(--pixel-shadow);
 }
 
-/* ── Editorial Warmth type system ───────────────────────────────────────────
-   Display headings in Fraunces (optical serif); body/UI in Hanken Grotesk.
-   Scoped to h1/h2 so component chrome (CardTitle h3) stays sans; an explicit
-   `font-sans` utility still wins. Optical sizing + tight tracking give the
-   headline its editorial character. */
+/* ── Arcade type system ─────────────────────────────────────────────────────
+   h1/h2 are the cabinet marquee: Press Start 2P, uppercase, wide tracking.
+   It has no lowercase rhythm and every glyph is the same width, so the sizes
+   below are deliberately SMALLER than a normal display scale would be — a
+   32px Press Start line is already the width of a 56px sans one.
+   Component chrome (CardTitle h3) stays body-font on purpose. */
 @layer base {
   h1,
   h2 {
-    font-family: var(--font-serif);
-    font-optical-sizing: auto;
-    font-weight: 560;
-    letter-spacing: -0.02em;
-    line-height: 1.05;
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    line-height: 1.35;
+    text-transform: uppercase;
   }
-  /* Better rag on big display lines. */
   h1 {
     text-wrap: balance;
+    /* Press Start 2P at the tailwind text-3xl/4xl call sites would overflow a
+       phone, so cap the rendered size and let the utility set the ceiling. */
+    font-size: clamp(1rem, 3.2vw, 1.5rem);
+  }
+  h2 {
+    font-size: clamp(0.875rem, 2.4vw, 1.125rem);
+  }
+  /* Pixel fonts are hinted for whole pixels — subpixel smoothing muddies them
+     and any fractional scale blurs the grid. */
+  h1,
+  h2,
+  .font-display {
+    -webkit-font-smoothing: none;
+    font-smooth: never;
+  }
+  /* Long-form Indonesian prose in a pixel face needs air to stay readable. */
+  p,
+  li {
+    line-height: 1.7;
+  }
+  /* Sprites and cover art keep their grid instead of being bilinear-blurred. */
+  img[data-pixel],
+  .pixelated {
+    image-rendering: pixelated;
   }
 }
 
@@ -41,9 +84,9 @@
   .text-pretty {
     text-wrap: pretty;
   }
-  /* Editorial eyebrow / kicker label. */
+  /* Arcade label — the "1UP / HI-SCORE" strip above a heading. */
   .eyebrow {
-    font-family: var(--font-sans);
+    font-family: var(--font-display);
     font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.14em;
@@ -98,12 +141,35 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 140px 140px;
-  opacity: 0.035;
+  /* CRT scanlines: a 3px repeating gradient. Kept faint — at full strength it
+     halves the contrast of a pixel font, which is the one thing this design
+     cannot afford. */
+  background-image: repeating-linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--pixel-shadow) 55%, transparent) 0px,
+    color-mix(in oklab, var(--pixel-shadow) 55%, transparent) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  opacity: 0.35;
 }
-.dark .grain::after {
-  opacity: 0.05;
+
+/* Body-level CRT overlay. `fixed` (not absolute) so it covers the viewport on a
+   scrolled page, and z-index sits ABOVE the background but below content. */
+.scanlines::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--pixel-shadow) 60%, transparent) 0px,
+    color-mix(in oklab, var(--pixel-shadow) 60%, transparent) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  opacity: 0.28;
 }
 
 /* Calm scroll reveal — CSS scroll-driven, no JS. Guarded by reduced-motion
@@ -111,14 +177,15 @@
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
     .reveal-on-scroll {
-      animation: reveal-fade linear both;
+      animation: reveal-fade steps(3, end) both;
       animation-timeline: view();
       animation-range: entry 0% cover 24%;
     }
+    /* Stepped, not eased: sprites pop into existence, they do not ease in. */
     @keyframes reveal-fade {
       from {
         opacity: 0;
-        transform: translateY(18px);
+        transform: translateY(8px);
       }
       to {
         opacity: 1;
@@ -128,48 +195,53 @@
   }
 }
 
-/* ── Editorial Warmth palette ───────────────────────────────────────────────
-   Bespoke default (no preset needed): warm paper + deep espresso ink + a
-   terracotta/clay accent. This is the brand identity in the BASE, so the app
-   has character even before the preset switcher touches anything. The
-   ThemePresetSwitcher still lets a visitor override; "Default" returns here. */
+/* ── ARCADE CABINET palette ─────────────────────────────────────────────────
+   Supersedes "Editorial Warmth" (warm paper + Fraunces + terracotta), which was
+   the identity from 2026-07 until the owner asked for a pixelated arcade-game
+   concept on 2026-08-09. ONE theme, always dark: :root and .dark are identical
+   so shadcn's `dark:` utilities keep working while nothing can switch away.
+   Reference points: a CRT cabinet's black glass, coin-gold score type, phosphor
+   cyan, GAME OVER red. */
 :root {
-  --background: oklch(0.986 0.006 83);
-  --foreground: oklch(0.246 0.017 55);
-  --card: oklch(0.997 0.004 83);
-  --card-foreground: oklch(0.246 0.017 55);
-  --popover: oklch(0.997 0.004 83);
-  --popover-foreground: oklch(0.246 0.017 55);
-  --primary: oklch(0.567 0.132 41);
-  --primary-foreground: oklch(0.98 0.008 83);
-  --secondary: oklch(0.938 0.013 76);
-  --secondary-foreground: oklch(0.33 0.02 50);
-  --muted: oklch(0.949 0.01 79);
-  --muted-foreground: oklch(0.505 0.018 54);
-  --accent: oklch(0.927 0.026 55);
-  --accent-foreground: oklch(0.36 0.045 44);
-  --destructive: oklch(0.553 0.203 27);
-  --destructive-foreground: oklch(0.98 0.008 83);
-  /* Destructive TEXT on the card (appshell context-menu "danger" rows). The
-     base red is already dark enough for text on warm paper; dark mode keeps
-     the brighter fill red. */
-  --destructive-text: var(--destructive);
-  --border: oklch(0.902 0.013 71);
-  --input: oklch(0.8 0.022 64);
-  --ring: oklch(0.567 0.132 41);
-  /* Semantic status colours — appshell's other shells (Windows taskbar start
-     button + active indicator, mobile notification dots) reference
-     bg-info/success/warning, which were otherwise undefined = invisible. Kept
-     warm-compatible with the terracotta accent. */
-  --success: oklch(0.6 0.11 150);
-  --success-foreground: oklch(0.98 0.02 150);
-  --warning: oklch(0.74 0.13 78);
-  --warning-foreground: oklch(0.28 0.05 78);
-  --info: oklch(0.58 0.11 235);
-  --info-foreground: oklch(0.98 0.02 235);
-  /* ds-a sidebar/rail surface tokens. Base = references to the shadcn tokens, so
-     they auto-flip in dark and follow any preset; a ds-a preset (rupa/modern-
-     minimal/emerald) may override with its own distinct rail tint. */
+  /* Cabinet surfaces — near-black CRT glass with a blue cast. */
+  --background: oklch(0.17 0.028 264);
+  --foreground: oklch(0.95 0.012 240);
+  --card: oklch(0.225 0.031 264);
+  --card-foreground: oklch(0.95 0.012 240);
+  --popover: oklch(0.205 0.03 264);
+  --popover-foreground: oklch(0.95 0.012 240);
+
+  /* Coin gold — the score colour. Primary CTAs are coin slots. */
+  --primary: oklch(0.845 0.166 88);
+  --primary-foreground: oklch(0.17 0.028 264);
+
+  --secondary: oklch(0.285 0.035 264);
+  --secondary-foreground: oklch(0.93 0.012 240);
+  --muted: oklch(0.255 0.03 264);
+  --muted-foreground: oklch(0.735 0.028 250);
+
+  /* Phosphor cyan — the second player. */
+  --accent: oklch(0.79 0.14 199);
+  --accent-foreground: oklch(0.17 0.028 264);
+
+  /* GAME OVER red. */
+  --destructive: oklch(0.64 0.235 20);
+  --destructive-foreground: oklch(0.97 0.01 240);
+  --destructive-text: oklch(0.72 0.2 20);
+
+  /* Borders are structural here, not decorative: hard 1px phosphor edges are
+     what make a flat dark surface read as a sprite rather than a card. */
+  --border: oklch(0.41 0.045 262);
+  --input: oklch(0.46 0.05 262);
+  --ring: oklch(0.845 0.166 88);
+
+  --success: oklch(0.82 0.19 148);
+  --success-foreground: oklch(0.17 0.028 264);
+  --warning: oklch(0.85 0.16 84);
+  --warning-foreground: oklch(0.17 0.028 264);
+  --info: oklch(0.79 0.14 199);
+  --info-foreground: oklch(0.17 0.028 264);
+
   --sidebar: var(--card);
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--primary);
@@ -178,48 +250,87 @@
   --sidebar-accent-foreground: var(--accent-foreground);
   --sidebar-border: var(--border);
   --sidebar-ring: var(--ring);
-  /* chart hues — a 5-colour ramp for data viz AND feature-icon tints. Presets
-     override these, so anything built on var(--chart-N) re-skins per preset.
-     Base = ds-a "rupa" (Editorial Warmth) ramp. */
-  --chart-1: #d97757;
-  --chart-2: #c79a6b;
-  --chart-3: #8fa68e;
-  --chart-4: #b0885f;
-  --chart-5: #6e6a62;
-  --radius: 0.5rem;
+
+  /* Sprite palette — magenta / cyan / gold / green / violet, the five-colour
+     ramp a 16-bit tile set would allocate. */
+  --chart-1: oklch(0.7 0.24 340);
+  --chart-2: oklch(0.79 0.14 199);
+  --chart-3: oklch(0.845 0.166 88);
+  --chart-4: oklch(0.82 0.19 148);
+  --chart-5: oklch(0.66 0.18 295);
+
+  /* Every corner is square. A pixel grid has no radius. */
+  --radius: 0rem;
+  --radius-win: 0rem;
+
+  /* The offset colour behind every hard shadow (see @theme --shadow-*). */
+  --pixel-shadow: oklch(0.09 0.02 264);
 }
 
+/* Identical on purpose — see the block above. */
 .dark {
-  --background: oklch(0.203 0.012 54);
-  --foreground: oklch(0.944 0.008 83);
-  --card: oklch(0.243 0.014 54);
-  --card-foreground: oklch(0.944 0.008 83);
-  --popover: oklch(0.243 0.014 54);
-  --popover-foreground: oklch(0.944 0.008 83);
-  --primary: oklch(0.706 0.124 46);
-  --primary-foreground: oklch(0.203 0.012 54);
-  --secondary: oklch(0.301 0.016 52);
-  --secondary-foreground: oklch(0.92 0.008 83);
-  --muted: oklch(0.283 0.014 52);
-  --muted-foreground: oklch(0.724 0.012 70);
-  --accent: oklch(0.334 0.03 48);
-  --accent-foreground: oklch(0.92 0.02 70);
-  --destructive: oklch(0.704 0.191 22);
-  --destructive-foreground: oklch(0.2 0.012 54);
-  --border: oklch(0.345 0.014 52);
-  --input: oklch(0.46 0.02 52);
-  --ring: oklch(0.706 0.124 46);
-  --success: oklch(0.7 0.12 150);
-  --success-foreground: oklch(0.2 0.03 150);
-  --warning: oklch(0.8 0.13 78);
-  --warning-foreground: oklch(0.24 0.05 78);
-  --info: oklch(0.7 0.11 235);
-  --info-foreground: oklch(0.2 0.03 235);
-  --chart-1: #e08a6b;
-  --chart-2: #cba97e;
-  --chart-3: #9db39b;
-  --chart-4: #c0996f;
-  --chart-5: #8a867e;
+  /* Cabinet surfaces — near-black CRT glass with a blue cast. */
+  --background: oklch(0.17 0.028 264);
+  --foreground: oklch(0.95 0.012 240);
+  --card: oklch(0.225 0.031 264);
+  --card-foreground: oklch(0.95 0.012 240);
+  --popover: oklch(0.205 0.03 264);
+  --popover-foreground: oklch(0.95 0.012 240);
+
+  /* Coin gold — the score colour. Primary CTAs are coin slots. */
+  --primary: oklch(0.845 0.166 88);
+  --primary-foreground: oklch(0.17 0.028 264);
+
+  --secondary: oklch(0.285 0.035 264);
+  --secondary-foreground: oklch(0.93 0.012 240);
+  --muted: oklch(0.255 0.03 264);
+  --muted-foreground: oklch(0.735 0.028 250);
+
+  /* Phosphor cyan — the second player. */
+  --accent: oklch(0.79 0.14 199);
+  --accent-foreground: oklch(0.17 0.028 264);
+
+  /* GAME OVER red. */
+  --destructive: oklch(0.64 0.235 20);
+  --destructive-foreground: oklch(0.97 0.01 240);
+  --destructive-text: oklch(0.72 0.2 20);
+
+  /* Borders are structural here, not decorative: hard 1px phosphor edges are
+     what make a flat dark surface read as a sprite rather than a card. */
+  --border: oklch(0.41 0.045 262);
+  --input: oklch(0.46 0.05 262);
+  --ring: oklch(0.845 0.166 88);
+
+  --success: oklch(0.82 0.19 148);
+  --success-foreground: oklch(0.17 0.028 264);
+  --warning: oklch(0.85 0.16 84);
+  --warning-foreground: oklch(0.17 0.028 264);
+  --info: oklch(0.79 0.14 199);
+  --info-foreground: oklch(0.17 0.028 264);
+
+  --sidebar: var(--card);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+
+  /* Sprite palette — magenta / cyan / gold / green / violet, the five-colour
+     ramp a 16-bit tile set would allocate. */
+  --chart-1: oklch(0.7 0.24 340);
+  --chart-2: oklch(0.79 0.14 199);
+  --chart-3: oklch(0.845 0.166 88);
+  --chart-4: oklch(0.82 0.19 148);
+  --chart-5: oklch(0.66 0.18 295);
+
+  /* Every corner is square. A pixel grid has no radius. */
+  --radius: 0rem;
+  --radius-win: 0rem;
+
+  /* The offset colour behind every hard shadow (see @theme --shadow-*). */
+  --pixel-shadow: oklch(0.09 0.02 264);
 }
 
 @theme inline {
@@ -275,8 +386,10 @@
 body {
   background: var(--color-background);
   color: var(--color-foreground);
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
+  /* No antialiasing: a pixel face is hinted to whole pixels and smoothing
+     turns its edges to grey mush. */
+  -webkit-font-smoothing: none;
+  font-smooth: never;
   /* Kill double-tap-to-zoom + the 300ms tap delay so the standalone PWA feels
      native, while KEEPING pinch-zoom (WCAG 1.4.4). Gesture children set their
      own stricter touch-action (none / pan-y) per-element and still win locally. */
@@ -284,11 +397,46 @@ body {
   overscroll-behavior: none;
 }
 
-/* ── Card radius ─────────────────────────────────────────────────────────────
-   `--radius-win` is a leftover name from the deleted OS shell (it sized window
-   corners) but it is still the "slightly softer than a control" radius used by
-   cards and panels across the slices, so it stays. The glass / dock / window
-   surface tokens that lived here went with appshell.css. */
-:root {
-  --radius-win: calc(var(--radius) + 0.375rem);
+/* ── Arcade utilities ───────────────────────────────────────────────────────
+   Used by the shared primitives; kept here so a component never hardcodes the
+   look. */
+@layer utilities {
+  /* The signature frame: hard border + hard offset. */
+  .pixel-frame {
+    border-width: 2px;
+    box-shadow: 4px 4px 0 0 var(--pixel-shadow);
+  }
+  /* Press-down on click — the whole point of an arcade button. */
+  .pixel-press {
+    transition: transform 80ms steps(2, end), box-shadow 80ms steps(2, end);
+  }
+  .pixel-press:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 0 var(--pixel-shadow);
+  }
+  /* Coin-gold marquee text with a hard drop shadow, for scores and titles. */
+  .marquee-text {
+    font-family: var(--font-display);
+    color: var(--primary);
+    text-shadow: 2px 2px 0 var(--pixel-shadow);
+  }
+  /* Slow blink for "INSERT COIN"-style prompts. Static under reduced-motion. */
+  .blink {
+    animation: pixel-blink 1.2s steps(1, end) infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .blink {
+      animation: none;
+    }
+  }
+  @keyframes pixel-blink {
+    0%,
+    49% {
+      opacity: 1;
+    }
+    50%,
+    100% {
+      opacity: 0.35;
+    }
+  }
 }

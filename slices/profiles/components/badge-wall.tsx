@@ -91,7 +91,7 @@ export function BadgeWall({ badges, certificateHref, labels, className }: BadgeW
                 <>
                   <span
                     aria-hidden="true"
-                    className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors group-hover:bg-primary/15"
+                    className="flex size-11 shrink-0 items-center justify-center bg-primary/10 text-primary transition-colors group-hover:bg-primary/15"
                   >
                     <Award className="size-5" />
                   </span>

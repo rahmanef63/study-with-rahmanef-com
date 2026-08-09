@@ -36,7 +36,7 @@ export function GabungDulu({
         <EmptyMedia variant="icon">
           <Users aria-hidden />
         </EmptyMedia>
-        <EmptyTitle className="font-serif">{title}</EmptyTitle>
+        <EmptyTitle className="font-display">{title}</EmptyTitle>
         <EmptyDescription className="text-pretty">{description}</EmptyDescription>
       </EmptyHeader>
       <EmptyContent>

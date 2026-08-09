@@ -2,50 +2,62 @@ import type { SVGProps } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * Brand mark — an open book with a spark above (belajar = learning + growth).
- * Monoline, drawn in `currentColor` so it inherits the surrounding text color
- * and adapts to light/dark + any preset with zero extra wiring.
+ * Brand mark — the same open-book-with-a-spark as before, redrawn on a 16×16
+ * pixel grid for the arcade concept. Every shape is an axis-aligned run of
+ * whole pixels and `shapeRendering="crispEdges"` disables antialiasing, so it
+ * stays sharp at any size instead of turning into a grey smudge the way a
+ * monoline SVG does when scaled down to a 16px favicon.
+ *
+ * Drawn in `currentColor` so it still inherits the surrounding text colour.
  */
+
+/** One run of pixels: [x, y, width] on the 16×16 grid (height is always 1). */
+const SPARK: [number, number, number][] = [
+  [7, 0, 2],
+  [6, 1, 4],
+  [7, 2, 2],
+];
+
+const PAGE_ROWS: [number, number, number][] = [
+  // top taper
+  [3, 5, 4],
+  [9, 5, 4],
+  // body — left page, right page
+  ...([6, 7, 8, 9, 10, 11] as const).flatMap(
+    (y) => [[2, y, 5], [9, y, 5]] as [number, number, number][]
+  ),
+  // bottom taper
+  [3, 12, 4],
+  [9, 12, 4],
+];
+
+/** Spine: a solid 2px column joining the pages. */
+const SPINE: [number, number, number][] = ([5, 6, 7, 8, 9, 10, 11, 12] as const).map(
+  (y) => [7, y, 2] as [number, number, number]
+);
+
 export function LogoMark({ className, ...props }: SVGProps<SVGSVGElement>) {
   return (
     <svg
-      viewBox="0 0 24 24"
-      fill="none"
+      viewBox="0 0 16 16"
+      shapeRendering="crispEdges"
       aria-hidden="true"
       className={cn("size-6", className)}
       {...props}
     >
-      {/* spark */}
-      <path
-        d="M12 1.9 L12.85 3.25 L14.2 4.1 L12.85 4.95 L12 6.3 L11.15 4.95 L9.8 4.1 L11.15 3.25 Z"
-        fill="currentColor"
-      />
-      {/* open book — left + right pages meeting at the spine */}
-      <path
-        d="M12 9.1 C9.1 7.3 5.9 7.1 3.4 8.1 L3.4 17.9 C5.9 16.9 9.1 17.1 12 18.9"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M12 9.1 C14.9 7.3 18.1 7.1 20.6 8.1 L20.6 17.9 C18.1 16.9 14.9 17.1 12 18.9"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path d="M12 9.1 L12 18.9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      {[...SPARK, ...PAGE_ROWS, ...SPINE].map(([x, y, w]) => (
+        <rect key={`${x}-${y}`} x={x} y={y} width={w} height={1} fill="currentColor" />
+      ))}
     </svg>
   );
 }
 
-/** Full lockup — mark + wordmark. Wordmark rides the display serif. */
+/** Full lockup — mark + wordmark in the cabinet face. */
 export function Logo({ className, markClassName }: { className?: string; markClassName?: string }) {
   return (
     <span className={cn("inline-flex items-center gap-2", className)}>
-      <LogoMark className={cn("size-6 text-primary", markClassName)} />
-      <span className="font-serif text-lg font-semibold leading-none tracking-tight">
+      <LogoMark className={cn("size-5 text-primary", markClassName)} />
+      <span className="font-display text-[0.7rem] uppercase leading-none tracking-wider">
         belajar<span className="text-muted-foreground">·with·rahmanef</span>
       </span>
     </span>

@@ -96,7 +96,7 @@ export function CourseOverview({
             <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
               <Wallet className="size-3.5 shrink-0" aria-hidden /> {copy.costLabel}
             </p>
-            <p className="mt-1 font-serif text-2xl font-semibold text-success">{copy.costFree}</p>
+            <p className="mt-1 font-display text-base font-semibold text-success">{copy.costFree}</p>
             <p className="mt-0.5 text-sm text-muted-foreground">{copy.costFreeSub}</p>
             <details className="group mt-2">
               <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-xs font-medium text-primary [&::-webkit-details-marker]:hidden">

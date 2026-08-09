@@ -14,7 +14,7 @@ export default function NotifikasiPage() {
     <main className="@container mx-auto w-full max-w-2xl px-6 py-12">
       <header className="mb-8 space-y-2">
         <span className="eyebrow">Notifikasi</span>
-        <h1 className="font-serif text-3xl @sm:text-4xl">
+        <h1 className="font-display text-lg @sm:text-xl">
           Kabar <em className="italic text-primary">terbaru untukmu</em>.
         </h1>
         <p className="max-w-xl text-pretty text-muted-foreground">

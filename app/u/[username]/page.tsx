@@ -48,7 +48,7 @@ async function ProfileHeading({ username }: { username: string }) {
   if (profile === null) return null;
   return (
     <header className="mb-6 space-y-2">
-      <h1 className="font-serif text-3xl @sm:text-4xl">{profile.displayName}</h1>
+      <h1 className="font-display text-lg @sm:text-xl">{profile.displayName}</h1>
       <p className="text-muted-foreground">@{profile.username}</p>
       {profile.bio ? <p className="text-pretty text-muted-foreground">{profile.bio}</p> : null}
       <div className="pt-1">

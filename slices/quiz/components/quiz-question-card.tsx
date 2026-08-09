@@ -37,7 +37,7 @@ export function QuizQuestionCard({
         <div className="flex gap-3 @sm:gap-4">
           <span
             aria-hidden
-            className="font-serif text-2xl leading-none tabular-nums text-primary/70 @sm:text-3xl"
+            className="font-display text-base leading-none tabular-nums text-primary/70 @sm:text-lg"
           >
             {String(index + 1).padStart(2, "0")}
           </span>

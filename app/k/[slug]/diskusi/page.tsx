@@ -36,7 +36,7 @@ async function DiskusiBody({ slug }: { slug: string }) {
     return (
       <Empty className="border">
         <EmptyHeader>
-          <EmptyTitle className="font-serif">Diskusi belum bisa dimuat</EmptyTitle>
+          <EmptyTitle className="font-display">Diskusi belum bisa dimuat</EmptyTitle>
           <EmptyDescription className="text-pretty">
             Koneksi ke server sedang bermasalah. Coba muat ulang halaman ini sebentar lagi.
           </EmptyDescription>
