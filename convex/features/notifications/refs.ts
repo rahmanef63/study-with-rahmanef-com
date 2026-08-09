@@ -23,7 +23,7 @@ export type CreateNotificationArgs = {
   /** Bahasa Indonesia; no PII beyond displayName. */
   title: string;
   body?: string;
-  /** Relative OS-shell deep-link, must start with "/". */
+  /** Relative in-app route, must start with "/". */
   href?: string;
 };
 
@@ -40,7 +40,7 @@ export type CreateManyNotificationsArgs = {
   /** Bahasa Indonesia; no PII beyond displayName. */
   title: string;
   body?: string;
-  /** Relative OS-shell deep-link, must start with "/". */
+  /** Relative in-app route, must start with "/". */
   href?: string;
   /** ≤ 200 (CREATE_MANY_CAP) — NEVER includes the actor (no self-notify, P0). */
   recipientIds: Id<"users">[];

@@ -1,4 +1,9 @@
 /** @type {import('next').NextConfig} */
+
+// Flagship community — mirrors DEFAULT_COMMUNITY_SLUG in lib/community.ts. Only
+// used to point the retired shell-level deep links at something real.
+const DEFAULT_COMMUNITY = process.env.NEXT_PUBLIC_DEFAULT_COMMUNITY_SLUG ?? "belajar-ai";
+
 const nextConfig = {
   output: "standalone",
   cacheComponents: true,
@@ -7,19 +12,41 @@ const nextConfig = {
       bodySizeLimit: "5mb",
     },
   },
-  // Wallpaper webps are the shell's first backdrop (appshell.css .wp-* CSS
-  // backgrounds) but /public assets ship with max-age=0 by default, so browsers
-  // revalidate them on every desktop boot. They are not content-hashed — an
-  // image swap MUST rename the file — in practice they never change in place,
-  // so cache them hard.
-  async headers() {
+  // Every URL below was a live OS-shell deep link, shared in WhatsApp and
+  // Discord and — more importantly — PERSISTED in notifications.href rows that
+  // predate the route migration. These redirects are load-bearing, not polish:
+  // without them the pivot breaks the exact thing it exists to fix.
+  // Order matters: the more specific lesson/quiz patterns must precede the
+  // course pattern.
+  async redirects() {
     return [
+      { source: "/beranda", destination: "/", permanent: true },
       {
-        source: "/wallpapers/:path*",
-        headers: [
-          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
-        ],
+        source: "/kelas/:tenant/:course/lesson/:lessonId",
+        destination: "/k/:tenant/kelas/:course/:lessonId",
+        permanent: true,
       },
+      {
+        source: "/kuis/:tenant/:course/:moduleId",
+        destination: "/k/:tenant/kelas/:course/kuis/:moduleId",
+        permanent: true,
+      },
+      { source: "/kelas/:tenant/:course", destination: "/k/:tenant/kelas/:course", permanent: true },
+      { source: "/kelas/:tenant", destination: "/k/:tenant", permanent: true },
+      { source: "/komunitas/:slug", destination: "/k/:slug", permanent: true },
+      // The three boards now live as sections of one Diskusi page.
+      { source: "/resources/:tenant", destination: "/k/:tenant/diskusi#sumber", permanent: true },
+      { source: "/pengumuman/:tenant", destination: "/k/:tenant/diskusi#pengumuman", permanent: true },
+      { source: "/cari/:tenant", destination: "/k/:tenant/cari", permanent: true },
+      { source: "/kelola/:tenant/:path*", destination: "/k/:tenant/kelola", permanent: true },
+      // Public profile moved off the OS app slug onto a short handle route.
+      { source: "/profil/:username", destination: "/u/:username", permanent: true },
+      { source: "/profil", destination: "/pengaturan", permanent: true },
+      // Docs were a static OS app; the content is now the Bantuan section of
+      // the flagship community's Tentang page.
+      { source: "/docs", destination: `/k/${DEFAULT_COMMUNITY}/tentang#bantuan`, permanent: true },
+      // Retired shell surfaces with no successor.
+      { source: "/asisten", destination: "/", permanent: true },
     ];
   },
   images: {

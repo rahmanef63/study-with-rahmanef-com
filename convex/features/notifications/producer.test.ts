@@ -64,7 +64,7 @@ describe("comment_reply producer (comments.addComment)", () => {
     expect(rows[0]?.kind).toBe("comment_reply");
     expect(rows[0]?.tenantId).toBe(fx.tenantId);
     expect(rows[0]?.readAt).toBeUndefined(); // born unread
-    expect(rows[0]?.href).toBe(`/kelas/komunitas-test/kelas-published/lesson/${lessonId}`);
+    expect(rows[0]?.href).toBe(`/k/komunitas-test/kelas/kelas-published/${lessonId}`);
     // Copy is Bahasa Indonesia; only the replier's displayName as PII.
     expect(rows[0]?.title).toBe("Balasan baru di diskusimu");
     expect(rows[0]?.body).toContain("Bu Guru");

@@ -4,19 +4,19 @@ import { buildCourseHref, buildLessonHref, hitHref } from "../lib/hrefs";
 import type { LessonHit, SearchHit } from "../types";
 
 describe("href builders", () => {
-  test("course href follows /kelas/<tenant>/<course>", () => {
-    expect(buildCourseHref("belajar-ai", "dasar-ai")).toBe("/kelas/belajar-ai/dasar-ai");
+  test("course href follows /k/<tenant>/kelas/<course>", () => {
+    expect(buildCourseHref("belajar-ai", "dasar-ai")).toBe("/k/belajar-ai/kelas/dasar-ai");
   });
 
-  test("lesson href follows /kelas/<tenant>/<course>/lesson/<lessonId>", () => {
+  test("lesson href follows /k/<tenant>/kelas/<course>/<lessonId>", () => {
     expect(buildLessonHref("belajar-ai", "dasar-ai", "j57abc")).toBe(
-      "/kelas/belajar-ai/dasar-ai/lesson/j57abc"
+      "/k/belajar-ai/kelas/dasar-ai/j57abc"
     );
   });
 
   test("hitHref dispatches on the kind discriminator", () => {
     const course: SearchHit = { kind: "course", title: "Dasar AI", courseSlug: "dasar-ai" };
-    expect(hitHref("belajar-ai", course)).toBe("/kelas/belajar-ai/dasar-ai");
+    expect(hitHref("belajar-ai", course)).toBe("/k/belajar-ai/kelas/dasar-ai");
 
     const lesson = {
       kind: "lesson",
@@ -25,7 +25,7 @@ describe("href builders", () => {
       lessonId: "j57abc",
       snippet: "…",
     } as unknown as LessonHit; // Id<"lessons"> is a branded string
-    expect(hitHref("belajar-ai", lesson)).toBe("/kelas/belajar-ai/dasar-ai/lesson/j57abc");
+    expect(hitHref("belajar-ai", lesson)).toBe("/k/belajar-ai/kelas/dasar-ai/j57abc");
   });
 
   test("resource href is the EXTERNAL url as-is — tenantSlug never applied (#29)", () => {

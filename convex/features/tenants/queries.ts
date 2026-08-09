@@ -36,6 +36,42 @@ export const getPublicBySlug = query({
 });
 
 /**
+ * Public community stats for the community header — ANONYMOUS (etalase, §6).
+ * Member COUNT only; never the member list, never any user data. Bounded by
+ * membersPageMax, so a big community reports "200+" rather than walking the
+ * table. Returns null for unknown/inactive slugs, same as getPublicBySlug.
+ */
+export const getPublicStatsBySlug = query({
+  args: { slug: v.string() },
+  handler: async (ctx, args) => {
+    const tenant = await ctx.db
+      .query("tenants")
+      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .unique();
+    if (tenant === null || tenant.status !== "active") return null;
+
+    const cap = TENANT_LIMITS.membersPageMax;
+    const members = await ctx.db
+      .query("memberships")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", tenant._id))
+      .take(cap + 1);
+    const courses = await ctx.db
+      .query("courses")
+      .withIndex("by_tenant_status", (q) =>
+        q.eq("tenantId", tenant._id).eq("status", "published")
+      )
+      .take(TENANT_LIMITS.activeListMax + 1);
+
+    return {
+      memberCount: Math.min(members.length, cap),
+      /** true = the real count exceeds memberCount (render "200+"). */
+      memberCountCapped: members.length > cap,
+      courseCount: Math.min(courses.length, TENANT_LIMITS.activeListMax),
+    };
+  },
+});
+
+/**
  * Active communities for the landing etalase (R2). Public by design; safe
  * projection; bounded via by_status index + take (no bare .collect()).
  */

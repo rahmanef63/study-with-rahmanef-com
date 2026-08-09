@@ -68,7 +68,7 @@ export const setStatus = mutation({
           kind: "suggestion_status",
           title: "Status usulanmu diperbarui",
           body: `"${suggestion.title}" kini ${SUGGESTION_STATUS_LABEL[args.status]}.`,
-          href: `/resources/${tenant.slug}`,
+          href: `/k/${tenant.slug}/diskusi#usulan`,
         });
       }
     }

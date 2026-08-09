@@ -80,14 +80,14 @@ describe("barrel runtime contract (alias-free modules)", () => {
     expect(merged.sectionTitle).toBe(SEARCH_COPY.sectionTitle);
   });
 
-  test("href builders produce OS-shell deep-links", () => {
-    expect(buildCourseHref("belajar-ai", "dasar-ai")).toBe("/kelas/belajar-ai/dasar-ai");
+  test("href builders produce community route links", () => {
+    expect(buildCourseHref("belajar-ai", "dasar-ai")).toBe("/k/belajar-ai/kelas/dasar-ai");
     expect(buildLessonHref("belajar-ai", "dasar-ai", "abc123")).toBe(
-      "/kelas/belajar-ai/dasar-ai/lesson/abc123"
+      "/k/belajar-ai/kelas/dasar-ai/abc123"
     );
     expect(
       hitHref("belajar-ai", { kind: "course", title: "X", courseSlug: "dasar-ai" })
-    ).toBe("/kelas/belajar-ai/dasar-ai");
+    ).toBe("/k/belajar-ai/kelas/dasar-ai");
     // Resource href IS the external url — untouched, never rewritten (#29).
     expect(
       hitHref("belajar-ai", { kind: "resource", title: "X", url: "https://contoh.id/x" })

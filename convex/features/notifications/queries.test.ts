@@ -44,7 +44,7 @@ describe("listMine — authz + own-rows-only (P0)", () => {
     const readOld = await seedNotification(t, fx, fx.memberId, "Dibaca", { readAt: 5 });
     await seedNotification(t, fx, fx.memberId, "Unread lama");
     await seedNotification(t, fx, fx.memberId, "Unread baru", {
-      href: "/kelas/komunitas-test/kelas-published/lesson/x",
+      href: "/k/komunitas-test/kelas/kelas-published/x",
       body: "Isi",
     });
 

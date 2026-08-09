@@ -56,7 +56,7 @@ test("create: every other member is notified (kind announcement, deep-link, unre
     expect(rows[0]?.kind).toBe("announcement");
     expect(rows[0]?.tenantId).toBe(fx.tenantId);
     expect(rows[0]?.title).toBe("Kelas baru dibuka!"); // = announcement title
-    expect(rows[0]?.href).toBe("/pengumuman/komunitas-test"); // fixture tenant slug
+    expect(rows[0]?.href).toBe("/k/komunitas-test/diskusi#pengumuman"); // fixture tenant slug
     expect(rows[0]?.readAt).toBeUndefined(); // born unread
   }
   // P0: the sender never notifies themself.

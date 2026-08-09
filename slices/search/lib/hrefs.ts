@@ -1,11 +1,11 @@
-// search slice — deep-link href builders (pure; unit-tested). URLs follow the
-// OS shell deep-link scheme (AGENTS.md §0/§9): windows open from these paths.
-// The slice never imports os-shell — navigation goes through the onNavigate
-// seam (or next/link fallback) with these hrefs.
+// search slice — href builders (pure; unit-tested). URLs follow the community
+// route scheme /k/<tenant>/kelas/<course>[/<lessonId>]. Kept in sync with
+// lib/community.ts communityHref by hrefs.test.ts; the slice does not import
+// the app layer (rr P1: slices stay host-agnostic).
 import type { SearchHit } from "../types";
 
 export function buildCourseHref(tenantSlug: string, courseSlug: string): string {
-  return `/kelas/${tenantSlug}/${courseSlug}`;
+  return `/k/${encodeURIComponent(tenantSlug)}/kelas/${encodeURIComponent(courseSlug)}`;
 }
 
 export function buildLessonHref(
@@ -13,7 +13,7 @@ export function buildLessonHref(
   courseSlug: string,
   lessonId: string
 ): string {
-  return `/kelas/${tenantSlug}/${courseSlug}/lesson/${lessonId}`;
+  return `${buildCourseHref(tenantSlug, courseSlug)}/${encodeURIComponent(lessonId)}`;
 }
 
 /**

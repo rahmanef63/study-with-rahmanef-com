@@ -8,8 +8,14 @@ FROM node:22-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-ARG NEXT_PUBLIC_CONVEX_URL=https://api-belajar-with-rahmanef.com
+# NEXT_PUBLIC_* is inlined at BUILD time and cannot be overridden at runtime, so
+# a wrong value here silently ships a frontend pointed at a dead backend. No
+# default on purpose: the build must fail loudly rather than inherit the
+# self-hosted URL that was retired on 2026-07-10 (AGENTS.md 9). Pass
+#   --build-arg NEXT_PUBLIC_CONVEX_URL=https://<deployment>.convex.cloud
+ARG NEXT_PUBLIC_CONVEX_URL
 ENV NEXT_PUBLIC_CONVEX_URL=$NEXT_PUBLIC_CONVEX_URL
+RUN test -n "$NEXT_PUBLIC_CONVEX_URL" || (echo "ERROR: --build-arg NEXT_PUBLIC_CONVEX_URL is required" && exit 1)
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 

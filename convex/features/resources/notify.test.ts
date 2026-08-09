@@ -35,7 +35,7 @@ test("curate approve: submitter gets ONE unread resource_reviewed notification w
   expect(rows[0].kind).toBe("resource_reviewed");
   expect(rows[0].title).toBe("Sumbermu disetujui");
   expect(rows[0].body).toContain("Panduan RAG");
-  expect(rows[0].href).toBe("/resources/komunitas-test"); // fixture tenant slug
+  expect(rows[0].href).toBe("/k/komunitas-test/diskusi#sumber"); // fixture tenant slug
   expect(rows[0].readAt).toBeUndefined(); // lands unread
 });
 
@@ -93,7 +93,7 @@ test("setStatus: submitter gets ONE suggestion_status notification with ID copy 
   expect(rows[0].title).toBe("Status usulanmu diperbarui");
   expect(rows[0].body).toContain("Kelas Prompting");
   expect(rows[0].body).toContain("direncanakan");
-  expect(rows[0].href).toBe("/resources/komunitas-test");
+  expect(rows[0].href).toBe("/k/komunitas-test/diskusi#usulan");
 });
 
 test("setStatus P0: actor triaging their OWN suggestion → status applied, NO notification", async () => {

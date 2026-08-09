@@ -78,7 +78,7 @@ export async function scheduleAnnouncementFanout(
     tenantId: args.tenantId,
     kind: "announcement",
     title,
-    href: `/pengumuman/${tenant.slug}`,
+    href: `/k/${tenant.slug}/diskusi#pengumuman`,
     recipientIds,
   });
 }

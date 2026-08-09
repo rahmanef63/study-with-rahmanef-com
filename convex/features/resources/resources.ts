@@ -73,7 +73,7 @@ export const curate = mutation({
         body: `"${resource.title}" ${
           approved ? "kini tampil di papan sumber." : "belum dapat ditampilkan."
         }`,
-        href: `/resources/${tenant.slug}`,
+        href: `/k/${tenant.slug}/diskusi#sumber`,
       });
     }
     return resource._id;

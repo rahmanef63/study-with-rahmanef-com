@@ -72,6 +72,6 @@ export async function maybeScheduleReplyNotification(
     kind: "comment_reply",
     title: "Balasan baru di diskusimu",
     body: `${who} membalas komentarmu di lesson "${lessonTitle}".`,
-    href: `/kelas/${tenant.slug}/${course.slug}/lesson/${args.lesson._id}`,
+    href: `/k/${tenant.slug}/kelas/${course.slug}/${args.lesson._id}`,
   });
 }

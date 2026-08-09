@@ -34,7 +34,7 @@ describe("create (internal producer target)", () => {
         kind: "comment_reply",
         title: "  Balasan baru di diskusimu  ",
         body: "Seseorang membalas komentarmu.",
-        href: "/kelas/komunitas-test/kelas-published/lesson/abc",
+        href: "/k/komunitas-test/kelas/kelas-published/abc",
       }
     );
     const row = await t.run((ctx) => ctx.db.get(id));

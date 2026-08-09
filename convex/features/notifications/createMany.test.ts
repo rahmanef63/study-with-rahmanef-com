@@ -34,7 +34,7 @@ function baseArgs(fx: TenantFixture, recipientIds: Id<"users">[]) {
     tenantId: fx.tenantId,
     kind: "announcement" as const,
     title: "Pengumuman baru",
-    href: "/pengumuman/komunitas-test",
+    href: "/k/komunitas-test/diskusi#pengumuman",
     recipientIds,
   };
 }
@@ -54,7 +54,7 @@ test("inserts ONE unread row per recipient with the shared payload", async () =>
     expect(rows[0]?.kind).toBe("announcement");
     expect(rows[0]?.tenantId).toBe(fx.tenantId);
     expect(rows[0]?.title).toBe("Pengumuman baru");
-    expect(rows[0]?.href).toBe("/pengumuman/komunitas-test");
+    expect(rows[0]?.href).toBe("/k/komunitas-test/diskusi#pengumuman");
     expect(rows[0]?.readAt).toBeUndefined(); // born unread
   }
   // Not in the list → no row.
