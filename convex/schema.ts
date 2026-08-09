@@ -4,13 +4,9 @@
 import { authTables } from "@convex-dev/auth/server";
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
-import { pageviewTables } from "./features/pageviews/tables";
 
 export default defineSchema({
   ...authTables,
-  // Cookieless visitor analytics (feature-owned tables spread in). See
-  // convex/features/pageviews/tables.ts.
-  ...pageviewTables,
 
   profiles: defineTable({
     userId: v.id("users"),

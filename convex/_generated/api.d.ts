@@ -44,8 +44,6 @@ import type * as features_notifications_projections from "../features/notificati
 import type * as features_notifications_queries from "../features/notifications/queries.js";
 import type * as features_notifications_refs from "../features/notifications/refs.js";
 import type * as features_notifications_validate from "../features/notifications/validate.js";
-import type * as features_pageviews_purge from "../features/pageviews/purge.js";
-import type * as features_pageviews_tables from "../features/pageviews/tables.js";
 import type * as features_profiles_mutations from "../features/profiles/mutations.js";
 import type * as features_profiles_public from "../features/profiles/public.js";
 import type * as features_profiles_queries from "../features/profiles/queries.js";
@@ -138,8 +136,6 @@ declare const fullApi: ApiFromModules<{
   "features/notifications/queries": typeof features_notifications_queries;
   "features/notifications/refs": typeof features_notifications_refs;
   "features/notifications/validate": typeof features_notifications_validate;
-  "features/pageviews/purge": typeof features_pageviews_purge;
-  "features/pageviews/tables": typeof features_pageviews_tables;
   "features/profiles/mutations": typeof features_profiles_mutations;
   "features/profiles/public": typeof features_profiles_public;
   "features/profiles/queries": typeof features_profiles_queries;
