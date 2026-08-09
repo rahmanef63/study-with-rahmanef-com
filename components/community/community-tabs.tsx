@@ -1,29 +1,30 @@
 "use client";
 
 // The tab strip. This ~50-line component is what replaced 21,000 lines of
-// window manager: a row of links with an active underline, scrollable
-// horizontally on a phone. No dock, no menu bar, no springboard.
+// window manager: a row of links with an active underline.
+//
+// DESKTOP ONLY now (`md` and up). Below that the same nav renders as
+// <CommunityBottomNav/> — six tabs in a scrolling strip fitted four on a Pixel 7
+// with nothing to signal the other two existed, which on a phone means half the
+// primary navigation was invisible.
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { COMMUNITY_TABS } from "@/lib/community";
 import { cn } from "@/lib/utils";
+import { isCommunityTabActive } from "./tab-active";
 
 export function CommunityTabs({ slug }: { slug: string }) {
   const pathname = usePathname();
 
   return (
-    <nav aria-label="Bagian komunitas" className="-mb-px overflow-x-auto">
+    <nav aria-label="Bagian komunitas" className="-mb-px hidden overflow-x-auto md:block">
       <ul className="flex min-w-max gap-1 px-1">
         {COMMUNITY_TABS.map((tab) => {
-          const href = tab.href(slug);
-          const active = tab.exact
-            ? pathname === href
-            : pathname.startsWith(href) ||
-              (tab.alsoMatch?.some((prefix) => pathname.startsWith(prefix(slug))) ?? false);
+          const active = isCommunityTabActive(tab, slug, pathname);
           return (
             <li key={tab.key}>
               <Link
-                href={href}
+                href={tab.href(slug)}
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "inline-flex min-h-11 items-center border-b-2 px-4 text-sm transition-colors",

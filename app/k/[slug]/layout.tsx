@@ -6,6 +6,7 @@ import { Search } from "lucide-react";
 import { api } from "@convex/_generated/api";
 import { LogoMark } from "@/components/brand/logo";
 import { CommunityActions } from "@/components/community/community-actions";
+import { CommunityBottomNav } from "@/components/community/community-bottom-nav";
 import { CommunityTabs } from "@/components/community/community-tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { safeQuery } from "@/lib/convex-server";
@@ -101,25 +102,42 @@ export default async function CommunityLayout({
             itself with container queries (a leftover of the windowed shell,
             which established the container). A real route has to declare one or
             those variants never match and the views collapse to one column. */}
-        <div className="@container mx-auto w-full max-w-5xl px-5">
+        {/* pb below md replaces the bottom padding the (now desktop-only) tab
+            strip used to contribute. */}
+        <div className="@container mx-auto w-full max-w-5xl px-5 pb-4 md:pb-0">
+          {/* One line at EVERY width. At 320px this used to wrap onto two lines
+              and collide, so below `sm` the wordmark and "Komunitas lain" drop
+              out: the mark alone still reads as home, and "Komunitas lain" is a
+              rare action that now lives in the phone bar's "Lainnya" sheet. */}
           <div className="flex min-h-12 items-center justify-between gap-3 text-sm">
-            <Link href="/" className="inline-flex items-center gap-2 font-medium">
-              <LogoMark className="size-4 text-primary" aria-hidden />
-              <span className="font-display text-[0.6rem] uppercase tracking-wider text-muted-foreground">
+            <Link
+              href="/"
+              // min-w-11 + negative margin: below sm the label is gone and the
+              // 16px mark alone would be a 16px tap target.
+              className="-ml-2 inline-flex min-h-11 min-w-11 items-center gap-2 px-2 font-medium sm:ml-0 sm:min-w-0 sm:px-0"
+              aria-label="Beranda belajar with rahmanef"
+            >
+              <LogoMark className="size-4 shrink-0 text-primary" aria-hidden />
+              <span className="hidden font-display text-[0.6rem] uppercase tracking-wider text-muted-foreground sm:inline">
                 belajar·with·rahmanef
               </span>
             </Link>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1 sm:gap-3">
               {/* Search is a tool, not a destination — a header affordance
-                  instead of a sixth tab competing for a learner's attention. */}
+                  instead of a sixth tab competing for a learner's attention.
+                  Icon-only below sm, but still a full 44px target. */}
               <Link
                 href={communityHref.cari(slug)}
-                className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+                aria-label="Cari kelas & materi"
+                className="-mr-2 inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 text-muted-foreground hover:text-foreground sm:mr-0 sm:min-w-0"
               >
-                <Search className="size-3.5" aria-hidden />
-                Cari
+                <Search className="size-4 shrink-0 sm:size-3.5" aria-hidden />
+                <span className="hidden sm:inline">Cari</span>
               </Link>
-              <Link href="/komunitas" className="text-muted-foreground hover:text-foreground">
+              <Link
+                href="/komunitas"
+                className="hidden min-h-11 items-center text-muted-foreground hover:text-foreground sm:inline-flex"
+              >
                 Komunitas lain
               </Link>
             </div>
@@ -136,12 +154,15 @@ export default async function CommunityLayout({
           >
             <CommunityHeader slug={slug} />
           </Suspense>
-          <div className="pt-4">
+          <div className="hidden pt-4 md:block">
             <CommunityTabs slug={slug} />
           </div>
         </div>
       </header>
       <main className="@container mx-auto w-full max-w-5xl px-5 py-8">{children}</main>
+      {/* Phone-only. Renders its own in-flow spacer, so <main> needs no extra
+          bottom padding and pages where the bar hides get none. */}
+      <CommunityBottomNav slug={slug} />
     </div>
   );
 }

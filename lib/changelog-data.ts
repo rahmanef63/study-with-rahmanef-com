@@ -28,6 +28,19 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-08-09",
+    version: "v2.4",
+    title: "Bisa dipasang di HP",
+    tags: ["Baru", "Tampilan"],
+    points: [
+      "Sekarang bisa dipasang ke layar utama HP seperti aplikasi biasa — buka menu browser lalu pilih “Tambahkan ke layar utama”. Ikonnya muncul di antara aplikasi lain, dan dibuka tanpa bar browser.",
+      "Ada bar navigasi di bawah layar HP: Kelas, Diskusi, Anggota, Peringkat, dan tombol Lainnya untuk Kalender, Tentang, Cari, dan komunitas lain. Sebelumnya keenam tab dipaksa muat di satu baris dan dua di antaranya tersembunyi di luar layar.",
+      "Kalau internet putus, muncul halaman “Game Paused” yang rapi, bukan layar error browser.",
+      "Tombol dan chip di HP diperbesar supaya gampang ditekan dengan jempol.",
+      "Baris atas di layar kecil tidak lagi tumpang tindih.",
+    ],
+  },
+  {
+    date: "2026-08-09",
     version: "v2.3",
     title: "Tiga papan lama jadi satu",
     tags: ["Perbaikan", "Baru"],

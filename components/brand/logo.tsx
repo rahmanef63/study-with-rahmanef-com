@@ -18,17 +18,24 @@ const SPARK: [number, number, number][] = [
   [7, 2, 2],
 ];
 
+// Pages stop one column short of the spine on each side, leaving background
+// GUTTERS at x=6 and x=9. Without them the left page, spine and right page were
+// adjacent same-colour runs (x2..x13 contiguous) and the whole book fused into
+// one gold slab — invisible as a book at 16px and, worse, on a 512px launcher
+// tile, where it read as a brick with a cross floating over it. On a pixel grid
+// a shape is only legible if the negative space is drawn as deliberately as the
+// positive space.
 const PAGE_ROWS: [number, number, number][] = [
   // top taper
-  [3, 5, 4],
-  [9, 5, 4],
-  // body — left page, right page
+  [3, 5, 3],
+  [10, 5, 3],
+  // body — left page, gutter, spine, gutter, right page
   ...([6, 7, 8, 9, 10, 11] as const).flatMap(
-    (y) => [[2, y, 5], [9, y, 5]] as [number, number, number][]
+    (y) => [[2, y, 4], [10, y, 4]] as [number, number, number][]
   ),
   // bottom taper
-  [3, 12, 4],
-  [9, 12, 4],
+  [3, 12, 3],
+  [10, 12, 3],
 ];
 
 /** Spine: a solid 2px column joining the pages. */

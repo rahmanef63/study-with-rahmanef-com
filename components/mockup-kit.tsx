@@ -221,7 +221,9 @@ export function FilterChip({
       type="button"
       onClick={onClick}
       className={cn(
-        "inline-flex items-center gap-1.5 border-2 px-3.5 py-1.5 text-[13px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        // min-h-11 on a phone: a 36px chip is under the 44px floor and these are the
+        // primary filter on the most-tapped page in the app.
+        "inline-flex items-center gap-1.5 border-2 px-3.5 py-1.5 text-[13px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring min-h-11 @sm:min-h-9",
         active
           ? "border-primary/40 bg-primary/10 text-primary"
           : "border-border text-muted-foreground hover:text-foreground",

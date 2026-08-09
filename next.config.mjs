@@ -62,6 +62,41 @@ const nextConfig = {
       { source: "/asisten", destination: "/", permanent: true },
     ];
   },
+  // Everything under public/ is served with the same default caching, which is
+  // exactly wrong for a service worker and exactly too weak for the icons.
+  async headers() {
+    return [
+      {
+        // A service worker that its own HTTP cache can hand back stale is a
+        // worker that can never update itself — and this one is the only thing
+        // standing between an offline user and a browser error page. Modern
+        // browsers bypass the HTTP cache for the SW script anyway, but that is
+        // recent behaviour and Traefik sits in front of us.
+        source: "/sw.js",
+        headers: [
+          { key: "Cache-Control", value: "no-cache" },
+          // Belt and braces: lets the worker claim "/" no matter what path it
+          // is ever served from.
+          { key: "Service-Worker-Allowed", value: "/" },
+        ],
+      },
+      {
+        // Committed build output (scripts/generateIcons.mjs,
+        // generateScreenshots.mjs). NOT `immutable`: the filenames carry the
+        // SIZE, not a content hash, so regenerating icon-512.png reuses the URL
+        // — which is exactly what happened when the brand mark's page gutters
+        // were fixed. `immutable` would have pinned the old art in every
+        // returning browser for a year with no way to bust it. A week is long
+        // enough for assets that change about once a quarter.
+        source: "/icons/:file*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=604800" }],
+      },
+      {
+        source: "/screenshots/:file*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=604800" }],
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },

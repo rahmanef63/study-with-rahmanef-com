@@ -2,8 +2,10 @@ import { ImageResponse } from "next/og";
 
 // Shared social-card renderer for the per-page opengraph-image routes.
 // Literal hex is correct here — this produces a static PNG, not themeable UI.
-// Palette mirrors the arcade cabinet base: CRT black #12141f, coin gold
-// #ffc933, phosphor cyan #4fd8e8, muted #8b93b0.
+// Palette mirrors the arcade cabinet base as it actually renders: CRT black
+// #090f1c, coin gold #f9c423, phosphor cyan #4fd8e8, muted #8b93b0. Hardcoded
+// hex is correct here (a PNG cannot read a CSS var) — it just has to be the
+// CURRENT hex, so keep it in step with app/globals.css.
 //
 // Deliberately NOT loading Press Start 2P: next/og needs the font as bytes, so
 // using it would mean an extra network fetch on every card render (and a
@@ -13,8 +15,8 @@ import { ImageResponse } from "next/og";
 export const OG_SIZE = { width: 1200, height: 630 };
 export const OG_CONTENT_TYPE = "image/png";
 
-const BLACK = "#12141f";
-const GOLD = "#ffc933";
+const BLACK = "#090f1c";
+const GOLD = "#f9c423";
 const CYAN = "#4fd8e8";
 const MUTED = "#8b93b0";
 

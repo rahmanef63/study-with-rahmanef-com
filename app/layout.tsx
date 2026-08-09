@@ -3,6 +3,7 @@ import { Pixelify_Sans, Press_Start_2P } from "next/font/google";
 import { ConvexClientProvider } from "@/components/convex-provider";
 import { VersionWatcher } from "@/components/version-watcher";
 import { LocalStoragePurge } from "@/components/local-storage-purge";
+import { ServiceWorkerRegistrar } from "@/components/pwa/service-worker";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
@@ -40,6 +41,15 @@ const CONVEX_ORIGIN = (() => {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  // The manifest asks for display "standalone", so an installed app draws under
+  // the notch and the home indicator. Without viewportFit "cover" the UA letter-
+  // boxes those areas and every env(safe-area-inset-*) resolves to 0px, which
+  // would silently break the fixed bottom nav that depends on them.
+  viewportFit: "cover",
+  // Paints the Android status bar / desktop title bar in the cabinet's CRT
+  // black instead of browser white. Same value as background_color in
+  // app/manifest.ts — see that file for why it is #090f1c and not #12141f.
+  themeColor: "#090f1c",
 };
 
 export const metadata: Metadata = {
@@ -49,6 +59,31 @@ export const metadata: Metadata = {
     template: "%s — belajar-with-rahmanef.com",
   },
   description: SITE_DESCRIPTION,
+  applicationName: "Belajar",
+  // iOS ignores the web app manifest almost entirely; "Add to Home Screen"
+  // reads these three meta tags instead. `capable` is what makes the installed
+  // icon open without Safari chrome, matching the manifest's standalone
+  // display, and black-translucent lets the page paint under the status bar
+  // (which is why viewportFit "cover" above is not optional).
+  appleWebApp: {
+    capable: true,
+    title: "Belajar",
+    statusBarStyle: "black-translucent",
+  },
+  // Declared explicitly rather than left to the app/icon.svg file convention:
+  // once any `icons` field is set it replaces the auto-detected set, and iOS
+  // needs a real PNG (it will not use an SVG for a home-screen icon).
+  // No app/apple-icon.tsx — that would rasterise the same art again through
+  // next/og at request time to produce a file scripts/generateIcons.mjs has
+  // already emitted, byte-verified and committed.
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icons/apple-touch-icon-180.png", sizes: "180x180", type: "image/png" }],
+  },
   openGraph: {
     type: "website",
     locale: "id_ID",
@@ -57,7 +92,33 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
   },
   twitter: { card: "summary_large_image" },
+  // Next 16 emits only the standard `mobile-web-app-capable`. iOS before 15.4
+  // reads the legacy name and will otherwise open the installed icon in Safari
+  // chrome instead of standalone. One line, and cheap insurance for the older
+  // hand-me-down iPhones a charity learning app actually lands on.
+  other: { "apple-mobile-web-app-capable": "yes" },
 };
+
+// Safe-area insets, promoted from env() into plain custom properties on <body>.
+//
+// PUBLISHED CONTRACT for the fixed bottom nav (and anything else that touches a
+// screen edge): read --safe-b / --safe-t / --safe-l / --safe-r. They resolve to
+// 0px everywhere that has no inset, so they are always safe to add:
+//
+//   .bottom-nav { padding-bottom: var(--safe-b); }
+//   main        { padding-bottom: calc(var(--nav-h) + var(--safe-b)); }
+//
+// Why vars and not raw env() at each call site: env() is not usable inside
+// Tailwind arbitrary values without escaping gymnastics, and a var() indirection
+// means the insets can be stubbed in a test or a screenshot run by overriding
+// four properties in one place. Set inline here rather than in globals.css
+// because that file belongs to another agent this cycle.
+const SAFE_AREA = {
+  "--safe-t": "env(safe-area-inset-top, 0px)",
+  "--safe-r": "env(safe-area-inset-right, 0px)",
+  "--safe-b": "env(safe-area-inset-bottom, 0px)",
+  "--safe-l": "env(safe-area-inset-left, 0px)",
+} as React.CSSProperties;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -66,17 +127,33 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       {/* `antialiased` is deliberately OFF: subpixel smoothing muddies a pixel
           font. The scanline overlay is a fixed pseudo-element on <body> — see
           .scanlines in globals.css. */}
-      <body className="scanlines font-sans">
+      <body className="scanlines font-sans" style={SAFE_AREA}>
         {/* React hoists resource links to <head>. */}
         {CONVEX_ORIGIN && <link rel="preconnect" href={CONVEX_ORIGIN} />}
+        {/* VersionWatcher owns the ONE "muat ulang" prompt; the registrar below
+            deliberately stays silent. See components/pwa/service-worker.tsx. */}
         <VersionWatcher />
+        <ServiceWorkerRegistrar />
         <LocalStoragePurge />
         {/* No Suspense wrapper here on purpose. It used to exist because the
             OS shell's UrlSync read window.location during prerender, which
             suspended EVERY route to a full-screen splash. Pages own their own
             boundaries around the specific reads that are dynamic. */}
         <ConvexClientProvider>{children}</ConvexClientProvider>
-        <Toaster position="bottom-right" />
+        {/* mobileOffset lifts the toast clear of <CommunityBottomNav/>. Below
+            600px sonner switches to a full-width bottom-anchored toast at
+            z-index 999999999, which sat ON TOP of the fixed 56px nav and — with
+            VersionWatcher's duration: Infinity — covered all five nav cells
+            until the user reloaded. 3.5rem is the bar height (BAR_H in
+            components/community/community-bottom-nav.tsx). */}
+        <Toaster
+          position="bottom-right"
+          mobileOffset={{
+            bottom: "calc(3.5rem + env(safe-area-inset-bottom, 0px) + 1rem)",
+            left: "1rem",
+            right: "1rem",
+          }}
+        />
       </body>
     </html>
   );

@@ -117,13 +117,13 @@ export function PostCard({
                 aria-pressed={liked}
                 aria-label={liked ? copy.liked : copy.like}
                 onClick={onToggleLike}
-                className={cn("gap-1.5 px-2", liked && "text-primary")}
+                className={cn("gap-1.5 px-2 min-h-11 @sm:min-h-9", liked && "text-primary")}
               >
                 <Heart className={cn("size-3.5", liked && "fill-current")} aria-hidden />
                 <span className="tabular-nums">{post.likeCount}</span>
               </Button>
             ) : (
-              <Button variant="ghost" size="sm" asChild className="gap-1.5 px-2">
+              <Button variant="ghost" size="sm" asChild className="gap-1.5 px-2 min-h-11 @sm:min-h-9">
                 <Link href={loginHref} title={copy.loginToLike} aria-label={copy.loginToLike}>
                   <Heart className="size-3.5" aria-hidden />
                   <span className="tabular-nums">{post.likeCount}</span>
@@ -131,7 +131,7 @@ export function PostCard({
               </Button>
             )}
 
-            <Button variant="ghost" size="sm" asChild className="gap-1.5 px-2">
+            <Button variant="ghost" size="sm" asChild className="gap-1.5 px-2 min-h-11 @sm:min-h-9">
               <Link href={href} aria-label={`${post.commentCount} ${copy.commentCountLabel}`}>
                 <MessageSquare className="size-3.5" aria-hidden />
                 <span className="tabular-nums">{post.commentCount}</span>

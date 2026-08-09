@@ -27,11 +27,18 @@ export function CommunityActions({
   return (
     <div className="flex flex-wrap items-center gap-2">
       <JoinButton tenantId={tenantId} loginHref={`/masuk?next=${encodeURIComponent(communityHref.home(slug))}`} />
-      <TombolBagikan url={absoluteUrl(communityHref.home(slug))} title={name} variant="ghost" />
+      {/* min-h-11 @sm:min-h-9 mirrors JoinButton: a 44px target on a phone,
+          back to the compact 36px button once the header container is wide. */}
+      <TombolBagikan
+        url={absoluteUrl(communityHref.home(slug))}
+        title={name}
+        variant="ghost"
+        className="min-h-11 @sm:min-h-9"
+      />
       {canManage ? (
         <Link
           href={communityHref.kelola(slug)}
-          className="inline-flex min-h-9 items-center gap-1.5 px-3 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="inline-flex min-h-11 items-center gap-1.5 px-3 text-sm text-muted-foreground transition-colors hover:text-foreground @sm:min-h-9"
         >
           <SlidersHorizontal className="size-3.5" aria-hidden />
           Kelola

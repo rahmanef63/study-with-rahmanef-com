@@ -105,7 +105,9 @@ export function FeedView({
             <p className="font-display text-xs uppercase tracking-wide">{copy.gateTitle}</p>
             <p className="text-xs text-muted-foreground">{copy.gateHint}</p>
           </div>
-          <Button asChild size="sm">
+          {/* The only way into the feed for a logged-out visitor — it cannot be
+              a 32px target on the app's most-tapped page. */}
+          <Button asChild size="sm" className="min-h-11 @sm:min-h-9">
             <Link href={loginHref}>{copy.gateAction}</Link>
           </Button>
         </div>
@@ -167,6 +169,7 @@ export function FeedView({
             <Button
               variant="outline"
               size="sm"
+              className="min-h-11 @sm:min-h-9"
               disabled={status === "LoadingMore"}
               onClick={() => loadMore(FEED_PAGE_SIZE)}
             >
