@@ -12,23 +12,6 @@ export default defineSchema({
   // convex/features/pageviews/tables.ts.
   ...pageviewTables,
 
-  // Singleton site config from the rr starter (branding). Bounded: one row.
-  siteSettings: defineTable({
-    siteName: v.optional(v.string()),
-    tagline: v.optional(v.string()),
-    ownerName: v.optional(v.string()),
-    contactEmail: v.optional(v.string()),
-    brandColor: v.optional(v.string()),
-    themeDefault: v.optional(v.string()),
-    themePreset: v.optional(v.string()),
-    logoUrl: v.optional(v.string()),
-    faviconUrl: v.optional(v.string()),
-    socials: v.optional(v.string()),
-    seoDescription: v.optional(v.string()),
-    analyticsId: v.optional(v.string()),
-    onboardedAt: v.optional(v.number()),
-  }),
-
   profiles: defineTable({
     userId: v.id("users"),
     username: v.string(), // globally unique — /u/[username]
@@ -54,7 +37,10 @@ export default defineSchema({
     ownerId: v.id("users"),
   })
     .index("by_slug", ["slug"])
-    .index("by_status", ["status"]),
+    .index("by_status", ["status"])
+    // Exact "does this user already hold an open request?" — replaces a bounded
+    // by_status scan that stopped firing past 500 global pending rows.
+    .index("by_owner_status", ["ownerId", "status"]),
 
   memberships: defineTable({
     tenantId: v.id("tenants"),
@@ -190,7 +176,11 @@ export default defineSchema({
   })
     .index("by_lesson", ["lessonId"])
     .index("by_parent", ["parentId"])
-    .index("by_user", ["userId"]),
+    .index("by_user", ["userId"])
+    // Anti-spam counts the caller's own comments on ONE lesson exactly. The old
+    // by_lesson + bounded .take() scanned the OLDEST rows, so past the window
+    // the per-user cap could never fire.
+    .index("by_lesson_user", ["lessonId", "userId"]),
 
   suggestionVotes: defineTable({
     // fase-2 (#18): one vote per user per suggestion; count derived, never stored.

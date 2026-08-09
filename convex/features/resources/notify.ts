@@ -5,17 +5,14 @@
 // DATA-MODEL fase-2 2026-07-11) — pattern: features/announcements (scheduler →
 // internal mutation). No new tables (P0 #22).
 //
-// TODO(rr): waiting on notifications barrel (#21, agent beta) — the generic
-// producer target internal.features.notifications.create is being built in
-// parallel and is not in the checked-in typed api. `create` below mirrors that
-// contract 1:1 (userId, tenantId, kind, title, body?, href?) so at integration
-// alpha may repoint `notifyCreateRef` to beta's function (one string) and drop
-// the local target. makeFunctionReference keeps `npx tsc --noEmit` green while
-// this slice is built in isolation (precedent: features/announcements/refs.ts).
-import { makeFunctionReference } from "convex/server";
-import { v } from "convex/values";
+// The #21 swap is DONE: this feature schedules the canonical
+// features/notifications/notifications:create, which runs assertCreateInput
+// (title/body caps, href must start with "/"). The local shadow `create` that
+// used to insert into `notifications` with zero validation is gone — every
+// curation notification now goes through the one contract.
 import type { Id } from "../../_generated/dataModel";
-import { internalMutation, type MutationCtx } from "../../_generated/server";
+import { type MutationCtx } from "../../_generated/server";
+import { createNotificationRef } from "../notifications/refs";
 
 /** Kinds this feature produces (subset of the schema's notification kinds). */
 export type ResourcesNotifyKind = "resource_reviewed" | "suggestion_status";
@@ -30,29 +27,8 @@ export type NotifyArgs = {
   href?: string;
 };
 
-/** Scheduled producer target — see TODO(rr) above for the #21 swap plan. */
-export const notifyCreateRef = makeFunctionReference<"mutation", NotifyArgs>(
-  "features/resources/notify:create"
-);
-
-/**
- * Generic notification insert. INTERNAL only — clients never create
- * notifications directly; recipients read them via the #21 inbox queries.
- * Mirrors the #21 `notifications.create` producer contract exactly.
- */
-export const create = internalMutation({
-  args: {
-    userId: v.id("users"),
-    tenantId: v.id("tenants"),
-    kind: v.union(v.literal("resource_reviewed"), v.literal("suggestion_status")),
-    title: v.string(),
-    body: v.optional(v.string()),
-    href: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    await ctx.db.insert("notifications", args); // readAt omitted = unread
-  },
-});
+/** Scheduled producer target — the canonical, validating notifications:create. */
+export const notifyCreateRef = createNotificationRef;
 
 /**
  * Schedule a notification for `args.userId` about `actorId`'s action.

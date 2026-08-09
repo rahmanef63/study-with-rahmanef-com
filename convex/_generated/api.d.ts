@@ -15,12 +15,6 @@ import type * as features_analytics_aggregate from "../features/analytics/aggreg
 import type * as features_analytics_constants from "../features/analytics/constants.js";
 import type * as features_analytics_errors from "../features/analytics/errors.js";
 import type * as features_analytics_queries from "../features/analytics/queries.js";
-import type * as features_progress_recents from "../features/progress/recents.js";
-import type * as features_asisten_chat from "../features/asisten/chat.js";
-import type * as features_asisten_context from "../features/asisten/context.js";
-import type * as features_asisten_errors from "../features/asisten/errors.js";
-import type * as features_asisten_prompt from "../features/asisten/prompt.js";
-import type * as features_asisten_validate from "../features/asisten/validate.js";
 import type * as features_announcements_discord from "../features/announcements/discord.js";
 import type * as features_announcements_errors from "../features/announcements/errors.js";
 import type * as features_announcements_mutations from "../features/announcements/mutations.js";
@@ -50,9 +44,7 @@ import type * as features_notifications_projections from "../features/notificati
 import type * as features_notifications_queries from "../features/notifications/queries.js";
 import type * as features_notifications_refs from "../features/notifications/refs.js";
 import type * as features_notifications_validate from "../features/notifications/validate.js";
-import type * as features_pageviews_constants from "../features/pageviews/constants.js";
-import type * as features_pageviews_mutations from "../features/pageviews/mutations.js";
-import type * as features_pageviews_queries from "../features/pageviews/queries.js";
+import type * as features_pageviews_purge from "../features/pageviews/purge.js";
 import type * as features_pageviews_tables from "../features/pageviews/tables.js";
 import type * as features_profiles_mutations from "../features/profiles/mutations.js";
 import type * as features_profiles_public from "../features/profiles/public.js";
@@ -65,6 +57,7 @@ import type * as features_progress_derive from "../features/progress/derive.js";
 import type * as features_progress_errors from "../features/progress/errors.js";
 import type * as features_progress_mutations from "../features/progress/mutations.js";
 import type * as features_progress_queries from "../features/progress/queries.js";
+import type * as features_progress_recents from "../features/progress/recents.js";
 import type * as features_quiz_access from "../features/quiz/access.js";
 import type * as features_quiz_attempts from "../features/quiz/attempts.js";
 import type * as features_quiz_builder from "../features/quiz/builder.js";
@@ -101,9 +94,6 @@ import type * as seedAiKerja from "../seedAiKerja.js";
 import type * as seedAnalisisData from "../seedAnalisisData.js";
 import type * as seedMultiAgent from "../seedMultiAgent.js";
 import type * as seedWebDev from "../seedWebDev.js";
-import type * as settings from "../settings.js";
-import type * as setup from "../setup.js";
-import type * as update from "../update.js";
 
 import type {
   ApiFromModules,
@@ -119,12 +109,6 @@ declare const fullApi: ApiFromModules<{
   "features/analytics/constants": typeof features_analytics_constants;
   "features/analytics/errors": typeof features_analytics_errors;
   "features/analytics/queries": typeof features_analytics_queries;
-  "features/progress/recents": typeof features_progress_recents;
-  "features/asisten/chat": typeof features_asisten_chat;
-  "features/asisten/context": typeof features_asisten_context;
-  "features/asisten/errors": typeof features_asisten_errors;
-  "features/asisten/prompt": typeof features_asisten_prompt;
-  "features/asisten/validate": typeof features_asisten_validate;
   "features/announcements/discord": typeof features_announcements_discord;
   "features/announcements/errors": typeof features_announcements_errors;
   "features/announcements/mutations": typeof features_announcements_mutations;
@@ -154,9 +138,7 @@ declare const fullApi: ApiFromModules<{
   "features/notifications/queries": typeof features_notifications_queries;
   "features/notifications/refs": typeof features_notifications_refs;
   "features/notifications/validate": typeof features_notifications_validate;
-  "features/pageviews/constants": typeof features_pageviews_constants;
-  "features/pageviews/mutations": typeof features_pageviews_mutations;
-  "features/pageviews/queries": typeof features_pageviews_queries;
+  "features/pageviews/purge": typeof features_pageviews_purge;
   "features/pageviews/tables": typeof features_pageviews_tables;
   "features/profiles/mutations": typeof features_profiles_mutations;
   "features/profiles/public": typeof features_profiles_public;
@@ -169,6 +151,7 @@ declare const fullApi: ApiFromModules<{
   "features/progress/errors": typeof features_progress_errors;
   "features/progress/mutations": typeof features_progress_mutations;
   "features/progress/queries": typeof features_progress_queries;
+  "features/progress/recents": typeof features_progress_recents;
   "features/quiz/access": typeof features_quiz_access;
   "features/quiz/attempts": typeof features_quiz_attempts;
   "features/quiz/builder": typeof features_quiz_builder;
@@ -205,9 +188,6 @@ declare const fullApi: ApiFromModules<{
   seedAnalisisData: typeof seedAnalisisData;
   seedMultiAgent: typeof seedMultiAgent;
   seedWebDev: typeof seedWebDev;
-  settings: typeof settings;
-  setup: typeof setup;
-  update: typeof update;
 }>;
 
 /**

@@ -9,7 +9,7 @@
 import { v } from "convex/values";
 import type { Doc } from "../../_generated/dataModel";
 import { query } from "../../_generated/server";
-import { requireTenantRole, requireUser } from "../../_shared/auth";
+import { requireActiveTenantById, requireTenantRole, requireUser } from "../../_shared/auth";
 import { getViewerRole, isInstructorPlus } from "./access";
 import { fail } from "./errors";
 import { LIST_TAKE, MAX_LESSONS_PER_COURSE, MAX_MODULES_PER_COURSE } from "./validate";
@@ -33,6 +33,9 @@ function toCourseCard(course: Doc<"courses">) {
 export const listPublished = query({
   args: { tenantId: v.id("tenants") },
   handler: async (ctx, args) => {
+    // tenantId arrives from the client — a suspended/pending community must not
+    // keep serving its catalog to anyone who kept the id.
+    await requireActiveTenantById(ctx, args.tenantId);
     const courses = await ctx.db
       .query("courses")
       .withIndex("by_tenant_status", (q) =>
@@ -53,6 +56,7 @@ export const listPublished = query({
 export const getOverview = query({
   args: { tenantId: v.id("tenants"), courseSlug: v.string() },
   handler: async (ctx, args) => {
+    await requireActiveTenantById(ctx, args.tenantId); // suspended/pending → NOT_FOUND
     const viewerRole = await getViewerRole(ctx, args.tenantId); // visibility gate
     const course = await ctx.db
       .query("courses")

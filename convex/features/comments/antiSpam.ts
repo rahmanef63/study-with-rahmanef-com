@@ -2,9 +2,11 @@
 // reject when the user already holds the per-lesson cap"). NOT the rr
 // rate-limit dependency; same deliberate simplicity as resources/antiSpam.ts.
 //
-// Counted via the by_lesson index with a bounded .take() then filter by
-// userId — never a bare .collect(). Soft-DELETED comments still count toward
-// the cap: deleting-and-reposting must not reset the guard.
+// Counted EXACTLY via the by_lesson_user compound index with a .take() bounded
+// by the cap itself — never a bare .collect(). The previous by_lesson scan
+// walked the 500 OLDEST rows on the lesson, so on a thread past 500 comments
+// the per-user cap could never fire at all. Soft-DELETED comments still count
+// toward the cap: deleting-and-reposting must not reset the guard.
 import type { Id } from "../../_generated/dataModel";
 import type { MutationCtx } from "../../_generated/server";
 import { fail } from "./errors";
@@ -14,11 +16,14 @@ import { fail } from "./errors";
 // literal "reject if >20" (which would allow a 21st).
 export const MAX_COMMENTS_PER_USER_PER_LESSON = 20;
 
-// Bounds the index scan; the per-user cap ≪ this, so a normal thread is
-// counted exactly. // TODO(rr): bounded table — light anti-spam guard, #16.
-export const ANTISPAM_SCAN_TAKE = 500;
+// The scan is bounded by the cap itself: we only ever need to know whether the
+// caller is AT the limit, so reading cap+1 rows answers it exactly and costs a
+// constant 21 documents no matter how long the thread gets.
+export const ANTISPAM_SCAN_TAKE = MAX_COMMENTS_PER_USER_PER_LESSON + 1;
 
-/** Count a user's comments on a lesson (by_lesson, bounded; incl. deleted). */
+/** Count a user's comments on a lesson (by_lesson_user, exact up to the cap;
+ *  incl. soft-deleted). Saturates at cap+1 — the caller only compares to the
+ *  cap, so a larger true count is indistinguishable and irrelevant. */
 export async function countUserCommentsOnLesson(
   ctx: MutationCtx,
   lessonId: Id<"lessons">,
@@ -26,9 +31,9 @@ export async function countUserCommentsOnLesson(
 ): Promise<number> {
   const rows = await ctx.db
     .query("comments")
-    .withIndex("by_lesson", (q) => q.eq("lessonId", lessonId))
+    .withIndex("by_lesson_user", (q) => q.eq("lessonId", lessonId).eq("userId", userId))
     .take(ANTISPAM_SCAN_TAKE);
-  return rows.reduce((n, c) => (c.userId === userId ? n + 1 : n), 0);
+  return rows.length;
 }
 
 /** Reject the write when the caller is already at/over the per-lesson cap. */

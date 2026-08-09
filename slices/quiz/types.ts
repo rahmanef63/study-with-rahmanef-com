@@ -49,11 +49,13 @@ export type QuizTakingData = {
   questions: QuizPublicQuestion[];
 };
 
-/** Per-question outcome, revealed only in the attempt result. */
+/** Per-question outcome. `isCorrect` is always present (it IS the score, per
+ *  question); the answer KEY (correctIndex/explanation) is withheld by the
+ *  server until it can no longer buy a better score — see `keyRevealed`. */
 export type AttemptResultQuestion = {
   questionIndex: number;
   yourAnswer: number;
-  correctIndex: number;
+  correctIndex?: number;
   isCorrect: boolean;
   explanation?: string;
 };
@@ -66,6 +68,10 @@ export type AttemptResult = {
   correctCount: number;
   totalQuestions: number;
   passingScorePct: number;
+  attemptsUsed: number;
+  attemptsAllowed: number;
+  /** false = the caller failed and still has tries left, so the key is hidden. */
+  keyRevealed: boolean;
   results: AttemptResultQuestion[];
 };
 

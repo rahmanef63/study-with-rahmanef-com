@@ -27,6 +27,20 @@ export type ChangelogEntry = {
 // NEWEST FIRST. Prepend here on every update.
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-08-09",
+    version: "v2.0-fase-0",
+    title: "Bersih-bersih besar sebelum tampilan baru",
+    tags: ["Perbaikan"],
+    points: [
+      "Asisten AI “Alfa” dilepas dari platform. Fiturnya sudah lama diparkir tapi masih ikut terkirim ke browsermu setiap kali membuka situs.",
+      "Penghitung kunjungan dicabut. Setiap perpindahan halaman dulu menulis satu baris ke database — sekarang tidak lagi, dan celah yang memungkinkan orang luar menulis data tak terbatas ikut tertutup.",
+      "Kuis: maksimal 5 percobaan per kuis, dan kunci jawaban baru ditampilkan setelah kamu lulus atau kehabisan percobaan. Sebelumnya sekali menjawab asal sudah membocorkan semua jawabannya.",
+      "Batas anti-spam komentar dan pengajuan komunitas diperbaiki — dulu bisa berhenti bekerja diam-diam kalau datanya sudah banyak.",
+      "Komunitas yang ditangguhkan tidak lagi bisa dilihat katalog kelasnya lewat tautan lama.",
+      "Halaman masuk disederhanakan jadi tombol Google saja — pilihan lain memang tidak pernah aktif dan hanya menimbulkan error.",
+    ],
+  },
+  {
     date: "2026-07-16",
     version: "v1.5",
     title: "3 kelas baru di Belajar AI",

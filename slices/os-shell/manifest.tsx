@@ -15,7 +15,6 @@ import {
   Award,
   Bell,
   BookOpen,
-  Sparkles,
   GraduationCap,
   History,
   Home,
@@ -138,7 +137,9 @@ const pengaturan: AppDescriptor = {
   title: "Pengaturan",
   icon: Settings,
   gradient: CHART(4),
-  load: scrollize(() => import("./apps/pengaturan-app")),
+  // No `scrollize`: the Settings app owns its own scroll per layout (SectionDetail's
+  // ScrollArea / MasterDetail / sidebar), matching os-vps' os-settings.
+  load: () => import("./apps/pengaturan-app"),
   defaultSize: { w: 640, h: 620 },
   pinned: true,
 };
@@ -151,22 +152,6 @@ const masuk: AppDescriptor = {
   gradient: CHART(5),
   load: scrollize(() => import("./apps/masuk-app")),
   defaultSize: { w: 460, h: 560 },
-  noDock: true,
-};
-
-// Wave v1.6 (#35) — Alfa, the AI study assistant. DIPARKIR owner 2026-07-16
-// (fitur AI ditunda): noDock — hanya reachable via deep-link /asisten; tanpa
-// ANTHROPIC_API_KEY dia menjawab "belum aktif" (kill-switch). Saat owner siap:
-// pinned: true + tombol "Tanya Alfa" di kelas-app (lihat riwayat git w16) +
-// set env + deploy. Kode & test tetap hidup di CI supaya tidak membusuk.
-const asisten: AppDescriptor = {
-  id: "asisten",
-  slug: "asisten",
-  title: "Alfa",
-  icon: Sparkles,
-  gradient: CHART(3),
-  load: scrollize(() => import("./apps/asisten-app")),
-  defaultSize: { w: 680, h: 700 },
   noDock: true,
 };
 
@@ -251,7 +236,6 @@ export const APPS: AppDescriptor[] = [
   resources,
   pengumuman,
   cari,
-  asisten,
   kelola,
   profil,
   notifikasi,

@@ -1,13 +1,9 @@
 import Link from "next/link";
 
-// Thin admin shell — a tab bar over the platform-admin pages so /admin/traffic
-// is discoverable next to /admin/komunitas. Server component (no active-state
-// hook): links use next/link per the "next/link only" rule; the pages under it
-// self-gate on requirePlatformAdmin (route guards = UX).
-const TABS = [
-  { href: "/admin/komunitas", label: "Komunitas" },
-  { href: "/admin/traffic", label: "Traffic" },
-] as const;
+// Thin admin shell — a tab bar over the platform-admin pages. Server component
+// (no active-state hook): links use next/link per the "next/link only" rule; the
+// pages under it self-gate on requirePlatformAdmin (route guards = UX).
+const TABS = [{ href: "/admin/komunitas", label: "Komunitas" }] as const;
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (

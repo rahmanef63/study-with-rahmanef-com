@@ -6,7 +6,6 @@ import { Loader2 } from "lucide-react";
 import { LogoMark } from "@/components/brand/logo";
 import { ConvexClientProvider } from "@/components/convex-provider";
 import { VersionWatcher } from "@/components/version-watcher";
-import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { ThemeProviders, ThemePresetStyle } from "@/features/theme-presets";
 import { Toaster } from "@/components/ui/sonner";
 // appshell.css first so app globals.css cascades last and wins the shared
@@ -101,13 +100,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemePresetStyle preset={DEFAULT_PRESET} />
         <ThemeProviders defaultMode={DEFAULT_MODE} defaultPreset={DEFAULT_PRESET}>
           <VersionWatcher />
-          {/* Cookieless visitor beacon — fires page_view on OS window/URL change
-              (History API), gated off admin/console paths. Own Suspense: it reads
-              usePathname, which forces dynamic without a boundary under
-              cacheComponents. */}
-          <Suspense fallback={null}>
-            <AnalyticsBeacon />
-          </Suspense>
           {/* This subtree suspends during prerender (appshell's UrlSync reads
               the URL), so under PPR the fallback IS the first paint of every
               route. A static brand splash on the editorial backdrop instead of

@@ -95,7 +95,9 @@ export function QuizResultCard({ result, questions, copy: copyOverride, onRetry,
                   <span className="text-muted-foreground">{copy.yourAnswer}: </span>
                   {q.options[r.yourAnswer] ?? "—"} {r.isCorrect ? `(${copy.correct})` : `(${copy.incorrect})`}
                 </p>
-                {!r.isCorrect && (
+                {/* Key withheld while the member still has tries left, so this
+                    row only renders once the server actually sent it. */}
+                {!r.isCorrect && r.correctIndex !== undefined && (
                   <p className="text-foreground">
                     <span className="text-muted-foreground">{copy.correctAnswer}: </span>
                     {q.options[r.correctIndex] ?? "—"}

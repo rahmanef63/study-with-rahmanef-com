@@ -12,11 +12,6 @@ import { BootBeranda } from "./boot-beranda";
 import { ShellCommands } from "./shell-commands";
 import { ShellActivity } from "./shell-activity";
 
-// Apps yang DIPARKIR owner — disaring dari registry SEMUA shell
-// (dock/launcher/sidebar) tapi kodenya tetap hidup & teruji. Saat diaktifkan:
-// hapus id-nya dari sini (asisten #35: juga set env ANTHROPIC_API_KEY + deploy).
-const PARKED_APP_IDS = ["asisten"];
-
 export function OsRoot() {
   // Hide the platform-admin app from the app registry for everyone but platform
   // admins — this is the ONE seam covering every shell's dock/launcher/sidebar
@@ -28,9 +23,7 @@ export function OsRoot() {
     () => ({
       ...shellManifest,
       apps: shellManifest.apps.filter(
-        (a) =>
-          !PARKED_APP_IDS.includes(a.id) &&
-          (a.id !== "admin" || admin?.isPlatformAdmin === true)
+        (a) => a.id !== "admin" || admin?.isPlatformAdmin === true
       ),
     }),
     [admin?.isPlatformAdmin],

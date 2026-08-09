@@ -3,6 +3,10 @@
 // handler. Public etalase reads (R2/R3) have no caller to authenticate — their
 // guard is the status filter (only `active` tenants are visible, R6) plus the
 // safe projection (never `discordWebhookUrl`, DATA-MODEL.md security note #1).
+//
+// ANONYMOUS ETALASE WHITELIST (AGENTS.md §6): getPublicBySlug, listActive —
+// active rows only via index, safe projection (toPublicTenant), no auth by
+// design. Every OTHER query in this file authenticates on its first line.
 import { v } from "convex/values";
 import { query } from "../../_generated/server";
 import { requireTenantRole, requireUser } from "../../_shared/auth";

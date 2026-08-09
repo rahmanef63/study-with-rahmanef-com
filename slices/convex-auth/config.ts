@@ -1,11 +1,12 @@
 import { defineFeature } from "@/shared/features/defineFeature";
 
+// No `routes`: the sign-in surface is an app-level page that mounts <AuthCard>,
+// not a slice-owned route (the old /sign-in view went with the multi-provider
+// page). Metadata only.
 export const convexAuthConfig = defineFeature({
   slug: "convex-auth",
-  title: "Convex Auth — Multi-Provider Sign-in",
+  title: "Convex Auth — Google sign-in",
   category: "auth",
-  routes: [
-    { path: "/sign-in", view: () => import("./components/sign-in-page") },
-  ],
-  nav: { label: "Sign in", group: "auth", order: 0 },
+  routes: [],
+  nav: { label: "Masuk", group: "auth", order: 0 },
 });

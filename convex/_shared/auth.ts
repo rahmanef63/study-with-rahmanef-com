@@ -56,6 +56,22 @@ export async function requirePlatformAdmin(
   return { userId, profile };
 }
 
+/**
+ * Active tenant by id or throw NOT_FOUND (suspended/pending excluded).
+ * Anonymous etalase reads take a client-supplied tenantId, so without this a
+ * suspended community's catalog stays readable to anyone holding the id.
+ */
+export async function requireActiveTenantById(
+  ctx: Ctx,
+  tenantId: Id<"tenants">
+): Promise<Doc<"tenants">> {
+  const tenant = await ctx.db.get(tenantId);
+  if (tenant === null || tenant.status !== "active") {
+    throw new ConvexError({ code: "NOT_FOUND", message: "Komunitas tidak ditemukan" });
+  }
+  return tenant;
+}
+
 /** Active tenant by slug or throw NOT_FOUND (suspended/pending excluded). */
 export async function requireActiveTenantBySlug(
   ctx: Ctx,

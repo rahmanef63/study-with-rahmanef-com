@@ -11,7 +11,6 @@ import { useCallback } from "react";
 import { useTheme } from "next-themes";
 import type { ShellAppearance, ShellCapabilities } from "@/features/appshell";
 import { useShellSearch } from "./shell-search";
-import { useAlfaShellChat } from "./alfa-chat";
 
 // Bespoke "Editorial Warmth" wallpaper — a CSS-props bag (wins over any named
 // preset). Built from the app's own tokens (var(--primary) terracotta over
@@ -45,7 +44,4 @@ export const editorialCapabilities: ShellCapabilities = {
   // Spotlight ⌘K over communities + courses (existing Convex queries, run
   // imperatively). Hook reference — its returned fn is stable (see shell-search).
   useSearch: useShellSearch,
-  // Inspector "Alfa" (⌘I) — LIVE sejak #35: chat:ask (login wajib server-side;
-  // adaptor menangani anon/error sebagai stream Bahasa Indonesia, never-throw).
-  useChat: useAlfaShellChat,
 };

@@ -337,9 +337,6 @@ function KelasCourse({
             backHref={OVERVIEW_HREF}
             completionSlot={<LessonCompletion lessonId={lessonId} />}
           />
-          {/* #35 DIPARKIR: tombol "Tanya Alfa soal materi ini" (openApp
-              "asisten" ber-payload lessonId) menyusul saat owner mengaktifkan
-              fitur AI — lihat riwayat git w16 untuk markup-nya. */}
           {/* #20: diskusi per lesson (comments slice, #16) */}
           <div className="mt-8">
             <LessonComments lessonId={lessonId} />

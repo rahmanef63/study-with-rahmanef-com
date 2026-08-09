@@ -38,17 +38,16 @@ export const requestTenant = mutation({
       });
     }
 
-    // Anti-spam: one open request per user. tenants has no by_owner index in
-    // the SSOT schema, so scan a bounded window of pending rows then filter by
-    // owner (no bare .collect()).
-    // TODO(rr): propose tenants.index("by_owner_status", ["ownerId","status"])
-    // for an exact per-user count; the bounded by_status scan is the
-    // current-schema-compliant approach (DATA-MODEL defines by_slug/by_status).
+    // Anti-spam: one open request per user, counted EXACTLY via the
+    // by_owner_status index. The previous bounded by_status scan walked the 500
+    // OLDEST pending rows and filtered by owner, so once 500 stale pending rows
+    // existed globally the cap stopped firing and any user could squat
+    // unlimited slugs. Scan is bounded by the cap itself (cap+1 rows).
     const pending = await ctx.db
       .query("tenants")
-      .withIndex("by_status", (q) => q.eq("status", "pending"))
-      .take(TENANT_REQUEST_LIMITS.pendingScanMax);
-    const minePending = pending.filter((t) => t.ownerId === userId).length;
+      .withIndex("by_owner_status", (q) => q.eq("ownerId", userId).eq("status", "pending"))
+      .take(TENANT_REQUEST_LIMITS.pendingPerUser + 1);
+    const minePending = pending.length;
     if (minePending >= TENANT_REQUEST_LIMITS.pendingPerUser) {
       throw new ConvexError({
         code: "RATE_LIMITED",

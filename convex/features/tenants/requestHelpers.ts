@@ -9,10 +9,9 @@ export const TENANT_REQUEST_LIMITS = {
   slugMin: 3,
   slugMax: 64,
   requestMessageMax: 500,
-  /** Max pending requests a single user may hold open at once (anti-spam). */
+  /** Max pending requests a single user may hold open at once (anti-spam).
+   *  Counted exactly via tenants.by_owner_status — no scan window needed. */
   pendingPerUser: 1,
-  /** Bounded scan window over by_status "pending" for the anti-spam count. */
-  pendingScanMax: 500,
   /** Bounded admin queue page size. */
   listPendingMax: 100,
 } as const;
