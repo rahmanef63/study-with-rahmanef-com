@@ -97,16 +97,5 @@ export type LessonEditorData = {
 };
 
 /** Markdown AST produced by lib/markdown.ts and rendered by MarkdownView. */
-export type MdInline =
-  | { kind: "text"; text: string }
-  | { kind: "bold"; text: string }
-  | { kind: "italic"; text: string }
-  | { kind: "code"; text: string }
-  | { kind: "link"; text: string; url: string };
-
-export type MdBlock =
-  | { kind: "heading"; level: 1 | 2 | 3; inline: MdInline[] }
-  | { kind: "paragraph"; inline: MdInline[] }
-  | { kind: "list"; ordered: boolean; items: MdInline[][] }
-  | { kind: "quote"; inline: MdInline[] }
-  | { kind: "codeblock"; text: string; lang?: string };
+// MdInline/MdBlock lived here for the retired in-slice parser. The markdown
+// slice owns the AST now (MdNode in @/features/markdown).

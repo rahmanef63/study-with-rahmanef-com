@@ -28,6 +28,17 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-08-10",
+    version: "v2.6",
+    title: "Materi bisa jauh lebih kaya",
+    tags: ["Baru", "Konten"],
+    points: [
+      "Isi materi dan tulisan di Diskusi sekarang bisa memuat tabel, kotak sorotan (callout), daftar centang, gambar, blok lipat, rumus matematika, dan diagram alur — sebelumnya cuma judul, paragraf, daftar, kutipan, dan blok kode.",
+      "Semuanya tetap ditulis dengan markdown biasa, jadi materi yang sudah ada tidak berubah sedikit pun.",
+      "Halaman tetap ringan: rumus, diagram, dan grafik baru diunduh kalau materinya memang memakai — materi biasa tidak menanggung bebannya sama sekali.",
+    ],
+  },
+  {
+    date: "2026-08-10",
     version: "v2.5",
     title: "Tampilan HP dirombak jadi aplikasi",
     tags: ["Tampilan", "Baru"],

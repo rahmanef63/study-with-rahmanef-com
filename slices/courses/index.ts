@@ -55,7 +55,10 @@ export {
 } from "./hooks/use-lesson-mutations";
 
 // lib (pure — safe for server or client)
-export { parseInline, parseMarkdown } from "./lib/markdown";
+// Markdown parsing/rendering is NOT this slice's job any more: it delegates to
+// the rr `markdown` slice (15 block types vs the 5 the hand-rolled parser knew).
+// Import parseMarkdown / renderNodes from "@/features/markdown" instead — two
+// markdown parsers in one repo is exactly the drift that bites later.
 export {
   buildYoutubeEmbedUrl,
   buildYoutubeWatchUrl,
@@ -87,8 +90,6 @@ export type {
   ManageCourseRow,
   ManageLessonRow,
   ManageModuleRow,
-  MdBlock,
-  MdInline,
   SyllabusLessonData,
   SyllabusModuleData,
   ViewerRole,

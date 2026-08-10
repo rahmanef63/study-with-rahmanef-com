@@ -1,0 +1,123 @@
+{
+  "$schema": "https://resource.rahmanef.com/slice-schema.json",
+  "slug": "markdown",
+  "version": "0.3.1",
+  "category": "content",
+  "kind": "ui",
+  "title": "Markdown \u2014 page container with CRUD tabs + diagrams",
+  "description": "Markdown (.md) page container with optional CRUD surfaces \u2014 Read (rich text), Write (source editor + live preview), Review (block-anchored comments). Renders mermaid diagrams + recharts charts from fenced blocks. Same markdown grammar as the notion block editor (blocksToMarkdown bridge), so notion-exported content renders identically. Self-contained parser + inline renderer.",
+  "namespace": "@/features/markdown",
+  "frontend": {
+    "slicePath": "frontend/slices/markdown",
+    "configExport": "markdownFeature"
+  },
+  "convex": {
+    "tablesExport": "",
+    "schemaPath": "",
+    "rootPaths": []
+  },
+  "deps": {
+    "npm": [
+      "katex@^0.16",
+      "mermaid@^11",
+      "recharts@^3",
+      "lucide-react@^0.400.0"
+    ],
+    "shadcn": [
+      "button",
+      "tabs",
+      "textarea"
+    ],
+    "env": [],
+    "peers": []
+  },
+  "registers": [],
+  "audit": [],
+  "license": "MIT",
+  "tags": [
+    "content",
+    "markdown",
+    "reader",
+    "editor",
+    "review",
+    "comments",
+    "mermaid",
+    "chart",
+    "rich-text",
+    "docs",
+    "notion-sync"
+  ],
+  "previews": [
+    {
+      "component": "MarkdownPage",
+      "kind": "variants",
+      "axes": [
+        {
+          "prop": "tabs",
+          "values": [
+            "read",
+            "crud"
+          ],
+          "default": "read",
+          "description": "read = single read-only surface; crud = Read/Write/Review tabs"
+        },
+        {
+          "prop": "content",
+          "values": [
+            "basic",
+            "rich"
+          ],
+          "default": "basic",
+          "description": "basic = text doc; rich = mermaid diagram + recharts chart + KaTeX"
+        }
+      ],
+      "seed": "two markdown docs in rr-demo:markdown; Write-tab edits persist per content axis"
+    }
+  ],
+  "contract": {
+    "requires": {
+      "deps": [
+        {
+          "npm": "katex",
+          "range": "^0.16"
+        },
+        {
+          "npm": "mermaid",
+          "range": "^11"
+        },
+        {
+          "npm": "recharts",
+          "range": "^3"
+        },
+        {
+          "npm": "lucide-react",
+          "range": "^0.400.0"
+        }
+      ]
+    },
+    "provides": {
+      "tools": [],
+      "components": [
+        "MarkdownPage",
+        "MarkdownReader",
+        "MdNodeView",
+        "renderNodes",
+        "MermaidBlock",
+        "ChartBlock"
+      ],
+      "utils": [
+        "parseMarkdown",
+        "renderInline",
+        "tokenizeInline",
+        "newCommentId",
+        "commentsFor",
+        "openCount"
+      ],
+      "hooks": [],
+      "convex": {
+        "tables": [],
+        "rbac": []
+      }
+    }
+  }
+}

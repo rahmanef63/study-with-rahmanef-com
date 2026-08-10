@@ -14,7 +14,6 @@ import { describe, expect, expectTypeOf, test } from "vitest";
 import type * as Barrel from "../index";
 import { COURSES_COPY, mergeCopy } from "../config/copy";
 import { coursesErrorMessage } from "../lib/errors";
-import { parseMarkdown } from "../lib/markdown";
 import { extractYoutubeVideoId } from "../lib/youtube";
 
 describe("barrel type contract (compile-time, enforced by tsc)", () => {
@@ -74,7 +73,6 @@ describe("barrel runtime contract (alias-free modules)", () => {
   });
 
   test("pure lib functions are live through their modules", () => {
-    expect(parseMarkdown("# a")[0].kind).toBe("heading");
     expect(extractYoutubeVideoId("https://youtu.be/dQw4w9WgXcQ")).toBe("dQw4w9WgXcQ");
   });
 });
