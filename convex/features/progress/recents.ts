@@ -39,7 +39,10 @@ export const recentCourses = query({
     // Dedupe per course, pertahankan yang terbaru (scan sudah desc).
     const newestByCourse = new Map<Id<"courses">, number>();
     for (const c of completions) {
-      if (!newestByCourse.has(c.courseId)) {
+      // courseId is provenance now, not identity — a completion recorded before
+      // a materi was placed in any course simply has none, and there is no
+      // course row to resume into.
+      if (c.courseId !== undefined && !newestByCourse.has(c.courseId)) {
         newestByCourse.set(c.courseId, c._creationTime);
       }
     }

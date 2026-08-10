@@ -6,6 +6,7 @@
 //
 // ANONYMOUS ETALASE WHITELIST (AGENTS.md §6): listPublished, getOverview —
 // published/active rows only via index, safe projection, no auth by design.
+import { legacyCourseId, legacyOrder } from "../../_shared/legacyLesson";
 import { v } from "convex/values";
 import type { Doc } from "../../_generated/dataModel";
 import { query } from "../../_generated/server";
@@ -78,14 +79,14 @@ export const getOverview = query({
       .withIndex("by_course", (q) => q.eq("courseId", course._id))
       .take(MAX_LESSONS_PER_COURSE);
 
-    const sortedModules = [...modules].sort((a, b) => a.order - b.order);
+    const sortedModules = [...modules].sort((a, b) => legacyOrder(a) - legacyOrder(b));
     const syllabus = sortedModules.map((mod) => ({
       _id: mod._id,
       title: mod.title,
       order: mod.order,
       lessons: lessons
         .filter((lesson) => lesson.moduleId === mod._id)
-        .sort((a, b) => a.order - b.order)
+        .sort((a, b) => legacyOrder(a) - legacyOrder(b))
         .map((lesson) => ({
           _id: lesson._id,
           title: lesson.title,
@@ -121,7 +122,7 @@ export const getLesson = query({
     if (lesson === null) fail("NOT_FOUND", "Lesson tidak ditemukan");
     const { membership } = await requireTenantRole(ctx, lesson.tenantId, "member");
 
-    const course = await ctx.db.get(lesson.courseId);
+    const course = await ctx.db.get(legacyCourseId(lesson));
     if (course === null) fail("NOT_FOUND", "Kelas tidak ditemukan");
     if (course.status !== "published" && membership.role === "member") {
       fail("NOT_FOUND", "Lesson tidak ditemukan"); // draft invisible to members
@@ -132,7 +133,7 @@ export const getLesson = query({
       .query("lessons")
       .withIndex("by_module", (q) => q.eq("moduleId", lesson.moduleId))
       .take(MAX_LESSONS_PER_COURSE);
-    const ordered = [...siblings].sort((a, b) => a.order - b.order);
+    const ordered = [...siblings].sort((a, b) => legacyOrder(a) - legacyOrder(b));
     const index = ordered.findIndex((l) => l._id === lesson._id);
 
     return {

@@ -14,6 +14,7 @@ import type { Doc, Id } from "../../_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "../../_generated/server";
 import { requireTenantRole, requireUser } from "../../_shared/auth";
 import { fail } from "./errors";
+import { legacyCourseId } from "../../_shared/legacyLesson";
 
 type Ctx = QueryCtx | MutationCtx;
 
@@ -40,7 +41,7 @@ export async function requireMemberForLesson(
   const lesson = await getLessonOrFail(ctx, lessonId);
   const { userId, membership } = await requireTenantRole(ctx, lesson.tenantId, "member");
   if (membership.role === "member") {
-    const course = await ctx.db.get(lesson.courseId);
+    const course = await ctx.db.get(legacyCourseId(lesson));
     if (course === null || course.status !== "published") {
       fail("NOT_AUTHORIZED", "Kamu tidak punya akses untuk aksi ini");
     }

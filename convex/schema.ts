@@ -15,8 +15,11 @@ import { comments, events, postLikes, posts } from "./_tables/community";
 import { memberships, profiles, tenants } from "./_tables/identity";
 import {
   courseCompletions,
+  courseLessons,
   courses,
   lessonCompletions,
+  lessonRefs,
+  lessonTags,
   lessons,
   modules,
   quizAttempts,
@@ -35,6 +38,10 @@ export default defineSchema({
   courses,
   modules,
   lessons,
+  // materi (DECISIONS #36/#37): placement, tags and page-to-page references.
+  courseLessons,
+  lessonTags,
+  lessonRefs,
   lessonCompletions,
   courseCompletions,
   quizzes,

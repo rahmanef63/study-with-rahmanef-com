@@ -1,6 +1,7 @@
 // courses feature — instructor+ read surface for /t/[slug]/kelola/kelas.
 // All statuses visible here (incl. drafts) — gated by requireTenantRole
 // (instructor) as the FIRST line of every handler (P0).
+import { legacyOrder } from "../../_shared/legacyLesson";
 import { v } from "convex/values";
 import { query } from "../../_generated/server";
 import { requireTenantRole, requireUser } from "../../_shared/auth";
@@ -63,14 +64,14 @@ export const getCourseTree = query({
         tenantId: course.tenantId,
       },
       modules: [...modules]
-        .sort((a, b) => a.order - b.order)
+        .sort((a, b) => legacyOrder(a) - legacyOrder(b))
         .map((mod) => ({
           _id: mod._id,
           title: mod.title,
           order: mod.order,
           lessons: lessons
             .filter((lesson) => lesson.moduleId === mod._id)
-            .sort((a, b) => a.order - b.order)
+            .sort((a, b) => legacyOrder(a) - legacyOrder(b))
             .map((lesson) => ({
               _id: lesson._id,
               title: lesson.title,

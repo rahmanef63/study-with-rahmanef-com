@@ -3,6 +3,7 @@
 // P0: v.* validators + authz helper as the FIRST handler line. userId is the
 // caller's, resolved by the helper from ctx — never an arg. Instructor-facing
 // aggregates ("agregat: instructor+") are out of v1 scope (proposed for later).
+import { legacyCourseId } from "../../_shared/legacyLesson";
 import { v } from "convex/values";
 import { query } from "../../_generated/server";
 import { assertCourseActableByRole, requireMemberForCourse, requireMemberForLesson } from "./access";
@@ -34,7 +35,7 @@ export const getLessonCompletion = query({
   handler: async (ctx, args) => {
     const { userId, lesson, membership } = await requireMemberForLesson(ctx, args.lessonId);
 
-    const course = await ctx.db.get(lesson.courseId);
+    const course = await ctx.db.get(legacyCourseId(lesson));
     if (course === null) fail("NOT_FOUND", "Kelas tidak ditemukan");
     assertCourseActableByRole(course, membership.role);
 

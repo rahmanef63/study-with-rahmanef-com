@@ -13,6 +13,7 @@ import {
   SEED_USULAN,
 } from "./engagementData";
 import type { SeedFeedPost } from "./types";
+import { legacyOrder } from "../_shared/legacyLesson";
 
 export type SeedEngagementArgs = { ownerEmail: string; tenantSlug: string };
 
@@ -67,7 +68,7 @@ export async function runSeedEngagement(ctx: MutationCtx, args: SeedEngagementAr
     const first = modules[0];
     if (!first) return { courseId: course._id, firstLessonId: null as Id<"lessons"> | null };
     const lessons = await ctx.db.query("lessons").withIndex("by_module", (q) => q.eq("moduleId", first._id)).collect();
-    lessons.sort((a, b) => a.order - b.order);
+    lessons.sort((a, b) => legacyOrder(a) - legacyOrder(b));
     return { courseId: course._id, firstLessonId: lessons[0]?._id ?? null };
   }
   const courseCache = new Map<string, Awaited<ReturnType<typeof courseCtx>>>();

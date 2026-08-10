@@ -2,6 +2,7 @@
 // P0: youtubeVideoId validated as an 11-char ID inside the mutation — a full
 // URL is rejected, preventing arbitrary embeds. Deletion respects the
 // DATA-MODEL invariant: a lesson with completions cannot be deleted.
+import { legacyOrder } from "../../_shared/legacyLesson";
 import { v } from "convex/values";
 import { mutation } from "../../_generated/server";
 import { requireInstructorForLesson, requireInstructorForModule } from "./access";
@@ -40,7 +41,7 @@ export const createLesson = mutation({
     }
     const maxOrder = courseLessons
       .filter((lesson) => lesson.moduleId === mod._id)
-      .reduce((max, lesson) => Math.max(max, lesson.order), 0);
+      .reduce((max, lesson) => Math.max(max, legacyOrder(lesson)), 0);
 
     return ctx.db.insert("lessons", {
       tenantId: mod.tenantId,

@@ -2,6 +2,7 @@
 // P0 contract: v.* validators on args; authz helper as the FIRST handler line;
 // userId comes from ctx via the helper, NEVER from args — a user can only ever
 // write their own completions.
+import { legacyCourseId } from "../../_shared/legacyLesson";
 import { v } from "convex/values";
 import { mutation } from "../../_generated/server";
 import { assertCourseActableByRole, requireMemberForLesson } from "./access";
@@ -21,7 +22,7 @@ export const markLessonComplete = mutation({
   handler: async (ctx, args) => {
     const { userId, lesson, membership } = await requireMemberForLesson(ctx, args.lessonId);
 
-    const course = await ctx.db.get(lesson.courseId);
+    const course = await ctx.db.get(legacyCourseId(lesson));
     if (course === null) fail("NOT_FOUND", "Kelas tidak ditemukan");
     // TODO(rr): confirm — chose to block members from completing draft/archived
     // course lessons (NOT_FOUND), mirroring courses.getLesson, so no phantom
@@ -37,18 +38,18 @@ export const markLessonComplete = mutation({
       await ctx.db.insert("lessonCompletions", {
         tenantId: lesson.tenantId,
         userId,
-        courseId: lesson.courseId,
+        courseId: legacyCourseId(lesson),
         lessonId: lesson._id,
       });
     }
 
     // Recount AFTER the insert (Convex mutations read their own writes).
-    const progress = await deriveCourseProgress(ctx, userId, lesson.courseId);
+    const progress = await deriveCourseProgress(ctx, userId, legacyCourseId(lesson));
     if (progress.isComplete) {
       await ensureCourseCompletion(ctx, {
         tenantId: lesson.tenantId,
         userId,
-        courseId: lesson.courseId,
+        courseId: legacyCourseId(lesson),
       });
     }
 

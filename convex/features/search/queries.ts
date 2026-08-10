@@ -6,6 +6,7 @@
 // courses/access.ts auth-before-read). Draft-guard: the lessons search index
 // carries no course status (docs/DATA-MODEL.md fase-2 note), so lessons whose
 // owning course is not published are dropped AFTER the bounded index read.
+import { legacyCourseId } from "../../_shared/legacyLesson";
 import { v } from "convex/values";
 import type { Doc, Id } from "../../_generated/dataModel";
 import { query } from "../../_generated/server";
@@ -49,7 +50,7 @@ export const searchInTenant = query({
 
     // DRAFT-GUARD: one course load per UNIQUE courseId (bounded ≤ LESSON_TAKE);
     // only lessons of PUBLISHED courses survive — drafts never reach members.
-    const courseIds = [...new Set(lessons.map((lesson) => lesson.courseId))];
+    const courseIds = [...new Set(lessons.map(legacyCourseId))];
     const publishedById = new Map<Id<"courses">, Doc<"courses">>();
     for (const courseId of courseIds) {
       const course = await ctx.db.get(courseId);
@@ -59,7 +60,7 @@ export const searchInTenant = query({
     }
 
     const lessonHits = lessons.flatMap((lesson) => {
-      const course = publishedById.get(lesson.courseId);
+      const course = publishedById.get(legacyCourseId(lesson));
       return course === undefined ? [] : [toLessonHit(lesson, course)];
     });
 

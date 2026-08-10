@@ -10,6 +10,7 @@ import type { Doc, Id } from "../../_generated/dataModel";
 import type { MutationCtx } from "../../_generated/server";
 import { createNotificationRef } from "../notifications/refs";
 import { postHref, replierName, schedulePostReplyNotification, snippet } from "../posts/notify";
+import { legacyCourseId } from "../../_shared/legacyLesson";
 
 /** Max lesson-title chars quoted in the notification body (bounded copy). */
 const TITLE_SNIPPET = 60;
@@ -37,7 +38,7 @@ export async function maybeScheduleReplyNotification(
   if (parent.userId === args.replierId) return; // self-reply → no notification (P0)
 
   const [course, tenant, profile] = await Promise.all([
-    ctx.db.get(args.lesson.courseId),
+    ctx.db.get(legacyCourseId(args.lesson)),
     ctx.db.get(args.lesson.tenantId),
     ctx.db
       .query("profiles")

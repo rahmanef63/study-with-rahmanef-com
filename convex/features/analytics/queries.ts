@@ -17,6 +17,7 @@ import {
   type ModuleQuizStat,
 } from "./aggregate";
 import { MAX_COURSES_PER_TENANT, MAX_LESSONS_PER_COURSE, MAX_MODULES_PER_COURSE } from "./constants";
+import { legacyModuleId, legacyOrder } from "../../_shared/legacyLesson";
 
 /** getCourseAnalytics result — all counts derived on read. */
 export type CourseAnalytics = {
@@ -70,12 +71,12 @@ export const getCourseAnalytics = query({
 
     const lessonStats: LessonCompletionStat[] = lessons
       .map((lesson) => {
-        const mod = moduleById.get(lesson.moduleId);
+        const mod = moduleById.get(legacyModuleId(lesson));
         return {
           lessonId: lesson._id,
           title: lesson.title,
-          order: lesson.order,
-          moduleId: lesson.moduleId,
+          order: legacyOrder(lesson),
+          moduleId: legacyModuleId(lesson),
           moduleTitle: mod?.title ?? "",
           moduleOrder: mod?.order ?? 0,
           completedCount: completionsPerLesson.get(lesson._id) ?? 0,
