@@ -7,7 +7,10 @@ function Empty({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="empty"
       className={cn(
-        "flex min-w-0 flex-1 flex-col items-center justify-center gap-6 rounded-lg border-dashed p-6 text-center text-balance md:p-12",
+        // `border-dashed` with no border-width never drew anything, and
+        // `rounded-lg` resolves to 0 — both were decoration that lied about
+        // what this renders. An empty state is a message, not a box.
+        "flex min-w-0 flex-1 flex-col items-center justify-center gap-6 p-6 text-center text-balance md:p-12",
         className
       )}
       {...props}
@@ -34,7 +37,7 @@ const emptyMediaVariants = cva(
     variants: {
       variant: {
         default: "bg-transparent",
-        icon: "flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-foreground [&_svg:not([class*='size-'])]:size-6",
+        icon: "flex size-10 shrink-0 items-center justify-center border-2 bg-muted text-foreground [&_svg:not([class*='size-'])]:size-6",
       },
     },
     defaultVariants: {
@@ -73,7 +76,9 @@ function EmptyDescription({ className, ...props }: React.ComponentProps<"p">) {
     <div
       data-slot="empty-description"
       className={cn(
-        "text-sm/relaxed text-muted-foreground [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
+        // `text-sm/relaxed` was a screen inventing its own leading — the size
+        // token already carries one. See THE TYPE SCALE in app/globals.css.
+        "text-body text-muted-foreground [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
         className
       )}
       {...props}
@@ -86,7 +91,7 @@ function EmptyContent({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="empty-content"
       className={cn(
-        "flex w-full max-w-sm min-w-0 flex-col items-center gap-4 text-sm text-balance",
+        "flex w-full max-w-sm min-w-0 flex-col items-center gap-4 text-footnote text-balance",
         className
       )}
       {...props}

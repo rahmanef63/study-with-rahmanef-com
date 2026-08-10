@@ -5,32 +5,30 @@
 // sanctioned precedent being convex/features/progress (shared-table reads are
 // table access, not code imports). Outputs carry NO user identifiers — counts
 // only — so nothing PII-shaped can leak past the instructor gate.
+//
+// MATERI MODEL (DECISIONS #36/#37): module grouping is gone. A course is a FLAT
+// ordered list of materi (`courseLessons`), and a quiz hangs off the COURSE.
 import type { Doc, Id } from "../../_generated/dataModel";
 import type { QueryCtx } from "../../_generated/server";
 import {
   MAX_ATTEMPTS_PER_QUIZ_SCAN,
   MAX_BADGES_PER_USER_SCAN,
-  MAX_LESSON_COMPLETIONS_SCAN,
+  MAX_COMPLETIONS_PER_USER_SCAN,
   MAX_MEMBERSHIPS_SCAN,
-  MAX_QUIZZES_PER_MODULE_SCAN,
+  MAX_QUIZZES_PER_COURSE_SCAN,
 } from "./constants";
 
-/** One lesson's completion count, with module context for grouped display. */
+/** One materi's completion count, positioned by its place in the course. */
 export type LessonCompletionStat = {
   lessonId: Id<"lessons">;
   title: string;
+  /** courseLessons.order — position in THIS course, not a global rank. */
   order: number;
-  moduleId: Id<"modules">;
-  moduleTitle: string;
-  moduleOrder: number;
   completedCount: number;
 };
 
-/** One quiz's attempt stats (quizzes hang off modules — builder: 1/module). */
-export type ModuleQuizStat = {
-  moduleId: Id<"modules">;
-  moduleTitle: string;
-  moduleOrder: number;
+/** One quiz's attempt stats. Quizzes belong to the course (no module tree). */
+export type CourseQuizStat = {
   quizId: Id<"quizzes">;
   quizTitle: string;
   attemptCount: number;
@@ -50,18 +48,36 @@ export async function listTenantMemberships(
     .take(MAX_MEMBERSHIPS_SCAN);
 }
 
-/** lessonId → completion count for one course (single bounded index scan). */
+/**
+ * lessonId → how many CURRENT members completed it, restricted to `lessonIds`
+ * (one course's roster).
+ *
+ * Derived per member via lessonCompletions.by_user, mirroring
+ * countBadgesByCourse below. It cannot go through the completion's own
+ * `courseId` any more: that column is optional PROVENANCE now, empty whenever a
+ * materi is taught in more than one course. Each member is counted AT MOST ONCE
+ * per materi — a duplicate legacy row must not inflate the bar.
+ * Known floor: completions of users who since LEFT the tenant are not counted.
+ */
 export async function countCompletionsPerLesson(
   ctx: QueryCtx,
-  courseId: Id<"courses">
+  memberships: Doc<"memberships">[],
+  lessonIds: Id<"lessons">[]
 ): Promise<Map<Id<"lessons">, number>> {
-  const completions = await ctx.db
-    .query("lessonCompletions")
-    .withIndex("by_course", (q) => q.eq("courseId", courseId))
-    .take(MAX_LESSON_COMPLETIONS_SCAN);
+  const wanted = new Set<Id<"lessons">>(lessonIds);
   const counts = new Map<Id<"lessons">, number>();
-  for (const completion of completions) {
-    counts.set(completion.lessonId, (counts.get(completion.lessonId) ?? 0) + 1);
+  if (wanted.size === 0) return counts;
+  for (const membership of memberships) {
+    const completions = await ctx.db
+      .query("lessonCompletions")
+      .withIndex("by_user", (q) => q.eq("userId", membership.userId))
+      .take(MAX_COMPLETIONS_PER_USER_SCAN);
+    const seen = new Set<Id<"lessons">>();
+    for (const completion of completions) {
+      if (!wanted.has(completion.lessonId) || seen.has(completion.lessonId)) continue;
+      seen.add(completion.lessonId);
+      counts.set(completion.lessonId, (counts.get(completion.lessonId) ?? 0) + 1);
+    }
   }
   return counts;
 }
@@ -97,38 +113,34 @@ export async function countBadgesByCourse(
 }
 
 /**
- * Quiz stats for a course's modules: attempts + passes via by_quiz, rate
- * computed in-handler. `modules` must already be sorted by `order` (the
- * caller sorts once and reuses the sorted list for lessons too).
+ * Quiz stats for one COURSE: attempts + passes via by_quiz, rate computed
+ * in-handler. Keyed on the course because `quizzes.moduleId` is retiring — the
+ * dashboard lists a course's quizzes flat, in creation order.
  */
-export async function quizStatsForModules(
+export async function quizStatsForCourse(
   ctx: QueryCtx,
-  modules: Doc<"modules">[]
-): Promise<ModuleQuizStat[]> {
-  const stats: ModuleQuizStat[] = [];
-  for (const mod of modules) {
-    const quizzes = await ctx.db
-      .query("quizzes")
-      .withIndex("by_module", (q) => q.eq("moduleId", mod._id))
-      .take(MAX_QUIZZES_PER_MODULE_SCAN);
-    for (const quiz of quizzes) {
-      const attempts = await ctx.db
-        .query("quizAttempts")
-        .withIndex("by_quiz", (q) => q.eq("quizId", quiz._id))
-        .take(MAX_ATTEMPTS_PER_QUIZ_SCAN);
-      const attemptCount = attempts.length;
-      const passCount = attempts.filter((attempt) => attempt.passed).length;
-      stats.push({
-        moduleId: mod._id,
-        moduleTitle: mod.title,
-        moduleOrder: mod.order,
-        quizId: quiz._id,
-        quizTitle: quiz.title,
-        attemptCount,
-        passCount,
-        passRatePct: attemptCount === 0 ? 0 : Math.round((passCount / attemptCount) * 100),
-      });
-    }
+  courseId: Id<"courses">
+): Promise<CourseQuizStat[]> {
+  const quizzes = await ctx.db
+    .query("quizzes")
+    .withIndex("by_course", (q) => q.eq("courseId", courseId))
+    .take(MAX_QUIZZES_PER_COURSE_SCAN);
+
+  const stats: CourseQuizStat[] = [];
+  for (const quiz of quizzes) {
+    const attempts = await ctx.db
+      .query("quizAttempts")
+      .withIndex("by_quiz", (q) => q.eq("quizId", quiz._id))
+      .take(MAX_ATTEMPTS_PER_QUIZ_SCAN);
+    const attemptCount = attempts.length;
+    const passCount = attempts.filter((attempt) => attempt.passed).length;
+    stats.push({
+      quizId: quiz._id,
+      quizTitle: quiz.title,
+      attemptCount,
+      passCount,
+      passRatePct: attemptCount === 0 ? 0 : Math.round((passCount / attemptCount) * 100),
+    });
   }
   return stats;
 }

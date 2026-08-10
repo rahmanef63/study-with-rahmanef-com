@@ -5,6 +5,7 @@
 import { query } from "../../_generated/server";
 import { requireUser } from "../../_shared/auth";
 import type { Doc, Id } from "../../_generated/dataModel";
+import { listLessonPlacements } from "./derive";
 
 /** Scan penyelesaian terakhir (bounded) sebelum dedupe per course. */
 const SCAN_TAKE = 60;
@@ -22,8 +23,14 @@ export type RecentCourseItem = {
 /**
  * Kelas-kelas yang terakhir dikerjakan si pemanggil — lintas perangkat
  * (sumber: lessonCompletions milik sendiri, newest first, dedupe per course).
- * Hanya kelas PUBLISHED di tenant ACTIVE yang muncul (kelas yang ditarik dari
- * peredaran tidak meninggalkan kartu mati). Anonymous → NOT_AUTHENTICATED.
+ *
+ * MATERI MODEL (DECISIONS #36/#37): `lessonCompletions.courseId` kini cuma
+ * PROVENANCE dan boleh kosong, jadi kelas untuk "lanjutkan" di-resolve lewat
+ * `courseLessons.by_lesson` — satu materi bisa memunculkan beberapa kelas, dan
+ * materi yang tidak ada di kelas manapun (cuma di pustaka) DILEWATI, bukan
+ * bikin query gagal. Hanya kelas PUBLISHED di tenant ACTIVE yang muncul (kelas
+ * yang ditarik dari peredaran tidak meninggalkan kartu mati).
+ * Anonymous → NOT_AUTHENTICATED.
  */
 export const recentCourses = query({
   args: {},
@@ -36,35 +43,35 @@ export const recentCourses = query({
       .order("desc")
       .take(SCAN_TAKE);
 
-    // Dedupe per course, pertahankan yang terbaru (scan sudah desc).
-    const newestByCourse = new Map<Id<"courses">, number>();
-    for (const c of completions) {
-      // courseId is provenance now, not identity — a completion recorded before
-      // a materi was placed in any course simply has none, and there is no
-      // course row to resume into.
-      if (c.courseId !== undefined && !newestByCourse.has(c.courseId)) {
-        newestByCourse.set(c.courseId, c._creationTime);
-      }
-    }
-
+    // Scan sudah desc, jadi kemunculan PERTAMA sebuah kelas = yang terbaru:
+    // dedupe sambil jalan dan berhenti begitu kuota kartu penuh.
     const items: RecentCourseItem[] = [];
+    const seenCourses = new Set<Id<"courses">>();
     const tenantCache = new Map<Id<"tenants">, Doc<"tenants"> | null>();
-    for (const [courseId, lastAt] of newestByCourse) {
+
+    for (const completion of completions) {
       if (items.length >= RECENT_TAKE) break;
-      const course = await ctx.db.get(courseId);
-      if (course === null || course.status !== "published") continue;
-      let tenant = tenantCache.get(course.tenantId);
-      if (tenant === undefined) {
-        tenant = await ctx.db.get(course.tenantId);
-        tenantCache.set(course.tenantId, tenant);
+      const placements = await listLessonPlacements(ctx, completion.lessonId);
+      for (const placement of placements) {
+        if (items.length >= RECENT_TAKE) break;
+        if (seenCourses.has(placement.courseId)) continue;
+        seenCourses.add(placement.courseId);
+
+        const course = await ctx.db.get(placement.courseId);
+        if (course === null || course.status !== "published") continue;
+        let tenant = tenantCache.get(course.tenantId);
+        if (tenant === undefined) {
+          tenant = await ctx.db.get(course.tenantId);
+          tenantCache.set(course.tenantId, tenant);
+        }
+        if (tenant === null || tenant.status !== "active") continue;
+        items.push({
+          tenantSlug: tenant.slug,
+          courseSlug: course.slug,
+          title: course.title,
+          lastAt: completion._creationTime,
+        });
       }
-      if (tenant === null || tenant.status !== "active") continue;
-      items.push({
-        tenantSlug: tenant.slug,
-        courseSlug: course.slug,
-        title: course.title,
-        lastAt,
-      });
     }
     return items;
   },

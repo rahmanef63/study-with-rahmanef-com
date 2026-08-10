@@ -1,9 +1,11 @@
 "use client";
 
-// The lesson sheet — ported from the OS Kelas app's lesson pane. Layout is
-// unchanged (content sheet + course-nav rail: a column on wide screens, a
-// disclosure on narrow ones); the capture-phase click hijack is gone because
-// the rail's hrefs are real routes now and the router handles them.
+// The materi sheet read INSIDE a course: content sheet + course-nav rail (a
+// column on wide screens, a disclosure on narrow ones). The rail's hrefs are
+// real routes, so the router handles them.
+//
+// MATERI MODEL (DECISIONS #37): the materi is tenant-level content; the course
+// only supplies reading context (order, prev/next, the rail).
 //
 // Fully client-side on purpose: getLesson requires membership, so there is
 // nothing a permanently-anonymous server component could render here.
@@ -65,7 +67,7 @@ function LessonBody({ tenantId, slug, courseSlug, lessonId }: Props & { tenantId
       <aside className="hidden @3xl:block">
         <div className="pr-1">{nav}</div>
       </aside>
-      <details className="mb-4 rounded-[var(--radius-win)] border border-border bg-card @3xl:hidden">
+      <details className="mb-4 border border-border bg-card @3xl:hidden">
         <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-2.5 text-sm font-medium [&::-webkit-details-marker]:hidden">
           <List className="size-4 text-muted-foreground" aria-hidden />
           Daftar materi
@@ -75,6 +77,9 @@ function LessonBody({ tenantId, slug, courseSlug, lessonId }: Props & { tenantId
       <div className="min-w-0">
         <LessonPlayerView
           lessonId={lessonId}
+          // Reading context: prev/next must follow THIS course's order, not
+          // whichever course happens to place the materi first.
+          courseId={overview.course._id}
           lessonHref={(id) => communityHref.lesson(slug, courseSlug, id)}
           backHref={courseHref}
           completionSlot={<LessonCompletion lessonId={lessonId} />}

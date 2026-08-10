@@ -54,13 +54,15 @@ test("hit shapes are EXACT per kind — post is {kind,title,postId,postKind} PER
       expect(JSON.stringify(hit)).not.toContain("Catatan internal");
       expect(JSON.stringify(hit)).not.toContain("fotosintesis.pdf");
     } else {
+      // Materi hit (#36/#37): the canonical URL segment, never a course slug.
       expect(Object.keys(hit).sort()).toEqual([
-        "courseSlug",
         "kind",
         "lessonId",
+        "lessonSlug",
         "snippet",
         "title",
       ]);
+      expect(hit.lessonSlug).toBe("dasar-fotosintesis-materi");
     }
   }
 });
@@ -71,6 +73,7 @@ test("snippet is plain text ≤121 chars — markdown markers stripped", async (
     status: "published",
     slug: "kelas-panjang",
     title: "Kelas Panjang",
+    lessonSlug: "materi-panjang",
     contentMd: `# Heading\n\nFotosintesis **panjang** [tautan](https://x.id) ${"kata ".repeat(60)}`,
   });
   const hits = await t
@@ -78,7 +81,7 @@ test("snippet is plain text ≤121 chars — markdown markers stripped", async (
     .query(fn, { tenantId: fx.tenantId, q: "fotosintesis" });
   const long = hits.find(
     (h): h is Extract<(typeof hits)[number], { kind: "lesson" }> =>
-      h.kind === "lesson" && h.courseSlug === "kelas-panjang"
+      h.kind === "lesson" && h.lessonSlug === "materi-panjang"
   );
   expect(long).toBeDefined();
   expect(long!.snippet.length).toBeLessThanOrEqual(121); // 120 + ellipsis

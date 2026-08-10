@@ -1,0 +1,96 @@
+{
+  "$schema": "https://resource.rahmanef.com/slice-schema.json",
+  "slug": "notion-app",
+  "version": "1.1.1",
+  "category": "content",
+  "title": "Notion App — Block Editor",
+  "description": "Nested vertical slice (slice-of-slices) housing the notion-page-clone block editor as rr's rich-text content engine. Mount <PageEditor pageId> inside <EditorAdapterProvider adapter> — with `{}` it's a working plain-text/markdown block editor (slash menu, markdown triggers, drag, per-block toolbar, undo); host capabilities (data CRUD, selection, comments, AI, databases, mentions, page nav/uploads) light up per optional adapter. Cluster-private shared layer under @notion/* (vendored block/page/database model, uid, inline + page markdown/html export). Pure convex block helpers ship in convex/features/notion (_blocks/_blockOps). 182 tests.",
+  "namespace": "@/features/notion-app",
+  "kind": "full",
+  "frontend": {
+    "slicePath": "frontend/slices/notion",
+    "configExport": "notionAppConfig"
+  },
+  "deps": {
+    "npm": [
+      "sonner",
+      "@dnd-kit/core",
+      "@dnd-kit/sortable",
+      "@dnd-kit/utilities",
+      "katex"
+    ],
+    "shadcn": [
+      "button",
+      "dropdown-menu",
+      "popover",
+      "separator",
+      "checkbox",
+      "input",
+      "switch",
+      "skeleton"
+    ],
+    "env": [],
+    "peers": []
+  },
+  "registers": [
+    "registry"
+  ],
+  "license": "MIT",
+  "tags": [
+    "content",
+    "notion",
+    "editor",
+    "block-editor",
+    "rich-text"
+  ],
+  "previews": [
+    {
+      "component": "PageEditor",
+      "kind": "scenarios",
+      "scenarios": [
+        {
+          "id": "starter",
+          "title": "Starter page",
+          "description": "Notes page — slash menu, markdown triggers, todo, drag"
+        },
+        {
+          "id": "rich",
+          "title": "Rich blocks",
+          "description": "Callout, numbered list, toggle, code, divider, inline KaTeX"
+        }
+      ],
+      "seed": "two pages in rr-demo:notion via an in-memory EditorDataAdapter; all edits persist"
+    }
+  ],
+  "contract": {
+    "requires": {
+      "deps": [
+        "sonner",
+        "@dnd-kit/core",
+        "@dnd-kit/sortable",
+        "@dnd-kit/utilities",
+        "katex"
+      ]
+    },
+    "provides": {
+      "tools": [
+        "notion.page.create",
+        "notion.page.get",
+        "notion.page.update",
+        "notion.search"
+      ],
+      "utils": [
+        "blockTree",
+        "turnInto",
+        "markdownTriggers",
+        "inlineDecorator",
+        "syncedBlocks",
+        "layoutAdapter",
+        "listOrdinals",
+        "blockSpecs"
+      ],
+      "hooks": [],
+      "components": []
+    }
+  }
+}

@@ -5,12 +5,12 @@ export const ANALYTICS_COPY = {
   // stat cards
   statMembers: "Anggota komunitas",
   statCompletions: "Lulus kelas",
-  statLessons: "Total lesson",
-  // per-lesson completion section
-  lessonSectionTitle: "Penyelesaian per lesson",
-  lessonSectionHint: "Berapa anggota yang menandai tiap lesson selesai",
+  statLessons: "Total materi",
+  // per-materi completion section (flat — no module grouping, DECISIONS #37)
+  lessonSectionTitle: "Penyelesaian per materi",
+  lessonSectionHint: "Berapa anggota yang menandai tiap materi selesai, urut sesuai kelas ini",
   completedSuffix: "selesai",
-  emptyLessons: "Belum ada lesson di kelas ini",
+  emptyLessons: "Belum ada materi di kelas ini",
   // quiz stats section
   quizSectionTitle: "Statistik kuis",
   attemptsUnit: "percobaan",

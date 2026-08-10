@@ -1,7 +1,11 @@
 "use client";
-// courses slice — /t/[slug]/kelas/[kelasSlug]/belajar/[lessonId] client
-// view (member guard lives in the QUERY — this only presents).
-// `completionSlot` is progress's (#3) injection seam through the barrel.
+// courses slice — the materi player (member guard lives in the QUERY — this
+// only presents). `completionSlot` is progress's (#3) injection seam through
+// the barrel.
+//
+// `courseId` is READING CONTEXT (DECISIONS #37): a materi can be taught by
+// several courses, and it decides whose prev/next path the rail walks. Omit
+// it on the canonical /materi route.
 import type { Id } from "@convex/_generated/dataModel";
 import type { ReactNode } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,6 +15,8 @@ import { useLesson } from "../hooks/use-courses";
 
 export type LessonPlayerViewProps = {
   lessonId: Id<"lessons">;
+  /** Which course's prev/next path to walk. Omitted = the first placement. */
+  courseId?: Id<"courses"> | null;
   lessonHref: (lessonId: string) => string;
   backHref: string;
   /** From progress (#3): mark-complete button, completion chip, etc. */
@@ -21,13 +27,14 @@ export type LessonPlayerViewProps = {
 
 export function LessonPlayerView({
   lessonId,
+  courseId,
   lessonHref,
   backHref,
   completionSlot,
   copy,
   className,
 }: LessonPlayerViewProps) {
-  const lesson = useLesson(lessonId);
+  const lesson = useLesson(lessonId, courseId);
 
   if (lesson === undefined) {
     return (

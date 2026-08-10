@@ -2,13 +2,18 @@
 // imports, rr-conventions P1). Consumers: #3 progress (SyllabusList
 // completedLessonIds + LessonView completionSlot + hooks/types), #5 landing
 // (CourseCard + usePublishedCourses), integrator route mounts (views).
+//
+// MATERI MODEL (DECISIONS #37): a course is a FLAT ordered list of materi
+// placements. Nothing here exposes modules any more.
 // Convex surface (not re-exported here — call via api.features.courses.*):
 //   queries.listPublished · queries.getOverview · queries.getLesson
-//   manage.listForManage · manage.getCourseTree · manage.getLessonForManage
+//   manage.listForManage · manage.getCourseForManage ·
+//   manage.listMateriForManage · manage.getLessonForManage ·
+//   manage.addLessonToCourse · manage.removeLessonFromCourse ·
+//   manage.reorderCourseLessons
 //   courses.create · courses.update · courses.setStatus
-//   modules.createModule · modules.renameModule · modules.reorderModules ·
-//   modules.deleteModule · lessons.createLesson · lessons.updateLesson ·
-//   lessons.reorderLessons · lessons.deleteLesson
+//   lessons.createLesson · lessons.updateLesson · lessons.setLessonStatus ·
+//   lessons.deleteLesson
 
 // feature descriptor
 export { coursesFeature } from "./config";
@@ -35,16 +40,17 @@ export {
 
 // hooks (reads + writes)
 export {
+  useCourseForManage,
   useCourseOverview,
-  useCourseTree,
   useLesson,
   useLessonForManage,
   useManageCourses,
+  useMateriForManage,
   usePublishedCourses,
 } from "./hooks/use-courses";
 export {
   useCourseMutations,
-  useModuleMutations,
+  usePlacementMutations,
   type CreateCourseInput,
   type UpdateCourseInput,
 } from "./hooks/use-course-mutations";
@@ -74,23 +80,22 @@ export {
   MAX_CONTENT_MD_CHARS,
   MAX_LESSONS_PER_COURSE,
   MAX_LINKS_PER_LESSON,
-  MAX_MODULES_PER_COURSE,
 } from "./config/limits";
 
 // types
 export type {
   CourseCardData,
   CourseLink,
+  CourseManageData,
   CourseOverviewData,
   CourseStatus,
   CoursesErrorCode,
-  CourseTreeData,
   LessonEditorData,
   LessonViewData,
   ManageCourseRow,
-  ManageLessonRow,
-  ManageModuleRow,
+  ManagePlacementRow,
+  MateriPickerRow,
+  MateriStatus,
   SyllabusLessonData,
-  SyllabusModuleData,
   ViewerRole,
 } from "./types";

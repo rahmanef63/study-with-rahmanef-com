@@ -26,7 +26,20 @@ describe("analytics barrel type contract (compile-time, enforced by tsc)", () =>
     expectTypeOf<Barrel.CourseAnalyticsData>().toBeObject();
     expectTypeOf<Barrel.CourseSummaryData>().toBeObject();
     expectTypeOf<Barrel.LessonCompletionStat>().toBeObject();
-    expectTypeOf<Barrel.ModuleQuizStat>().toBeObject();
+    expectTypeOf<Barrel.CourseQuizStat>().toBeObject();
+    // MATERI MODEL (DECISIONS #37): the completion row is flat — no module
+    // grouping key survives, and the quiz row is keyed to the course.
+    expectTypeOf<Barrel.LessonCompletionStat>().toMatchTypeOf<{
+      lessonId: unknown;
+      title: string;
+      order: number;
+      completedCount: number;
+    }>();
+    expectTypeOf<Barrel.CourseQuizStat>().toMatchTypeOf<{
+      quizId: unknown;
+      quizTitle: string;
+      passRatePct: number;
+    }>();
     expectTypeOf<Barrel.AnalyticsErrorCode>().toEqualTypeOf<
       "NOT_AUTHENTICATED" | "NOT_AUTHORIZED" | "NOT_FOUND" | "VALIDATION_FAILED" | "RATE_LIMITED"
     >();

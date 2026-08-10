@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
-// Course + module mutations — authz-denied paths (P0), per-tenant slug
-// uniqueness, publish gate, reorder permutation guard, delete invariants.
+// Course-level mutations — authz-denied paths (P0), per-tenant slug uniqueness,
+// the publish gate (now: ≥1 PLACED materi), and the retired module stubs.
 import { expect, test } from "vitest";
 import { api } from "../../_generated/api";
 import type { Id } from "../../_generated/dataModel";
@@ -51,7 +51,7 @@ test("courses.create: duplicate slug in the same tenant and invalid slug are VAL
   ).rejects.toThrow(/VALIDATION_FAILED/);
 });
 
-test("courses.setStatus: publishing an empty course fails; with a lesson it succeeds", async () => {
+test("courses.setStatus: publishing a course with no PLACED materi fails; with one it succeeds", async () => {
   const t = setup();
   const fx = await seedTenantFixture(t);
   const asInstructor = t.withIdentity(asUser(fx.instructorId));
@@ -101,74 +101,43 @@ test("courses.update: member denied; instructor patches title; empty patch fails
   ).rejects.toThrow(/VALIDATION_FAILED/);
 });
 
-test("modules: createModule appends order, member denied, rename works", async () => {
+test("modules.*: every mutation is a retired stub that throws for EVERY caller", async () => {
   const t = setup();
   const fx = await seedTenantFixture(t);
-  const { courseId, moduleId } = await seedCourse(t, fx, "draft");
+  const { courseId } = await seedCourse(t, fx, "draft");
+  const moduleId = await t.run(async (ctx) =>
+    ctx.db.insert("modules", { tenantId: fx.tenantId, courseId, title: "Modul lawas", order: 1 })
+  );
   const asInstructor = t.withIdentity(asUser(fx.instructorId));
 
   await expect(
-    t
-      .withIdentity(asUser(fx.memberId))
-      .mutation(api.features.courses.modules.createModule, { courseId, title: "Modul Member" })
-  ).rejects.toThrow(/NOT_AUTHORIZED/);
-
-  const secondId = (await asInstructor.mutation(api.features.courses.modules.createModule, {
-    courseId,
-    title: "Modul 2",
-  })) as Id<"modules">;
-  const second = await t.run(async (ctx) => ctx.db.get(secondId));
-  expect(second?.order).toBe(2);
-
-  await asInstructor.mutation(api.features.courses.modules.renameModule, {
-    moduleId,
-    title: "Modul Satu",
-  });
-  const renamed = await t.run(async (ctx) => ctx.db.get(moduleId));
-  expect(renamed?.title).toBe("Modul Satu");
-});
-
-test("modules.reorderModules: rejects a non-permutation, applies 1-based order", async () => {
-  const t = setup();
-  const fx = await seedTenantFixture(t);
-  const { courseId, moduleId } = await seedCourse(t, fx, "draft");
-  const asInstructor = t.withIdentity(asUser(fx.instructorId));
-  const secondId = (await asInstructor.mutation(api.features.courses.modules.createModule, {
-    courseId,
-    title: "Modul 2",
-  })) as Id<"modules">;
-
+    asInstructor.mutation(api.features.courses.modules.createModule, {
+      courseId,
+      title: "Modul 2",
+    })
+  ).rejects.toThrow(/VALIDATION_FAILED/);
+  await expect(
+    asInstructor.mutation(api.features.courses.modules.renameModule, {
+      moduleId,
+      title: "Modul Satu",
+    })
+  ).rejects.toThrow(/VALIDATION_FAILED/);
   await expect(
     asInstructor.mutation(api.features.courses.modules.reorderModules, {
       courseId,
-      orderedModuleIds: [secondId], // missing one module
+      orderedModuleIds: [moduleId],
     })
   ).rejects.toThrow(/VALIDATION_FAILED/);
-
-  await asInstructor.mutation(api.features.courses.modules.reorderModules, {
-    courseId,
-    orderedModuleIds: [secondId, moduleId],
-  });
-  const first = await t.run(async (ctx) => ctx.db.get(secondId));
-  const swapped = await t.run(async (ctx) => ctx.db.get(moduleId));
-  expect(first?.order).toBe(1);
-  expect(swapped?.order).toBe(2);
-});
-
-test("modules.deleteModule: refuses while lessons exist, deletes when empty", async () => {
-  const t = setup();
-  const fx = await seedTenantFixture(t);
-  const { moduleId, lessonId } = await seedCourse(t, fx, "draft");
-  const asInstructor = t.withIdentity(asUser(fx.instructorId));
-
   await expect(
     asInstructor.mutation(api.features.courses.modules.deleteModule, { moduleId })
   ).rejects.toThrow(/VALIDATION_FAILED/);
 
-  await asInstructor.mutation(api.features.courses.lessons.deleteLesson, { lessonId });
-  await asInstructor.mutation(api.features.courses.modules.deleteModule, { moduleId });
-  const gone = await t.run(async (ctx) => ctx.db.get(moduleId));
-  expect(gone).toBeNull();
+  // Anonymous callers hit the same wall, and nothing was mutated.
+  await expect(
+    t.mutation(api.features.courses.modules.deleteModule, { moduleId })
+  ).rejects.toThrow(/VALIDATION_FAILED/);
+  const still = await t.run(async (ctx) => ctx.db.get(moduleId));
+  expect(still?.title).toBe("Modul lawas");
 });
 
 test("manage queries: listForManage shows drafts to instructor, denies member and anon", async () => {
@@ -190,4 +159,47 @@ test("manage queries: listForManage shows drafts to instructor, denies member an
     .query(api.features.courses.manage.listForManage, { tenantId: fx.tenantId });
   expect(rows).toHaveLength(1);
   expect(rows[0].status).toBe("draft");
+});
+
+test("manage.getCourseForManage: flat ordered materi incl. drafts; member + anon denied", async () => {
+  const t = setup();
+  const fx = await seedTenantFixture(t);
+  const { courseId, lessonId } = await seedCourse(t, fx, "draft");
+
+  await expect(
+    t.query(api.features.courses.manage.getCourseForManage, { courseId })
+  ).rejects.toThrow(/NOT_AUTHENTICATED/);
+  await expect(
+    t
+      .withIdentity(asUser(fx.memberId))
+      .query(api.features.courses.manage.getCourseForManage, { courseId })
+  ).rejects.toThrow(/NOT_AUTHORIZED/);
+
+  const tree = await t
+    .withIdentity(asUser(fx.instructorId))
+    .query(api.features.courses.manage.getCourseForManage, { courseId });
+  expect(tree.course._id).toBe(courseId);
+  expect(tree).not.toHaveProperty("modules");
+  expect(tree.lessons).toHaveLength(1);
+  expect(tree.lessons[0]._id).toBe(lessonId);
+  expect(tree.lessons[0].order).toBe(1);
+  expect(tree.lessons[0].linkCount).toBe(1);
+});
+
+test("manage.listMateriForManage: tenant-wide materi picker, instructor+ only", async () => {
+  const t = setup();
+  const fx = await seedTenantFixture(t);
+  await seedCourse(t, fx, "published");
+
+  await expect(
+    t
+      .withIdentity(asUser(fx.memberId))
+      .query(api.features.courses.manage.listMateriForManage, { tenantId: fx.tenantId })
+  ).rejects.toThrow(/NOT_AUTHORIZED/);
+
+  const rows = await t
+    .withIdentity(asUser(fx.instructorId))
+    .query(api.features.courses.manage.listMateriForManage, { tenantId: fx.tenantId });
+  expect(rows).toHaveLength(1);
+  expect(rows[0].status).toBe("published");
 });

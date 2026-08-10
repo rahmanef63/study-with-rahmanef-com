@@ -1,91 +1,48 @@
-// courses feature — module mutations (instructor+, R4: urutan bisa diatur).
-// Deletion invariant (docs/DATA-MODEL.md): a module may only be deleted when
-// it has no lessons — lessons are deleted one by one (each delete checks for
-// completions), so member progress can never be corrupted from here.
+// courses feature — MODULES ARE RETIRED (DECISIONS #37).
+//
+// A course is an ordered list of materi (`courseLessons`), not a two-level
+// tree: production had 30 modules for 75 lessons, 2.5 lessons each, carrying
+// almost no information. The `modules` table and these mutations' writes are
+// gone; the table itself is dropped by the integrator in step 3.
+//
+// KEPT AS THROWING STUBS, not deleted, on purpose: the instructor console and
+// its hooks still reference `api.features.courses.modules.*` while the frontend
+// migration lands, and a stale call must fail with a readable Bahasa Indonesia
+// error instead of a missing-function crash. Signatures are unchanged so those
+// callers keep type-checking until they are rewritten; every handler throws
+// before touching ctx, so nothing is ever read or written here (P0: no data can
+// leave a handler that never reaches the database).
+//
+// Replacements: manage.addLessonToCourse / removeLessonFromCourse /
+// reorderCourseLessons operate on placements. Delete this file once
+// `grep -rn "courses.modules" .` is empty.
 import { v } from "convex/values";
 import { mutation } from "../../_generated/server";
-import { requireInstructorForCourse, requireInstructorForModule } from "./access";
 import { fail } from "./errors";
-import { assertTitle, MAX_MODULES_PER_COURSE } from "./validate";
 
+const RETIRED =
+  "Modul sudah tidak dipakai — materi kini ditempatkan langsung di kelas. Muat ulang halaman kelola.";
+
+/** @deprecated modules are retired — use lessons.createLesson + manage.addLessonToCourse. */
 export const createModule = mutation({
   args: { courseId: v.id("courses"), title: v.string() },
-  handler: async (ctx, args) => {
-    const { course } = await requireInstructorForCourse(ctx, args.courseId);
-    assertTitle(args.title, "modul");
-
-    const siblings = await ctx.db
-      .query("modules")
-      .withIndex("by_course", (q) => q.eq("courseId", course._id))
-      .take(MAX_MODULES_PER_COURSE);
-    if (siblings.length >= MAX_MODULES_PER_COURSE) {
-      fail("VALIDATION_FAILED", `Maksimal ${MAX_MODULES_PER_COURSE} modul per kelas`);
-    }
-    const maxOrder = siblings.reduce((max, mod) => Math.max(max, mod.order), 0);
-
-    return ctx.db.insert("modules", {
-      tenantId: course.tenantId,
-      courseId: course._id,
-      title: args.title.trim(),
-      order: maxOrder + 1,
-    });
-  },
+  handler: async () => fail("VALIDATION_FAILED", RETIRED),
 });
 
+/** @deprecated modules are retired. */
 export const renameModule = mutation({
   args: { moduleId: v.id("modules"), title: v.string() },
-  handler: async (ctx, args) => {
-    const { module: mod } = await requireInstructorForModule(ctx, args.moduleId);
-    assertTitle(args.title, "modul");
-    await ctx.db.patch(mod._id, { title: args.title.trim() });
-    return mod._id;
-  },
+  handler: async () => fail("VALIDATION_FAILED", RETIRED),
 });
 
-/**
- * Reorder ALL modules of a course in one call: orderedModuleIds must be a
- * permutation of the course's current module ids (validated — no cross-course
- * smuggling), order becomes the array position (1-based).
- */
+/** @deprecated modules are retired — use manage.reorderCourseLessons. */
 export const reorderModules = mutation({
   args: { courseId: v.id("courses"), orderedModuleIds: v.array(v.id("modules")) },
-  handler: async (ctx, args) => {
-    const { course } = await requireInstructorForCourse(ctx, args.courseId);
-
-    const current = await ctx.db
-      .query("modules")
-      .withIndex("by_course", (q) => q.eq("courseId", course._id))
-      .take(MAX_MODULES_PER_COURSE);
-    const currentIds = new Set(current.map((mod) => mod._id as string));
-    const incoming = args.orderedModuleIds.map(String);
-    if (
-      incoming.length !== currentIds.size ||
-      incoming.some((id) => !currentIds.has(id)) ||
-      new Set(incoming).size !== incoming.length
-    ) {
-      fail("VALIDATION_FAILED", "Daftar modul tidak sesuai dengan isi kelas");
-    }
-
-    for (let i = 0; i < args.orderedModuleIds.length; i++) {
-      await ctx.db.patch(args.orderedModuleIds[i], { order: i + 1 });
-    }
-    return course._id;
-  },
+  handler: async () => fail("VALIDATION_FAILED", RETIRED),
 });
 
-/** Delete an EMPTY module only (see invariant at top of file). */
+/** @deprecated modules are retired. */
 export const deleteModule = mutation({
   args: { moduleId: v.id("modules") },
-  handler: async (ctx, args) => {
-    const { module: mod } = await requireInstructorForModule(ctx, args.moduleId);
-    const anyLesson = await ctx.db
-      .query("lessons")
-      .withIndex("by_module", (q) => q.eq("moduleId", mod._id))
-      .first();
-    if (anyLesson !== null) {
-      fail("VALIDATION_FAILED", "Hapus atau pindahkan semua lesson di modul ini dulu");
-    }
-    await ctx.db.delete(mod._id);
-    return mod._id;
-  },
+  handler: async () => fail("VALIDATION_FAILED", RETIRED),
 });

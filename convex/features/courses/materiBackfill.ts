@@ -20,46 +20,20 @@
 // drop `modules` + the legacy columns and delete this module (step 3).
 import { v } from "convex/values";
 import { internalMutation, internalQuery } from "../../_generated/server";
-import type { Doc, Id } from "../../_generated/dataModel";
-import type { MutationCtx } from "../../_generated/server";
-import { legacyOrder } from "../../_shared/legacyLesson";
+import type { Doc } from "../../_generated/dataModel";
 import { materiBackfillRef } from "./refs";
+import { uniqueSlug } from "./slug";
 
 /** Courses per transaction. Each one reads its modules + lessons and writes a
  *  handful of rows, so the document budget is dominated by the largest course
  *  (MAX_LESSONS_PER_COURSE), not by the batch. */
 const BATCH = 20;
 
-/** kebab-case handle from a title. Not unique on its own — see uniqueSlug. */
-function baseSlug(title: string): string {
-  const slug = title
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 64);
-  return slug === "" ? "materi" : slug;
-}
-
-/** First free `slug`, `slug-2`, `slug-3`… within the tenant. Bounded: a title
- *  colliding more than 50 times in one community is not a real scenario, and an
- *  unbounded loop in a mutation is worse than a suffix that looks odd. */
-async function uniqueSlug(
-  ctx: MutationCtx,
-  tenantId: Id<"tenants">,
-  title: string
-): Promise<string> {
-  const base = baseSlug(title);
-  for (let n = 1; n <= 50; n++) {
-    const candidate = n === 1 ? base : `${base}-${n}`;
-    const clash = await ctx.db
-      .query("lessons")
-      .withIndex("by_tenant_slug", (q) => q.eq("tenantId", tenantId).eq("slug", candidate))
-      .first();
-    if (clash === null) return candidate;
-  }
-  return `${base}-${Date.now()}`;
-}
+/** Legacy sort position. Inlined (rather than imported from _shared/legacyLesson)
+ *  so this feature owns no legacy-column reader: THIS FILE is the last place in
+ *  features/courses that touches the retiring tree, and the integrator deletes it
+ *  together with `modules` in step 3. */
+const legacyOrder = (row: { order?: number }): number => row.order ?? 0;
 
 export const run = internalMutation({
   args: { cursor: v.optional(v.number()) },

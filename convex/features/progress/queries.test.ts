@@ -5,11 +5,19 @@
 import { expect, test } from "vitest";
 import type { Id } from "../../_generated/dataModel";
 import { api } from "../../_generated/api";
-import { asUser, seedCourseWithLessons, seedTenantFixture, setup, type T } from "./test.helpers";
+import {
+  asUser,
+  placeLesson,
+  seedCourseWithLessons,
+  seedMateri,
+  seedTenantFixture,
+  setup,
+  type T,
+} from "./test.helpers";
 
 async function complete(
   t: T,
-  ids: { tenantId: Id<"tenants">; userId: Id<"users">; courseId: Id<"courses">; lessonId: Id<"lessons"> }
+  ids: { tenantId: Id<"tenants">; userId: Id<"users">; courseId?: Id<"courses">; lessonId: Id<"lessons"> }
 ) {
   await t.run(async (ctx) => {
     await ctx.db.insert("lessonCompletions", ids);
@@ -94,4 +102,49 @@ test("getLessonCompletion: authz-denied paths + reflects the caller's own comple
   expect(await asMember.query(api.features.progress.queries.getLessonCompletion, { lessonId })).toEqual(
     { isCompleted: true }
   );
+});
+
+test("getLessonCompletion: gate is the MATERI status, not the course status", async () => {
+  const t = setup();
+  const fx = await seedTenantFixture(t);
+  // Published materi inside a DRAFT course — readable: materi is tenant-level.
+  const { lessonIds } = await seedCourseWithLessons(t, fx, "draft", 1);
+  const asMember = t.withIdentity(asUser(fx.memberId));
+  expect(
+    await asMember.query(api.features.progress.queries.getLessonCompletion, {
+      lessonId: lessonIds[0],
+    })
+  ).toEqual({ isCompleted: false });
+
+  // Draft materi — hidden from members, visible to instructor+.
+  const draft = await seedMateri(t, fx, { slug: "draf", status: "draft" });
+  await expect(
+    asMember.query(api.features.progress.queries.getLessonCompletion, { lessonId: draft })
+  ).rejects.toThrow(/NOT_FOUND/);
+  expect(
+    await t
+      .withIdentity(asUser(fx.instructorId))
+      .query(api.features.progress.queries.getLessonCompletion, { lessonId: draft })
+  ).toEqual({ isCompleted: false });
+});
+
+test("getCourseProgress: counts the courseLessons roster, and a shared materi counts once", async () => {
+  const t = setup();
+  const fx = await seedTenantFixture(t);
+  const a = await seedCourseWithLessons(t, fx, "published", 1, "kelas-a");
+  const b = await seedCourseWithLessons(t, fx, "published", 1, "kelas-b");
+  // One materi with NO legacy courseId, placed in both courses.
+  const shared = await seedMateri(t, fx, { slug: "sub-agents" });
+  await placeLesson(t, fx, a.courseId, shared, 2);
+  await placeLesson(t, fx, b.courseId, shared, 2);
+  await complete(t, { tenantId: fx.tenantId, userId: fx.memberId, lessonId: shared });
+
+  const asMember = t.withIdentity(asUser(fx.memberId));
+  for (const courseId of [a.courseId, b.courseId]) {
+    const progress = await asMember.query(api.features.progress.queries.getCourseProgress, {
+      courseId,
+    });
+    expect(progress).toMatchObject({ completedCount: 1, totalCount: 2, isComplete: false });
+    expect(progress.completedLessonIds).toEqual([shared]);
+  }
 });

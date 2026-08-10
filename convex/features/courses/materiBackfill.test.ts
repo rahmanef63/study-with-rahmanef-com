@@ -3,24 +3,49 @@
 // sees, fill the new columns, and be safe to re-run.
 import { expect, test } from "vitest";
 import { materiBackfillRef } from "./refs";
-import { seedCourse, seedTenantFixture, setup } from "./test.helpers";
+import { seedTenantFixture, setup } from "./test.helpers";
 
+/** A PRE-MIGRATION course: the module tree, no `courseLessons`, no slugs. The
+ *  shared seedCourse helper now seeds the materi model, which is exactly what
+ *  this one-shot exists to produce — so the legacy shape is built here. */
 async function fixture() {
   const t = setup();
   const fx = await seedTenantFixture(t);
-  const cm = await seedCourse(t, fx, "published");
-  // A second module with two lessons, so the flatten has something to order.
-  await t.run(async (ctx) => {
+  const cm = await t.run(async (ctx) => {
+    const courseId = await ctx.db.insert("courses", {
+      tenantId: fx.tenantId,
+      slug: "kelas-lawas",
+      title: "Kelas lawas",
+      description: "Kelas dengan pohon modul",
+      status: "published",
+      createdBy: fx.instructorId,
+    });
+    const m1 = await ctx.db.insert("modules", {
+      tenantId: fx.tenantId,
+      courseId,
+      title: "Modul satu",
+      order: 1,
+    });
+    const lessonId = await ctx.db.insert("lessons", {
+      tenantId: fx.tenantId,
+      courseId,
+      moduleId: m1,
+      title: "Materi A1",
+      contentMd: "isi",
+      links: [],
+      order: 1,
+    });
+    // A second module with two lessons, so the flatten has something to order.
     const m2 = await ctx.db.insert("modules", {
       tenantId: fx.tenantId,
-      courseId: cm.courseId,
+      courseId,
       title: "Modul dua",
       order: 2,
     });
     for (const [i, title] of ["Materi B1", "Materi B2"].entries()) {
       await ctx.db.insert("lessons", {
         tenantId: fx.tenantId,
-        courseId: cm.courseId,
+        courseId,
         moduleId: m2,
         title,
         contentMd: "isi",
@@ -28,6 +53,7 @@ async function fixture() {
         order: i,
       });
     }
+    return { courseId, lessonId };
   });
   return { t, fx, cm };
 }

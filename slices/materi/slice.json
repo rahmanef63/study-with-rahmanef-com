@@ -1,0 +1,79 @@
+{
+  "$schema": "https://resource.rahmanef.com/slice-schema.json",
+  "slug": "materi",
+  "version": "0.1.0",
+  "category": "lms",
+  "kind": "frontend",
+  "title": "Materi — perpustakaan materi komunitas + permalink materi",
+  "description": "The Materi tab (DECISIONS #36/#37): teaching material is TENANT-level content with its own canonical, shareable URL /k/<tenant>/materi/<lessonSlug>, and a course is just one ordered arrangement of it. Two surfaces — the LIBRARY (member-gated, cursor-paginated, tag-filtered, iOS inset grouped list, client-side text narrowing over loaded pages) and the MATERI PAGE (server-rendered etalase header + generateMetadata + its own opengraph-image from publicGetBySlug; the BODY is member-gated and renders through MarkdownView from @/features/courses, never a second parser). Below the body: the tag row (each tag links back to the library opened on that tag) and 'Muncul di kelas' from backlinksFor — the same materi in every course that teaches it, plus the materi→materi graph. A draft materi is NOT_FOUND for a member and readable for instructor+; a draft COURSE never hides its materi. The frontend only READS: materi writes live in the Kelola console (features/courses lessons.*) and tags in features/materi/tags.",
+  "namespace": "@/features/materi",
+  "convex": {
+    "tablesExport": "",
+    "schemaPath": "convex/schema.ts",
+    "rootPaths": ["convex/features/materi"]
+  },
+  "frontend": { "slicePath": "slices/materi", "configExport": "materiFeature" },
+  "deps": {
+    "npm": ["convex", "lucide-react"],
+    "shadcn": ["button", "card", "skeleton"],
+    "env": [],
+    "peers": [
+      {
+        "slug": "courses",
+        "reason": "MarkdownView + YoutubeEmbed + LessonLinks — the app's one safe-subset markdown/embed pair; the in-course reader renders the same materi through the same components"
+      },
+      {
+        "slug": "tenants",
+        "reason": "useMyMembership drives the member gate on both surfaces"
+      }
+    ]
+  },
+  "contract": {
+    "barrel": {
+      "views": ["MateriLibraryView", "MateriDetailView"],
+      "components": [
+        "MateriRow",
+        "MateriRowUnlinked",
+        "MateriBody",
+        "MateriBacklinks",
+        "TagChips",
+        "TagRow",
+        "MateriErrorBoundary"
+      ],
+      "hooks": ["useMateriLibrary", "useMateriTags", "useMateri", "useMateriBacklinks"],
+      "lib": [
+        "buildMateriHref",
+        "buildMateriPageHref",
+        "buildMateriTagHref",
+        "buildCourseHref",
+        "materiErrorMessage",
+        "extractMateriError",
+        "isMateriMissing",
+        "INSET_GROUP",
+        "INSET_ROW",
+        "INSET_CAPTION"
+      ],
+      "consumerSeams": {
+        "app-shell": [
+          "/k/[slug]/materi ← <MateriLibraryView tenantId tenantSlug initialTag gate />",
+          "/k/[slug]/materi/[lessonSlug] ← server etalase header + generateMetadata + opengraph-image (publicGetBySlug) + <MateriDetailView tenantId tenantSlug lessonSlug hasServerHeading gate />"
+        ]
+      }
+    },
+    "convexFunctions": {
+      "anonymous": ["features/materi/queries:publicGetBySlug"],
+      "member": [
+        "features/materi/queries:getBySlug",
+        "features/materi/queries:backlinksFor",
+        "features/materi/queries:getSlug",
+        "features/materi/library:listLibrary",
+        "features/materi/library:listTags"
+      ],
+      "instructor": ["features/materi/tags:setTags"]
+    }
+  },
+  "registers": [],
+  "license": "MIT",
+  "tags": ["lms", "materi", "library", "permalink", "tags", "backlinks", "multi-tenant"],
+  "providers": []
+}

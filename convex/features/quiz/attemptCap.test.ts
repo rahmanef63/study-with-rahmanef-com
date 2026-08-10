@@ -7,7 +7,7 @@
 // lulus. Now the key only comes out when it can no longer buy a better score.
 import { expect, test } from "vitest";
 import { api } from "../../_generated/api";
-import { asUser, seedCourseModule, seedQuiz, seedTenantFixture, setup } from "./test.helpers";
+import { asUser, seedCourse, seedQuiz, seedTenantFixture, setup } from "./test.helpers";
 import { MAX_ATTEMPTS_PER_QUIZ } from "./attempts";
 
 // Both wrong: question 0 answer is 0, question 1 answer is 1.
@@ -17,8 +17,8 @@ const RIGHT = [0, 1];
 async function fixture() {
   const t = setup();
   const fx = await seedTenantFixture(t);
-  const cm = await seedCourseModule(t, fx, "published");
-  const quizId = await seedQuiz(t, fx, cm);
+  const c = await seedCourse(t, fx, "published");
+  const quizId = await seedQuiz(t, fx, c);
   return { t, fx, quizId };
 }
 

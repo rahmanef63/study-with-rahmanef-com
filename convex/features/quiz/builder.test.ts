@@ -1,12 +1,13 @@
 /// <reference types="vite/client" />
-// Builder mutations — authz-denied paths (P0), one-quiz-per-module, question
-// validation, and the delete-blocked-by-attempts invariant.
+// Builder mutations — authz-denied paths (P0), course ownership, question
+// validation, and the delete-blocked-by-attempts invariant. A quiz belongs to a
+// COURSE now; several quizzes per course are allowed (DECISIONS #37).
 import { expect, test } from "vitest";
 import { api } from "../../_generated/api";
 import type { Id } from "../../_generated/dataModel";
 import {
   asUser,
-  seedCourseModule,
+  seedCourse,
   seedQuiz,
   seedTenantFixture,
   setup,
@@ -16,8 +17,8 @@ import {
 test("createQuiz: anon NOT_AUTHENTICATED, member NOT_AUTHORIZED, instructor creates", async () => {
   const t = setup();
   const fx = await seedTenantFixture(t);
-  const cm = await seedCourseModule(t, fx, "draft");
-  const args = validQuizArgs(cm.moduleId);
+  const c = await seedCourse(t, fx, "draft");
+  const args = validQuizArgs(c.courseId);
 
   await expect(
     t.mutation(api.features.quiz.builder.createQuiz, args)
@@ -33,30 +34,40 @@ test("createQuiz: anon NOT_AUTHENTICATED, member NOT_AUTHORIZED, instructor crea
     .withIdentity(asUser(fx.instructorId))
     .mutation(api.features.quiz.builder.createQuiz, args)) as Id<"quizzes">;
   const quiz = await t.run(async (ctx) => ctx.db.get(quizId));
-  // tenantId/courseId are DERIVED from the module, not the client.
+  // tenantId is DERIVED from the course, not the client; no legacy moduleId.
   expect(quiz?.tenantId).toBe(fx.tenantId);
-  expect(quiz?.courseId).toBe(cm.courseId);
+  expect(quiz?.courseId).toBe(c.courseId);
   expect(quiz?.questions).toHaveLength(2);
+  expect(quiz?.moduleId).toBeUndefined();
 });
 
-test("createQuiz: second quiz on the same module is VALIDATION_FAILED (one per module)", async () => {
+test("createQuiz: a course may carry several quizzes (the one-per-module rule is gone)", async () => {
   const t = setup();
   const fx = await seedTenantFixture(t);
-  const cm = await seedCourseModule(t, fx, "draft");
+  const c = await seedCourse(t, fx, "draft");
   const asInstructor = t.withIdentity(asUser(fx.instructorId));
 
-  await asInstructor.mutation(api.features.quiz.builder.createQuiz, validQuizArgs(cm.moduleId));
-  await expect(
-    asInstructor.mutation(api.features.quiz.builder.createQuiz, validQuizArgs(cm.moduleId))
-  ).rejects.toThrow(/VALIDATION_FAILED/);
+  await asInstructor.mutation(api.features.quiz.builder.createQuiz, validQuizArgs(c.courseId));
+  await asInstructor.mutation(api.features.quiz.builder.createQuiz, {
+    ...validQuizArgs(c.courseId),
+    title: "Kuis Kedua",
+  });
+
+  const rows = await t.run(async (ctx) =>
+    ctx.db
+      .query("quizzes")
+      .withIndex("by_course", (q) => q.eq("courseId", c.courseId))
+      .collect()
+  );
+  expect(rows).toHaveLength(2);
 });
 
 test("createQuiz: invalid shapes are VALIDATION_FAILED", async () => {
   const t = setup();
   const fx = await seedTenantFixture(t);
-  const cm = await seedCourseModule(t, fx, "draft");
+  const c = await seedCourse(t, fx, "draft");
   const asInstructor = t.withIdentity(asUser(fx.instructorId));
-  const base = validQuizArgs(cm.moduleId);
+  const base = validQuizArgs(c.courseId);
 
   // correctIndex out of range
   await expect(
@@ -88,8 +99,8 @@ test("createQuiz: invalid shapes are VALIDATION_FAILED", async () => {
 test("updateQuiz: member denied; instructor patches; empty patch fails", async () => {
   const t = setup();
   const fx = await seedTenantFixture(t);
-  const cm = await seedCourseModule(t, fx, "draft");
-  const quizId = await seedQuiz(t, fx, cm);
+  const c = await seedCourse(t, fx, "draft");
+  const quizId = await seedQuiz(t, fx, c);
 
   await expect(
     t
@@ -115,15 +126,15 @@ test("updateQuiz: member denied; instructor patches; empty patch fails", async (
 test("deleteQuiz: blocked once an attempt exists; deletes when none", async () => {
   const t = setup();
   const fx = await seedTenantFixture(t);
-  const cm = await seedCourseModule(t, fx, "published");
-  const quizId = await seedQuiz(t, fx, cm);
+  const c = await seedCourse(t, fx, "published");
+  const quizId = await seedQuiz(t, fx, c);
   const asInstructor = t.withIdentity(asUser(fx.instructorId));
 
   // no attempts yet → deletes; re-seed for the blocked case
   await asInstructor.mutation(api.features.quiz.builder.deleteQuiz, { quizId });
   expect(await t.run(async (ctx) => ctx.db.get(quizId))).toBeNull();
 
-  const quiz2 = await seedQuiz(t, fx, cm);
+  const quiz2 = await seedQuiz(t, fx, c);
   await t
     .withIdentity(asUser(fx.memberId))
     .mutation(api.features.quiz.attempts.submitAttempt, { quizId: quiz2, answers: [0, 1] });

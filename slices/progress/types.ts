@@ -12,11 +12,26 @@ export type { ProgressErrorCode } from "@convex/features/progress/errors";
 /** getLessonCompletion result — the caller's own boolean for one lesson. */
 export type LessonCompletionData = { isCompleted: boolean };
 
-/** markLessonComplete result — idempotency + course-completion signal. */
+/** Per-course numbers for ONE course the completed materi is taught in. */
+export type MarkLessonCompleteCourseOutcome = {
+  courseId: Id<"courses">;
+  completedCount: number;
+  totalCount: number;
+  isComplete: boolean;
+};
+
+/**
+ * markLessonComplete result — idempotency + course-completion signal.
+ *
+ * There are no flat `completedCount`/`totalCount` here on purpose: a materi can
+ * sit in several courses (completion identity is (userId, lessonId)), so one
+ * call can settle progress in more than one course and a single pair of numbers
+ * has no honest value. Read `courses[]` instead; `courseCompleted` stays as the
+ * "did ANY course just finish" toast signal.
+ */
 export type MarkLessonCompleteResult = {
   lessonId: Id<"lessons">;
   wasAlreadyComplete: boolean;
   courseCompleted: boolean;
-  completedCount: number;
-  totalCount: number;
+  courses: MarkLessonCompleteCourseOutcome[];
 };

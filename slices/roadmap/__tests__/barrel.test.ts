@@ -13,7 +13,7 @@ describe("roadmap barrel type contract (compile-time, enforced by tsc)", () => {
   test("exports the CourseNav rail, feature, and types", () => {
     expectTypeOf<typeof Barrel.CourseNav>().toBeFunction();
     expectTypeOf<typeof Barrel.roadmapFeature>().toMatchTypeOf<{ slug: string }>();
-    expectTypeOf<Barrel.RoadmapModule>().toBeObject();
+    expectTypeOf<Barrel.RoadmapLesson>().toBeObject();
     expectTypeOf<Barrel.RoadmapNodeStatus>().toEqualTypeOf<"done" | "next" | "available" | "locked">();
   });
 });

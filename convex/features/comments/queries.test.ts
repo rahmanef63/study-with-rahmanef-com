@@ -6,10 +6,13 @@ import { describe, expect, test } from "vitest";
 import { api } from "../../_generated/api";
 import { asUser, seedComment, seedLesson, seedProfile, seedTenantFixture, setup } from "./test.helpers";
 
-async function fixture(status: "draft" | "published" | "archived" = "published") {
+async function fixture(
+  status: "draft" | "published" | "archived" = "published",
+  materiStatus: "draft" | "published" = "published"
+) {
   const t = setup();
   const fx = await seedTenantFixture(t);
-  const lf = await seedLesson(t, fx, status);
+  const lf = await seedLesson(t, fx, status, `kelas-${status}`, materiStatus);
   return { t, fx, ...lf };
 }
 
@@ -34,13 +37,22 @@ describe("listByLesson — authz", () => {
     ).rejects.toThrow(/NOT_AUTHORIZED/);
   });
 
-  test("draft-course lesson: member → NOT_AUTHORIZED; instructor reads", async () => {
-    const { t, fx, lessonId } = await fixture("draft");
+  test("DRAFT MATERI: member → NOT_AUTHORIZED; instructor reads", async () => {
+    const { t, fx, lessonId } = await fixture("published", "draft");
     await expect(
       t.withIdentity(asUser(fx.memberId))
         .query(api.features.comments.queries.listByLesson, { lessonId })
     ).rejects.toThrow(/NOT_AUTHORIZED/);
     const res = await t.withIdentity(asUser(fx.instructorId))
+      .query(api.features.comments.queries.listByLesson, { lessonId });
+    expect(res.items).toEqual([]);
+  });
+
+  test("a DRAFT COURSE no longer gates its materi — the materi status does", async () => {
+    // DECISIONS #36/#37: materi is tenant-level content; the course's draft
+    // status gates the course page only.
+    const { t, fx, lessonId } = await fixture("draft", "published");
+    const res = await t.withIdentity(asUser(fx.memberId))
       .query(api.features.comments.queries.listByLesson, { lessonId });
     expect(res.items).toEqual([]);
   });

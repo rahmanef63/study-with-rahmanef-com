@@ -1,8 +1,8 @@
 {
   "$schema": "../../docs/slice.manifest.schema.json",
   "name": "analytics",
-  "version": "0.1.0",
-  "description": "Instructor+ per-course analytics: per-lesson completion counts, badge count, member count, quiz attempt/pass stats per module. Read-only derived aggregates over shared tables (no new tables, no writes); bounded takes documented in constants.ts; no PII in outputs.",
+  "version": "0.2.0",
+  "description": "Instructor+ per-course analytics: per-lesson completion counts, badge count, member count, quiz attempt/pass stats per course. Read-only derived aggregates over shared tables (no new tables, no writes); bounded takes documented in constants.ts; no PII in outputs.",
   "category": "lms",
   "stability": "beta",
   "deps": {
@@ -29,5 +29,5 @@
     "tailwind": "4",
     "auth": "convex-auth"
   },
-  "notes": "0.1.0 (2026-07-10, agent gamma): wave v1.2 scope of STATUS row #17. Owns ZERO tables — reads the shared memberships/lessons/modules/lessonCompletions/courseCompletions/quizzes/quizAttempts tables directly (sanctioned precedent: progress/profiles shared-table reads). courseCompletions has no by_course index, so badge counts derive per CURRENT member via by_user (exact, bounded; ex-members' badges uncounted) — by_course index proposed to alpha. toPercent consumed via the progress BARREL (extract-on-second-occurrence: util shared by two slices; shared/ is integrator-only surface)."
+  "notes": "0.2.0 (2026-08-10): DECISIONS #37 materi model \u2014 LessonCompletionStat lost moduleId/moduleTitle (flat, ordered by courseLessons.order) and ModuleQuizStat became CourseQuizStat. 0.1.0 (2026-07-10, agent gamma): wave v1.2 scope of STATUS row #17. Owns ZERO tables — reads the shared memberships/lessons/courseLessons/lessonCompletions/courseCompletions/quizzes/quizAttempts tables directly (sanctioned precedent: progress/profiles shared-table reads). courseCompletions has no by_course index, so badge counts derive per CURRENT member via by_user (exact, bounded; ex-members' badges uncounted) — by_course index proposed to alpha. toPercent consumed via the progress BARREL (extract-on-second-occurrence: util shared by two slices; shared/ is integrator-only surface)."
 }

@@ -6,6 +6,7 @@ import { api } from "../../_generated/api";
 import {
   asUser,
   seedCourseWithLesson,
+  seedMateri,
   seedTenantFixture,
   setup,
 } from "./test.helpers";
@@ -80,7 +81,7 @@ test("q over 60 chars → VALIDATION_FAILED", async () => {
 
 // ── results + draft-guard (P0) ─────────────────────────────────────────────
 
-test("member finds published course + lesson; drafts NEVER appear", async () => {
+test("member finds the published course title; a DRAFT course title never appears", async () => {
   const { t, fx } = await fixture();
   const hits = await t
     .withIdentity(asUser(fx.memberId))
@@ -89,36 +90,65 @@ test("member finds published course + lesson; drafts NEVER appear", async () => 
   const courseHits = hits.filter(
     (h): h is Extract<(typeof hits)[number], { kind: "course" }> => h.kind === "course"
   );
-  const lessonHits = hits.filter(
-    (h): h is Extract<(typeof hits)[number], { kind: "lesson" }> => h.kind === "lesson"
-  );
-
-  // Published course matched by title.
   expect(courseHits).toHaveLength(1);
   expect(courseHits[0].courseSlug).toBe("dasar-fotosintesis");
   // Draft course title never appears (index filters status=published).
   expect(hits.some((h: { title: string }) => /Rahasia/.test(h.title))).toBe(false);
-
-  // Lesson under the PUBLISHED course only; draft-course lesson dropped.
-  expect(lessonHits).toHaveLength(1);
-  expect(lessonHits[0].courseSlug).toBe("dasar-fotosintesis");
-  expect(lessonHits[0].title).toBe("Klorofil dan cahaya");
 });
 
-test("lesson under archived course is dropped too (draft-guard is 'published only')", async () => {
+test("materi hit is tenant-level: a published materi in a DRAFT course still surfaces", async () => {
+  // DECISIONS #36/#37 — the guard moved off the owning course and onto the
+  // materi. A draft course hides its own etalase, not the teaching material.
   const { t, fx } = await fixture();
-  await seedCourseWithLesson(t, fx, {
-    status: "archived",
-    slug: "arsip-fotosintesis",
-    title: "Arsip",
-    contentMd: "Fotosintesis versi arsip.",
+  const hits = await t
+    .withIdentity(asUser(fx.memberId))
+    .query(fn, { tenantId: fx.tenantId, q: "fotosintesis" });
+  const lessonHits = hits.filter(
+    (h): h is Extract<(typeof hits)[number], { kind: "lesson" }> => h.kind === "lesson"
+  );
+
+  expect(lessonHits.map((h) => h.lessonSlug).sort()).toEqual([
+    "dasar-fotosintesis-materi",
+    "draf-fotosintesis-materi",
+  ]);
+  // The href target is the CANONICAL materi URL, so no course slug is projected.
+  expect(lessonHits.every((h) => !("courseSlug" in h))).toBe(true);
+});
+
+test("a DRAFT MATERI never reaches a member, but instructor+ sees it", async () => {
+  const { t, fx } = await fixture();
+  await seedMateri(t, fx, {
+    slug: "rahasia-fotosintesis",
+    status: "draft",
+    title: "Draf materi",
+    contentMd: "Fotosintesis yang masih draf materi.",
+  });
+
+  const asMember = await t
+    .withIdentity(asUser(fx.memberId))
+    .query(fn, { tenantId: fx.tenantId, q: "fotosintesis" });
+  expect(asMember.some((h) => "lessonSlug" in h && h.lessonSlug === "rahasia-fotosintesis")).toBe(
+    false
+  );
+
+  const asInstructor = await t
+    .withIdentity(asUser(fx.instructorId))
+    .query(fn, { tenantId: fx.tenantId, q: "fotosintesis" });
+  expect(
+    asInstructor.some((h) => "lessonSlug" in h && h.lessonSlug === "rahasia-fotosintesis")
+  ).toBe(true);
+});
+
+test("a materi with no slug yet is dropped — there is no canonical URL to link", async () => {
+  const { t, fx } = await fixture();
+  await seedMateri(t, fx, {
+    title: "Belum di-backfill",
+    contentMd: "Fotosintesis tanpa slug.",
   });
   const hits = await t
     .withIdentity(asUser(fx.memberId))
     .query(fn, { tenantId: fx.tenantId, q: "fotosintesis" });
-  expect(
-    hits.some((h) => "courseSlug" in h && h.courseSlug === "arsip-fotosintesis")
-  ).toBe(false);
+  expect(hits.some((h: { title: string }) => h.title === "Belum di-backfill")).toBe(false);
 });
 
 test("results are tenant-scoped: matching rows in another tenant never leak", async () => {
@@ -133,9 +163,7 @@ test("results are tenant-scoped: matching rows in another tenant never leak", as
   const hits = await t
     .withIdentity(asUser(fx.memberId))
     .query(fn, { tenantId: fx.tenantId, q: "fotosintesis" });
-  expect(
-    hits.some((h) => "courseSlug" in h && h.courseSlug === "fotosintesis-tetangga")
-  ).toBe(false);
+  expect(JSON.stringify(hits)).not.toContain("fotosintesis-tetangga");
 });
 
 // ── projection safety (P0) ─────────────────────────────────────────────────

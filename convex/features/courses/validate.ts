@@ -1,12 +1,17 @@
 // courses feature — input validation + by-design bounds (docs/DATA-MODEL.md
-// "Catatan keamanan #3": lessons/course ≤ 200, modules/course ≤ 30).
+// "Catatan keamanan #3": materi/course ≤ 200).
 // All checks throw ConvexError VALIDATION_FAILED via fail().
 import { fail } from "./errors";
 
 // Bounds — keep in sync with slices/courses/config/limits.ts (UI copies).
-export const MAX_MODULES_PER_COURSE = 30;
+// MAX_MODULES_PER_COURSE is gone with the module tree (DECISIONS #37).
 export const MAX_LESSONS_PER_COURSE = 200;
 export const MAX_LINKS_PER_LESSON = 20;
+/** Courses one materi may be placed in — the delete cascade's bound. */
+export const MAX_PLACEMENTS_PER_MATERI = 50;
+/** Tag/reference rows a single materi may own — the delete cascade's bound. */
+export const MAX_TAG_ROWS_PER_MATERI = 50;
+export const MAX_REF_ROWS_PER_MATERI = 100;
 export const LIST_TAKE = 50;
 export const MANAGE_LIST_TAKE = 100;
 
@@ -27,14 +32,24 @@ export function assertYoutubeVideoId(id: string): void {
   }
 }
 
-/** Course slug: lowercase kebab-case, 3–64 chars (mirrors /t/[slug] rules). */
-const COURSE_SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+/** Slug: lowercase kebab-case, 3–64 chars (mirrors /k/[slug] rules). */
+const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export function assertCourseSlug(slug: string): void {
-  if (slug.length < 3 || slug.length > 64 || !COURSE_SLUG_RE.test(slug)) {
+  if (slug.length < 3 || slug.length > 64 || !SLUG_RE.test(slug)) {
     fail(
       "VALIDATION_FAILED",
       "Slug kelas harus 3–64 karakter huruf kecil/angka dipisah tanda minus"
+    );
+  }
+}
+
+/** Materi slug — the canonical /k/<tenant>/materi/<slug> segment. */
+export function assertMateriSlug(slug: string): void {
+  if (slug.length < 3 || slug.length > 64 || !SLUG_RE.test(slug)) {
+    fail(
+      "VALIDATION_FAILED",
+      "Slug materi harus 3–64 karakter huruf kecil/angka dipisah tanda minus"
     );
   }
 }

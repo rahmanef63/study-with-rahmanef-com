@@ -1,17 +1,22 @@
 "use client";
 
-// The interactive course overview — ported from the OS Kelas app (KelasCourse's
-// overview pane + MemberOverview). Nothing about the syllabus is reimplemented:
-// this only resolves tenant + membership and feeds CourseOverviewView its slots.
-// It has to be a client island because membership (viewerRole) is only knowable
-// over the authenticated socket — server components here are always anonymous.
+// The interactive course overview. Nothing about the silabus is reimplemented:
+// this only resolves tenant + membership and feeds CourseOverviewView its
+// slots. It has to be a client island because membership (viewerRole) is only
+// knowable over the authenticated socket — server components here are always
+// anonymous, and a function prop (the href builders below) cannot cross the
+// server→client boundary at all.
+//
+// MATERI MODEL (DECISIONS #37): the silabus is a FLAT ordered list of materi,
+// and the course's quizzes are its last rows — there is no module to hang a
+// quiz CTA on any more.
 import type { Id } from "@convex/_generated/dataModel";
 import { CourseOverviewView, useCourseOverview } from "@/features/courses";
 import { CourseProgress, useCourseProgress } from "@/features/progress";
+import { CourseQuizList } from "@/features/quiz";
 import { JoinButton, useTenantBySlug } from "@/features/tenants";
 import { Skeleton } from "@/components/ui/skeleton";
 import { communityHref } from "@/lib/community";
-import { ModuleQuizEntry } from "./module-quiz-entry";
 import { SumberBelajarCard } from "./sumber-belajar-card";
 
 type Target = { slug: string; courseSlug: string };
@@ -26,9 +31,9 @@ function SilabusSkeleton() {
   );
 }
 
-/** Member view — layers progress (ring + ticks) and the per-module quiz CTA onto
+/** Member view — layers progress (ring + ticks) and the course's quizzes onto
  *  the shared overview. Mounts only for members, so the member-gated progress
- *  query never fires for anonymous viewers. */
+ *  and quiz queries never fire for anonymous viewers. */
 function MemberSilabus({
   tenantId,
   courseId,
@@ -44,22 +49,17 @@ function MemberSilabus({
       completedLessonIds={progress?.completedLessonIds}
       progressSlot={<CourseProgress courseId={courseId} />}
       aboveSyllabusSlot={<SumberBelajarCard slug={slug} />}
-      renderModuleFooter={(m) => (
-        <ModuleQuizEntry
-          moduleId={m._id}
-          title={m.title}
-          href={communityHref.quiz(slug, courseSlug, m._id)}
+      quizSlot={
+        <CourseQuizList
+          courseId={courseId}
+          quizHref={(quizId) => communityHref.quiz(slug, courseSlug, quizId)}
         />
-      )}
+      }
     />
   );
 }
 
-function SilabusBody({
-  tenantId,
-  slug,
-  courseSlug,
-}: Target & { tenantId: Id<"tenants"> }) {
+function SilabusBody({ tenantId, slug, courseSlug }: Target & { tenantId: Id<"tenants"> }) {
   // Deduped with CourseOverviewView's own read (same Convex query + args); we
   // need it here to branch on membership and to reach course._id for progress.
   const overview = useCourseOverview(tenantId, courseSlug);

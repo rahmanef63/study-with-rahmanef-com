@@ -1,19 +1,20 @@
-// courses feature — member/public read surface.
-// Access rules (docs/DATA-MODEL.md): course title/description/syllabus are
-// PUBLIC etalase; lesson CONTENT requires membership; drafts are invisible to
-// everyone below instructor IN THE QUERY ITSELF (R4 — not just the UI).
+// courses feature — member/public read surface, on the MATERI model.
+// A course is an ordered list of placements (`courseLessons`), not a tree; the
+// materi visibility rule lives in ./access.ts and is quoted there in full.
 // Every query: v.* validators; authz/visibility gate before any data leaves.
 //
 // ANONYMOUS ETALASE WHITELIST (AGENTS.md §6): listPublished, getOverview —
-// published/active rows only via index, safe projection, no auth by design.
-import { legacyCourseId, legacyOrder } from "../../_shared/legacyLesson";
+// published/active rows only, safe projection, no auth by design. getOverview
+// reaches each materi by id through its placement index; the by-id `get` then
+// RE-CHECKS the materi status the index range would have enforced, BEFORE
+// projecting (P0 permalink carve-out).
 import { v } from "convex/values";
-import type { Doc } from "../../_generated/dataModel";
+import type { Doc, Id } from "../../_generated/dataModel";
 import { query } from "../../_generated/server";
 import { requireActiveTenantById, requireTenantRole, requireUser } from "../../_shared/auth";
-import { getViewerRole, isInstructorPlus } from "./access";
+import { canSeeMateri, getViewerRole, isInstructorPlus, listPlacements } from "./access";
 import { fail } from "./errors";
-import { LIST_TAKE, MAX_LESSONS_PER_COURSE, MAX_MODULES_PER_COURSE } from "./validate";
+import { LIST_TAKE } from "./validate";
 
 /** Projection: safe public card shape (no createdBy leak of internal shape). */
 function toCourseCard(course: Doc<"courses">) {
@@ -48,11 +49,12 @@ export const listPublished = query({
 });
 
 /**
- * Course overview + syllabus for /t/[slug]/kelas/[kelasSlug].
+ * Course overview + FLAT ordered materi list for /k/[slug]/kelas/[courseSlug].
  * Public for PUBLISHED courses (title/silabus etalase). Draft/archived:
  * instructor+ only — everyone else gets NOT_FOUND (no existence leak).
- * Syllabus lessons are PROJECTED (title/order/hasVideo) — contentMd,
- * youtubeVideoId and links never leave via this query.
+ * Materi rows are PROJECTED (title/slug/order/hasVideo) — contentMd,
+ * youtubeVideoId and links never leave via this query; draft materi are
+ * filtered out for everyone below instructor.
  */
 export const getOverview = query({
   args: { tenantId: v.id("tenants"), courseSlug: v.string() },
@@ -70,30 +72,22 @@ export const getOverview = query({
       fail("NOT_FOUND", "Kelas tidak ditemukan"); // drafts invisible in the QUERY
     }
 
-    const modules = await ctx.db
-      .query("modules")
-      .withIndex("by_course", (q) => q.eq("courseId", course._id))
-      .take(MAX_MODULES_PER_COURSE);
-    const lessons = await ctx.db
-      .query("lessons")
-      .withIndex("by_course", (q) => q.eq("courseId", course._id))
-      .take(MAX_LESSONS_PER_COURSE);
-
-    const sortedModules = [...modules].sort((a, b) => legacyOrder(a) - legacyOrder(b));
-    const syllabus = sortedModules.map((mod) => ({
-      _id: mod._id,
-      title: mod.title,
-      order: mod.order,
-      lessons: lessons
-        .filter((lesson) => lesson.moduleId === mod._id)
-        .sort((a, b) => legacyOrder(a) - legacyOrder(b))
-        .map((lesson) => ({
-          _id: lesson._id,
-          title: lesson.title,
-          order: lesson.order,
-          hasVideo: lesson.youtubeVideoId !== undefined,
-        })),
-    }));
+    const placements = await listPlacements(ctx, course._id); // already ordered
+    const lessons = [];
+    for (const placement of placements) {
+      const lesson = await ctx.db.get(placement.lessonId);
+      // A placement can outlive nothing — deleteLesson removes its placements —
+      // but a null read must never break the etalase of an entire course.
+      if (lesson === null) continue;
+      if (!canSeeMateri(lesson, viewerRole)) continue; // draft materi hidden
+      lessons.push({
+        _id: lesson._id,
+        title: lesson.title,
+        slug: lesson.slug ?? null, // null = pre-migration row, use the id route
+        order: placement.order,
+        hasVideo: lesson.youtubeVideoId !== undefined,
+      });
+    }
 
     return {
       course: {
@@ -101,56 +95,91 @@ export const getOverview = query({
         status: course.status,
         tenantId: course.tenantId,
       },
-      modules: syllabus,
-      viewerRole,
+      lessons,
       lessonCount: lessons.length,
+      viewerRole,
     };
   },
 });
 
 /**
- * Full lesson content for the player — MEMBER-ONLY (R3: konten butuh join).
- * requireUser runs BEFORE the lesson read (no existence oracle), then
- * requireTenantRole(member); drafts additionally require
- * instructor+ and read as NOT_FOUND for plain members.
+ * Full materi content — MEMBER-ONLY (R3: konten butuh join).
+ * Authorization is on the MATERI'S OWN TENANT and the MATERI'S status, never
+ * on a course: requireUser BEFORE the read (no existence oracle), then
+ * requireTenantRole(member), then the visibility rule from ./access.ts.
+ *
+ * `courseId` is READING CONTEXT only, for the in-course route
+ * /k/<tenant>/kelas/<courseSlug>/<lessonId>: it selects which course's
+ * prev/next path to walk. Omit it and the first placement is used; a materi
+ * with no placement simply reads with a null course context. A course the
+ * viewer may not see (draft, viewer below instructor) yields NO context rather
+ * than hiding the materi — the course page is gated, the materi is not.
  */
 export const getLesson = query({
-  args: { lessonId: v.id("lessons") },
+  args: { lessonId: v.id("lessons"), courseId: v.optional(v.id("courses")) },
   handler: async (ctx, args) => {
     await requireUser(ctx); // auth BEFORE read (review fix #2)
     const lesson = await ctx.db.get(args.lessonId);
-    if (lesson === null) fail("NOT_FOUND", "Lesson tidak ditemukan");
+    if (lesson === null) fail("NOT_FOUND", "Materi tidak ditemukan");
     const { membership } = await requireTenantRole(ctx, lesson.tenantId, "member");
-
-    const course = await ctx.db.get(legacyCourseId(lesson));
-    if (course === null) fail("NOT_FOUND", "Kelas tidak ditemukan");
-    if (course.status !== "published" && membership.role === "member") {
-      fail("NOT_FOUND", "Lesson tidak ditemukan"); // draft invisible to members
+    const role = membership.role;
+    if (!canSeeMateri(lesson, role)) {
+      fail("NOT_FOUND", "Materi tidak ditemukan"); // draft invisible to members
     }
 
-    // Prev/next within the module for player navigation (bounded by_module).
-    const siblings = await ctx.db
-      .query("lessons")
-      .withIndex("by_module", (q) => q.eq("moduleId", lesson.moduleId))
-      .take(MAX_LESSONS_PER_COURSE);
-    const ordered = [...siblings].sort((a, b) => legacyOrder(a) - legacyOrder(b));
-    const index = ordered.findIndex((l) => l._id === lesson._id);
+    const wantedCourseId = args.courseId;
+    const placement =
+      wantedCourseId !== undefined
+        ? await ctx.db
+            .query("courseLessons")
+            .withIndex("by_course_lesson", (q) =>
+              q.eq("courseId", wantedCourseId).eq("lessonId", lesson._id)
+            )
+            .unique()
+        : await ctx.db
+            .query("courseLessons")
+            .withIndex("by_lesson", (q) => q.eq("lessonId", lesson._id))
+            .first();
+
+    const course = placement === null ? null : await ctx.db.get(placement.courseId);
+    const courseVisible =
+      course !== null &&
+      course.tenantId === lesson.tenantId &&
+      (course.status === "published" || isInstructorPlus(role));
+
+    // Prev/next walk the placements of THIS course, skipping materi the viewer
+    // may not open — a member must never be handed a link into a draft.
+    let prevLessonId: Id<"lessons"> | null = null;
+    let nextLessonId: Id<"lessons"> | null = null;
+    if (courseVisible && course !== null) {
+      const siblings = await listPlacements(ctx, course._id);
+      const visible: Array<Id<"lessons">> = [];
+      for (const sibling of siblings) {
+        const doc = await ctx.db.get(sibling.lessonId);
+        if (doc !== null && canSeeMateri(doc, role)) visible.push(doc._id);
+      }
+      const index = visible.indexOf(lesson._id);
+      if (index > 0) prevLessonId = visible[index - 1];
+      if (index >= 0 && index < visible.length - 1) nextLessonId = visible[index + 1];
+    }
 
     return {
       _id: lesson._id,
-      courseId: lesson.courseId,
-      moduleId: lesson.moduleId,
       tenantId: lesson.tenantId,
       title: lesson.title,
+      slug: lesson.slug ?? null,
+      status: lesson.status ?? "published",
       youtubeVideoId: lesson.youtubeVideoId,
       contentMd: lesson.contentMd,
+      contentBlocks: lesson.contentBlocks,
       links: lesson.links,
-      order: lesson.order,
-      courseSlug: course.slug,
-      courseTitle: course.title,
-      prevLessonId: index > 0 ? ordered[index - 1]._id : null,
-      nextLessonId:
-        index >= 0 && index < ordered.length - 1 ? ordered[index + 1]._id : null,
+      courseId: courseVisible && course !== null ? course._id : null,
+      courseSlug: courseVisible && course !== null ? course.slug : null,
+      courseTitle: courseVisible && course !== null ? course.title : null,
+      order: courseVisible && placement !== null ? placement.order : null,
+      prevLessonId,
+      nextLessonId,
+      viewerRole: role,
     };
   },
 });

@@ -1,7 +1,7 @@
 {
   "$schema": "../../docs/slice.manifest.schema.json",
   "name": "courses",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Course → module → lesson CRUD (instructor+) + member lesson player (YouTube embed + safe markdown + links) for belajar-with-rahmanef.com. Drafts invisible to members at the query layer; youtubeVideoId validated as an 11-char ID in the mutation (P0).",
   "category": "lms",
   "stability": "beta",
@@ -23,8 +23,8 @@
   "permissions": ["courses.read", "courses.manage"],
   "schemaTables": [
     { "name": "courses", "namespaced": false, "indexes": ["by_tenant", "by_tenant_slug", "by_tenant_status"] },
-    { "name": "modules", "namespaced": false, "indexes": ["by_course"] },
-    { "name": "lessons", "namespaced": false, "indexes": ["by_module", "by_course"] }
+    { "name": "lessons", "namespaced": false, "indexes": ["by_tenant_slug", "by_tenant_status"] },
+    { "name": "courseLessons", "namespaced": false, "indexes": ["by_course", "by_lesson", "by_course_lesson"] }
   ],
   "compatibility": {
     "next": ">=15 <17",

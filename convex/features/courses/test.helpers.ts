@@ -2,6 +2,8 @@
 // Shared fixture for courses convex-test specs (pattern: convex/seed.test.ts).
 // Roles covered: owner / instructor / member / outsider (no membership) —
 // every spec exercises the authz-denied path with these (DoD §5.2, P0).
+// MATERI model: a course owns nothing; `courseLessons` places tenant-level
+// materi into it, so the fixtures seed the two separately.
 import { convexTest } from "convex-test";
 import type { Id } from "../../_generated/dataModel";
 import schema from "../../schema";
@@ -54,21 +56,62 @@ export async function seedTenantFixture(t: T): Promise<TenantFixture> {
   });
 }
 
+/** A standalone materi — in NO course until placeMateri puts it in one. */
+export async function seedMateri(
+  t: T,
+  fx: TenantFixture,
+  opts: {
+    title?: string;
+    slug?: string;
+    status?: "draft" | "published";
+    /** undefined = a pre-migration row: no `status` column at all. */
+    omitStatus?: boolean;
+    withVideo?: boolean;
+  } = {}
+): Promise<Id<"lessons">> {
+  const title = opts.title ?? "Materi 1";
+  return await t.run(async (ctx) =>
+    ctx.db.insert("lessons", {
+      tenantId: fx.tenantId,
+      title,
+      slug: opts.slug ?? title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+      status: opts.omitStatus === true ? undefined : (opts.status ?? "published"),
+      authorId: fx.instructorId,
+      youtubeVideoId: opts.withVideo === false ? undefined : "dQw4w9WgXcQ",
+      contentMd: `# ${title}\n\nMateri pertama.`,
+      links: [{ label: "Dokumentasi", url: "https://example.com/docs" }],
+    })
+  );
+}
+
+/** Place a materi into a course at `order`. */
+export async function placeMateri(
+  t: T,
+  fx: TenantFixture,
+  courseId: Id<"courses">,
+  lessonId: Id<"lessons">,
+  order = 1
+): Promise<Id<"courseLessons">> {
+  return await t.run(async (ctx) =>
+    ctx.db.insert("courseLessons", { tenantId: fx.tenantId, courseId, lessonId, order })
+  );
+}
+
 export type CourseFixture = {
   courseId: Id<"courses">;
-  moduleId: Id<"modules">;
   lessonId: Id<"lessons">;
+  placementId: Id<"courseLessons">;
 };
 
-/** Course + 1 module + 1 lesson, in the given status, owned by the fixture instructor. */
+/** Course in the given status + one PUBLISHED materi placed at order 1. */
 export async function seedCourse(
   t: T,
   fx: TenantFixture,
   status: "draft" | "published" | "archived",
   slug = `kelas-${status}`
 ): Promise<CourseFixture> {
-  return await t.run(async (ctx) => {
-    const courseId = await ctx.db.insert("courses", {
+  const courseId = await t.run(async (ctx) =>
+    ctx.db.insert("courses", {
       tenantId: fx.tenantId,
       slug,
       title: `Kelas ${status}`,
@@ -76,23 +119,9 @@ export async function seedCourse(
       coverImageUrl: "https://example.com/cover.jpg",
       status,
       createdBy: fx.instructorId,
-    });
-    const moduleId = await ctx.db.insert("modules", {
-      tenantId: fx.tenantId,
-      courseId,
-      title: "Modul 1",
-      order: 1,
-    });
-    const lessonId = await ctx.db.insert("lessons", {
-      tenantId: fx.tenantId,
-      courseId,
-      moduleId,
-      title: "Lesson 1",
-      youtubeVideoId: "dQw4w9WgXcQ",
-      contentMd: "# Halo\n\nMateri pertama.",
-      links: [{ label: "Dokumentasi", url: "https://example.com/docs" }],
-      order: 1,
-    });
-    return { courseId, moduleId, lessonId };
-  });
+    })
+  );
+  const lessonId = await seedMateri(t, fx, { title: "Materi 1", slug: `materi-1-${slug}` });
+  const placementId = await placeMateri(t, fx, courseId, lessonId, 1);
+  return { courseId, lessonId, placementId };
 }

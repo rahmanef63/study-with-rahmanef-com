@@ -9,6 +9,7 @@ import { RECENT_TAKE } from "./recents";
 import {
   asUser,
   seedCourseWithLessons,
+  seedMateri,
   seedTenantFixture,
   setup,
   type T,
@@ -78,6 +79,26 @@ test("kelas draft/arsip & tenant non-active tidak meninggalkan kartu mati", asyn
     await ctx.db.patch(fx.tenantId, { status: "suspended" });
   });
   expect(await t.withIdentity(asUser(fx.memberId)).query(fn, {})).toEqual([]);
+});
+
+test("materi pustaka (tanpa penempatan kelas) dilewati, bukan bikin query gagal", async () => {
+  const t = setup();
+  const fx = await seedTenantFixture(t);
+  const pub = await seedCourseWithLessons(t, fx, "published", 1, "kelas-pub");
+  // Materi yang cuma ada di pustaka: tidak ada baris courseLessons sama sekali,
+  // dan tidak ada courseId legacy di penyelesaiannya.
+  const orphan = await seedMateri(t, fx, { slug: "materi-pustaka" });
+  await t.run(async (ctx) => {
+    await ctx.db.insert("lessonCompletions", {
+      tenantId: fx.tenantId,
+      userId: fx.memberId,
+      lessonId: orphan,
+    });
+  });
+  await complete(t, fx, fx.memberId, pub.courseId, pub.lessonIds[0]);
+
+  const rows = await t.withIdentity(asUser(fx.memberId)).query(fn, {});
+  expect(rows.map((r) => r.courseSlug)).toEqual(["kelas-pub"]);
 });
 
 test("output dibatasi RECENT_TAKE meski kelas lebih banyak", async () => {

@@ -135,3 +135,25 @@ flowchart TD
   CLI --> CVX
   RT --> META["generateMetadata + opengraph-image<br/>tiap halaman yang bisa dibagikan"]
 ```
+
+---
+
+## Addendum 2026-08-10 — MATERI first-class, SUPERSEDE #32 (bagian modul)
+
+Owner: *"aku akan share banyak pelajaran… materi sub agents akan muncul di course claude code dan course
+hermes… jadi bisa di beri tag… org lain juga boleh share… medianya pakai kit seperti page notion."*
+Model lama tidak bisa memenuhinya: satu lesson dimiliki satu modul dari satu kelas, jadi "muncul di dua
+kelas" hanya bisa dicapai dengan menyalin — dan dua salinan langsung menyimpang.
+
+| # | Topik | Keputusan | Catatan |
+|---|---|---|---|
+| 36 | Kepemilikan pelajaran | **Materi dimiliki TENANT**, bukan kelas | `lessons` dapat `slug` (permalink `/k/<t>/materi/<slug>`), `status`, `authorId`. Visibilitas materi ditentukan `lessons.status`; draft KELAS menggating halaman kelas saja. Berbagi lintas komunitas DITOLAK untuk sekarang (pilihan owner: "dalam satu komunitas dulu"). |
+| 37 | Struktur kelas | **Modul DIBUANG** — kelas = daftar materi berurutan | Pilihan owner. `courseLessons {courseId, lessonId, order}` = penempatan; satu materi boleh di banyak kelas. `modules` pensiun; kuis pindah dari modul ke kelas. Penyelesaian jadi `(userId, lessonId)` — `courseId` turun jadi provenance opsional, kalau tidak progres materi bersama terhitung dua kali. |
+| 38 | Format isi | **Markdown + blok JSON opsional**, satu jalur tulis | Pilihan owner. Risiko yang dinyatakan di muka: dua sumber kebenaran. Ditutup secara struktural, bukan dengan disiplin — `contentBlocks` KANONIK kalau ada, `contentMd` DITURUNKAN darinya di transaksi yang sama (`materi/content.saveContent`, serialiser milik slice sendiri agar editor dan server memakai grammar yang sama). `updateLesson` menolak `contentMd` begitu blok ada. `contentMd` tetap yang di-index pencarian dan yang dibaca pembaca. |
+| 39 | Editor | `slices/notion-app` (katalog rr), **instructor-only, `ssr:false`** | Reuse, bukan bikin sendiri (permintaan owner: "gunakan framework dan library yg sudah ada"). Dibuktikan tidak masuk chunk halaman baca — `@dnd-kit` hanya muncul di satu chunk yang tidak dirujuk manifest rute mana pun kecuali editor. |
+| 40 | Hierarki menu | Tab **Materi memimpin**, bar ponsel tetap 5 sel | Materi · Kelas · Diskusi · Anggota · Lainnya; Peringkat/Kalender/Tentang turun ke sheet. Tujuh tab tidak muat di ponsel, dan materi kini pusat gravitasi produk. |
+
+**Migrasi (disiplin yang sama seperti pageviews & boards):** widen → backfill → verifikasi `remaining` = 0
+→ pindahkan pembaca → purge → drop. Step 1 (widen+backfill) live 2026-08-09: 11 kelas, 76 materi,
+76 penempatan. Step 2 (pindah 10 pembaca) = wave ini. Step 3 (cabut `modules` + `courseId/moduleId/order`)
+menyusul setelah step 2 terbukti sehat di produksi.

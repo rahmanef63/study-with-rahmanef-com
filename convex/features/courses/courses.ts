@@ -103,8 +103,8 @@ export const update = mutation({
 
 /**
  * Status transitions: draft ↔ published → archived.
- * Publishing requires ≥1 lesson (empty-course footgun guard) — single
- * indexed .first() probe, bounded.
+ * Publishing requires ≥1 PLACED materi (empty-course footgun guard) — single
+ * indexed .first() probe on courseLessons, bounded.
  */
 export const setStatus = mutation({
   args: {
@@ -114,12 +114,12 @@ export const setStatus = mutation({
   handler: async (ctx, args) => {
     const { course } = await requireInstructorForCourse(ctx, args.courseId);
     if (args.status === "published" && course.status !== "published") {
-      const anyLesson = await ctx.db
-        .query("lessons")
+      const anyPlacement = await ctx.db
+        .query("courseLessons")
         .withIndex("by_course", (q) => q.eq("courseId", course._id))
         .first();
-      if (anyLesson === null) {
-        fail("VALIDATION_FAILED", "Tambahkan minimal satu lesson sebelum menerbitkan kelas");
+      if (anyPlacement === null) {
+        fail("VALIDATION_FAILED", "Tambahkan minimal satu materi sebelum menerbitkan kelas");
       }
     }
     await ctx.db.patch(course._id, { status: args.status });

@@ -1,27 +1,36 @@
 "use client";
 // quiz slice — read hooks (reactive client state per rr data-fetching rules;
-// never fetch in useEffect). Returns are cast to the slice's projection types
-// — api.d.ts is untyped until `npx convex dev` regenerates it (docs/STATUS.md
-// row #0 note); casts stay valid after codegen.
+// never fetch in useEffect). Returns are cast to the slice's projection types.
+//
+// MIGRATION (DECISIONS #37): a quiz is addressed by its OWN id. A course's
+// quizzes are discovered with useQuizzesForCourse, then opened by quizId.
 import { useQuery } from "convex/react";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
-import type { MyAttemptRow, QuizManageData, QuizTakingData } from "../types";
+import type { CourseQuizRow, MyAttemptRow, QuizManageData, QuizTakingData } from "../types";
 
-/** Answer-stripped quiz for a member to take (null when the module has none). */
-export function useQuizForTaking(moduleId: Id<"modules"> | undefined) {
+/** Answer-stripped quiz for a member to take. */
+export function useQuizForTaking(quizId: Id<"quizzes"> | undefined) {
   return useQuery(
     api.features.quiz.taking.getQuizForTaking,
-    moduleId === undefined ? "skip" : { moduleId }
-  ) as QuizTakingData | null | undefined;
+    quizId === undefined ? "skip" : { quizId }
+  ) as QuizTakingData | undefined;
 }
 
-/** Full quiz for the builder — instructor+ (null when none yet). */
-export function useQuizForManage(moduleId: Id<"modules"> | undefined) {
+/** A course's quizzes — titles/counts only, member+ (instructor+ sees drafts). */
+export function useQuizzesForCourse(courseId: Id<"courses"> | undefined | null) {
+  return useQuery(
+    api.features.quiz.taking.listQuizzesForCourse,
+    courseId == null ? "skip" : { courseId }
+  ) as CourseQuizRow[] | undefined;
+}
+
+/** Full quiz for the builder — instructor+. */
+export function useQuizForManage(quizId: Id<"quizzes"> | undefined) {
   return useQuery(
     api.features.quiz.manage.getForManage,
-    moduleId === undefined ? "skip" : { moduleId }
-  ) as QuizManageData | null | undefined;
+    quizId === undefined ? "skip" : { quizId }
+  ) as QuizManageData | undefined;
 }
 
 /** The caller's own attempts for a quiz, newest first. */

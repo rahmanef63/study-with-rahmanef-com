@@ -8,10 +8,13 @@ import { safeQuery } from "@/lib/convex-server";
 import { absoluteUrl } from "@/lib/site";
 import { SilabusKelas } from "../_components/silabus-kelas";
 
-// Silabus — the course overview. The syllabus is public etalase, so the title,
-// description and module/lesson titles are server-rendered for crawlers and
-// metadata; everything membership-aware (progress, quiz CTAs, join) hydrates in
+// Silabus — the course overview. The silabus is public etalase, so the title,
+// description and materi titles are server-rendered for crawlers and metadata;
+// everything membership-aware (progress, quizzes, join) hydrates in
 // <SilabusKelas/> below.
+//
+// MATERI MODEL (DECISIONS #37): getOverview returns a FLAT ordered materi list
+// — there is no module tree left to nest here.
 type Params = { slug: string; courseSlug: string };
 
 /** getOverview keys on tenantId, so this is two serial anonymous reads:
@@ -52,7 +55,7 @@ export async function generateMetadata({
 }
 
 /**
- * Server copy of the course: the same title/description/syllabus the hydrated
+ * Server copy of the course: the same title/description/silabus the hydrated
  * view renders, in the HTML response.
  *
  * Visually hidden AND out of the a11y tree on purpose — <CourseOverviewView>
@@ -63,22 +66,15 @@ export async function generateMetadata({
 async function KelasHeader({ slug, courseSlug }: Params) {
   const overview = await getKelas(slug, courseSlug);
   if (overview === null) return null;
-  const { course, modules } = overview;
+  const { course, lessons } = overview;
   return (
     <div className="mb-4">
       <div className="sr-only" aria-hidden>
         <h1>{course.title}</h1>
         {course.description ? <p>{course.description}</p> : null}
         <ol>
-          {modules.map((m) => (
-            <li key={m._id}>
-              {m.title}
-              <ul>
-                {m.lessons.map((l) => (
-                  <li key={l._id}>{l.title}</li>
-                ))}
-              </ul>
-            </li>
+          {lessons.map((lesson) => (
+            <li key={lesson._id}>{lesson.title}</li>
           ))}
         </ol>
       </div>

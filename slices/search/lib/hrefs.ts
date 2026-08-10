@@ -17,6 +17,15 @@ export function buildLessonHref(
 }
 
 /**
+ * CANONICAL materi permalink. A materi is tenant content, so its shareable URL
+ * is slug-based and course-independent; mirrors the notification href built in
+ * convex/features/comments/notify.ts materiHref — the two must never drift.
+ */
+export function buildMateriHref(tenantSlug: string, lessonSlug: string): string {
+  return `/k/${encodeURIComponent(tenantSlug)}/materi/${encodeURIComponent(lessonSlug)}`;
+}
+
+/**
  * Diskusi post permalink. Mirrors convex/features/posts/notify.ts postHref —
  * the notification deep-link and the search deep-link must never drift.
  */
@@ -33,5 +42,8 @@ export function hitHref(tenantSlug: string, hit: SearchHit): string {
   if (hit.kind === "post") return buildPostHref(tenantSlug, hit.postId);
   return hit.kind === "course"
     ? buildCourseHref(tenantSlug, hit.courseSlug)
-    : buildLessonHref(tenantSlug, hit.courseSlug, hit.lessonId);
+    : // A materi hit routes to its CANONICAL page, not through whichever course
+      // happens to teach it (DECISIONS #36/#37). The server drops unslugged
+      // rows, so `lessonSlug` is always present on a hit that reaches here.
+      buildMateriHref(tenantSlug, hit.lessonSlug);
 }

@@ -28,7 +28,13 @@ export { useTenantSearch, type TenantSearchState } from "./hooks/use-tenant-sear
 export { useDebouncedValue } from "./hooks/use-debounced-value";
 
 // lib (pure — safe for server or client)
-export { buildCourseHref, buildLessonHref, buildPostHref, hitHref } from "./lib/hrefs";
+export {
+  buildCourseHref,
+  buildLessonHref,
+  buildMateriHref,
+  buildPostHref,
+  hitHref,
+} from "./lib/hrefs";
 
 // copy (props-driven defaults)
 export {

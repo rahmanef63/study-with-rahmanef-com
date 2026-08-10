@@ -39,8 +39,16 @@ describe("barrel type contract (compile-time, enforced by tsc)", () => {
     // progress (#3) consumes these shapes:
     expectTypeOf<Barrel.LessonViewData>().toHaveProperty("contentMd");
     expectTypeOf<Barrel.LessonViewData>().toHaveProperty("nextLessonId");
-    expectTypeOf<Barrel.SyllabusModuleData>().toHaveProperty("lessons");
     expectTypeOf<Barrel.CourseCardData>().toHaveProperty("slug");
+    // MATERI MODEL (DECISIONS #37): the silabus is FLAT — the overview carries
+    // `lessons`, never `modules`, and a syllabus row is a materi.
+    expectTypeOf<Barrel.CourseOverviewData>().toHaveProperty("lessons");
+    expectTypeOf<Barrel.SyllabusLessonData>().toHaveProperty("slug");
+    expectTypeOf<Barrel.SyllabusListProps>().toHaveProperty("lessons");
+    // the editor works on PLACEMENTS, not on a tree
+    expectTypeOf<Barrel.CourseManageData>().toHaveProperty("lessons");
+    expectTypeOf<Barrel.ManagePlacementRow>().toHaveProperty("placementId");
+    expectTypeOf<typeof Barrel.usePlacementMutations>().toBeFunction();
     // completion seam: SyllabusList accepts completedLessonIds
     expectTypeOf<Barrel.SyllabusListProps>().toHaveProperty("completedLessonIds");
     expectTypeOf<Barrel.LessonViewProps>().toHaveProperty("completionSlot");

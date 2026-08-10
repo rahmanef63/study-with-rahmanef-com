@@ -31,6 +31,89 @@
   --shadow-lg: 6px 6px 0 0 var(--pixel-shadow);
   --shadow-xl: 8px 8px 0 0 var(--pixel-shadow);
   --shadow-2xl: 10px 10px 0 0 var(--pixel-shadow);
+
+  /* ── THE TYPE SCALE ───────────────────────────────────────────────────────
+     ONE ramp for the whole app. Two rules, and they are not negotiable:
+
+       1. Never write an arbitrary size (`text-[15px]`, `text-[0.8rem]`) and
+          never pair a size with a hand-picked leading (`text-sm/relaxed`).
+          Every step below already carries a deliberate line-height AND
+          letter-spacing, so `text-sm` is a finished decision, not a starting
+          point. That pairing is the whole reason this block exists: the
+          "too web" complaint was 30 screens each inventing their own leading.
+       2. Press Start 2P (`font-display`) is DISPLAY ONLY and tops out around
+          1.5rem — see the h1/h2 clamps below.
+
+     The rem values are Tailwind's own (a measured pass already settled the
+     SIZES; this pass settles the RHYTHM), so no existing call site changes
+     size — they only inherit leading and tracking. Pixelify Sans is a pixel
+     face: its counters close up when it is tracked tight, so small steps get
+     POSITIVE tracking and only the big steps go negative. */
+  --text-xs--line-height: 1.5;
+  --text-xs--letter-spacing: 0.02em;
+  --text-sm--line-height: 1.55;
+  --text-sm--letter-spacing: 0.012em;
+  --text-base--line-height: 1.7;
+  --text-base--letter-spacing: 0.004em;
+  --text-lg--line-height: 1.5;
+  --text-lg--letter-spacing: 0em;
+  --text-xl--line-height: 1.35;
+  --text-xl--letter-spacing: -0.006em;
+  --text-2xl--line-height: 1.25;
+  --text-2xl--letter-spacing: -0.012em;
+  --text-3xl--line-height: 1.2;
+  --text-3xl--letter-spacing: -0.016em;
+  --text-4xl--line-height: 1.15;
+  --text-4xl--letter-spacing: -0.02em;
+
+  /* Semantic steps. Prefer these over the t-shirt sizes at NEW call sites —
+     `text-title` says what a list-row title is, `text-lg` says how big it
+     happens to be today. They are aliases into the same ramp, so mixing the
+     two families can never produce a size that is off the scale.
+       caption  — timestamps, counts, meta under a row
+       footnote — helper text under a field, list-group footers
+       body     — the default reading size (== text-base)
+       title    — a list-row / card title in the BODY face (never Press Start)
+       headline — a section lead-in, the largest non-display step */
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.45;
+  --text-caption--letter-spacing: 0.03em;
+  --text-footnote: 0.8125rem;
+  --text-footnote--line-height: 1.55;
+  --text-footnote--letter-spacing: 0.016em;
+  --text-body: 1rem;
+  --text-body--line-height: 1.7;
+  --text-body--letter-spacing: 0.004em;
+  /* Deliberately the SAME SIZE as body, exactly like an iOS row title: a title
+     is distinguished by weight and by its tighter leading, not by being bigger.
+     Bumping it even 6% costs real characters inside a `line-clamp-2` — measured
+     on the kelas grid, where 1.0625rem turned "Prompt Engineering Praktis" into
+     "Prompt Engineering…". */
+  --text-title: 1rem;
+  --text-title--line-height: 1.3;
+  --text-title--letter-spacing: 0em;
+  --text-headline: 1.375rem;
+  --text-headline--line-height: 1.25;
+  --text-headline--letter-spacing: -0.01em;
+
+  /* The two DISPLAY steps. Only ever combined with `font-display`. Press Start
+     2P is a fixed-width all-caps face at roughly 2x the advance width of the
+     body face, so these numbers look absurdly small written down and are not:
+     `text-marquee` renders about as wide as a 1.5rem sans line. */
+  --text-marquee: 0.8125rem;
+  --text-marquee--line-height: 1.6;
+  --text-marquee--letter-spacing: 0.06em;
+  --text-marquee-lg: 1.125rem;
+  --text-marquee-lg--line-height: 1.45;
+  --text-marquee-lg--letter-spacing: 0.02em;
+
+  /* The two leadings the app is allowed to have, as tokens rather than as
+     numbers scattered through components. UI is what everything inherits from
+     <body>; PROSE is what `p`/`li` and long-form content override to. Reach for
+     `leading-ui` / `leading-prose` if you ever need to restate one explicitly —
+     never a bare `leading-relaxed`, which means nothing here. */
+  --leading-ui: 1.55;
+  --leading-prose: 1.7;
 }
 
 /* ── Arcade type system ─────────────────────────────────────────────────────
@@ -65,10 +148,12 @@
     -webkit-font-smoothing: none;
     font-smooth: never;
   }
-  /* Long-form Indonesian prose in a pixel face needs air to stay readable. */
+  /* Long-form Indonesian prose in a pixel face needs air to stay readable.
+     Same number as --text-body--line-height; the token is the source of truth
+     and this is the fallback for prose that never gets a size utility. */
   p,
   li {
-    line-height: 1.7;
+    line-height: var(--leading-prose);
   }
   /* Sprites and cover art keep their grid instead of being bilinear-blurred. */
   img[data-pixel],
@@ -84,14 +169,71 @@
   .text-pretty {
     text-wrap: pretty;
   }
-  /* Arcade label — the "1UP / HI-SCORE" strip above a heading. */
+  /* Arcade label — the "1UP / HI-SCORE" strip above a heading. Also the
+     section header of an inset-grouped list (see ListSectionHeader). */
   .eyebrow {
     font-family: var(--font-display);
-    font-size: 0.75rem;
+    font-size: var(--text-caption);
     font-weight: 600;
     letter-spacing: 0.14em;
+    line-height: 1.6;
     text-transform: uppercase;
     color: var(--color-muted-foreground);
+  }
+
+  /* ── INSET-GROUPED LIST ───────────────────────────────────────────────────
+     The structural half of components/ui/list.tsx. Kept in CSS, not in the
+     component, for one reason: the separator is drawn by the GROUP, with
+     `> * + *::before`, so it is impossible to render a list whose last row has
+     a dangling rule under it — the failure mode of every hand-rolled
+     `divide-y` variant in this repo. Conditional rows, `.map()` with a filter,
+     a single-row group: all correct by construction.
+
+     Contract for callers:
+       --list-bleed  how far the group escapes the page gutter on a phone.
+                     Defaults to 1rem because every page in this app is px-4.
+                     A page on a wider gutter sets it: `[--list-bleed:1.5rem]`.
+       --list-inset  where the hairline starts. Defaults to 1rem = flush with
+                     the row's text. A list with leading icons wants
+                     `[--list-inset:3.75rem]` so the rule starts after them,
+                     which is the detail that makes it read as iOS and not as
+                     a table. */
+  .list-bleed {
+    margin-inline: calc(var(--list-bleed, 1rem) * -1);
+  }
+  /* From `sm` the group stops being full-bleed and becomes a framed island —
+     the iPhone → iPad move. The frame itself is on the component. */
+  @media (width >= 40rem) {
+    .list-bleed {
+      margin-inline: 0;
+    }
+  }
+  .list-group > * + * {
+    position: relative;
+  }
+  .list-group > * + *::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    inset-inline: var(--list-inset, 1rem) 0;
+    border-top: 1px solid color-mix(in oklab, var(--color-border) 68%, transparent);
+    pointer-events: none;
+  }
+  /* Disclosure caret, drawn from two borders instead of shipping an icon:
+     a list of 40 rows would otherwise mount 40 SVGs to say "tap me". */
+  .list-chevron {
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-top: 2px solid currentColor;
+    border-right: 2px solid currentColor;
+    transform: rotate(45deg);
+    opacity: 0.6;
+  }
+  /* A standalone hairline in the list's ink — for the odd divider that is not
+     inside a group. Use instead of <Separator/> when the rule must inset. */
+  .hairline {
+    border-top: 1px solid color-mix(in oklab, var(--color-border) 68%, transparent);
   }
   /* Fine hairline rule in the ink color (editorial dividers). */
   .rule-ink {
@@ -192,6 +334,146 @@
         transform: none;
       }
     }
+  }
+}
+
+/* ── ROUTE TRANSITIONS ──────────────────────────────────────────────────────
+   Screens now MOVE. Forward pushes the new screen in from the right and slides
+   the old one out to the left; Back plays the same thing mirrored. That single
+   directional cue is what tells a thumb "you went deeper" vs "you came back",
+   and its absence is the loudest reason a PWA still reads as a website.
+
+   The three moving parts:
+     1. next.config.mjs `experimental.viewTransition: true` — required, this is
+        the flag that lets React's <ViewTransition> render in Next 16.
+     2. <ViewTransition> around {children} in app/layout.tsx — that is what puts
+        the router update inside document.startViewTransition(). Without it the
+        rules below never match anything.
+     3. <RouteDirection/> (components/ui/route-direction.tsx) publishes
+        `<html data-nav-dir="forward|back">` BEFORE the snapshot is taken, which
+        is the only reason a direction exists at all: Next passes transition
+        types for Link clicks but adds NOTHING for a browser Back, so the
+        history position has to be tracked by hand.
+
+   The selector is the UNIVERSAL `::view-transition-old(*)`, not `(root)`, and
+   that is a measured decision: React gives the <ViewTransition> boundary a
+   GENERATED name (`_t_0_` in this build), so the page content is NOT part of
+   the `root` snapshot and rules written against `root` animate nothing but the
+   body background. `*` covers root, the generated name, and any name a sibling
+   introduces later. The reserved chrome names below then override it.
+
+   Not supported anywhere is fine: no view-transition support means an instant
+   swap, which is exactly today's behaviour. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (view-transition-name: none) {
+    /* Old and new overlap for the whole transition. The UA default is
+       `mix-blend-mode: plus-lighter`, which ADDS the two snapshots together —
+       on a near-black CRT palette that flashes the overlap grey. */
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+      mix-blend-mode: normal;
+    }
+    ::view-transition-old(*) {
+      animation: vt-exit-forward 170ms cubic-bezier(0.4, 0, 1, 1) both;
+    }
+    ::view-transition-new(*) {
+      animation: vt-enter-forward 220ms cubic-bezier(0, 0, 0.2, 1) both;
+    }
+    [data-nav-dir="back"]::view-transition-old(*) {
+      animation-name: vt-exit-back;
+    }
+    [data-nav-dir="back"]::view-transition-new(*) {
+      animation-name: vt-enter-back;
+    }
+    /* The group interpolates the OLD box into the NEW one. Two pages of very
+       different height would visibly squash during that morph, so the group
+       snaps and the two snapshots are pinned to their own top-left corner at
+       natural size instead of being stretched to fit. */
+    ::view-transition-group(*) {
+      animation: none;
+    }
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+      object-fit: none;
+      object-position: top left;
+    }
+
+    /* RESERVED NAMES — chrome that must NOT travel with the page.
+       A bottom tab bar that slides off screen with the content is the single
+       most obvious "this is fake" tell. A sibling opts an element out by
+       wrapping it in <ViewTransition name="app-tabbar"> (or "app-nav"); it then
+       gets its own snapshot, and these rules pin that snapshot in place.
+
+       Source order matters here: a named `::view-transition-old(app-nav)` and
+       the universal `::view-transition-old(*)` above carry the SAME
+       specificity, so these must stay last to win. */
+    ::view-transition-old(app-nav),
+    ::view-transition-old(app-tabbar) {
+      /* The outgoing copy would slide out over the identical incoming one and
+         read as a flicker. There is nothing to see: drop it. */
+      display: none;
+    }
+    ::view-transition-new(app-nav),
+    ::view-transition-new(app-tabbar) {
+      animation: none;
+    }
+  }
+
+  /* Percentages, not pixels: the slide should read the same on a 320px phone
+     and a 1280px desktop. The outgoing screen travels a THIRD as far as the
+     incoming one — parallax, the same trick UIKit uses, and the reason the
+     motion feels like paper stacking instead of two panels swapping. */
+  @keyframes vt-enter-forward {
+    from {
+      opacity: 0;
+      transform: translateX(4%);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes vt-exit-forward {
+    from {
+      opacity: 1;
+      transform: none;
+    }
+    to {
+      opacity: 0;
+      transform: translateX(-1.5%);
+    }
+  }
+  @keyframes vt-enter-back {
+    from {
+      opacity: 0;
+      transform: translateX(-4%);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes vt-exit-back {
+    from {
+      opacity: 1;
+      transform: none;
+    }
+    to {
+      opacity: 0;
+      transform: translateX(1.5%);
+    }
+  }
+}
+
+/* A HARD no-op under reduced motion, not a shortened animation: the universal
+   selector also kills the UA's own default cross-fade, which would otherwise
+   still run. `!important` because UA pseudo-element defaults are stubborn and
+   there is nothing in this codebase that should ever want to override it. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }
 
@@ -386,6 +668,17 @@
 body {
   background: var(--color-background);
   color: var(--color-foreground);
+  /* THE INHERITED RHYTHM. Without this, every element that does NOT carry a
+     `text-*` utility — and that is most of the chrome: rows, labels, badges,
+     table cells, anything inside a flex box — falls back to `line-height:
+     normal` (~1.2) and zero tracking, while the paragraphs beside it sit at
+     1.7. Two different rhythms in one screen is a large part of what reads as
+     "web": nothing looks decided. So the body publishes a UI leading and the
+     `p, li` rule above overrides it with the longer PROSE leading. Two tiers,
+     both named, no third. */
+  font-size: var(--text-body);
+  line-height: var(--leading-ui);
+  letter-spacing: var(--text-body--letter-spacing);
   /* No antialiasing: a pixel face is hinted to whole pixels and smoothing
      turns its edges to grey mush. */
   -webkit-font-smoothing: none;

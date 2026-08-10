@@ -3,8 +3,14 @@ import { api } from "@convex/_generated/api";
 import { SITE_ORIGIN, safeQuery } from "@/lib/convex-server";
 
 // Enumerates the crawlable surface: the community directory, every active
-// community's tabs, and every published course. Both source queries are on the
-// anonymous etalase whitelist (AGENTS.md §6).
+// community's tabs, every published course, and every published MATERI
+// permalink. All source queries are on the anonymous etalase whitelist
+// (AGENTS.md §6).
+//
+// The materi permalinks matter more than their count suggests: /materi itself
+// is `robots: { index: false }` because it lists member content, so the sitemap
+// is a crawler's ONLY path to a materi page. Leaving them out would mean
+// building a shareable, indexable per-lesson address and never telling anyone.
 //
 // Bounded by construction — listActive is capped server-side and listPublished
 // takes LIST_TAKE — so this never walks an unbounded table. safeQuery means a
@@ -39,6 +45,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: now,
         changeFrequency: "weekly",
         priority: 0.8,
+      });
+    }
+
+    const materi =
+      (await safeQuery(api.features.materi.queries.publicListSlugs, {
+        tenantId: tenant._id,
+      })) ?? [];
+    for (const item of materi) {
+      entries.push({
+        url: `${base}/materi/${item.slug}`,
+        lastModified: new Date(item.updatedAt),
+        changeFrequency: "monthly",
+        priority: 0.7,
       });
     }
   }

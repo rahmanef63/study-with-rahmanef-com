@@ -18,8 +18,25 @@ export const communityHref = {
   course: (slug: string, courseSlug: string) => `/k/${enc(slug)}/kelas/${enc(courseSlug)}`,
   lesson: (slug: string, courseSlug: string, lessonId: string) =>
     `/k/${enc(slug)}/kelas/${enc(courseSlug)}/${enc(lessonId)}`,
-  quiz: (slug: string, courseSlug: string, moduleId: string) =>
-    `/k/${enc(slug)}/kelas/${enc(courseSlug)}/kuis/${enc(moduleId)}`,
+  /** A quiz belongs to a COURSE and is addressed by its own id (DECISIONS
+   *  #37) — the old /kuis/<moduleId> shape is gone with the module tree. */
+  quiz: (slug: string, courseSlug: string, quizId: string) =>
+    `/k/${enc(slug)}/kelas/${enc(courseSlug)}/kuis/${enc(quizId)}`,
+  /**
+   * Materi — the tenant's whole library of teaching material (DECISIONS
+   * #36/#37). A materi is owned by the COMMUNITY, not by a course, so it is
+   * addressed here and not under /kelas.
+   */
+  materi: (slug: string) => `/k/${enc(slug)}/materi`,
+  /**
+   * THE canonical materi permalink — shareable, indexable, and stable no
+   * matter which courses happen to teach it. `communityHref.lesson` above is
+   * the SAME materi read inside a course (it keeps the prev/next path); when a
+   * link has no course context — a search hit, a notification, a "muncul di"
+   * row — it must point HERE.
+   */
+  materiPage: (slug: string, lessonSlug: string) =>
+    `/k/${enc(slug)}/materi/${enc(lessonSlug)}`,
   diskusi: (slug: string) => `/k/${enc(slug)}/diskusi`,
   /**
    * Diskusi opened on ONE category. `?kind=` is a real deep link, not a
@@ -63,8 +80,25 @@ export type CommunityTab = {
  *
  * Not here on purpose:
  * - "Kelola" — instructor+ only, surfaced as a header link, never a learner tab.
+ *
+ * ORDER (changed with the materi model, DECISIONS #36/#37). Materi LEADS:
+ * teaching material is now tenant-level content with its own canonical URL,
+ * and a course is just one ordered arrangement of it. The library is therefore
+ * the widest door into the product — every materi is reachable from it, while
+ * /kelas only reaches the ones somebody placed in a course. Kelas stays second
+ * because it is still the index route (`/k/<slug>`) and still the guided path
+ * a new learner is sold on; Diskusi third (the daily return reason); then the
+ * social loop (Anggota, Peringkat), then the two read-rarely pages.
+ *
+ * SEVEN tabs is more than a phone bar can hold. The desktop strip shows all of
+ * them; components/community/community-bottom-nav.tsx keeps FIVE cells —
+ * Materi · Kelas · Diskusi · Anggota · Lainnya — and its `PRIMARY_KEYS` picks
+ * the first four BY KEY off this list, so Peringkat, Kalender and Tentang fall
+ * into the "Lainnya" sheet automatically. Reorder here and the phone bar
+ * follows; there is no second list to keep in sync.
  */
 export const COMMUNITY_TABS: CommunityTab[] = [
+  { key: "materi", label: "Materi", href: communityHref.materi },
   { key: "kelas", label: "Kelas", href: communityHref.home, exact: true },
   { key: "diskusi", label: "Diskusi", href: communityHref.diskusi, alsoMatch: [(slug) => `/k/${enc(slug)}/post/`] },
   { key: "anggota", label: "Anggota", href: communityHref.anggota },

@@ -30,6 +30,6 @@ export default async function Image({
     subtitle:
       overview === null
         ? undefined
-        : `${overview.modules.length} modul · ${overview.lessonCount} materi · gratis`,
+        : `${overview.lessonCount} materi · gratis`,
   });
 }

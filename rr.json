@@ -44,6 +44,12 @@
       "version": "0.3.1",
       "category": "content",
       "addedAt": "2026-08-10"
+    },
+    {
+      "slug": "notion-app",
+      "version": "1.1.1",
+      "category": "content",
+      "addedAt": "2026-08-10"
     }
   ],
   "skills": [],

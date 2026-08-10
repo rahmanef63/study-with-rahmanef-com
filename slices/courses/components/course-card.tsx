@@ -48,19 +48,15 @@ export function CourseCard({ course, href, progress, className }: CourseCardProp
           className="aspect-[2/1] w-full border-b-2 border-border @sm:aspect-auto @sm:h-28"
         />
         <div className="flex flex-col gap-1.5 p-2.5 @sm:gap-2 @sm:p-5">
-          {/* Three lines on a phone, two from @sm. Press Start 2P is a
-              full-width face: in the 173px phone column it fits ~15 glyphs a
-              line, so a 2-line clamp truncated FIVE of the six real course
-              titles ("Prompt Engineering…", "AI untuk Produktivitas…"). A card
-              you cannot read the name of is not a denser card, it is a worse
-              one. The third line costs 16px; six cards still clear the fold. */}
-          {/* BODY face on a phone, display face from @sm. Press Start 2P fits ~15
-              glyphs in a 173px column, so it was truncating 3 of 6 course names
-              — the single most important string on the screen. A display face
-              that stops you reading the content is decoration winning over
-              deference; the arcade voice still carries the cover badge, the
+          {/* BODY face and THREE lines on a phone; display face and two from
+              @sm. Press Start 2P fits ~15 glyphs in the 173px phone column, so
+              the display face plus a 2-line clamp truncated four of the six real
+              course titles ("Prompt Engineering…", "Bikin Aplikasi Web dengan
+              AI - dari…"). A card you cannot read the name of is not a denser
+              card, it is a worse one. The third line costs 16px and six cards
+              still clear the fold; the arcade voice keeps the cover badge, the
               eyebrow and every heading. */}
-          <CardTitle className="line-clamp-2 text-sm font-medium leading-snug @sm:line-clamp-2 @sm:font-display @sm:text-xs @sm:font-normal @sm:leading-snug">
+          <CardTitle className="line-clamp-3 text-sm font-medium leading-snug @sm:line-clamp-2 @sm:font-display @sm:text-xs @sm:font-normal @sm:leading-snug">
             {course.title}
           </CardTitle>
           {/* The wrapper carries the hide/show; the clamp stays on the text.

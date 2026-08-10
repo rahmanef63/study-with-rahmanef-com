@@ -10,10 +10,13 @@ import { MAX_COMMENTS_PER_USER_PER_LESSON } from "./antiSpam";
 import { MAX_BODY } from "./validate";
 import { asUser, seedComment, seedLesson, seedTenantFixture, setup } from "./test.helpers";
 
-async function fixture(status: "draft" | "published" | "archived" = "published") {
+async function fixture(
+  status: "draft" | "published" | "archived" = "published",
+  materiStatus: "draft" | "published" = "published"
+) {
   const t = setup();
   const fx = await seedTenantFixture(t);
-  const lf = await seedLesson(t, fx, status);
+  const lf = await seedLesson(t, fx, status, `kelas-${status}`, materiStatus);
   return { t, fx, ...lf };
 }
 
@@ -43,13 +46,20 @@ describe("addComment — authz", () => {
     void fx;
   });
 
-  test("member on a DRAFT-course lesson → NOT_AUTHORIZED; instructor passes", async () => {
-    const { t, fx, lessonId } = await fixture("draft");
+  test("member on a DRAFT MATERI → NOT_AUTHORIZED; instructor passes", async () => {
+    const { t, fx, lessonId } = await fixture("published", "draft");
     await expect(
       t.withIdentity(asUser(fx.memberId))
         .mutation(api.features.comments.comments.addComment, { lessonId, bodyMd: "Halo" })
     ).rejects.toThrow(/NOT_AUTHORIZED/);
     const id = await t.withIdentity(asUser(fx.instructorId))
+      .mutation(api.features.comments.comments.addComment, { lessonId, bodyMd: "Halo" });
+    expect(id).toBeDefined();
+  });
+
+  test("a DRAFT COURSE does not block commenting on its published materi", async () => {
+    const { t, fx, lessonId } = await fixture("draft", "published");
+    const id = await t.withIdentity(asUser(fx.memberId))
       .mutation(api.features.comments.comments.addComment, { lessonId, bodyMd: "Halo" });
     expect(id).toBeDefined();
   });

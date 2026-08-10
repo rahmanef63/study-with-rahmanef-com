@@ -51,7 +51,9 @@ export function LessonView({
         </Button>
         <div className="flex flex-col gap-1.5">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="eyebrow">{lesson.courseTitle}</span>
+            {/* courseTitle is null when the materi is read outside a course the
+                viewer can see — it is tenant-level content, so it still reads. */}
+            <span className="eyebrow">{lesson.courseTitle ?? copy.material}</span>
             <Badge tone="accent">
               {lesson.youtubeVideoId !== undefined ? "Video" : "Bacaan"}
             </Badge>

@@ -12,6 +12,7 @@ import {
   CalendarDays,
   Circle,
   Info,
+  Library,
   MessagesSquare,
   MoreHorizontal,
   Trophy,
@@ -28,6 +29,7 @@ import { isCommunityTabActive } from "./tab-active";
 // (Reported upward: a `mobile?: "primary" | "more"` + `icon` on CommunityTab
 // would let this file stop guessing.)
 const TAB_ICONS: Record<string, LucideIcon> = {
+  materi: Library,
   kelas: BookOpen,
   diskusi: MessagesSquare,
   anggota: Users,
@@ -37,29 +39,23 @@ const TAB_ICONS: Record<string, LucideIcon> = {
 };
 const iconFor = (key: string) => TAB_ICONS[key] ?? Circle;
 
-// THE SPLIT. Six tabs, five comfortable slots at 320px, so four tabs get a slot
-// and the rest fall into "Lainnya".
+// THE SPLIT. Seven tabs (Materi joined with the materi model, DECISIONS
+// #36/#37), five comfortable slots at 320px, so FOUR tabs get a slot and the
+// rest fall into "Lainnya": Materi · Kelas · Diskusi · Anggota · Lainnya.
 //
-// Why these four: they are the only tabs a member RE-visits. Kelas is the
-// product, Diskusi is the reason to come back daily, Anggota + Peringkat are
-// the social loop (and Peringkat is the arcade HI-SCORE — burying the score
-// board in a cabinet-themed app would be perverse).
+// The four are simply the first four of COMMUNITY_TABS — lib/community.ts is
+// the SSOT and it already orders the strip by how often a member returns to
+// each tab (its comment justifies that order). Reading the priority off the
+// list instead of restating it here is what stopped this file from silently
+// disagreeing with the desktop strip: Peringkat lost its slot to Materi in one
+// edit, over there, and the phone bar followed with none.
 //
-// Why Kalender AND Tentang are in the sheet, rather than the brief's suggested
-// "Tentang primary, Kalender folded": Tentang is a read-once page — you read
-// what the community is before you join and essentially never again — so it is
-// the WEAKEST candidate for permanent thumb real estate, while Kalender at
-// least carries live sessions. Neither earns a slot over the four above, and
-// both stay one tap away in the sheet with their route untouched.
-//
-// Derived by key, not by index: an unknown/renamed tab lands in "Lainnya"
-// instead of silently disappearing from the app.
-const PRIMARY_KEYS: readonly string[] = ["kelas", "diskusi", "anggota", "peringkat"];
+// Peringkat, Kalender and Tentang stay one tap away in the sheet, routes
+// untouched.
+const PRIMARY_SLOTS = 4;
 
-const PRIMARY_TABS: CommunityTab[] = PRIMARY_KEYS.map((key) =>
-  COMMUNITY_TABS.find((tab) => tab.key === key)
-).filter((tab): tab is CommunityTab => tab !== undefined);
-const OVERFLOW_TABS = COMMUNITY_TABS.filter((tab) => !PRIMARY_KEYS.includes(tab.key));
+const PRIMARY_TABS: CommunityTab[] = COMMUNITY_TABS.slice(0, PRIMARY_SLOTS);
+const OVERFLOW_TABS = COMMUNITY_TABS.slice(PRIMARY_SLOTS);
 
 // Reading surfaces keep the full screen: the lesson player
 // (/kelas/<course>/<lessonId>) and the module quiz (/kelas/<course>/kuis/<id>)

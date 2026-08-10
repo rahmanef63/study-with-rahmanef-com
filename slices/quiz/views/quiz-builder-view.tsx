@@ -1,9 +1,12 @@
 "use client";
 // quiz slice — standalone builder page (QuizBuilderView). instructor+ (the
-// server mutations/queries are the gate; route guard is UX). Loads the
-// module's existing quiz for edit, else starts a blank create form. The
-// integrator mounts this behind /t/[slug]/kelola/… — it does NOT edit the
-// course editor itself (integration points listed in README).
+// server mutations/queries are the gate; route guard is UX).
+//
+// MIGRATION (DECISIONS #37): quizzes hang off a COURSE, and a course may hold
+// several, so this view is addressed by `quizId` (edit) or by `courseId`
+// alone (create). Discovering which quizzes a course has is the consumer's
+// job — useQuizzesForCourse — because the console wants that list as its own
+// navigation surface, not buried inside the form.
 import {
   ResponsiveDialog,
   ResponsiveDialogBody,
@@ -22,52 +25,58 @@ import { useQuizBuilderMutations } from "../hooks/use-quiz-mutations";
 import { useQuizForManage } from "../hooks/use-quiz";
 
 export type QuizBuilderViewProps = {
-  moduleId: Id<"modules">;
-  /** Passed by the route for context; the create mutation derives course +
-   * tenant from the module server-side, so these are not sent to Convex. */
+  /** The course the quiz belongs to — required even in edit mode, because a
+   *  create submits against it. */
   courseId: Id<"courses">;
-  tenantId: Id<"tenants">;
+  /** Omitted = create a NEW quiz in this course. */
+  quizId?: Id<"quizzes">;
   copy?: QuizCopyOverride;
   className?: string;
-  /** Optional callback after a successful delete (e.g. route back). */
-  onDeleted?: () => void;
+  /** Called after a successful create (with the new id) or delete (with null). */
+  onSaved?: (quizId: Id<"quizzes"> | null) => void;
 };
 
-export function QuizBuilderView({ moduleId, courseId, tenantId, copy: copyOverride, className, onDeleted }: QuizBuilderViewProps) {
+export function QuizBuilderView({
+  courseId,
+  quizId,
+  copy: copyOverride,
+  className,
+  onSaved,
+}: QuizBuilderViewProps) {
   const copy = mergeQuizCopy(copyOverride);
-  const existing = useQuizForManage(moduleId);
+  const existing = useQuizForManage(quizId);
   const { createQuiz, updateQuiz, deleteQuiz } = useQuizBuilderMutations(copyOverride);
-  const isLoading = existing === undefined;
+  const isLoading = quizId !== undefined && existing === undefined;
   const [submitting, setSubmitting] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const handleSave = async (values: QuizBuilderFormValues) => {
     setSubmitting(true);
     try {
-      if (existing) await updateQuiz(existing._id, values);
-      else await createQuiz(moduleId, values);
+      if (existing !== undefined) {
+        await updateQuiz(existing._id, values);
+      } else {
+        const created = await createQuiz(courseId, values);
+        if (created !== null) onSaved?.(created);
+      }
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!existing) return;
+    if (existing === undefined) return;
     const ok = await deleteQuiz(existing._id);
-    if (ok) onDeleted?.();
+    if (ok) onSaved?.(null);
   };
 
   return (
-    <div
-      className={className ? `space-y-6 ${className}` : "space-y-6"}
-      data-course-id={courseId}
-      data-tenant-id={tenantId}
-    >
+    <div className={className ? `space-y-6 ${className}` : "space-y-6"}>
       <SectionHeader
         eyebrow={copy.quizTitle}
-        title={copy.builderTitle}
+        title={existing === undefined ? copy.newQuiz : copy.builderTitle}
         actions={
-          existing ? (
+          existing !== undefined ? (
             <Button
               variant="outline"
               size="sm"
@@ -79,7 +88,7 @@ export function QuizBuilderView({ moduleId, courseId, tenantId, copy: copyOverri
           ) : undefined
         }
       />
-      {existing && (
+      {existing !== undefined && (
         <ResponsiveDialog open={confirmOpen} onOpenChange={setConfirmOpen} variant="alert" size="sm">
           <ResponsiveDialogHeader>
             <ResponsiveDialogTitle>{copy.deleteConfirmTitle}</ResponsiveDialogTitle>
@@ -112,7 +121,7 @@ export function QuizBuilderView({ moduleId, courseId, tenantId, copy: copyOverri
         </div>
       ) : (
         <QuizBuilderForm
-          initial={existing ?? undefined}
+          initial={existing}
           onSave={handleSave}
           submitting={submitting}
           copy={copy}

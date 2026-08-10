@@ -14,7 +14,6 @@ import type { Doc, Id } from "../../_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "../../_generated/server";
 import { requireTenantRole, requireUser } from "../../_shared/auth";
 import { fail } from "./errors";
-import { legacyCourseId } from "../../_shared/legacyLesson";
 
 type Ctx = QueryCtx | MutationCtx;
 
@@ -26,12 +25,16 @@ export async function getLessonOrFail(ctx: Ctx, lessonId: Id<"lessons">): Promis
 }
 
 /**
- * Discussion access: auth FIRST, then resolve the lesson and require member+
- * on the lesson's OWN tenantId. Honors the DATA-MODEL access table ("comments:
- * member tenant — lesson yang bisa ia akses"): lessons of NON-published
- * courses stay instructor+ only, mirroring the courses read rules.
- * TODO(rr): confirm — archived courses gated like drafts (instructor+ only),
- * matching the courses etalase "published-only" reading of the access table.
+ * Discussion access: auth FIRST, then resolve the MATERI and require member+
+ * on the materi's OWN tenantId. Honors the DATA-MODEL access table ("comments:
+ * member tenant — lesson yang bisa ia akses").
+ *
+ * MATERI MODEL (DECISIONS #36/#37): the visibility gate is the materi's own
+ * `status` — published (or absent: legacy rows predate the column) for a
+ * member, drafts additionally for instructor+. It used to resolve the owning
+ * COURSE through `lesson.courseId` and gate on that; a materi is tenant-level
+ * content now and may sit in several courses or none, so a course's draft
+ * status no longer decides who may discuss the page.
  */
 export async function requireMemberForLesson(
   ctx: Ctx,
@@ -40,11 +43,8 @@ export async function requireMemberForLesson(
   await requireUser(ctx); // auth BEFORE read (no existence oracle)
   const lesson = await getLessonOrFail(ctx, lessonId);
   const { userId, membership } = await requireTenantRole(ctx, lesson.tenantId, "member");
-  if (membership.role === "member") {
-    const course = await ctx.db.get(legacyCourseId(lesson));
-    if (course === null || course.status !== "published") {
-      fail("NOT_AUTHORIZED", "Kamu tidak punya akses untuk aksi ini");
-    }
+  if (membership.role === "member" && (lesson.status ?? "published") !== "published") {
+    fail("NOT_AUTHORIZED", "Kamu tidak punya akses untuk aksi ini");
   }
   return { userId, membership, lesson };
 }

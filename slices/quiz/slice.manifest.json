@@ -1,7 +1,7 @@
 {
   "$schema": "../../docs/slice.manifest.schema.json",
   "name": "quiz",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "One MCQ quiz per module for belajar-with-rahmanef.com R6 (STATUS #8): instructor builder + member attempt + server-side auto-grade. Correct answers/explanations are stripped from the taking query and revealed only in the graded attempt result (P0). Draft-course quizzes invisible to plain members.",
   "category": "lms",
   "stability": "beta",
@@ -22,7 +22,7 @@
   },
   "permissions": ["quiz.take", "quiz.manage"],
   "schemaTables": [
-    { "name": "quizzes", "namespaced": false, "indexes": ["by_module"] },
+    { "name": "quizzes", "namespaced": false, "indexes": ["by_course"] },
     { "name": "quizAttempts", "namespaced": false, "indexes": ["by_user_quiz", "by_quiz"] }
   ],
   "compatibility": {

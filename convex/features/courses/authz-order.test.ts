@@ -9,15 +9,15 @@
 // and PASS on the fixed code.
 import { expect, test } from "vitest";
 import { api } from "../../_generated/api";
-import { asUser, seedCourse, seedTenantFixture, setup, type T, type TenantFixture } from "./test.helpers";
+import { asUser, seedCourse, seedTenantFixture, setup } from "./test.helpers";
 
 async function danglingFixture() {
   const t = setup();
   const fx = await seedTenantFixture(t);
   const c = await seedCourse(t, fx, "published", "kelas-dangling");
   await t.run(async (ctx) => {
+    await ctx.db.delete(c.placementId);
     await ctx.db.delete(c.lessonId);
-    await ctx.db.delete(c.moduleId);
     await ctx.db.delete(c.courseId);
   });
   return { t, fx, ...c };
@@ -30,22 +30,22 @@ test("getLesson: anonymous + dangling id → NOT_AUTHENTICATED (never NOT_FOUND)
   ).rejects.toThrow(/NOT_AUTHENTICATED/);
 });
 
-test("getCourseTree: anon dangling → NOT_AUTHENTICATED; member → NOT_AUTHORIZED; instructor → tree", async () => {
+test("getCourseForManage: anon dangling → NOT_AUTHENTICATED; member → NOT_AUTHORIZED; instructor → course", async () => {
   const { t, fx, courseId } = await danglingFixture();
   await expect(
-    t.query(api.features.courses.manage.getCourseTree, { courseId })
+    t.query(api.features.courses.manage.getCourseForManage, { courseId })
   ).rejects.toThrow(/NOT_AUTHENTICATED/);
 
   const real = await seedCourse(t, fx, "draft", "kelas-nyata");
   await expect(
     t
       .withIdentity(asUser(fx.memberId))
-      .query(api.features.courses.manage.getCourseTree, { courseId: real.courseId })
+      .query(api.features.courses.manage.getCourseForManage, { courseId: real.courseId })
   ).rejects.toThrow(/NOT_AUTHORIZED/);
 
   const tree = await t
     .withIdentity(asUser(fx.instructorId))
-    .query(api.features.courses.manage.getCourseTree, { courseId: real.courseId });
+    .query(api.features.courses.manage.getCourseForManage, { courseId: real.courseId });
   expect(tree.course._id).toBe(real.courseId);
 });
 
@@ -56,16 +56,25 @@ test("courses.update: anonymous + dangling id → NOT_AUTHENTICATED", async () =
   ).rejects.toThrow(/NOT_AUTHENTICATED/);
 });
 
-test("modules.renameModule: anonymous + dangling id → NOT_AUTHENTICATED", async () => {
-  const { t, moduleId } = await danglingFixture();
-  await expect(
-    t.mutation(api.features.courses.modules.renameModule, { moduleId, title: "Modul Baru" })
-  ).rejects.toThrow(/NOT_AUTHENTICATED/);
-});
-
 test("lessons.updateLesson: anonymous + dangling id → NOT_AUTHENTICATED", async () => {
   const { t, lessonId } = await danglingFixture();
   await expect(
-    t.mutation(api.features.courses.lessons.updateLesson, { lessonId, title: "Lesson Baru" })
+    t.mutation(api.features.courses.lessons.updateLesson, { lessonId, title: "Materi Baru" })
+  ).rejects.toThrow(/NOT_AUTHENTICATED/);
+});
+
+test("manage placement mutations: anonymous + dangling ids → NOT_AUTHENTICATED", async () => {
+  const { t, courseId, lessonId } = await danglingFixture();
+  await expect(
+    t.mutation(api.features.courses.manage.addLessonToCourse, { courseId, lessonId })
+  ).rejects.toThrow(/NOT_AUTHENTICATED/);
+  await expect(
+    t.mutation(api.features.courses.manage.removeLessonFromCourse, { courseId, lessonId })
+  ).rejects.toThrow(/NOT_AUTHENTICATED/);
+  await expect(
+    t.mutation(api.features.courses.manage.reorderCourseLessons, {
+      courseId,
+      orderedLessonIds: [lessonId],
+    })
   ).rejects.toThrow(/NOT_AUTHENTICATED/);
 });

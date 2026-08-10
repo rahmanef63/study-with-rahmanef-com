@@ -61,7 +61,11 @@ export type CourseFixture = {
   lessonIds: Id<"lessons">[];
 };
 
-/** Course + 1 module + N lessons in the given status. N = 0 seeds no lessons. */
+/**
+ * Course + N materi PLACED in it via `courseLessons`. N = 0 seeds no materi.
+ * Legacy tree columns are written as production still has them — the specs
+ * prove analytics reads the placement table, not the tree.
+ */
 export async function seedCourseWithLessons(
   t: T,
   fx: TenantFixture,
@@ -86,23 +90,55 @@ export async function seedCourseWithLessons(
     });
     const lessonIds: Id<"lessons">[] = [];
     for (let i = 0; i < lessonCount; i++) {
-      lessonIds.push(
-        await ctx.db.insert("lessons", {
-          tenantId: fx.tenantId,
-          courseId,
-          moduleId,
-          title: `Lesson ${i + 1}`,
-          contentMd: `# Materi ${i + 1}`,
-          links: [],
-          order: i + 1,
-        })
-      );
+      const lessonId = await ctx.db.insert("lessons", {
+        tenantId: fx.tenantId,
+        courseId,
+        moduleId,
+        slug: `${slug}-materi-${i + 1}`,
+        status: "published",
+        title: `Lesson ${i + 1}`,
+        contentMd: `# Materi ${i + 1}`,
+        links: [],
+        order: i + 1,
+      });
+      await ctx.db.insert("courseLessons", {
+        tenantId: fx.tenantId,
+        courseId,
+        lessonId,
+        order: i + 1,
+      });
+      lessonIds.push(lessonId);
     }
     return { courseId, moduleId, lessonIds };
   });
 }
 
-/** Direct lessonCompletions insert — exercises reads independent of mutations. */
+/** A standalone materi (no legacy course tree), placed into `courseId`. */
+export async function seedSharedMateri(
+  t: T,
+  fx: TenantFixture,
+  courseIds: Id<"courses">[],
+  slug: string,
+  order = 99
+): Promise<Id<"lessons">> {
+  return await t.run(async (ctx) => {
+    const lessonId = await ctx.db.insert("lessons", {
+      tenantId: fx.tenantId,
+      slug,
+      status: "published",
+      title: `Materi ${slug}`,
+      contentMd: "Materi bersama",
+      links: [],
+    });
+    for (const courseId of courseIds) {
+      await ctx.db.insert("courseLessons", { tenantId: fx.tenantId, courseId, lessonId, order });
+    }
+    return lessonId;
+  });
+}
+
+/** Direct lessonCompletions insert (courseId = PROVENANCE only, as production
+ *  rows still carry it) — exercises reads independent of the mutations. */
 export async function insertCompletion(
   t: T,
   fx: TenantFixture,
@@ -127,14 +163,13 @@ export async function insertBadge(t: T, fx: TenantFixture, courseId: Id<"courses
   });
 }
 
-/** One-question quiz on the fixture module. */
+/** One-question quiz owned by the COURSE (no moduleId — the tree is retiring). */
 export async function seedQuiz(t: T, fx: TenantFixture, c: CourseFixture): Promise<Id<"quizzes">> {
   return await t.run(async (ctx) => {
     return await ctx.db.insert("quizzes", {
       tenantId: fx.tenantId,
       courseId: c.courseId,
-      moduleId: c.moduleId,
-      title: "Kuis Modul 1",
+      title: "Kuis Kelas",
       passingScorePct: 50,
       questions: [
         { prompt: "Apa itu AI?", options: ["Kecerdasan buatan", "Kucing"], correctIndex: 0 },

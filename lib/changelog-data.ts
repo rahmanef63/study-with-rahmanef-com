@@ -28,6 +28,22 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-08-10",
+    version: "v2.8",
+    title: "Materi berdiri sendiri — satu pelajaran, banyak kelas",
+    tags: ["Baru", "Tampilan"],
+    points: [
+      "Pelajaran sekarang jadi “materi” milik komunitas, bukan milik satu kelas. Satu materi bisa diajarkan di beberapa kelas sekaligus — “Sub Agents” bisa muncul di kelas Claude Code dan kelas Hermes tanpa disalin dua kali, jadi tidak ada lagi versi yang tertinggal.",
+      "Ada tab Materi baru: telusuri semua materi komunitas, saring lewat tag, dan buka lewat pencarian.",
+      "Tiap materi punya alamatnya sendiri yang bisa dibagikan — tautannya tampil dengan judul asli saat dikirim ke teman, dan kini terdaftar di peta situs supaya bisa ditemukan mesin pencari.",
+      "Di bawah tiap materi ada daftar “Muncul di kelas”, plus materi lain yang menautkannya.",
+      "Kelas kini berupa daftar materi berurutan. Modul dihapus supaya isinya tidak bertingkat-tingkat, dan kuis pindah ke tingkat kelas.",
+      "Progres belajar ikut pintar: sekali sebuah materi kamu tandai selesai, statusnya berlaku di semua kelas yang memakainya — tidak perlu mengulang.",
+      "Pengelola kelas punya editor blok ala halaman Notion untuk menulis materi. Editornya hanya dimuat saat kamu mengedit, jadi halaman baca tetap ringan.",
+      "Tampilan dirapikan: daftar tidak lagi berupa kotak berbingkai satu-satu, ada animasi halus saat berpindah layar, dan ukuran teks disamakan di seluruh aplikasi.",
+    ],
+  },
+  {
+    date: "2026-08-10",
     version: "v2.7",
     title: "Perbaikan: pasang ke layar utama akhirnya jalan",
     tags: ["Perbaikan"],

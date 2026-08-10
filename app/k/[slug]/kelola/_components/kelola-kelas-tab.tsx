@@ -1,8 +1,14 @@
 "use client";
 
 // Kelola › Kelas — reuses the real courses management views end-to-end:
-//   list + create dialog + status chips        → ManageCoursesView
-//   per-course editor (meta/modules/lessons)   → ManageCourseEditorView
+//   list + create dialog + status chips              → ManageCoursesView
+//   per-course editor (meta, status, PLACEMENTS)     → ManageCourseEditorView
+//
+// MATERI MODEL (DECISIONS #37): a kelas is a CURATED PLAYLIST. The editor picks
+// materi that already live in the community library, orders them, and can take
+// them back out again; it does not own them. "Materi baru" authors into the
+// library and places the result here in the same step.
+//
 // Both views navigate via <Link>, but the console is ONE page with local tabs:
 // following a real route would drop the instructor out of it and lose the
 // active tab. So the drill-down stays React state and the anchor clicks are

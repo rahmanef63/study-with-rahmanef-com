@@ -2,63 +2,88 @@
 // P0 contract: v.* validators on args; authz helper as the FIRST handler line;
 // userId comes from ctx via the helper, NEVER from args — a user can only ever
 // write their own completions.
-import { legacyCourseId } from "../../_shared/legacyLesson";
 import { v } from "convex/values";
+import type { Id } from "../../_generated/dataModel";
 import { mutation } from "../../_generated/server";
-import { assertCourseActableByRole, requireMemberForLesson } from "./access";
-import { deriveCourseProgress, ensureCourseCompletion } from "./derive";
-import { fail } from "./errors";
+import { assertLessonVisibleByRole, requireMemberForLesson } from "./access";
+import { deriveCourseProgress, ensureCourseCompletion, listLessonPlacements } from "./derive";
+
+/** Per-course numbers for one course this materi is taught in. */
+type CourseOutcome = {
+  courseId: Id<"courses">;
+  completedCount: number;
+  totalCount: number;
+  isComplete: boolean;
+};
 
 /**
- * Mark a lesson complete for the CURRENT user. Idempotent twice over:
- *  1. lesson: checks by_user_lesson first — a repeat call is a no-op insert;
- *  2. course: when this completion makes the count full, courseCompletion is
+ * Mark a MATERI complete for the CURRENT user. Idempotent twice over:
+ *  1. materi: checks by_user_lesson first — a repeat call is a no-op insert;
+ *  2. course: when this completion fills a course's roster, courseCompletion is
  *     created via ensureCourseCompletion (checks by_user_course first).
- * Draft/archived courses are NOT_FOUND for plain members (mirrors
- * courses.getLesson) so no phantom badge is earned before publish.
+ *
+ * Completion identity is (userId, lessonId) — NEVER (userId, courseId,
+ * lessonId). Keeping courseId in the key would ask someone who finished "sub
+ * agents" in Claude Code to finish it again in Hermes, and would double-count
+ * their progress. Because one materi can sit in several courses, ONE call can
+ * therefore settle progress in several courses at once — every course the
+ * materi is placed in is re-derived here, and each gets its own badge check.
+ *
+ * The materi's own `status` is the visibility gate (access.ts); the owning
+ * course's draft status is not. The BADGE is still course-level, so it is only
+ * minted for a PUBLISHED course — no phantom badge before publish.
  */
 export const markLessonComplete = mutation({
   args: { lessonId: v.id("lessons") },
   handler: async (ctx, args) => {
     const { userId, lesson, membership } = await requireMemberForLesson(ctx, args.lessonId);
-
-    const course = await ctx.db.get(legacyCourseId(lesson));
-    if (course === null) fail("NOT_FOUND", "Kelas tidak ditemukan");
-    // TODO(rr): confirm — chose to block members from completing draft/archived
-    // course lessons (NOT_FOUND), mirroring courses.getLesson, so no phantom
-    // badge is earned pre-publish. The epsilon prompt specified member authz +
-    // userId-from-ctx but not this guard; instructor+ may still mark for preview.
-    assertCourseActableByRole(course, membership.role);
+    assertLessonVisibleByRole(lesson, membership.role);
 
     const existing = await ctx.db
       .query("lessonCompletions")
       .withIndex("by_user_lesson", (q) => q.eq("userId", userId).eq("lessonId", lesson._id))
-      .unique();
+      .first();
+    const placements = await listLessonPlacements(ctx, lesson._id);
+
     if (existing === null) {
       await ctx.db.insert("lessonCompletions", {
         tenantId: lesson.tenantId,
         userId,
-        courseId: legacyCourseId(lesson),
+        // PROVENANCE, not identity: "where they finished it". Recorded only
+        // when the materi lives in exactly one course, because with two
+        // placements there is no honest answer and nothing reads this column.
+        courseId: placements.length === 1 ? placements[0].courseId : undefined,
         lessonId: lesson._id,
       });
     }
 
     // Recount AFTER the insert (Convex mutations read their own writes).
-    const progress = await deriveCourseProgress(ctx, userId, legacyCourseId(lesson));
-    if (progress.isComplete) {
+    const courses: CourseOutcome[] = [];
+    for (const placement of placements) {
+      const progress = await deriveCourseProgress(ctx, userId, placement.courseId);
+      courses.push({
+        courseId: placement.courseId,
+        completedCount: progress.completedCount,
+        totalCount: progress.totalCount,
+        isComplete: progress.isComplete,
+      });
+      if (!progress.isComplete) continue;
+      const course = await ctx.db.get(placement.courseId);
+      if (course === null || course.status !== "published") continue;
       await ensureCourseCompletion(ctx, {
-        tenantId: lesson.tenantId,
+        tenantId: course.tenantId,
         userId,
-        courseId: legacyCourseId(lesson),
+        courseId: placement.courseId,
       });
     }
 
     return {
       lessonId: lesson._id,
       wasAlreadyComplete: existing !== null,
-      courseCompleted: progress.isComplete,
-      completedCount: progress.completedCount,
-      totalCount: progress.totalCount,
+      /** At least one course containing this materi is now fully complete. */
+      courseCompleted: courses.some((course) => course.isComplete),
+      /** One entry per course this materi is taught in (may be empty). */
+      courses,
     };
   },
 });

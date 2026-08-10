@@ -3,11 +3,10 @@
 // gate (member + draft-invisibility); this renders the answer-stripped quiz,
 // collects a single choice per question, and submits for server-side grading.
 // After submit it shows QuizResultCard (the only place answers/explanations
-// appear). The integrator mounts this on the lesson/module surface.
+// appear). The integrator mounts this at /kuis/<quizId>.
 import { useMemo, useState } from "react";
 import { Award, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge, Hero, SectionHeader, StatTile } from "@/components/mockup-kit";
 import type { Id } from "@convex/_generated/dataModel";
@@ -19,22 +18,22 @@ import { useMyAttempts, useQuizForTaking } from "../hooks/use-quiz";
 import type { AttemptResult } from "../types";
 
 export type QuizTakeViewProps = {
-  moduleId: Id<"modules">;
+  quizId: Id<"quizzes">;
   copy?: QuizCopyOverride;
   className?: string;
 };
 
-export function QuizTakeView({ moduleId, copy: copyOverride, className }: QuizTakeViewProps) {
+export function QuizTakeView({ quizId, copy: copyOverride, className }: QuizTakeViewProps) {
   const copy = mergeQuizCopy(copyOverride);
-  const quiz = useQuizForTaking(moduleId);
-  const attempts = useMyAttempts(quiz?._id);
+  const quiz = useQuizForTaking(quizId);
+  const attempts = useMyAttempts(quizId);
   const { submitAttempt, isPending } = useSubmitAttempt(copyOverride);
 
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [result, setResult] = useState<AttemptResult | null>(null);
 
   const allAnswered = useMemo(
-    () => quiz != null && Object.keys(answers).length === quiz.questions.length,
+    () => quiz !== undefined && Object.keys(answers).length === quiz.questions.length,
     [answers, quiz]
   );
   const answeredCount = Object.keys(answers).length;
@@ -44,14 +43,6 @@ export function QuizTakeView({ moduleId, copy: copyOverride, className }: QuizTa
       <div className={className}>
         <Skeleton className="h-40 w-full" />
       </div>
-    );
-  }
-
-  if (quiz === null) {
-    return (
-      <Card className={className}>
-        <CardContent className="py-8 text-center text-sm text-muted-foreground">{copy.noQuiz}</CardContent>
-      </Card>
     );
   }
 

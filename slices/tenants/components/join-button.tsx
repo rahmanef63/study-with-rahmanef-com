@@ -2,6 +2,7 @@
 
 // tenants slice — join flow CTA (R3). Three states: logged out → login link;
 // member → role chip; logged in non-member → join mutation.
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -41,7 +42,16 @@ export function JoinButton({
   const { membership, isAuthenticated, isAuthLoading } = useMyMembership(tenantId);
   const [join, { isPending }] = useJoinTenant({ success: t.success });
 
-  if (isAuthLoading || (isAuthenticated && membership === undefined)) {
+  // Auth lives in localStorage, so the server ALWAYS renders the loading
+  // skeleton while the client's very first render can already know the answer.
+  // React then discards the server HTML for this subtree and the sticky nav's
+  // primary action visibly repaints on every community page (hydration error
+  // #418). Holding the skeleton until after mount makes the two renders agree;
+  // the flash of real content is one frame later and nobody sees a swap.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted || isAuthLoading || (isAuthenticated && membership === undefined)) {
     return <Skeleton className={className ?? "h-9 w-36"} />;
   }
 

@@ -24,14 +24,27 @@ describe("barrel type contract (compile-time, enforced by tsc)", () => {
     expectTypeOf<typeof Barrel.QuizResultCard>().toBeFunction();
     expectTypeOf<typeof Barrel.QuizQuestionCard>().toBeFunction();
     expectTypeOf<typeof Barrel.QuizBuilderForm>().toBeFunction();
+    expectTypeOf<typeof Barrel.CourseQuizList>().toBeFunction();
     // hooks
     expectTypeOf<typeof Barrel.useQuizForTaking>().toBeFunction();
     expectTypeOf<typeof Barrel.useQuizForManage>().toBeFunction();
+    expectTypeOf<typeof Barrel.useQuizzesForCourse>().toBeFunction();
     expectTypeOf<typeof Barrel.useMyAttempts>().toBeFunction();
     expectTypeOf<typeof Barrel.useQuizBuilderMutations>().toBeFunction();
     expectTypeOf<typeof Barrel.useSubmitAttempt>().toBeFunction();
     // lib
     expectTypeOf<typeof Barrel.quizErrorMessage>().toBeFunction();
+    // MIGRATION (DECISIONS #37): quizzes are per COURSE, addressed by quizId.
+    expectTypeOf<Barrel.QuizTakeViewProps>().toHaveProperty("quizId");
+    expectTypeOf<Barrel.QuizBuilderViewProps>().toHaveProperty("courseId");
+    expectTypeOf<Barrel.CourseQuizRow>().toHaveProperty("questionCount");
+    // P0 type shape: a quiz LIST must not carry questions at all
+    expectTypeOf<Barrel.CourseQuizRow>().toEqualTypeOf<{
+      _id: Barrel.CourseQuizRow["_id"];
+      title: string;
+      passingScorePct: number;
+      questionCount: number;
+    }>();
     // P0 type shape: the taking projection must NOT carry answer fields
     expectTypeOf<Barrel.QuizPublicQuestion>().toEqualTypeOf<{ prompt: string; options: string[] }>();
     // attempt result reveals correctness post-submit

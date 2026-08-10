@@ -8,56 +8,65 @@
 // DB read — these specs FAIL on read-first code and PASS on the fixed code.
 import { expect, test } from "vitest";
 import { api } from "../../_generated/api";
-import { asUser, seedCourseModule, seedQuiz, seedTenantFixture, setup } from "./test.helpers";
+import { asUser, seedCourse, seedQuiz, seedTenantFixture, setup, validQuizArgs } from "./test.helpers";
 
-async function danglingModule() {
+async function danglingCourse() {
   const t = setup();
   const fx = await seedTenantFixture(t);
-  const cm = await seedCourseModule(t, fx, "published", "kelas-dangling");
+  const c = await seedCourse(t, fx, "published", "kelas-dangling");
   await t.run(async (ctx) => {
-    await ctx.db.delete(cm.moduleId);
-    await ctx.db.delete(cm.courseId);
+    await ctx.db.delete(c.courseId);
   });
-  return { t, fx, ...cm };
+  return { t, fx, ...c };
 }
 
 async function danglingQuiz() {
   const t = setup();
   const fx = await seedTenantFixture(t);
-  const cm = await seedCourseModule(t, fx, "published", "kelas-dangling-quiz");
-  const quizId = await seedQuiz(t, fx, cm);
+  const c = await seedCourse(t, fx, "published", "kelas-dangling-quiz");
+  const quizId = await seedQuiz(t, fx, c);
   await t.run(async (ctx) => {
     await ctx.db.delete(quizId);
-    await ctx.db.delete(cm.moduleId);
-    await ctx.db.delete(cm.courseId);
+    await ctx.db.delete(c.courseId);
   });
-  return { t, fx, quizId, ...cm };
+  return { t, fx, quizId, ...c };
 }
 
-test("getForManage: anonymous + dangling moduleId → NOT_AUTHENTICATED (never NOT_FOUND)", async () => {
-  const { t, moduleId } = await danglingModule();
+test("getForManage: anonymous + dangling quizId → NOT_AUTHENTICATED (never NOT_FOUND)", async () => {
+  const { t, quizId } = await danglingQuiz();
   await expect(
-    t.query(api.features.quiz.manage.getForManage, { moduleId })
+    t.query(api.features.quiz.manage.getForManage, { quizId })
   ).rejects.toThrow(/NOT_AUTHENTICATED/);
 });
 
-test("getQuizForTaking: anonymous + dangling moduleId → NOT_AUTHENTICATED", async () => {
-  const { t, moduleId } = await danglingModule();
+test("getQuizForTaking: anonymous + dangling quizId → NOT_AUTHENTICATED", async () => {
+  const { t, quizId } = await danglingQuiz();
   await expect(
-    t.query(api.features.quiz.taking.getQuizForTaking, { moduleId })
+    t.query(api.features.quiz.taking.getQuizForTaking, { quizId })
   ).rejects.toThrow(/NOT_AUTHENTICATED/);
 });
 
-test("createQuiz: anonymous + dangling moduleId → NOT_AUTHENTICATED", async () => {
-  const { t, moduleId } = await danglingModule();
+test("listQuizzesForCourse: anonymous + dangling courseId → NOT_AUTHENTICATED", async () => {
+  const { t, courseId } = await danglingCourse();
   await expect(
-    t.mutation(api.features.quiz.builder.createQuiz, {
-      moduleId,
-      title: "Kuis",
-      passingScorePct: 50,
-      questions: [{ prompt: "Soal?", options: ["a", "b"], correctIndex: 0 }],
-    })
+    t.query(api.features.quiz.taking.listQuizzesForCourse, { courseId })
   ).rejects.toThrow(/NOT_AUTHENTICATED/);
+});
+
+test("createQuiz: anonymous + dangling courseId → NOT_AUTHENTICATED", async () => {
+  const { t, courseId } = await danglingCourse();
+  await expect(
+    t.mutation(api.features.quiz.builder.createQuiz, validQuizArgs(courseId))
+  ).rejects.toThrow(/NOT_AUTHENTICATED/);
+});
+
+test("createQuiz: a member of the tenant on a dangling course → NOT_FOUND, never a write", async () => {
+  const { t, fx, courseId } = await danglingCourse();
+  await expect(
+    t
+      .withIdentity(asUser(fx.instructorId))
+      .mutation(api.features.quiz.builder.createQuiz, validQuizArgs(courseId))
+  ).rejects.toThrow(/NOT_FOUND/);
 });
 
 test("updateQuiz: anonymous + dangling quizId → NOT_AUTHENTICATED", async () => {

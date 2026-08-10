@@ -1,16 +1,21 @@
 // quiz feature — builder mutations (instructor+ on the quiz's own tenant, R6).
 // P0 contract per handler: v.* validators + authz BEFORE any read/write.
-// One quiz per module for v1 (check by_module first). tenantId/courseId are
-// DERIVED from the resolved module, never taken from the client.
+//
+// MIGRATION (DECISIONS #37): a quiz is created ON A COURSE. The old "one quiz
+// per module" rule died with the module tree; a course may now carry up to
+// MAX_QUIZZES_PER_COURSE quizzes, which is also what keeps the course-page read
+// bounded. tenantId is DERIVED from the resolved course, never taken from the
+// client, and `moduleId` is not written at all any more.
 import { v } from "convex/values";
 import { mutation } from "../../_generated/server";
-import {
-  getQuizByModule,
-  requireInstructorForModule,
-  requireInstructorForQuiz,
-} from "./access";
+import { requireInstructorForCourse, requireInstructorForQuiz } from "./access";
 import { fail } from "./errors";
-import { assertPassingScore, assertQuestions, assertTitle } from "./validate";
+import {
+  assertPassingScore,
+  assertQuestions,
+  assertTitle,
+  MAX_QUIZZES_PER_COURSE,
+} from "./validate";
 
 /** Convex validator for one MCQ question (matches schema.quizzes.questions). */
 const questionValidator = v.object({
@@ -21,32 +26,36 @@ const questionValidator = v.object({
 });
 
 /**
- * Create the module's quiz. VALIDATION_FAILED if one already exists (v1 = one
- * quiz per module). Starts usable immediately — visibility to members is gated
- * by the parent course's status at taking time, not stored here.
+ * Create a quiz on the course. Starts usable immediately — visibility to
+ * members is gated by the parent course's status at taking time, not stored
+ * here.
  */
 export const createQuiz = mutation({
   args: {
-    moduleId: v.id("modules"),
+    courseId: v.id("courses"),
     title: v.string(),
     passingScorePct: v.number(),
     questions: v.array(questionValidator),
   },
   handler: async (ctx, args) => {
-    const { module: mod } = await requireInstructorForModule(ctx, args.moduleId);
+    const { course } = await requireInstructorForCourse(ctx, args.courseId);
     assertTitle(args.title);
     assertPassingScore(args.passingScorePct);
     assertQuestions(args.questions);
 
-    const existing = await getQuizByModule(ctx, args.moduleId);
-    if (existing !== null) {
-      fail("VALIDATION_FAILED", "Modul ini sudah punya kuis");
+    // Bounded by the cap itself (+1 to detect "already at the ceiling"), so
+    // this never scans an unbounded quiz list.
+    const existing = await ctx.db
+      .query("quizzes")
+      .withIndex("by_course", (q) => q.eq("courseId", course._id))
+      .take(MAX_QUIZZES_PER_COURSE + 1);
+    if (existing.length >= MAX_QUIZZES_PER_COURSE) {
+      fail("VALIDATION_FAILED", `Maksimal ${MAX_QUIZZES_PER_COURSE} kuis per kelas`);
     }
 
     return ctx.db.insert("quizzes", {
-      tenantId: mod.tenantId, // derived — not client-supplied
-      courseId: mod.courseId, // derived — not client-supplied
-      moduleId: mod._id,
+      tenantId: course.tenantId, // derived — not client-supplied
+      courseId: course._id, // derived — not client-supplied
       title: args.title.trim(),
       passingScorePct: args.passingScorePct,
       questions: args.questions,

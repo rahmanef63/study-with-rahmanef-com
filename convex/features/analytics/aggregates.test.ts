@@ -12,6 +12,7 @@ import {
   insertCompletion,
   seedCourseWithLessons,
   seedQuiz,
+  seedSharedMateri,
   seedTenantFixture,
   setup,
 } from "./test.helpers";
@@ -62,15 +63,57 @@ test("getCourseAnalytics: per-lesson counts, badge count, and quiz stats are exa
     { id: c.lessonIds[0], n: 2 },
     { id: c.lessonIds[1], n: 1 },
   ]);
-  expect(result.lessons[0]).toMatchObject({ title: "Lesson 1", moduleTitle: "Modul 1" });
+  // FLAT list in courseLessons order — no module grouping fields survive.
+  expect(result.lessons[0]).toMatchObject({ title: "Lesson 1", order: 1 });
+  expect(Object.keys(result.lessons[0]).sort()).toEqual([
+    "completedCount",
+    "lessonId",
+    "order",
+    "title",
+  ]);
   expect(result.quizzes).toHaveLength(1);
   expect(result.quizzes[0]).toMatchObject({
     quizId,
-    quizTitle: "Kuis Modul 1",
+    quizTitle: "Kuis Kelas",
     attemptCount: 2,
     passCount: 1,
     passRatePct: 50,
   });
+});
+
+test("getCourseAnalytics: a materi shared with another course is counted once, in both", async () => {
+  // DECISIONS #36/#37 — completion identity is (userId, lessonId), so the same
+  // completion legitimately shows up in every course that teaches the materi,
+  // and never twice inside one course.
+  const t = setup();
+  const fx = await seedTenantFixture(t);
+  const a = await seedCourseWithLessons(t, fx, "published", 1, "kelas-a");
+  const b = await seedCourseWithLessons(t, fx, "published", 1, "kelas-b");
+  const shared = await seedSharedMateri(t, fx, [a.courseId, b.courseId], "sub-agents", 2);
+  await insertCompletion(t, fx, a, fx.memberId, shared);
+
+  const asInstructor = t.withIdentity(asUser(fx.instructorId));
+  for (const courseId of [a.courseId, b.courseId]) {
+    const result = await asInstructor.query(api.features.analytics.queries.getCourseAnalytics, {
+      courseId,
+    });
+    expect(result.totalLessons).toBe(2);
+    const sharedStat = result.lessons.find((l: any) => l.lessonId === shared);
+    expect(sharedStat).toMatchObject({ order: 2, completedCount: 1 });
+  }
+});
+
+test("getCourseAnalytics: a duplicate completion row never double-counts one member", async () => {
+  const t = setup();
+  const fx = await seedTenantFixture(t);
+  const c = await seedCourseWithLessons(t, fx, "published", 1);
+  await insertCompletion(t, fx, c, fx.memberId, c.lessonIds[0]);
+  await insertCompletion(t, fx, c, fx.memberId, c.lessonIds[0]);
+
+  const result = await t
+    .withIdentity(asUser(fx.instructorId))
+    .query(api.features.analytics.queries.getCourseAnalytics, { courseId: c.courseId });
+  expect(result.lessons[0].completedCount).toBe(1);
 });
 
 test("getCourseAnalytics: no PII — output carries no user ids or emails", async () => {

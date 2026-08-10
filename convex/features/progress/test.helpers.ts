@@ -62,7 +62,12 @@ export type CourseFixture = {
   lessonIds: Id<"lessons">[];
 };
 
-/** Course + 1 module + `lessonCount` lessons, in the given status. */
+/**
+ * Course + `lessonCount` materi PLACED in it via `courseLessons`.
+ * The legacy tree columns are written too, exactly as production still has
+ * them — the specs prove the readers no longer depend on them (seedMateri +
+ * placeLesson cover the rows that have NO legacy placement at all).
+ */
 export async function seedCourseWithLessons(
   t: T,
   fx: TenantFixture,
@@ -87,18 +92,56 @@ export async function seedCourseWithLessons(
     });
     const lessonIds: Id<"lessons">[] = [];
     for (let i = 0; i < lessonCount; i++) {
-      lessonIds.push(
-        await ctx.db.insert("lessons", {
-          tenantId: fx.tenantId,
-          courseId,
-          moduleId,
-          title: `Lesson ${i + 1}`,
-          contentMd: "Materi",
-          links: [],
-          order: i + 1,
-        })
-      );
+      const lessonId = await ctx.db.insert("lessons", {
+        tenantId: fx.tenantId,
+        courseId,
+        moduleId,
+        slug: `${slug}-materi-${i + 1}`,
+        status: "published",
+        title: `Lesson ${i + 1}`,
+        contentMd: "Materi",
+        links: [],
+        order: i + 1,
+      });
+      await ctx.db.insert("courseLessons", {
+        tenantId: fx.tenantId,
+        courseId,
+        lessonId,
+        order: i + 1,
+      });
+      lessonIds.push(lessonId);
     }
     return { courseId, moduleId, lessonIds };
+  });
+}
+
+/** A standalone materi: tenant-owned, NO legacy courseId/moduleId/order. */
+export async function seedMateri(
+  t: T,
+  fx: TenantFixture,
+  opts: { slug: string; status?: "draft" | "published"; title?: string } = { slug: "materi" }
+): Promise<Id<"lessons">> {
+  return await t.run(async (ctx) =>
+    ctx.db.insert("lessons", {
+      tenantId: fx.tenantId,
+      slug: opts.slug,
+      status: opts.status ?? "published",
+      title: opts.title ?? "Materi mandiri",
+      contentMd: "Materi mandiri",
+      links: [],
+    })
+  );
+}
+
+/** Place an existing materi into a course (the reuse path). */
+export async function placeLesson(
+  t: T,
+  fx: TenantFixture,
+  courseId: Id<"courses">,
+  lessonId: Id<"lessons">,
+  order: number
+): Promise<void> {
+  await t.run(async (ctx) => {
+    await ctx.db.insert("courseLessons", { tenantId: fx.tenantId, courseId, lessonId, order });
   });
 }

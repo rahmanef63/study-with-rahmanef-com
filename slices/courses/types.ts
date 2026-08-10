@@ -2,6 +2,19 @@
 // Data shapes mirror the PROJECTIONS returned by convex/features/courses/*
 // (not raw Doc<> rows): the public surface never carries contentMd/videoId
 // outside the lesson player, and never carries webhook-class secrets at all.
+//
+// MATERI MODEL (DECISIONS #37): a course is a FLAT ordered list of materi
+// (`courseLessons` placements), not a module tree. Nothing here has a
+// `modules` key any more, and `Id<"modules">` appears nowhere.
+//
+// Visibility, written down once because every surface below assumes it:
+//   · a materi is visible to a MEMBER of its tenant when status is
+//     "published" (a missing status counts as published — legacy rows
+//     predate the column);
+//   · instructor+ additionally sees drafts;
+//   · a COURSE's draft status gates the COURSE PAGE only, never the materi —
+//     materi is tenant-level content now, which is the point of the model;
+//   · anonymous callers see the etalase (titles/silabus), never content.
 import type { Id } from "@convex/_generated/dataModel";
 
 /** Error codes thrown by convex/features/courses (keep in sync with errors.ts). */
@@ -13,6 +26,8 @@ export type CoursesErrorCode =
   | "RATE_LIMITED";
 
 export type CourseStatus = "draft" | "published" | "archived";
+/** A materi publishes independently of the course that teaches it. */
+export type MateriStatus = "draft" | "published";
 export type ViewerRole = "member" | "instructor" | "owner" | null;
 
 export type CourseLink = { label: string; url: string };
@@ -26,74 +41,89 @@ export type CourseCardData = {
   coverImageUrl?: string;
 };
 
-/** Syllabus lesson row — projected, no content fields. */
+/** Syllabus row — projected, no content fields. `slug` is null only for a
+ *  pre-migration materi that never got one; the id route still works. */
 export type SyllabusLessonData = {
   _id: Id<"lessons">;
   title: string;
+  slug: string | null;
   order: number;
   hasVideo: boolean;
 };
 
-export type SyllabusModuleData = {
-  _id: Id<"modules">;
-  title: string;
-  order: number;
-  lessons: SyllabusLessonData[];
-};
-
-/** getOverview result — course header + syllabus (public for published). */
+/** getOverview result — course header + FLAT ordered silabus. */
 export type CourseOverviewData = {
   course: CourseCardData & { status: CourseStatus; tenantId: Id<"tenants"> };
-  modules: SyllabusModuleData[];
+  lessons: SyllabusLessonData[];
   viewerRole: ViewerRole;
   lessonCount: number;
 };
 
-/** getLesson result — full member-only lesson payload (player). */
+/** getLesson result — full member-only materi payload (player).
+ *  The course fields are READING CONTEXT: null when the materi is opened
+ *  outside a course the viewer can see (standalone library materi). */
 export type LessonViewData = {
   _id: Id<"lessons">;
-  courseId: Id<"courses">;
-  moduleId: Id<"modules">;
   tenantId: Id<"tenants">;
   title: string;
+  slug: string | null;
+  status: MateriStatus;
   youtubeVideoId?: string;
   contentMd: string;
+  contentBlocks?: unknown;
   links: CourseLink[];
-  order: number;
-  courseSlug: string;
-  courseTitle: string;
+  courseId: Id<"courses"> | null;
+  courseSlug: string | null;
+  courseTitle: string | null;
+  order: number | null;
   prevLessonId: Id<"lessons"> | null;
   nextLessonId: Id<"lessons"> | null;
+  viewerRole: Exclude<ViewerRole, null>;
 };
 
 /** listForManage row (instructor+ table). */
 export type ManageCourseRow = CourseCardData & { status: CourseStatus };
 
-/** getCourseTree lesson row (editor list; contentMd fetched separately). */
-export type ManageLessonRow = SyllabusLessonData & { linkCount: number };
-
-export type ManageModuleRow = {
-  _id: Id<"modules">;
+/** getCourseForManage materi row — one PLACEMENT of a materi in this course. */
+export type ManagePlacementRow = {
+  _id: Id<"lessons">;
+  placementId: Id<"courseLessons">;
   title: string;
+  slug: string | null;
+  status: MateriStatus;
   order: number;
-  lessons: ManageLessonRow[];
+  hasVideo: boolean;
+  linkCount: number;
 };
 
-export type CourseTreeData = {
+/** getCourseForManage result — the editor's flat placement list. */
+export type CourseManageData = {
   course: ManageCourseRow & { tenantId: Id<"tenants"> };
-  modules: ManageModuleRow[];
+  lessons: ManagePlacementRow[];
+  lessonCount: number;
 };
 
-/** getLessonForManage result (lesson editor form). */
+/** listMateriForManage row — the tenant-wide "tambah materi" picker. */
+export type MateriPickerRow = {
+  _id: Id<"lessons">;
+  title: string;
+  slug: string | null;
+  status: MateriStatus;
+  hasVideo: boolean;
+};
+
+/** getLessonForManage result (materi editor form). A materi belongs to a
+ *  TENANT, not to a course — placement is a separate call. */
 export type LessonEditorData = {
   _id: Id<"lessons">;
-  courseId: Id<"courses">;
-  moduleId: Id<"modules">;
+  tenantId: Id<"tenants">;
   title: string;
+  slug: string | null;
+  status: MateriStatus;
   youtubeVideoId?: string;
   contentMd: string;
+  contentBlocks?: unknown;
   links: CourseLink[];
-  order: number;
 };
 
 /** Markdown AST produced by lib/markdown.ts and rendered by MarkdownView. */

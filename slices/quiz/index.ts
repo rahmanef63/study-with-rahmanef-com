@@ -3,20 +3,25 @@
 // /t/[slug] course/lesson surfaces). Convex surface (not re-exported here —
 // call via api.features.quiz.*):
 //   builder.createQuiz · builder.updateQuiz · builder.deleteQuiz
-//   manage.getForManage (instructor+, full quiz)
-//   taking.getQuizForTaking (member, ANSWER-STRIPPED) · taking.listMyAttempts
-//   attempts.submitAttempt (member, server-graded)
+//   manage.getForManage (instructor+, full quiz, by quizId)
+//   taking.getQuizForTaking (member, ANSWER-STRIPPED, by quizId)
+//   taking.listQuizzesForCourse (member, titles/counts only)
+//   taking.listMyAttempts · attempts.submitAttempt (member, server-graded)
+//
+// MIGRATION (DECISIONS #37): quizzes belong to a COURSE and are addressed by
+// their own id. No moduleId crosses this barrel; the route is /kuis/<quizId>.
 
 // feature descriptor
 export { quizFeature } from "./config";
 
-// route-level client views (integrator mounts these under /t/[slug]/…)
+// route-level client views (integrator mounts these under /k/[slug]/…)
 export { QuizBuilderView, type QuizBuilderViewProps } from "./views/quiz-builder-view";
 export { QuizTakeView, type QuizTakeViewProps } from "./views/quiz-take-view";
 
 // components (presentational — reusable if the integrator composes its own view)
 export { QuizResultCard, type QuizResultCardProps } from "./components/quiz-result-card";
 export { QuizQuestionCard, type QuizQuestionCardProps } from "./components/quiz-question-card";
+export { CourseQuizList, type CourseQuizListProps } from "./components/course-quiz-list";
 export { QuizQuestionEditor, type QuizQuestionEditorProps } from "./components/quiz-question-editor";
 export {
   QuizBuilderForm,
@@ -25,7 +30,12 @@ export {
 } from "./components/quiz-builder-form";
 
 // hooks (reads + writes)
-export { useQuizForTaking, useQuizForManage, useMyAttempts } from "./hooks/use-quiz";
+export {
+  useQuizForTaking,
+  useQuizForManage,
+  useQuizzesForCourse,
+  useMyAttempts,
+} from "./hooks/use-quiz";
 export {
   useQuizBuilderMutations,
   useSubmitAttempt,
@@ -52,6 +62,7 @@ export {
 export type {
   AttemptResult,
   AttemptResultQuestion,
+  CourseQuizRow,
   MyAttemptRow,
   QuizErrorCode,
   QuizManageData,

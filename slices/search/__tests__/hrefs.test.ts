@@ -1,6 +1,12 @@
 // Pure unit specs for the deep-link href builders (one behavior cluster).
 import { describe, expect, test } from "vitest";
-import { buildCourseHref, buildLessonHref, buildPostHref, hitHref } from "../lib/hrefs";
+import {
+  buildCourseHref,
+  buildLessonHref,
+  buildMateriHref,
+  buildPostHref,
+  hitHref,
+} from "../lib/hrefs";
 import type { LessonHit, PostHit, SearchHit } from "../types";
 
 describe("href builders", () => {
@@ -18,14 +24,21 @@ describe("href builders", () => {
     const course: SearchHit = { kind: "course", title: "Dasar AI", courseSlug: "dasar-ai" };
     expect(hitHref("belajar-ai", course)).toBe("/k/belajar-ai/kelas/dasar-ai");
 
+    // A materi hit resolves to the CANONICAL slug URL, never a course path.
     const lesson = {
       kind: "lesson",
       title: "Materi 1",
-      courseSlug: "dasar-ai",
+      lessonSlug: "materi-1",
       lessonId: "j57abc",
       snippet: "…",
     } as unknown as LessonHit; // Id<"lessons"> is a branded string
-    expect(hitHref("belajar-ai", lesson)).toBe("/k/belajar-ai/kelas/dasar-ai/j57abc");
+    expect(hitHref("belajar-ai", lesson)).toBe("/k/belajar-ai/materi/materi-1");
+  });
+
+  test("materi href is the canonical /k/<tenant>/materi/<lessonSlug>", () => {
+    expect(buildMateriHref("belajar-ai", "dasar-prompt")).toBe(
+      "/k/belajar-ai/materi/dasar-prompt"
+    );
   });
 
   test("post href is the INTERNAL permalink /k/<tenant>/post/<postId> (#33)", () => {

@@ -2,7 +2,7 @@
 // #3 "agregat instructor+"). READ-ONLY aggregates over shared tables; no new
 // tables, no writes, nothing stored (docs/DATA-MODEL.md "Derivasi & invarian").
 // P0: v.* validators + authz helper as the FIRST handler line; auth runs
-// BEFORE any domain read (access.ts). Outputs are counts + course/lesson/quiz
+// BEFORE any domain read (access.ts). Outputs are counts + course/materi/quiz
 // titles only — no user identifiers, no PII.
 import { v } from "convex/values";
 import type { Doc, Id } from "../../_generated/dataModel";
@@ -12,12 +12,11 @@ import {
   countBadgesByCourse,
   countCompletionsPerLesson,
   listTenantMemberships,
-  quizStatsForModules,
+  quizStatsForCourse,
+  type CourseQuizStat,
   type LessonCompletionStat,
-  type ModuleQuizStat,
 } from "./aggregate";
-import { MAX_COURSES_PER_TENANT, MAX_LESSONS_PER_COURSE, MAX_MODULES_PER_COURSE } from "./constants";
-import { legacyModuleId, legacyOrder } from "../../_shared/legacyLesson";
+import { MAX_COURSES_PER_TENANT, MAX_LESSONS_PER_COURSE } from "./constants";
 
 /** getCourseAnalytics result — all counts derived on read. */
 export type CourseAnalytics = {
@@ -27,8 +26,9 @@ export type CourseAnalytics = {
   /** courseCompletions (badge) count for this course. */
   courseCompletionCount: number;
   totalLessons: number;
+  /** FLAT, in teaching order (courseLessons.order) — no module grouping. */
   lessons: LessonCompletionStat[];
-  quizzes: ModuleQuizStat[];
+  quizzes: CourseQuizStat[];
 };
 
 /** listCourseSummaries item — ringkas untuk daftar kelola. */
@@ -42,53 +42,54 @@ export type CourseSummary = {
 };
 
 /**
- * Full per-course analytics for instructor+: per-lesson completion counts,
- * badge count, tenant member count, and quiz stats per module. Drafts are
+ * Full per-course analytics for instructor+: per-materi completion counts,
+ * badge count, tenant member count, and the course's quiz stats. Drafts are
  * visible here on purpose — only instructor+ ever reaches this query, and the
  * kelola surface manages drafts too.
+ *
+ * The roster is `courseLessons`, read through by_course = [courseId, order], so
+ * the list comes back already in teaching order and a materi shared with
+ * another course is counted here exactly once (DECISIONS #36/#37). A placement
+ * whose materi row is gone is skipped rather than rendered as a blank bar.
  */
 export const getCourseAnalytics = query({
   args: { courseId: v.id("courses") },
   handler: async (ctx, args): Promise<CourseAnalytics> => {
     const { course } = await requireInstructorForCourse(ctx, args.courseId);
 
-    const modules = (
-      await ctx.db
-        .query("modules")
-        .withIndex("by_course", (q) => q.eq("courseId", course._id))
-        .take(MAX_MODULES_PER_COURSE)
-    ).sort((a, b) => a.order - b.order);
-    const moduleById = new Map(modules.map((mod) => [mod._id, mod]));
-
-    const lessons = await ctx.db
-      .query("lessons")
+    const placements = await ctx.db
+      .query("courseLessons")
       .withIndex("by_course", (q) => q.eq("courseId", course._id))
       .take(MAX_LESSONS_PER_COURSE);
-    const completionsPerLesson = await countCompletionsPerLesson(ctx, course._id);
-    const memberships = await listTenantMemberships(ctx, course.tenantId);
-    const badgeCounts = await countBadgesByCourse(ctx, memberships, [course._id]);
-    const quizzes = await quizStatsForModules(ctx, modules);
+    const lessons = await Promise.all(placements.map((p) => ctx.db.get(p.lessonId)));
 
-    const lessonStats: LessonCompletionStat[] = lessons
-      .map((lesson) => {
-        const mod = moduleById.get(legacyModuleId(lesson));
-        return {
+    const memberships = await listTenantMemberships(ctx, course.tenantId);
+    const completionsPerLesson = await countCompletionsPerLesson(
+      ctx,
+      memberships,
+      placements.map((placement) => placement.lessonId)
+    );
+    const badgeCounts = await countBadgesByCourse(ctx, memberships, [course._id]);
+    const quizzes = await quizStatsForCourse(ctx, course._id);
+
+    const lessonStats: LessonCompletionStat[] = placements.flatMap((placement, index) => {
+      const lesson = lessons[index];
+      if (lesson === null) return [];
+      return [
+        {
           lessonId: lesson._id,
           title: lesson.title,
-          order: legacyOrder(lesson),
-          moduleId: legacyModuleId(lesson),
-          moduleTitle: mod?.title ?? "",
-          moduleOrder: mod?.order ?? 0,
+          order: placement.order,
           completedCount: completionsPerLesson.get(lesson._id) ?? 0,
-        };
-      })
-      .sort((a, b) => a.moduleOrder - b.moduleOrder || a.order - b.order);
+        },
+      ];
+    });
 
     return {
       course: { _id: course._id, slug: course.slug, title: course.title, status: course.status },
       memberCount: memberships.length,
       courseCompletionCount: badgeCounts.get(course._id) ?? 0,
-      totalLessons: lessons.length,
+      totalLessons: lessonStats.length,
       lessons: lessonStats,
       quizzes,
     };

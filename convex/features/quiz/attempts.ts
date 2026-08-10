@@ -10,8 +10,8 @@ import { fail } from "./errors";
 import { didPass, gradeAttempt } from "./grade";
 import { assertAnswers } from "./validate";
 
-// Cap attempts per user per quiz. Without it, `passed` — which is what marks a
-// module lulus — could be farmed by resubmitting indefinitely.
+// Cap attempts per user per quiz. Without it, `passed` — which is what marks
+// the quiz lulus — could be farmed by resubmitting indefinitely.
 export const MAX_ATTEMPTS_PER_QUIZ = 5;
 
 export const submitAttempt = mutation({

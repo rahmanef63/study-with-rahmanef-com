@@ -2,19 +2,23 @@
 // table in docs/DATA-MODEL.md scopes lessonCompletions read to "user sendiri").
 // P0: v.* validators + authz helper as the FIRST handler line. userId is the
 // caller's, resolved by the helper from ctx — never an arg. Instructor-facing
-// aggregates ("agregat: instructor+") are out of v1 scope (proposed for later).
-import { legacyCourseId } from "../../_shared/legacyLesson";
+// aggregates ("agregat: instructor+") live in convex/features/analytics.
 import { v } from "convex/values";
 import { query } from "../../_generated/server";
-import { assertCourseActableByRole, requireMemberForCourse, requireMemberForLesson } from "./access";
+import {
+  assertCourseActableByRole,
+  assertLessonVisibleByRole,
+  requireMemberForCourse,
+  requireMemberForLesson,
+} from "./access";
 import { deriveCourseProgress } from "./derive";
-import { fail } from "./errors";
 
 /**
  * The caller's progress in one course: completed lesson ids (for syllabus
  * checks), counts, and the completion flag (for the progress bar). Counts are
- * derived from indexes on every read — percentages are never stored.
- * Draft/archived courses are NOT_FOUND for plain members (mirrors courses).
+ * derived from `courseLessons` ∩ the caller's completions on every read —
+ * percentages are never stored. Draft/archived courses are NOT_FOUND for plain
+ * members: this is the COURSE surface, so the course-level gate applies.
  */
 export const getCourseProgress = query({
   args: { courseId: v.id("courses") },
@@ -26,23 +30,22 @@ export const getCourseProgress = query({
 });
 
 /**
- * Whether the caller has completed ONE lesson — powers the lesson player's
- * "tandai selesai" / "sudah selesai" state. Bounded unique read on
- * by_user_lesson. Returns only the caller's own boolean (no data leak).
+ * Whether the caller has completed ONE materi — powers the "tandai selesai" /
+ * "sudah selesai" state on both the canonical materi page and the in-course
+ * reader. Bounded point read on by_user_lesson. Returns only the caller's own
+ * boolean (no data leak). The gate is the MATERI's status, not any course's:
+ * completion is tenant-level content state now.
  */
 export const getLessonCompletion = query({
   args: { lessonId: v.id("lessons") },
   handler: async (ctx, args) => {
     const { userId, lesson, membership } = await requireMemberForLesson(ctx, args.lessonId);
-
-    const course = await ctx.db.get(legacyCourseId(lesson));
-    if (course === null) fail("NOT_FOUND", "Kelas tidak ditemukan");
-    assertCourseActableByRole(course, membership.role);
+    assertLessonVisibleByRole(lesson, membership.role);
 
     const existing = await ctx.db
       .query("lessonCompletions")
       .withIndex("by_user_lesson", (q) => q.eq("userId", userId).eq("lessonId", lesson._id))
-      .unique();
+      .first();
     return { isCompleted: existing !== null };
   },
 });

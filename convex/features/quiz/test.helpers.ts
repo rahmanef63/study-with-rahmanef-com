@@ -55,18 +55,18 @@ export async function seedTenantFixture(t: T): Promise<TenantFixture> {
   });
 }
 
-export type CourseModuleFixture = {
+export type CourseFixture = {
   courseId: Id<"courses">;
-  moduleId: Id<"modules">;
 };
 
-/** Course + one module in the given status, owned by the fixture instructor. */
-export async function seedCourseModule(
+/** Course in the given status, owned by the fixture instructor. Quizzes hang
+ *  off the COURSE now — no module is created (DECISIONS #37). */
+export async function seedCourse(
   t: T,
   fx: TenantFixture,
   status: "draft" | "published" | "archived",
   slug = `kelas-${status}`
-): Promise<CourseModuleFixture> {
+): Promise<CourseFixture> {
   return await t.run(async (ctx) => {
     const courseId = await ctx.db.insert("courses", {
       tenantId: fx.tenantId,
@@ -76,29 +76,23 @@ export async function seedCourseModule(
       status,
       createdBy: fx.instructorId,
     });
-    const moduleId = await ctx.db.insert("modules", {
-      tenantId: fx.tenantId,
-      courseId,
-      title: "Modul 1",
-      order: 1,
-    });
-    return { courseId, moduleId };
+    return { courseId };
   });
 }
 
-/** Two-question quiz (passingScorePct default 50) directly on `moduleId`. */
+/** Two-question quiz (passingScorePct default 50) on the fixture course. */
 export async function seedQuiz(
   t: T,
   fx: TenantFixture,
-  cm: CourseModuleFixture,
-  passingScorePct = 50
+  c: CourseFixture,
+  passingScorePct = 50,
+  title = "Kuis Modul 1"
 ): Promise<Id<"quizzes">> {
   return await t.run(async (ctx) => {
     return await ctx.db.insert("quizzes", {
       tenantId: fx.tenantId,
-      courseId: cm.courseId,
-      moduleId: cm.moduleId,
-      title: "Kuis Modul 1",
+      courseId: c.courseId,
+      title,
       passingScorePct,
       questions: [
         {
@@ -118,10 +112,10 @@ export async function seedQuiz(
   });
 }
 
-/** Valid createQuiz payload for a module (instructor-authored). */
-export function validQuizArgs(moduleId: Id<"modules">) {
+/** Valid createQuiz payload for a course (instructor-authored). */
+export function validQuizArgs(courseId: Id<"courses">) {
   return {
-    moduleId,
+    courseId,
     title: "Kuis Pengantar AI",
     passingScorePct: 50,
     questions: [

@@ -1,7 +1,7 @@
 {
   "$schema": "../../docs/slice.manifest.schema.json",
   "name": "roadmap",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "CourseNav rail — the compact secondary-sidebar syllabus nav (modules→lessons + per-lesson completion) shown beside the Kelas lesson sheet, derived client-side from the courses + progress slices. No new tables/convex, no routes.",
   "category": "lms",
   "stability": "beta",

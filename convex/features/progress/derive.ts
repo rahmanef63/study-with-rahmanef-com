@@ -2,9 +2,16 @@
 // invarian"): course progress is COUNTED from indexes, never stored. Shared by
 // the mutation (to decide course completion) and the read query (to render the
 // bar + syllabus checks) so both agree on exactly one definition of "done".
-import type { Id } from "../../_generated/dataModel";
+//
+// MATERI MODEL (DECISIONS #36/#37). A completion is keyed on (userId, lessonId)
+// ONLY. The roster of a course is `courseLessons`, not `lessons.courseId`, so
+// course progress = |completions ∩ courseLessons(courseId)| / |courseLessons|.
+// Keeping courseId in the completion key would ask someone who finished "sub
+// agents" in Claude Code to finish it again in Hermes, and would double-count
+// their progress — see the note on `lessonCompletions` in _tables/learning.ts.
+import type { Doc, Id } from "../../_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "../../_generated/server";
-import { MAX_COMPLETIONS_PER_COURSE, MAX_LESSONS_PER_COURSE } from "./constants";
+import { MAX_COURSES_PER_LESSON, MAX_LESSONS_PER_COURSE } from "./constants";
 
 type Ctx = QueryCtx | MutationCtx;
 
@@ -17,32 +24,61 @@ export type CourseProgress = {
   isComplete: boolean;
 };
 
+/** A course's materi roster, in teaching order (by_course = [courseId, order]). */
+export async function listCoursePlacements(
+  ctx: Ctx,
+  courseId: Id<"courses">
+): Promise<Doc<"courseLessons">[]> {
+  return await ctx.db
+    .query("courseLessons")
+    .withIndex("by_course", (q) => q.eq("courseId", courseId))
+    .take(MAX_LESSONS_PER_COURSE);
+}
+
+/** The backlink: every course this materi is taught in. Empty is legitimate —
+ *  a materi can live in the library without belonging to any course. */
+export async function listLessonPlacements(
+  ctx: Ctx,
+  lessonId: Id<"lessons">
+): Promise<Doc<"courseLessons">[]> {
+  return await ctx.db
+    .query("courseLessons")
+    .withIndex("by_lesson", (q) => q.eq("lessonId", lessonId))
+    .take(MAX_COURSES_PER_LESSON);
+}
+
 /**
- * Count-based progress for one user in one course. Both reads are index-bounded
- * (no bare .collect(), P1). Completions are filtered to lessons that still
- * exist so completedCount can never exceed totalCount (a completed lesson can't
- * be deleted per DATA-MODEL, so this only guards against races).
+ * Count-based progress for one user in one course. Every read is
+ * index-bounded (no bare .collect(), P1): one range read for the roster, then
+ * one by_user_lesson point lookup per placement. Cost is O(course size) and
+ * independent of how much the user has completed elsewhere — the alternative
+ * (scanning the user's completions and intersecting) would silently FLOOR the
+ * count for a heavy learner once their history outgrew the scan cap.
+ * `.first()` rather than `.unique()`: a duplicate legacy row must degrade to
+ * "completed", never crash a progress read.
  */
 export async function deriveCourseProgress(
   ctx: Ctx,
   userId: Id<"users">,
   courseId: Id<"courses">
 ): Promise<CourseProgress> {
-  const lessons = await ctx.db
-    .query("lessons")
-    .withIndex("by_course", (q) => q.eq("courseId", courseId))
-    .take(MAX_LESSONS_PER_COURSE);
-  const liveLessonIds = new Set(lessons.map((lesson) => lesson._id));
+  const placements = await listCoursePlacements(ctx, courseId);
+  const flags = await Promise.all(
+    placements.map(async (placement) => {
+      const completion = await ctx.db
+        .query("lessonCompletions")
+        .withIndex("by_user_lesson", (q) =>
+          q.eq("userId", userId).eq("lessonId", placement.lessonId)
+        )
+        .first();
+      return completion !== null;
+    })
+  );
 
-  const completions = await ctx.db
-    .query("lessonCompletions")
-    .withIndex("by_user_course", (q) => q.eq("userId", userId).eq("courseId", courseId))
-    .take(MAX_COMPLETIONS_PER_COURSE);
-  const completedLessonIds = completions
-    .map((completion) => completion.lessonId)
-    .filter((lessonId) => liveLessonIds.has(lessonId));
-
-  const totalCount = lessons.length;
+  const completedLessonIds = placements
+    .filter((_, index) => flags[index])
+    .map((placement) => placement.lessonId);
+  const totalCount = placements.length;
   const completedCount = completedLessonIds.length;
   return {
     completedLessonIds,

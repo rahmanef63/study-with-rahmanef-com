@@ -1,8 +1,12 @@
 // analytics slice — public barrel (THE contract; barrel-only cross-slice
 // imports, rr-conventions P1). STATUS row #17: read-only instructor+
-// aggregates per course, deferred from #3. No routes: alpha mounts
-// CourseAnalyticsView inside the kelola window-app; useCourseSummaries feeds
-// the kelola course list its { completionCount, memberCount } numbers.
+// aggregates per course, deferred from #3. No routes: the Kelola › Statistik
+// tab mounts CourseAnalyticsView; useCourseSummaries feeds that tab's course
+// list its { completionCount, memberCount } numbers.
+//
+// 0.2.0 (DECISIONS #37): the per-module grouping is gone. Completion bars are a
+// FLAT per-materi list in teaching order and `ModuleQuizStat` is now
+// `CourseQuizStat` — a quiz belongs to the course.
 //
 // Convex surface (not re-exported; call via api.features.analytics.*):
 //   queries.getCourseAnalytics · queries.listCourseSummaries
@@ -40,7 +44,7 @@ export {
 export type {
   AnalyticsErrorCode,
   CourseAnalyticsData,
+  CourseQuizStat,
   CourseSummaryData,
   LessonCompletionStat,
-  ModuleQuizStat,
 } from "./types";

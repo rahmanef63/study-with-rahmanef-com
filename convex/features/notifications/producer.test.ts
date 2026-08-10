@@ -34,6 +34,9 @@ async function fixture() {
   const fx = await seedTenantFixture(t);
   const lf = await seedLesson(t, fx);
   await t.run(async (ctx) => {
+    // The materi handle the CANONICAL deep-link is built from (DECISIONS
+    // #36/#37) — the shared fixture still writes a pre-migration row.
+    await ctx.db.patch(lf.lessonId, { slug: "materi-1", status: "published" });
     await ctx.db.insert("profiles", {
       userId: fx.instructorId,
       username: "guru",
@@ -49,7 +52,7 @@ async function fixture() {
 }
 
 describe("comment_reply producer (comments.addComment)", () => {
-  test("reply by ANOTHER user notifies the parent author with a lesson deep-link", async () => {
+  test("reply by ANOTHER user notifies the parent author with a CANONICAL materi deep-link", async () => {
     const { t, fx, lessonId, rootId } = await fixture();
     await t.withIdentity(asUser(fx.instructorId))
       .mutation(api.features.comments.comments.addComment, {
@@ -64,7 +67,7 @@ describe("comment_reply producer (comments.addComment)", () => {
     expect(rows[0]?.kind).toBe("comment_reply");
     expect(rows[0]?.tenantId).toBe(fx.tenantId);
     expect(rows[0]?.readAt).toBeUndefined(); // born unread
-    expect(rows[0]?.href).toBe(`/k/komunitas-test/kelas/kelas-published/${lessonId}`);
+    expect(rows[0]?.href).toBe("/k/komunitas-test/materi/materi-1");
     // Copy is Bahasa Indonesia; only the replier's displayName as PII.
     expect(rows[0]?.title).toBe("Balasan baru di diskusimu");
     expect(rows[0]?.body).toContain("Bu Guru");

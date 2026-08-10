@@ -4,7 +4,7 @@
 export const QUIZ_COPY = {
   // taking surface
   quizTitle: "Kuis",
-  noQuiz: "Belum ada kuis untuk modul ini",
+  noQuiz: "Belum ada kuis di kelas ini",
   startHint: "Jawab semua soal lalu kirim untuk melihat nilaimu.",
   question: "Soal",
   of: "dari",
@@ -28,6 +28,12 @@ export const QUIZ_COPY = {
   attemptScore: "Nilai",
   // builder surface
   builderTitle: "Buat / Ubah Kuis",
+  newQuiz: "Kuis baru",
+  courseQuizzes: "Kuis kelas ini",
+  quizMeta: "soal",
+  quizPassed: "Lulus ✓",
+  quizNotPassed: "Belum lulus",
+  quizStart: "Kerjakan →",
   fieldTitle: "Judul kuis",
   fieldPassing: "Nilai kelulusan (%)",
   addQuestion: "Tambah soal",

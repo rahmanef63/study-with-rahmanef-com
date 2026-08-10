@@ -1,131 +1,113 @@
-// courses slice — syllabus (modules → lessons) for the course overview.
+// courses slice — the silabus: a FLAT ordered list of materi (DECISIONS #37).
+// The module grouping is gone, so this is no longer a stack of sections —
+// it is ONE list, and it is rendered as an iOS inset grouped list: full-bleed
+// rows separated by hairlines on a phone, inset inside its own frame from
+// @sm up. A card per materi would have cost ~3× the vertical rhythm and made
+// a 20-materi course an endless scroll of boxes.
+//
 // Progress (#3) consumes this through the barrel: pass `completedLessonIds`
-// to render per-lesson check marks — no deep import needed.
+// to render per-materi check marks — no deep import needed.
+//
+// The `-mx-4` bleed assumes the host gutter is 1rem on phones (the community
+// shell is `px-4`). From @sm the list insets itself and grows side borders.
 import { CheckCircle2, ChevronRight, Circle, Lock, PlayCircle } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { Id } from "@convex/_generated/dataModel";
-import { Badge } from "@/components/mockup-kit";
-import type { SyllabusModuleData } from "../types";
+import type { SyllabusLessonData } from "../types";
 
 export type SyllabusListProps = {
-  modules: SyllabusModuleData[];
-  /** Lesson route builder — e.g. (id) => `/t/${t}/kelas/${k}/belajar/${id}`. */
+  lessons: SyllabusLessonData[];
+  /** Materi route builder — e.g. (id) => `/k/${t}/kelas/${k}/${id}`. */
   lessonHref: (lessonId: Id<"lessons">) => string;
-  /** From progress (#3): lesson ids the viewer completed. */
+  /** From progress (#3): materi ids the viewer completed. */
   completedLessonIds?: ReadonlyArray<string>;
   /** True for non-members: rows render inert with a lock hint (UX only). */
   locked?: boolean;
   emptyText: string;
   lockedText?: string;
-  /** Optional slot rendered right after each module's lessons — e.g. that
-   *  module's quiz CTA. Omitted callers are unaffected (backward-compatible). */
-  renderModuleFooter?: (module: SyllabusModuleData) => ReactNode;
+  /** Rendered as the last rows of the same list — e.g. the course's quizzes.
+   *  Kept inside the frame so a quiz reads as a step of the course, not a
+   *  detached card floating under it. MUST render `<li>` elements: it is
+   *  spliced into this component's `<ol>`. */
+  footerSlot?: ReactNode;
   className?: string;
 };
 
+/** Full-bleed on a phone, inset grouped from @sm — one frame, hairline rows. */
+const GROUP = "-mx-4 border-y border-border bg-card @sm:mx-0 @sm:border-x";
+const ROW = "flex min-h-12 items-center gap-3 px-4 py-2.5 text-sm @sm:min-h-11";
+
 export function SyllabusList({
-  modules,
+  lessons,
   lessonHref,
   completedLessonIds,
   locked = false,
   emptyText,
   lockedText,
-  renderModuleFooter,
+  footerSlot,
   className,
 }: SyllabusListProps) {
   const completed = new Set(completedLessonIds ?? []);
-  // Only surface per-module completion counts once the viewer's progress is
-  // known (member branch passes the array; non-members leave it undefined).
-  const showProgress = completedLessonIds !== undefined;
-  const hasLessons = modules.some((mod) => mod.lessons.length > 0);
 
-  if (!hasLessons) {
-    // Still surface per-module footers (e.g. quiz CTAs) so they aren't lost on a
-    // course whose modules have no lessons yet — the footer moved here from a
-    // formerly-independent flat block.
+  if (lessons.length === 0) {
+    // Still surface the footer (quizzes) — a course can be quiz-first while
+    // its silabus is still being written.
     return (
-      <div className="space-y-4">
+      <div className={className ? `space-y-3 ${className}` : "space-y-3"}>
         <p className="text-sm text-muted-foreground">{emptyText}</p>
-        {renderModuleFooter
-          ? modules.map((mod) => <div key={mod._id}>{renderModuleFooter(mod)}</div>)
-          : null}
+        {footerSlot}
       </div>
     );
   }
 
   return (
-    <div className={className ? `space-y-6 ${className}` : "space-y-6"}>
+    <div className={className ? `space-y-3 ${className}` : "space-y-3"}>
       {locked && lockedText !== undefined && (
-        <p className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 p-3 text-sm text-muted-foreground">
+        <p className="flex items-center gap-2 border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
           <Lock className="size-4 shrink-0" aria-hidden />
           {lockedText}
         </p>
       )}
-      {modules.map((mod, moduleIndex) => {
-        const moduleTotal = mod.lessons.length;
-        const moduleDone = mod.lessons.reduce((n, l) => (completed.has(l._id) ? n + 1 : n), 0);
-        return (
-          <section key={mod._id} className="space-y-3">
-            <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-              <h3 className="flex min-w-0 items-baseline gap-2.5 font-display text-base @sm:text-xs">
-                <span className="tabular-nums text-primary/80">
-                  {String(moduleIndex + 1).padStart(2, "0")}
-                </span>
-                <span className="min-w-0 text-pretty">{mod.title}</span>
-              </h3>
-              {showProgress && moduleTotal > 0 ? (
-                moduleDone === moduleTotal ? (
-                  <Badge tone="success">Selesai ✓</Badge>
-                ) : (
-                  <Badge tone="muted">
-                    {moduleDone}/{moduleTotal} lesson
-                  </Badge>
-                )
-              ) : null}
-            </div>
-            <ul className="divide-y divide-border overflow-hidden rounded-[var(--radius-win)] border border-border bg-card">
-              {mod.lessons.map((lesson) => {
-                const isDone = completed.has(lesson._id);
-                const row = (
-                  <span className="flex min-h-11 items-center gap-3 px-4 py-3 text-sm">
-                    {isDone ? (
-                      <CheckCircle2 className="size-4 shrink-0 text-primary" aria-hidden />
-                    ) : (
-                      <Circle className="size-4 shrink-0 text-muted-foreground/40" aria-hidden />
-                    )}
-                    <span className="min-w-0 flex-1 truncate font-medium">{lesson.title}</span>
-                    {lesson.hasVideo && (
-                      <PlayCircle className="size-4 shrink-0 text-muted-foreground" aria-hidden />
-                    )}
-                    {!locked && (
-                      <ChevronRight
-                        className="hidden size-4 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 [@media(hover:hover)]:block"
-                        aria-hidden
-                      />
-                    )}
-                  </span>
-                );
-                return (
-                  <li key={lesson._id}>
-                    {locked ? (
-                      <span className="block cursor-not-allowed opacity-60">{row}</span>
-                    ) : (
-                      <Link
-                        href={lessonHref(lesson._id)}
-                        className="group block transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
-                      >
-                        {row}
-                      </Link>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-            {renderModuleFooter?.(mod)}
-          </section>
-        );
-      })}
+      <ol className={`${GROUP} divide-y divide-border`}>
+        {lessons.map((lesson, index) => {
+          const isDone = completed.has(lesson._id);
+          const row = (
+            <span className={ROW}>
+              <span className="w-6 shrink-0 text-right font-display text-[0.65rem] tabular-nums text-muted-foreground">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              {isDone ? (
+                <CheckCircle2 className="size-4 shrink-0 text-success" aria-hidden />
+              ) : (
+                <Circle className="size-4 shrink-0 text-muted-foreground/40" aria-hidden />
+              )}
+              <span className="min-w-0 flex-1 truncate font-medium">{lesson.title}</span>
+              {lesson.hasVideo && (
+                <PlayCircle className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+              )}
+              {!locked && (
+                <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+              )}
+            </span>
+          );
+          return (
+            <li key={lesson._id}>
+              {locked ? (
+                <span className="block cursor-not-allowed opacity-60">{row}</span>
+              ) : (
+                <Link
+                  href={lessonHref(lesson._id)}
+                  className="block transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                >
+                  {row}
+                </Link>
+              )}
+            </li>
+          );
+        })}
+        {footerSlot}
+      </ol>
     </div>
   );
 }

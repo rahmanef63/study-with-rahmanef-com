@@ -1,4 +1,7 @@
 // quiz slice — public types (the barrel contract's type half).
+// MIGRATION (DECISIONS #37): a quiz belongs to a COURSE and is addressed by
+// its own id — `moduleId` is gone from every shape here, and the route is
+// /kuis/<quizId>.
 // Data shapes mirror the PROJECTIONS returned by convex/features/quiz/* (not
 // raw Doc<> rows): the taking surface NEVER carries correctIndex/explanation;
 // those appear only in the manage read (instructor+) and the attempt result.
@@ -25,7 +28,6 @@ export type QuizManageData = {
   _id: Id<"quizzes">;
   tenantId: Id<"tenants">;
   courseId: Id<"courses">;
-  moduleId: Id<"modules">;
   title: string;
   passingScorePct: number;
   questions: QuizQuestionInput[];
@@ -40,13 +42,21 @@ export type QuizPublicQuestion = {
 /** getQuizForTaking result — answer-stripped quiz for a member. */
 export type QuizTakingData = {
   _id: Id<"quizzes">;
-  moduleId: Id<"modules">;
   courseId: Id<"courses">;
   tenantId: Id<"tenants">;
   title: string;
   passingScorePct: number;
   questionCount: number;
   questions: QuizPublicQuestion[];
+};
+
+/** listQuizzesForCourse row — the course page's quiz list. NEVER carries
+ *  `questions`: the answer key must not ride along with a list. */
+export type CourseQuizRow = {
+  _id: Id<"quizzes">;
+  title: string;
+  passingScorePct: number;
+  questionCount: number;
 };
 
 /** Per-question outcome. `isCorrect` is always present (it IS the score, per

@@ -12,6 +12,9 @@ export const MAX_PROMPT_CHARS = 500;
 export const MAX_OPTION_CHARS = 200;
 export const MAX_EXPLANATION_CHARS = 1000;
 export const ATTEMPTS_TAKE = 50;
+/** Quizzes per course. Doubles as the read ceiling for the course quiz list so
+ *  `by_course` is always a bounded take, never an open .collect(). */
+export const MAX_QUIZZES_PER_COURSE = 20;
 
 /** Question shape as accepted from the builder client (matches schema). */
 export type QuestionInput = {

@@ -120,6 +120,12 @@ export const lessonCompletions = defineTable({
   .index("by_user_lesson", ["userId", "lessonId"])
   .index("by_user_course", ["userId", "courseId"])
   .index("by_course", ["courseId"])
+  // Completion identity is (userId, lessonId), so lessonId is the natural key
+  // for "has ANYONE finished this materi". `courseId` is optional provenance —
+  // it is left undefined for a materi taught by more than one course, which is
+  // exactly the case this model exists for. A by_course probe therefore cannot
+  // answer the question, and `deleteLesson`'s guard used to miss those rows.
+  .index("by_lesson", ["lessonId"])
   // v1.7 (#37): "Lanjutkan belajar" lintas perangkat — recents per user
   // terurut _creationTime di dalam index.
   .index("by_user", ["userId"]);
@@ -133,10 +139,19 @@ export const courseCompletions = defineTable({
   .index("by_user", ["userId"])
   .index("by_user_course", ["userId", "courseId"]);
 
+// A quiz hangs off the COURSE. `courseId` is the owner and has ALWAYS been
+// required, so every existing row already resolves to a course — there is no
+// backfill to run (DECISIONS #37).
+//
+// MIGRATION IN PROGRESS. `moduleId` is the legacy tree link: it is now OPTIONAL,
+// no longer read by any quiz function, and step 3 drops it together with
+// `modules`. The `by_module` index is kept only because analytics still walks it
+// while its own migration lands; nothing in features/quiz reads either one.
 export const quizzes = defineTable({
   tenantId: v.id("tenants"),
   courseId: v.id("courses"),
-  moduleId: v.id("modules"),
+  /** @deprecated legacy module tree — write-only until step 3 drops it. */
+  moduleId: v.optional(v.id("modules")),
   title: v.string(),
   passingScorePct: v.number(),
   questions: v.array(
@@ -148,7 +163,9 @@ export const quizzes = defineTable({
       explanation: v.optional(v.string()),
     })
   ),
-}).index("by_module", ["moduleId"]);
+})
+  .index("by_course", ["courseId"])
+  .index("by_module", ["moduleId"]);
 
 export const quizAttempts = defineTable({
   tenantId: v.id("tenants"),

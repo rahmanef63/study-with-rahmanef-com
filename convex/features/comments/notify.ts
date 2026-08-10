@@ -10,17 +10,27 @@ import type { Doc, Id } from "../../_generated/dataModel";
 import type { MutationCtx } from "../../_generated/server";
 import { createNotificationRef } from "../notifications/refs";
 import { postHref, replierName, schedulePostReplyNotification, snippet } from "../posts/notify";
-import { legacyCourseId } from "../../_shared/legacyLesson";
 
-/** Max lesson-title chars quoted in the notification body (bounded copy). */
+/** Max materi-title chars quoted in the notification body (bounded copy). */
 const TITLE_SNIPPET = 60;
+
+/**
+ * The CANONICAL materi permalink — the same URL search hits and shares use
+ * (DECISIONS #36/#37). A materi can be taught in several courses or none, so
+ * the notification no longer points at one course's reader path. A row that
+ * has not been slugged yet falls back to the library index rather than
+ * producing a dead link.
+ */
+function materiHref(tenantSlug: string, lesson: Doc<"lessons">): string {
+  const base = `/k/${tenantSlug}/materi`;
+  return lesson.slug === undefined ? base : `${base}/${lesson.slug}`;
+}
 
 /**
  * Schedule a comment_reply notification for the PARENT comment's author.
  * No-ops silently when: the reply is a self-reply (P0), or the parent /
- * course / tenant row is gone (dangling data must not crash the comment
- * write). The deep-link href derives from the lesson row addComment already
- * loaded: /kelas/<tenantSlug>/<courseSlug>/lesson/<lessonId>.
+ * tenant row is gone (dangling data must not crash the comment write).
+ * The deep-link href derives from the materi row addComment already loaded.
  */
 export async function maybeScheduleReplyNotification(
   ctx: MutationCtx,
@@ -37,15 +47,14 @@ export async function maybeScheduleReplyNotification(
   if (parent === null) return;
   if (parent.userId === args.replierId) return; // self-reply → no notification (P0)
 
-  const [course, tenant, profile] = await Promise.all([
-    ctx.db.get(legacyCourseId(args.lesson)),
+  const [tenant, profile] = await Promise.all([
     ctx.db.get(args.lesson.tenantId),
     ctx.db
       .query("profiles")
       .withIndex("by_user", (q) => q.eq("userId", args.replierId))
       .unique(),
   ]);
-  if (course === null || tenant === null) return; // dangling — skip silently
+  if (tenant === null) return; // dangling — skip silently
 
   const who = profile?.displayName ?? "Seseorang";
   const lessonTitle =
@@ -58,8 +67,8 @@ export async function maybeScheduleReplyNotification(
     tenantId: args.lesson.tenantId,
     kind: "comment_reply",
     title: "Balasan baru di diskusimu",
-    body: `${who} membalas komentarmu di lesson "${lessonTitle}".`,
-    href: `/k/${tenant.slug}/kelas/${course.slug}/${args.lesson._id}`,
+    body: `${who} membalas komentarmu di materi "${lessonTitle}".`,
+    href: materiHref(tenant.slug, args.lesson),
   });
 }
 

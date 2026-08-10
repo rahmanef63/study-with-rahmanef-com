@@ -497,3 +497,50 @@ Kontrak P0 untuk **setiap** query/mutation publik: (1) `args` dengan validator `
 > Idem `resources` / `suggestions` / `suggestionVotes` / `announcements`: digantikan `posts`, tetap dideklarasikan
 > sampai backfill selesai. Definisi tabel pindah ke `convex/_tables/*` (plafon 200 LOC); `convex/schema.ts`
 > tetap `export default` schema yang sama.
+
+---
+
+## Addendum 2026-08-10 (v2.8) — MATERI: pelajaran lepas dari kelas
+
+> **SUPERSEDE** baris ERD `modules ||--o{ lessons`, blok `modules`/`lessons` di "Skema target",
+> catatan hierarki (§ "lessons & quizzes juga membawa courseId"), dan rumus progres di
+> § Derivasi. Keputusan: DECISIONS **#36 · #37 · #38**.
+
+**Model lama:** satu `lesson` dimiliki tepat satu `module` dari tepat satu `course`.
+Akibatnya materi "sub agents" harus ditulis ulang di kelas Claude Code dan di kelas Hermes,
+dan dua salinannya langsung mulai menyimpang.
+
+**Model baru:** `lessons` = **materi**, dimiliki **tenant**. Kelas jadi *playlist berurutan*
+yang menunjuk materi. `modules` PENSIUN.
+
+| Tabel | Kolom | Index |
+|---|---|---|
+| `courseLessons` (baru) | `tenantId`, `courseId`, `lessonId`, `order` | `by_course` [courseId, order] · `by_lesson` [lessonId] *(backlink "muncul di kelas")* · `by_course_lesson` *(keunikan penempatan)* |
+| `lessonTags` (baru) | `tenantId`, `tag`, `lessonId` | `by_tenant_tag` · `by_lesson` · `by_tenant_tag_lesson` |
+| `lessonRefs` (baru) | `tenantId`, `fromLessonId`, `toLessonId` | `by_from` · `by_to` · `by_from_to` |
+| `lessons` (+) | `slug`, `status`, `authorId`, `contentBlocks` — semua optional | `by_tenant_slug` *(permalink)* · `by_tenant_status` · `by_author` |
+| `lessons` (−) | `courseId`, `moduleId`, `order` → optional, **tidak dibaca lagi**, dicabut di step 3 | `by_module` / `by_course` ikut dicabut |
+| `lessonCompletions` (Δ) | `courseId` → **optional**: provenance, BUKAN identitas | + `by_lesson` [lessonId] |
+| `quizzes` (Δ) | `moduleId` → optional & tidak dibaca; `courseId` jadi pemilik | + `by_course` |
+
+### Invarian yang menggantikan yang lama
+
+- **Visibilitas materi** — `status === "published"` (atau kolomnya tidak ada, yaitu baris pra-migrasi)
+  terlihat oleh member tenant; instructor+ juga melihat draft. Status **draft sebuah KELAS menggating
+  halaman kelas saja**, tidak pernah materinya. Ditulis utuh di `convex/features/courses/access.ts`.
+- **Identitas penyelesaian = `(userId, lessonId)`**, tanpa `courseId`. Kalau `courseId` ikut jadi kunci,
+  orang yang sudah menuntaskan "sub agents" di Claude Code disuruh mengulangnya di Hermes dan progresnya
+  dihitung dua kali. Karena itu `courseId` dibiarkan `undefined` untuk materi yang dipakai >1 kelas —
+  dan karena itu pula guard hapus-materi WAJIB lewat `by_lesson`, bukan `by_course`.
+- **Progres kelas** = |completions ∩ `courseLessons(courseId)`| / |`courseLessons(courseId)`|
+  *(menggantikan count `lessons.by_course`)*.
+- **Isi materi punya SATU jalur tulis** — `contentBlocks` kanonik kalau ada, `contentMd` **diturunkan**
+  darinya di transaksi yang sama oleh `features/materi/content.saveContent`. `courses/lessons.updateLesson`
+  menolak `contentMd` pada materi yang sudah punya blok; kalau tidak, simpan berikutnya dari editor
+  menurunkan ulang markdown dari blok lama dan menelan editan itu diam-diam.
+- **Hapus materi dari kelas ≠ hapus materi.** `removeLessonFromCourse` hanya menghapus baris penempatan.
+  `deleteLesson` ditolak kalau ada penyelesaian, dan meng-cascade `courseLessons` + `lessonTags` + `lessonRefs`.
+
+### Batas (tetap: tanpa bare `.collect()`)
+materi per kelas ≤ 200 · penempatan per materi ≤ 50 · tag per materi ≤ 12 · ref per materi ≤ 50 ·
+halaman pustaka ≤ 20 · sitemap ≤ 1000 materi/tenant.

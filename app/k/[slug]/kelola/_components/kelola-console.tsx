@@ -29,8 +29,10 @@ import { KelolaStatistikTab } from "./kelola-statistik-tab";
 type TabKey = "kelas" | "kuis" | "anggota" | "komunitas" | "statistik";
 
 const TABS: { key: TabKey; label: string; icon: LucideIcon; blurb: string }[] = [
-  { key: "kelas", label: "Kelas", icon: BookOpen, blurb: "Susun kelas, modul, dan materi." },
-  { key: "kuis", label: "Kuis", icon: ListChecks, blurb: "Bangun bank soal per modul." },
+  // A kelas is a playlist of materi the community already owns (DECISIONS #37),
+  // so the blurb promises curating, not authoring a tree.
+  { key: "kelas", label: "Kelas", icon: BookOpen, blurb: "Susun kelas dari materi komunitas." },
+  { key: "kuis", label: "Kuis", icon: ListChecks, blurb: "Bangun bank soal per kelas." },
   { key: "anggota", label: "Anggota & peran", icon: Users, blurb: "Lihat anggota, atur perannya." },
   {
     key: "komunitas",
@@ -42,7 +44,7 @@ const TABS: { key: TabKey; label: string; icon: LucideIcon; blurb: string }[] = 
     key: "statistik",
     label: "Statistik",
     icon: BarChart3,
-    blurb: "Progres & hasil kuis per kelas.",
+    blurb: "Progres per materi & hasil kuis.",
   },
 ];
 

@@ -41,12 +41,29 @@ export async function requireMemberForCourse(
 
 /**
  * Draft/archived courses are invisible to plain members IN THE QUERY, exactly
- * as courses.getLesson enforces (R4). Prevents a member from completing (and
- * earning a badge for) a course that is not published; instructor+ may act on
- * drafts for preview. Throws NOT_FOUND — never leaks existence to a member.
+ * as courses.getLesson enforces (R4). This gates the COURSE surface only —
+ * course progress, the syllabus, the badge — never the materi itself.
+ * Throws NOT_FOUND — never leaks existence to a member.
  */
 export function assertCourseActableByRole(course: Doc<"courses">, role: Doc<"memberships">["role"]): void {
   if (course.status !== "published" && role === "member") {
     fail("NOT_FOUND", "Kelas tidak ditemukan");
+  }
+}
+
+/**
+ * MATERI VISIBILITY (DECISIONS #36/#37) — the single gate on a lesson row:
+ *  · a member of the materi's tenant sees it when `status` is "published";
+ *    `undefined` COUNTS AS published (legacy rows predate the column);
+ *  · instructor+ additionally sees drafts;
+ *  · the owning course's draft status is IRRELEVANT here — materi is
+ *    tenant-level content now, which is the whole point of the model.
+ */
+export function assertLessonVisibleByRole(
+  lesson: Doc<"lessons">,
+  role: Doc<"memberships">["role"]
+): void {
+  if ((lesson.status ?? "published") !== "published" && role === "member") {
+    fail("NOT_FOUND", "Materi tidak ditemukan");
   }
 }

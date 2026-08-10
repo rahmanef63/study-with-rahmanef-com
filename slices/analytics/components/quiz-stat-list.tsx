@@ -1,12 +1,16 @@
-// analytics slice — presentational quiz stats per module: attempts, passes,
-// and a pass-rate bar. Pure/props-driven; div bars + theme tokens only (no
-// chart lib — assignment #17).
+// analytics slice — presentational quiz stats: attempts, passes, and a
+// pass-rate bar. Pure/props-driven; div bars + theme tokens only (no chart lib
+// — assignment #17).
+//
+// MATERI MODEL (DECISIONS #37): a quiz belongs to the COURSE, not to a module,
+// so a row is titled by the quiz itself — there is no module name left to
+// qualify it with.
 import { cn } from "@/lib/utils";
 import { mergeAnalyticsCopy, type AnalyticsCopyOverride } from "../config/copy";
-import type { ModuleQuizStat } from "../types";
+import type { CourseQuizStat } from "../types";
 
 export type QuizStatListProps = {
-  quizzes: ModuleQuizStat[];
+  quizzes: CourseQuizStat[];
   copy?: AnalyticsCopyOverride;
   className?: string;
 };
@@ -25,10 +29,7 @@ export function QuizStatList({ quizzes, copy: copyOverride, className }: QuizSta
         return (
           <div key={quiz.quizId} className="space-y-1">
             <div className="flex items-center justify-between gap-3 text-sm">
-              <span className="min-w-0 truncate text-foreground">
-                <span className="font-medium">{quiz.moduleTitle}</span>
-                <span className="text-muted-foreground"> · {quiz.quizTitle}</span>
-              </span>
+              <span className="min-w-0 truncate font-medium text-foreground">{quiz.quizTitle}</span>
               <span className="shrink-0 tabular-nums text-muted-foreground">
                 {quiz.attemptCount} {copy.attemptsUnit} · {quiz.passCount} {copy.passedUnit}
               </span>

@@ -1,110 +1,101 @@
 "use client";
 
-// Kelola › Kuis — quiz builder per module. Quizzes are keyed to a module, so
-// this drills course → module → the real QuizBuilderView (which owns every
-// quiz create/edit/delete write, server-authorized). The course/module lists
-// are read-only selectors built on the courses read hooks; no CRUD here.
+// Kelola › Kuis — quiz studio, two levels deep: kelas → kuis → builder.
+//
+// MATERI MODEL (DECISIONS #37): a quiz belongs to the COURSE, not to a module,
+// and a course may hold several. The old middle step ("pilih modul") is gone;
+// what replaces it is the course's own quiz LIST, which is also the only place
+// a second quiz can be created. QuizBuilderView owns every create/edit/delete
+// write (server-authorized); nothing is reimplemented here.
 import { useState } from "react";
-import { ArrowLeft, BookOpen, ChevronRight, ListChecks } from "lucide-react";
+import { BookOpen, ListChecks, Plus } from "lucide-react";
 import type { Id } from "@convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
-import { useCourseTree, useManageCourses } from "@/features/courses";
-import { QuizBuilderView } from "@/features/quiz";
 import { SectionHeader } from "@/components/mockup-kit";
-import { KelolaEmpty, KelolaSkeleton } from "./kelola-parts";
+import { useManageCourses } from "@/features/courses";
+import { QuizBuilderView, useQuizzesForCourse } from "@/features/quiz";
+import { KelolaBack, KelolaEmpty, KelolaRow, KelolaSkeleton } from "./kelola-parts";
 
-const rowClass =
-  "flex min-h-11 w-full items-center gap-3 border bg-card px-4 py-3 text-left transition-colors hover:border-primary/40 hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
-
-const rowIconClass =
-  "grid size-9 shrink-0 place-items-center bg-primary/10 text-primary";
-
-const backButtonClass = "-ml-2 min-h-11 text-muted-foreground @sm:min-h-9";
+/** null = the list; { quizId: undefined } = create a new quiz in this course. */
+type BuilderState = { quizId?: Id<"quizzes"> } | null;
 
 export function KelolaKuisTab({ tenantId }: { tenantId: Id<"tenants"> }) {
- const [courseId, setCourseId] = useState<Id<"courses"> | null>(null);
- const [moduleId, setModuleId] = useState<Id<"modules"> | null>(null);
+  const [courseId, setCourseId] = useState<Id<"courses"> | null>(null);
+  const [builder, setBuilder] = useState<BuilderState>(null);
 
- if (courseId === null) {
- return (
+  if (courseId === null) {
+    return (
       <CoursePicker
- tenantId={tenantId}
- onSelect={(id) => {
- setModuleId(null);
- setCourseId(id);
+        tenantId={tenantId}
+        onSelect={(id) => {
+          setBuilder(null);
+          setCourseId(id);
         }}
       />
     );
   }
 
- if (moduleId === null) {
- return (
-      <ModulePicker courseId={courseId} onBack={() => setCourseId(null)} onSelect={setModuleId} />
+  if (builder === null) {
+    return (
+      <QuizPicker
+        courseId={courseId}
+        onBack={() => setCourseId(null)}
+        onSelect={(quizId) => setBuilder({ quizId })}
+        onCreate={() => setBuilder({})}
+      />
     );
   }
 
- return (
+  return (
     <div className="space-y-4">
-      <Button
- variant="ghost"
- size="sm"
- className={backButtonClass}
- onClick={() => setModuleId(null)}
-      >
-        <ArrowLeft aria-hidden /> Pilih modul lain
-      </Button>
+      <KelolaBack label="Semua kuis kelas ini" onClick={() => setBuilder(null)} />
       <QuizBuilderView
- moduleId={moduleId}
- courseId={courseId}
- tenantId={tenantId}
- onDeleted={() => setModuleId(null)}
+        courseId={courseId}
+        quizId={builder.quizId}
+        // Create returns the new id, delete returns null — either way the list
+        // is the honest next screen, so it is where both land.
+        onSaved={(quizId) => setBuilder(quizId === null ? null : { quizId })}
       />
     </div>
   );
 }
 
 function CoursePicker({
- tenantId,
- onSelect,
+  tenantId,
+  onSelect,
 }: {
- tenantId: Id<"tenants">;
- onSelect: (id: Id<"courses">) => void;
+  tenantId: Id<"tenants">;
+  onSelect: (id: Id<"courses">) => void;
 }) {
- const courses = useManageCourses(tenantId);
- if (courses === undefined) return <KelolaSkeleton />;
- if (courses.length === 0) {
- return (
+  const courses = useManageCourses(tenantId);
+  if (courses === undefined) return <KelolaSkeleton />;
+  if (courses.length === 0) {
+    return (
       <KelolaEmpty
- icon={ListChecks}
- title="Belum ada kelas"
- body="Buat kelas dulu di tab Kelas sebelum menyusun kuis."
+        icon={ListChecks}
+        title="Belum ada kelas"
+        body="Buat kelas dulu di tab Kelas sebelum menyusun kuis."
       />
     );
   }
- return (
+  return (
     <section className="space-y-4">
       <SectionHeader
- eyebrow="Studio kuis"
- title="Pilih kelas"
- as="h3"
- actions={
-          <span className="text-sm text-muted-foreground">
-            Kuis dikelola per modul. Pilih kelasnya dulu.
-          </span>
+        eyebrow="Studio kuis"
+        title="Pilih kelas"
+        as="h3"
+        actions={
+          <span className="text-sm text-muted-foreground">Kuis dikelola per kelas.</span>
         }
       />
       <ul className="grid gap-2 @2xl:grid-cols-2">
         {courses.map((course) => (
           <li key={course._id}>
-            <button type="button" onClick={() => onSelect(course._id)} className={rowClass}>
-              <span className={rowIconClass}>
-                <BookOpen className="size-4" aria-hidden />
-              </span>
-              <span className="min-w-0 flex-1 truncate font-display text-base font-medium">
-                {course.title}
-              </span>
-              <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden />
-            </button>
+            <KelolaRow
+              icon={BookOpen}
+              label={course.title}
+              onClick={() => onSelect(course._id)}
+            />
           </li>
         ))}
       </ul>
@@ -112,49 +103,59 @@ function CoursePicker({
   );
 }
 
-function ModulePicker({
- courseId,
- onBack,
- onSelect,
+function QuizPicker({
+  courseId,
+  onBack,
+  onSelect,
+  onCreate,
 }: {
- courseId: Id<"courses">;
- onBack: () => void;
- onSelect: (id: Id<"modules">) => void;
+  courseId: Id<"courses">;
+  onBack: () => void;
+  onSelect: (quizId: Id<"quizzes">) => void;
+  onCreate: () => void;
 }) {
- const tree = useCourseTree(courseId);
- if (tree === undefined) return <KelolaSkeleton />;
- return (
+  const quizzes = useQuizzesForCourse(courseId);
+  return (
     <section className="space-y-4">
-      <Button variant="ghost" size="sm" className={backButtonClass} onClick={onBack}>
-        <ArrowLeft aria-hidden /> Pilih kelas lain
-      </Button>
+      <KelolaBack label="Pilih kelas lain" onClick={onBack} />
       <SectionHeader
- eyebrow="Kuis"
- title={tree.course.title}
- as="h3"
- actions={
-          <span className="text-sm text-muted-foreground">
-            Pilih modul untuk menyusun kuisnya.
-          </span>
+        eyebrow="Kuis"
+        title="Kuis di kelas ini"
+        as="h3"
+        actions={
+          <Button
+            variant="outline"
+            size="sm"
+            className="min-h-11 shrink-0 @sm:min-h-9"
+            onClick={onCreate}
+          >
+            <Plus aria-hidden /> Kuis baru
+          </Button>
         }
       />
-      {tree.modules.length === 0 ? (
+      {quizzes === undefined ? (
+        <KelolaSkeleton lines={2} />
+      ) : quizzes.length === 0 ? (
         <KelolaEmpty
- icon={ListChecks}
- title="Belum ada modul"
- body="Tambahkan modul di editor kelas dulu, lalu susun kuisnya di sini."
+          icon={ListChecks}
+          title="Belum ada kuis"
+          body="Satu kelas boleh punya beberapa kuis. Mulai dari satu, tambah lagi kapan pun."
+          action={
+            <Button className="min-h-11" onClick={onCreate}>
+              <Plus aria-hidden /> Kuis baru
+            </Button>
+          }
         />
       ) : (
         <ul className="grid gap-2 @2xl:grid-cols-2">
-          {tree.modules.map((mod) => (
-            <li key={mod._id}>
-              <button type="button" onClick={() => onSelect(mod._id)} className={rowClass}>
-                <span className={rowIconClass}>
-                  <ListChecks className="size-4" aria-hidden />
-                </span>
-                <span className="min-w-0 flex-1 truncate text-sm">{mod.title}</span>
-                <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden />
-              </button>
+          {quizzes.map((quiz) => (
+            <li key={quiz._id}>
+              <KelolaRow
+                icon={ListChecks}
+                label={quiz.title}
+                meta={`${quiz.questionCount} soal · lulus di ${quiz.passingScorePct}%`}
+                onClick={() => onSelect(quiz._id)}
+              />
             </li>
           ))}
         </ul>

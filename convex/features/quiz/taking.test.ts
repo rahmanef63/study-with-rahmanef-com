@@ -1,23 +1,22 @@
 /// <reference types="vite/client" />
 // Taking surface — P0 answer-stripping shape assertion, draft-course
 // invisibility, server-side grading (incl. the passed boundary), and
-// own-attempts-only isolation.
+// own-attempts-only isolation. Quizzes are addressed by quizId (DECISIONS #37).
 import { expect, test } from "vitest";
 import { api } from "../../_generated/api";
-import { asUser, seedCourseModule, seedQuiz, seedTenantFixture, setup } from "./test.helpers";
+import { asUser, seedCourse, seedQuiz, seedTenantFixture, setup } from "./test.helpers";
 
 test("getQuizForTaking: P0 — returned questions carry ONLY prompt+options (no answers)", async () => {
   const t = setup();
   const fx = await seedTenantFixture(t);
-  const cm = await seedCourseModule(t, fx, "published");
-  await seedQuiz(t, fx, cm);
+  const c = await seedCourse(t, fx, "published");
+  const quizId = await seedQuiz(t, fx, c);
 
   const quiz = await t
     .withIdentity(asUser(fx.memberId))
-    .query(api.features.quiz.taking.getQuizForTaking, { moduleId: cm.moduleId });
+    .query(api.features.quiz.taking.getQuizForTaking, { quizId });
 
-  expect(quiz).not.toBeNull();
-  for (const q of quiz!.questions) {
+  for (const q of quiz.questions) {
     // Exact key set — no correctIndex, no explanation may ever appear.
     expect(Object.keys(q).sort()).toEqual(["options", "prompt"]);
     expect((q as Record<string, unknown>).correctIndex).toBeUndefined();
@@ -29,51 +28,44 @@ test("getQuizForTaking: P0 — returned questions carry ONLY prompt+options (no 
   expect(serialized).not.toContain("explanation");
 });
 
-test("getQuizForTaking: anon NOT_AUTHENTICATED, outsider NOT_AUTHORIZED, null when no quiz", async () => {
+test("getQuizForTaking: anon NOT_AUTHENTICATED, outsider NOT_AUTHORIZED", async () => {
   const t = setup();
   const fx = await seedTenantFixture(t);
-  const cm = await seedCourseModule(t, fx, "published");
+  const c = await seedCourse(t, fx, "published");
+  const quizId = await seedQuiz(t, fx, c);
 
   await expect(
-    t.query(api.features.quiz.taking.getQuizForTaking, { moduleId: cm.moduleId })
+    t.query(api.features.quiz.taking.getQuizForTaking, { quizId })
   ).rejects.toThrow(/NOT_AUTHENTICATED/);
   await expect(
     t
       .withIdentity(asUser(fx.outsiderId))
-      .query(api.features.quiz.taking.getQuizForTaking, { moduleId: cm.moduleId })
+      .query(api.features.quiz.taking.getQuizForTaking, { quizId })
   ).rejects.toThrow(/NOT_AUTHORIZED/);
-
-  // member, module has no quiz yet → null (not an error)
-  const none = await t
-    .withIdentity(asUser(fx.memberId))
-    .query(api.features.quiz.taking.getQuizForTaking, { moduleId: cm.moduleId });
-  expect(none).toBeNull();
 });
 
 test("getQuizForTaking: draft-course quiz is invisible to members, visible to instructor+", async () => {
   const t = setup();
   const fx = await seedTenantFixture(t);
-  const cm = await seedCourseModule(t, fx, "draft");
-  await seedQuiz(t, fx, cm);
+  const c = await seedCourse(t, fx, "draft");
+  const quizId = await seedQuiz(t, fx, c);
 
   await expect(
-    t
-      .withIdentity(asUser(fx.memberId))
-      .query(api.features.quiz.taking.getQuizForTaking, { moduleId: cm.moduleId })
+    t.withIdentity(asUser(fx.memberId)).query(api.features.quiz.taking.getQuizForTaking, { quizId })
   ).rejects.toThrow(/NOT_FOUND/);
 
   const asInstructor = await t
     .withIdentity(asUser(fx.instructorId))
-    .query(api.features.quiz.taking.getQuizForTaking, { moduleId: cm.moduleId });
-  expect(asInstructor?.title).toBe("Kuis Modul 1");
+    .query(api.features.quiz.taking.getQuizForTaking, { quizId });
+  expect(asInstructor.title).toBe("Kuis Modul 1");
 });
 
 test("submitAttempt: grades server-side; passed boundary is inclusive (>=)", async () => {
   const t = setup();
   const fx = await seedTenantFixture(t);
-  const cm = await seedCourseModule(t, fx, "published");
+  const c = await seedCourse(t, fx, "published");
   // passing = 50; 2 questions → one correct = exactly 50%
-  const quizId = await seedQuiz(t, fx, cm, 50);
+  const quizId = await seedQuiz(t, fx, c, 50);
   const asMember = t.withIdentity(asUser(fx.memberId));
 
   // both correct → 100, passed
@@ -108,8 +100,8 @@ test("submitAttempt: grades server-side; passed boundary is inclusive (>=)", asy
 test("submitAttempt: above-passing threshold that isn't a multiple still passes; wrong length rejected", async () => {
   const t = setup();
   const fx = await seedTenantFixture(t);
-  const cm = await seedCourseModule(t, fx, "published");
-  const quizId = await seedQuiz(t, fx, cm, 60); // passing 60; 50% must FAIL
+  const c = await seedCourse(t, fx, "published");
+  const quizId = await seedQuiz(t, fx, c, 60); // passing 60; 50% must FAIL
   const asMember = t.withIdentity(asUser(fx.memberId));
 
   const half = await asMember.mutation(api.features.quiz.attempts.submitAttempt, {
@@ -132,8 +124,8 @@ test("submitAttempt: above-passing threshold that isn't a multiple still passes;
 test("submitAttempt + listMyAttempts: outsider denied; a member sees only their OWN attempts", async () => {
   const t = setup();
   const fx = await seedTenantFixture(t);
-  const cm = await seedCourseModule(t, fx, "published");
-  const quizId = await seedQuiz(t, fx, cm);
+  const c = await seedCourse(t, fx, "published");
+  const quizId = await seedQuiz(t, fx, c);
 
   await expect(
     t

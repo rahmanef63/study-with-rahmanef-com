@@ -62,12 +62,18 @@ export type LessonFixture = {
   lessonId: Id<"lessons">;
 };
 
-/** Course (given status) + 1 module + 1 lesson, owned by the fixture instructor. */
+/**
+ * Course (given status) + 1 materi PLACED in it via `courseLessons`.
+ * `materiStatus` is the gate the comments feature actually reads now
+ * (DECISIONS #36/#37); the course status is kept so the specs can prove it no
+ * longer decides access. Legacy tree columns are written as production has them.
+ */
 export async function seedLesson(
   t: T,
   fx: TenantFixture,
   status: "draft" | "published" | "archived" = "published",
-  slug = `kelas-${status}`
+  slug = `kelas-${status}`,
+  materiStatus: "draft" | "published" = "published"
 ): Promise<LessonFixture> {
   return await t.run(async (ctx) => {
     const courseId = await ctx.db.insert("courses", {
@@ -88,12 +94,15 @@ export async function seedLesson(
       tenantId: fx.tenantId,
       courseId,
       moduleId,
+      slug: `${slug}-materi`,
+      status: materiStatus,
       title: "Lesson 1",
       youtubeVideoId: "dQw4w9WgXcQ",
       contentMd: "# Halo\n\nMateri pertama.",
       links: [],
       order: 1,
     });
+    await ctx.db.insert("courseLessons", { tenantId: fx.tenantId, courseId, lessonId, order: 1 });
     return { courseId, moduleId, lessonId };
   });
 }

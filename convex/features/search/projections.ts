@@ -1,18 +1,21 @@
 // search feature — explicit safe projections (P0: queries return an explicit
-// shape, never raw docs). Hit shapes per docs/AGENT-PROMPTS.md #23 + #29:
-//   { kind: "course" | "lesson", title, courseSlug, lessonId?, snippet? }
-//   { kind: "post", title, postId, postKind }
+// shape, never raw docs). Hit shapes per docs/AGENT-PROMPTS.md #23 + #29,
+// retargeted for the materi model (DECISIONS #36/#37):
+//   { kind: "course", title, courseSlug }
+//   { kind: "lesson", title, lessonSlug, lessonId, snippet }
+//   { kind: "post",   title, postId, postKind }
 // No ids beyond lessonId/postId (needed for the deep-link), no tenantId, no raw
 // contentMd (snippet is stripped + truncated), no status/createdBy leak.
 //
-// TODO(rr): slices/search mirrors this union client-side (types.ts, lib/hrefs.ts,
-// components/search-results.tsx, config/copy.ts groupResources). The third hit
-// kind changed from "resource"{title,url} to "post"{title,postId,postKind} —
-// that slice needs the matching update; it is not this feature's to edit.
+// TODO(rr): slices/search mirrors this union client-side (types.ts,
+// lib/hrefs.ts, components/search-results.tsx). The lesson hit lost
+// `courseSlug` and gained `lessonSlug`: its href is now the CANONICAL materi
+// URL /k/<tenant>/materi/<lessonSlug>, not a per-course path. That slice needs
+// the matching update; it is not this feature's to edit.
 import type { Doc } from "../../_generated/dataModel";
 import { makeSnippet } from "./snippet";
 
-/** Published course matched by title. Deep-link: /kelas/<tenant>/<courseSlug>. */
+/** Published course matched by title. Deep-link: /k/<tenant>/kelas/<courseSlug>. */
 export function toCourseHit(course: Doc<"courses">) {
   return {
     kind: "course" as const,
@@ -22,15 +25,17 @@ export function toCourseHit(course: Doc<"courses">) {
 }
 
 /**
- * Lesson matched by content — caller has ALREADY verified the owning course
- * is published (draft-guard in the query). Deep-link:
- * /kelas/<tenant>/<courseSlug>/lesson/<lessonId>.
+ * Materi matched by content — caller has ALREADY applied the materi
+ * draft-guard (published, or instructor+ viewing a draft) and resolved the
+ * slug. Deep-link: /k/<tenant>/materi/<lessonSlug>, the canonical shareable
+ * page. A materi is tenant content, so a search hit no longer routes through
+ * whichever course happens to teach it.
  */
-export function toLessonHit(lesson: Doc<"lessons">, course: Doc<"courses">) {
+export function toLessonHit(lesson: Doc<"lessons">, lessonSlug: string) {
   return {
     kind: "lesson" as const,
     title: lesson.title,
-    courseSlug: course.slug,
+    lessonSlug,
     lessonId: lesson._id,
     snippet: makeSnippet(lesson.contentMd),
   };

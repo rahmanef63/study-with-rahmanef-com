@@ -21,6 +21,14 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: "5mb",
     },
+    // Lets React's <ViewTransition> render, which is what puts a router update
+    // inside document.startViewTransition() and gives the app real forward/back
+    // motion between screens. See the ROUTE TRANSITIONS block in
+    // app/globals.css and components/ui/view-transition.tsx.
+    // It does NOT switch the build to the experimental React channel — that is
+    // gated on taint / transitionIndicator / gestureTransition only
+    // (next/dist/lib/needs-experimental-react.js). Bundle cost: zero new deps.
+    viewTransition: true,
   },
   // Every URL below was a live OS-shell deep link, shared in WhatsApp and
   // Discord and — more importantly — PERSISTED in notifications.href rows that

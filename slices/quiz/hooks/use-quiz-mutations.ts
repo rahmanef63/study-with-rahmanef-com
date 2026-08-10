@@ -26,9 +26,9 @@ export function useQuizBuilderMutations(copyOverride?: QuizCopyOverride) {
   const deleteRaw = useMutation(api.features.quiz.builder.deleteQuiz);
 
   const createQuiz = useCallback(
-    async (moduleId: Id<"modules">, input: SaveQuizInput) => {
+    async (courseId: Id<"courses">, input: SaveQuizInput) => {
       try {
-        const id = (await createRaw({ moduleId, ...input })) as Id<"quizzes">;
+        const id = (await createRaw({ courseId, ...input })) as Id<"quizzes">;
         toast.success(copy.saveSuccess);
         return id;
       } catch (error) {

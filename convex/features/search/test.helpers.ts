@@ -70,9 +70,17 @@ export type SeedCourseOpts = {
   title: string;
   lessonTitle?: string;
   contentMd?: string;
+  /** Materi handle — the canonical URL segment. Defaults to `<slug>-materi`. */
+  lessonSlug?: string;
+  /** Materi visibility. `undefined` reproduces a pre-migration row. */
+  lessonStatus?: "draft" | "published";
 };
 
-/** Course + 1 module + 1 lesson with controllable searchable text. */
+/**
+ * Course + 1 materi PLACED in it (courseLessons), with controllable searchable
+ * text. Legacy tree columns are written too, exactly as production still has
+ * them — the specs prove the search reader no longer depends on them.
+ */
 export async function seedCourseWithLesson(
   t: T,
   fx: TenantFixture,
@@ -97,13 +105,34 @@ export async function seedCourseWithLesson(
       tenantId: fx.tenantId,
       courseId,
       moduleId,
+      slug: opts.lessonSlug ?? `${opts.slug}-materi`,
+      status: opts.lessonStatus,
       title: opts.lessonTitle ?? "Lesson 1",
       contentMd: opts.contentMd ?? "Materi pertama.",
       links: [],
       order: 1,
     });
+    await ctx.db.insert("courseLessons", { tenantId: fx.tenantId, courseId, lessonId, order: 1 });
     return { courseId, moduleId, lessonId };
   });
+}
+
+/** A standalone materi: tenant-owned, in NO course at all (library only). */
+export async function seedMateri(
+  t: T,
+  fx: TenantFixture,
+  opts: { slug?: string; status?: "draft" | "published"; title?: string; contentMd?: string }
+): Promise<Id<"lessons">> {
+  return await t.run(async (ctx) =>
+    ctx.db.insert("lessons", {
+      tenantId: fx.tenantId,
+      slug: opts.slug,
+      status: opts.status,
+      title: opts.title ?? "Materi mandiri",
+      contentMd: opts.contentMd ?? "Materi mandiri.",
+      links: [],
+    })
+  );
 }
 
 export type SeedPostOpts = {

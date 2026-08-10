@@ -1,0 +1,42 @@
+{
+  "$schema": "../../docs/slice.manifest.schema.json",
+  "name": "materi",
+  "version": "0.1.0",
+  "description": "Materi tab (DECISIONS #36/#37): the tenant's materi library + THE canonical materi permalink. Server-rendered etalase header/metadata/OG from publicGetBySlug, member-gated body through MarkdownView, tag row + 'Muncul di kelas' backlinks below it. Read-only slice; materi writes stay in the Kelola console.",
+  "category": "lms",
+  "stability": "beta",
+  "deps": {
+    "shared": ["features/defineFeature"],
+    "slices": ["courses", "tenants"],
+    "convexFeatures": ["materi"],
+    "npm": { "lucide-react": "^0.460.0" },
+    "env": []
+  },
+  "files": {
+    "include": ["**/*"],
+    "exclude": ["__tests__/**", "*.test.ts", "*.test.tsx"]
+  },
+  "convexFiles": {
+    "include": ["**/*.ts"],
+    "exclude": ["*.test.ts", "test.helpers.ts"]
+  },
+  "permissions": ["materi.read", "materi.tag"],
+  "schemaTables": [
+    {
+      "name": "lessons",
+      "namespaced": false,
+      "indexes": ["by_tenant_slug", "by_tenant_status"]
+    },
+    { "name": "lessonTags", "namespaced": false, "indexes": ["by_tenant_tag", "by_lesson"] },
+    { "name": "lessonRefs", "namespaced": false, "indexes": ["by_from", "by_to"] },
+    { "name": "courseLessons", "namespaced": false, "indexes": ["by_course", "by_lesson"] }
+  ],
+  "compatibility": {
+    "next": ">=15 <17",
+    "react": "^19",
+    "convex": "^1.16",
+    "tailwind": "4",
+    "auth": "convex-auth"
+  },
+  "notes": "0.1.0 (2026-08-10, materi-model wave): the frontend half of convex/features/materi — that feature was landed by the convex wave and is NOT modified here. SSR contract: only publicGetBySlug (anonymous etalase whitelist) is read server-side, through safeQuery; it answers null for a DRAFT materi, so the page must NOT notFound() on null — the island renders its own <h1> instead (`hasServerHeading={false}`) and an instructor still gets the page. No function prop crosses the server→client boundary: the views take `tenantSlug` as a string and build every href from lib/hrefs.ts (that mistake has taken this app down twice). getBySlug THROWS NOT_FOUND for unknown/deleted/draft-below-instructor, and convex/react rethrows during render, so the detail view wraps its content in a local <MateriErrorBoundary resetKey={lessonSlug}> — otherwise a mistyped slug lands on app/error.tsx with no community chrome. lib/inset.ts restates the class strings of app/k/[slug]/_components/inset-list.tsx because a slice may not import the app layer (rr P1); the barrel test pins radius-0, the 3px hard shadow and the 56px row floor so drift is visible. Library search narrows the LOADED pages only — /cari is the indexed search, this is a filter."
+}

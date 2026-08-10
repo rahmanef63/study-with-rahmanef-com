@@ -1,34 +1,38 @@
 # quiz — MCQ builder + attempt + auto-grade
 
-> **OS pivot (2026-07):** this slice's views are now mounted inside an **os-shell window-app** via deep-links (e.g. `/komunitas/<tenant>`, `/kelas/<tenant>/<course>`, `/profil/<username>`), NOT Next routes. The Next route paths below are **historical / illustrative** — the deep-link scheme lives in AGENTS.md §0 + docs/SLICES.md. Only `app/admin/*` remains a real route.
+STATUS row **#8**. Backend: `convex/features/quiz/`.
 
-STATUS row **#8** (v1.1, R6). Backend: `convex/features/quiz/`. Agent: gamma.
+> **MATERI MODEL (DECISIONS #37).** A quiz belongs to a COURSE and is addressed
+> by its own id. "One quiz per module" is gone — a course may hold several
+> (server cap `MAX_QUIZZES_PER_COURSE`), the route is `/kuis/<quizId>`, and
+> `moduleId` appears nowhere in this slice.
 
-One quiz per module. Instructors build it (MCQ, 2–6 options, one correct key,
+Instructors build a quiz (MCQ, 2–6 options, one correct key,
 optional explanation, passing score %); members take it; grading is
 **server-side**. The correct answers and explanations **never** reach the client
 before an attempt is submitted (P0).
 
 ## Mount points (integrator)
 
-| Route (suggested) | Export | Notes |
+| Route | Export | Notes |
 |---|---|---|
-| `/t/[slug]/kelola/kelas/[courseId]/modul/[moduleId]/kuis` | `QuizBuilderView` | instructor+ (query/mutation enforce); props `{ moduleId, courseId, tenantId, onDeleted? }` |
-| `…/belajar/[lessonId]` (or a module tab) | `QuizTakeView` | member-only (query enforces); props `{ moduleId }` |
+| `/k/[slug]/kelola` › Kuis | `QuizBuilderView` | instructor+ (query/mutation enforce); props `{ courseId, quizId?, onSaved? }` — omit `quizId` to create |
+| `/k/[slug]/kelas/[courseSlug]` (silabus tail) | `CourseQuizList` | member-only; renders `<li>` rows into `SyllabusList.footerSlot` |
+| `/k/[slug]/kelas/[courseSlug]/kuis/[quizId]` | `QuizTakeView` | member-only (query enforces); props `{ quizId }` |
 
-All routing is prop-injected; the slice hardcodes no URL scheme. `onDeleted` lets
-the route redirect after a quiz is deleted.
+All routing is prop-injected; the slice hardcodes no URL scheme. `onSaved`
+receives the new id after a create and `null` after a delete, so the route can
+navigate either way.
 
-## Integration points for alpha (I did NOT edit the course editor)
+## Integration points
 
-1. **Builder entry.** Add an entry point from the course editor / module row to
-   `QuizBuilderView({ moduleId, courseId, tenantId })`. The three ids are already
-   in the editor's tree data (`convex/features/courses/manage:getCourseTree`).
-   `createQuiz` only needs `moduleId` — course + tenant are derived server-side.
-2. **Taking entry.** Surface `QuizTakeView({ moduleId })` on the member module/
-   lesson page. To show a "has quiz" affordance in the syllabus, either call
-   `api.features.quiz.taking.getQuizForTaking` per module, or (cheaper) I can add
-   a `hasQuizByModuleIds` batch query in a follow-up — flagged as a proposal.
+1. **Builder entry.** The Kelola › Kuis tab drills kelas → kuis → builder, using
+   `useQuizzesForCourse(courseId)` for the middle step. `createQuiz` needs only
+   `courseId` — tenant is derived server-side.
+2. **Taking entry.** `CourseQuizList` puts every quiz of the course at the end
+   of the silabus with the caller's pass state; the row links to
+   `/kuis/<quizId>`, which mounts `QuizTakeView`. The old per-module
+   "has a quiz?" probe is gone — one list query covers the whole course.
 3. **Progress/badge (optional, out of scope for #8).** If passing a quiz should
    gate lesson/course completion later, that belongs in `slices/progress`; this
    slice exposes `passed` on the attempt result and `listMyAttempts` to build on.
