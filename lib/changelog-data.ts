@@ -28,6 +28,16 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-08-10",
+    version: "v2.7",
+    title: "Perbaikan: pasang ke layar utama akhirnya jalan",
+    tags: ["Perbaikan"],
+    points: [
+      "Tombol “Tambahkan ke layar utama” tidak pernah muncul di halaman komunitas — dan itulah halaman yang paling sering dibuka. Penyebabnya berkas identitas aplikasi terpasang di bagian halaman yang tidak dibaca browser. Sekarang sudah benar di semua halaman.",
+      "Ikon aplikasi untuk iPhone juga terkena masalah yang sama, jadi “Tambahkan ke layar utama” di iOS sebelumnya tidak menemukan ikonnya.",
+    ],
+  },
+  {
+    date: "2026-08-10",
     version: "v2.6",
     title: "Materi bisa jauh lebih kaya",
     tags: ["Baru", "Konten"],

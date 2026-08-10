@@ -76,14 +76,10 @@ export const metadata: Metadata = {
   // No app/apple-icon.tsx — that would rasterise the same art again through
   // next/og at request time to produce a file scripts/generateIcons.mjs has
   // already emitted, byte-verified and committed.
-  icons: {
-    icon: [
-      { url: "/icon.svg", type: "image/svg+xml" },
-      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
-    ],
-    apple: [{ url: "/icons/apple-touch-icon-180.png", sizes: "180x180", type: "image/png" }],
-  },
+  // NOTE: `icons` and `manifest` are deliberately NOT declared here — they are
+  // rendered as plain JSX below so React hoists them into <head> at SSR time.
+  // See the comment at that call site; putting them in Metadata broke install
+  // on every /k route.
   openGraph: {
     type: "website",
     locale: "id_ID",
@@ -130,6 +126,30 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="scanlines font-sans" style={SAFE_AREA}>
         {/* React hoists resource links to <head>. */}
         {CONVEX_ORIGIN && <link rel="preconnect" href={CONVEX_ORIGIN} />}
+        {/* THE INSTALL-CRITICAL LINKS, rendered as JSX rather than declared in
+            `metadata`. React hoists a bare <link> into <head> during SSR; the
+            Metadata API does not, when any level of the route's metadata is
+            async.
+            /k/[slug] has an async generateMetadata (it awaits the tenant from
+            Convex), so Next flushed the shell without metadata and streamed
+            <title>, the icons AND <link rel="manifest"> into <body> instead —
+            measured: </head> closed at byte 2110, the manifest link sat at
+            37243. Chrome only honours rel="manifest" inside <head>, so the
+            entire PWA was inert on every route a learner actually uses: no
+            install prompt, no app icon. iOS reads apple-touch-icon at parse
+            time too, so "Add to Home Screen" had no icon either.
+            Static-metadata routes (/changelog, /komunitas, /pengaturan) were
+            fine, which is exactly why probing those said the PWA worked. */}
+        {/* Yes, this duplicates the tag Next auto-injects for app/manifest.ts.
+            Harmless — identical href, and a browser takes the first in document
+            order, which is now always this one. Suppressing Next's copy would
+            mean giving up the typed MetadataRoute and serving the manifest as a
+            static public/ file, which is a worse trade than one repeated link. */}
+        <link rel="manifest" href="/manifest.webmanifest" />
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/icons/icon-192.png" sizes="192x192" type="image/png" />
+        <link rel="icon" href="/icons/icon-512.png" sizes="512x512" type="image/png" />
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon-180.png" sizes="180x180" />
         {/* VersionWatcher owns the ONE "muat ulang" prompt; the registrar below
             deliberately stays silent. See components/pwa/service-worker.tsx. */}
         <VersionWatcher />
