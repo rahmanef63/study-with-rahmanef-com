@@ -1,21 +1,33 @@
 {
   "$schema": "https://resource.rahmanef.com/slice-schema.json",
   "slug": "materi",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "category": "lms",
   "kind": "frontend",
-  "title": "Materi — perpustakaan materi komunitas + permalink materi",
-  "description": "The Materi tab (DECISIONS #36/#37): teaching material is TENANT-level content with its own canonical, shareable URL /k/<tenant>/materi/<lessonSlug>, and a course is just one ordered arrangement of it. Two surfaces — the LIBRARY (member-gated, cursor-paginated, tag-filtered, iOS inset grouped list, client-side text narrowing over loaded pages) and the MATERI PAGE (server-rendered etalase header + generateMetadata + its own opengraph-image from publicGetBySlug; the BODY is member-gated and renders through MarkdownView from @/features/courses, never a second parser). Below the body: the tag row (each tag links back to the library opened on that tag) and 'Muncul di kelas' from backlinksFor — the same materi in every course that teaches it, plus the materi→materi graph. A draft materi is NOT_FOUND for a member and readable for instructor+; a draft COURSE never hides its materi. The frontend only READS: materi writes live in the Kelola console (features/courses lessons.*) and tags in features/materi/tags.",
+  "title": "Materi + Skills — the tenant's materi library, its prompt library, and their permalinks",
+  "description": "Two libraries and one permalink shape, because a SKILL IS A MATERI (DECISIONS #36/#37 + `lessons.kind`): teaching material is TENANT-level content with its own canonical, shareable URL, and a course is just one ordered arrangement of it. /k/<t>/materi browses kind \"materi\"; /k/<t>/skills browses kind \"skill\" — rows that carry a `promptText`. Both are member-gated, cursor-paginated, tag-filtered iOS inset grouped lists with a three-way SORT (terbaru · terlama · A→Z; A→Z is in-page, stated not faked). The materi library narrows the LOADED pages client-side; the skills library gets a real server search over TITLE OR PROMPT TEXT (skills:searchSkills, debounced, top 20 of a bounded scan), because a prompt catalogue is unbrowsable without one. Both permalinks server-render the etalase header + generateMetadata + opengraph-image from publicGetBySlug and gate the body; a SKILL page puts the PROMPT PANEL (monospace, Salin-and-confirm) above that body, member-only — `promptText` is not on the anonymous projection at all. The two kinds share ONE slug namespace, so each permalink redirects a wrong-kind slug to the canonical route for the row's real kind instead of 404ing. The frontend only READS: materi/skill writes live in the Kelola console (features/courses lessons.*) and tags in features/materi/tags.",
   "namespace": "@/features/materi",
   "convex": {
     "tablesExport": "",
     "schemaPath": "convex/schema.ts",
-    "rootPaths": ["convex/features/materi"]
+    "rootPaths": [
+      "convex/features/materi"
+    ]
   },
-  "frontend": { "slicePath": "slices/materi", "configExport": "materiFeature" },
+  "frontend": {
+    "slicePath": "slices/materi",
+    "configExport": "materiFeature"
+  },
   "deps": {
-    "npm": ["convex", "lucide-react"],
-    "shadcn": ["button", "card", "skeleton"],
+    "npm": [
+      "convex",
+      "lucide-react"
+    ],
+    "shadcn": [
+      "button",
+      "card",
+      "skeleton"
+    ],
     "env": [],
     "peers": [
       {
@@ -25,26 +37,52 @@
       {
         "slug": "tenants",
         "reason": "useMyMembership drives the member gate on both surfaces"
+      },
+      {
+        "slug": "search",
+        "reason": "useDebouncedValue — the skills search box debounces exactly like the global /cari box; one 10-line hook, imported through the barrel rather than copied"
       }
     ]
   },
   "contract": {
     "barrel": {
-      "views": ["MateriLibraryView", "MateriDetailView"],
+      "views": [
+        "MateriLibraryView",
+        "MateriDetailView",
+        "SkillsLibraryView"
+      ],
       "components": [
         "MateriRow",
         "MateriRowUnlinked",
+        "MateriList",
+        "MateriListSkeleton",
+        "LibraryToolbar",
+        "SortControl",
+        "MateriPageHeader",
+        "PromptPanel",
+        "SkillsEmpty",
         "MateriBody",
         "MateriBacklinks",
         "TagChips",
         "TagRow",
         "MateriErrorBoundary"
       ],
-      "hooks": ["useMateriLibrary", "useMateriTags", "useMateri", "useMateriBacklinks"],
+      "hooks": [
+        "useMateriLibrary",
+        "useMateriTags",
+        "useMateri",
+        "useMateriBacklinks",
+        "useSkillSearch"
+      ],
       "lib": [
         "buildMateriHref",
         "buildMateriPageHref",
         "buildMateriTagHref",
+        "buildSkillsHref",
+        "buildSkillPageHref",
+        "buildSkillTagHref",
+        "buildKindPageHref",
+        "buildKindLibraryHref",
         "buildCourseHref",
         "materiErrorMessage",
         "extractMateriError",
@@ -56,24 +94,43 @@
       "consumerSeams": {
         "app-shell": [
           "/k/[slug]/materi ← <MateriLibraryView tenantId tenantSlug initialTag gate />",
-          "/k/[slug]/materi/[lessonSlug] ← server etalase header + generateMetadata + opengraph-image (publicGetBySlug) + <MateriDetailView tenantId tenantSlug lessonSlug hasServerHeading gate />"
+          "/k/[slug]/materi/[lessonSlug] ← server etalase header (<MateriPageHeader/>) + generateMetadata + opengraph-image (publicGetBySlug) + <MateriDetailView tenantId tenantSlug lessonSlug hasServerHeading gate />; redirects a kind:\"skill\" slug to /skills/<slug>",
+          "/k/[slug]/skills ← <SkillsLibraryView tenantId tenantSlug initialTag kelolaHref gate />",
+          "/k/[slug]/skills/[lessonSlug] ← the same server header + <MateriDetailView kind=\"skill\" … />; redirects a kind:\"materi\" slug to /materi/<slug>"
         ]
       }
     },
     "convexFunctions": {
-      "anonymous": ["features/materi/queries:publicGetBySlug"],
+      "anonymous": [
+        "features/materi/queries:publicGetBySlug",
+        "features/materi/queries:publicListSlugs"
+      ],
       "member": [
         "features/materi/queries:getBySlug",
         "features/materi/queries:backlinksFor",
         "features/materi/queries:getSlug",
         "features/materi/library:listLibrary",
-        "features/materi/library:listTags"
+        "features/materi/library:listTags",
+        "features/materi/skills:searchSkills",
+        "features/materi/skills:getPrompt"
       ],
-      "instructor": ["features/materi/tags:setTags"]
+      "instructor": [
+        "features/materi/tags:setTags"
+      ]
     }
   },
   "registers": [],
   "license": "MIT",
-  "tags": ["lms", "materi", "library", "permalink", "tags", "backlinks", "multi-tenant"],
+  "tags": [
+    "lms",
+    "materi",
+    "skills",
+    "prompt",
+    "library",
+    "permalink",
+    "tags",
+    "backlinks",
+    "multi-tenant"
+  ],
   "providers": []
 }

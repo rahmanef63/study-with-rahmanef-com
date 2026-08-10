@@ -14,6 +14,10 @@
 //   courses.create · courses.update · courses.setStatus
 //   lessons.createLesson · lessons.updateLesson · lessons.setLessonStatus ·
 //   lessons.deleteLesson
+// A SKILL is one of those `lessons` rows with kind:"skill" + promptText, so the
+// same four mutations author it. Its READ surfaces belong to the materi
+// feature: materi.library.listLibrary({kind:"skill"}) ·
+// materi.skills.searchSkills · materi.skills.getPrompt · materi.tags.setTags.
 
 // feature descriptor
 export { coursesFeature } from "./config";
@@ -27,6 +31,13 @@ export { LessonView, type LessonViewProps } from "./components/lesson-view";
 export { LessonLinks, type LessonLinksProps } from "./components/lesson-links";
 export { MarkdownView, type MarkdownViewProps } from "./components/markdown-view";
 export { YoutubeEmbed, type YoutubeEmbedProps } from "./components/youtube-embed";
+
+// manage primitives — the console (app/k/[slug]/kelola) composes its SKILLS
+// section from these instead of cloning the materi authoring UI: a skill is the
+// same `lessons` row with `kind: "skill"` and a prompt.
+export { LessonDialog, type LessonDialogProps } from "./components/manage/lesson-dialog";
+export { ConfirmDialog, type ConfirmDialogProps } from "./components/manage/confirm-dialog";
+export { PromptField, type PromptFieldProps } from "./components/manage/prompt-field";
 
 // route-level client views (integrator mounts these under /t/[slug]/…)
 export { CourseCatalog, type CourseCatalogProps } from "./views/course-catalog";
@@ -80,7 +91,10 @@ export {
   MAX_CONTENT_MD_CHARS,
   MAX_LESSONS_PER_COURSE,
   MAX_LINKS_PER_LESSON,
+  MAX_PROMPT_CHARS,
+  MAX_TAGS_PER_LESSON,
 } from "./config/limits";
+export { normalizeTag, parseTagInput } from "./lib/tags";
 
 // types
 export type {
@@ -91,6 +105,7 @@ export type {
   CourseStatus,
   CoursesErrorCode,
   LessonEditorData,
+  LessonKind,
   LessonViewData,
   ManageCourseRow,
   ManagePlacementRow,

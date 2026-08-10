@@ -60,6 +60,9 @@ type MateriOptions = {
   title?: string;
   /** `undefined` writes NO status column — the pre-migration row shape. */
   status?: "draft" | "published";
+  /** `undefined` writes NO kind column — which READS AS "materi". */
+  kind?: "materi" | "skill";
+  promptText?: string;
   authorId?: Id<"users">;
   withVideo?: boolean;
   tags?: string[];
@@ -71,13 +74,24 @@ export async function seedMateri(
   fx: TenantFixture,
   options: MateriOptions = {}
 ): Promise<Id<"lessons">> {
-  const { slug = "materi-satu", title = "Materi Satu", status, authorId, withVideo, tags } = options;
+  const {
+    slug = "materi-satu",
+    title = "Materi Satu",
+    status,
+    kind,
+    promptText,
+    authorId,
+    withVideo,
+    tags,
+  } = options;
   return await t.run(async (ctx) => {
     const lessonId = await ctx.db.insert("lessons", {
       tenantId: fx.tenantId,
       title,
       slug: slug ?? undefined,
       status,
+      kind,
+      promptText,
       authorId: authorId ?? fx.instructorId,
       youtubeVideoId: withVideo === true ? "dQw4w9WgXcQ" : undefined,
       contentMd: "# Halo\n\nIsi materi rahasia member.",

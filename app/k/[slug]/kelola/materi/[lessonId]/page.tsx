@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { MateriEditorLoader } from "@/components/editor/materi-editor-loader";
+import { SkillPromptPanel } from "../../_components/skill-prompt-panel";
 
 // The block editor for one materi. Instructor-only and entirely client-side:
 // the server component below renders no Convex read at all, because a server
@@ -27,6 +28,13 @@ export default async function EditMateriPage({ params }: { params: Promise<Param
           ← Kembali ke konsol
         </Link>
       </nav>
+      {/* WHICH KIND is being edited, said before the editor loads — and, for a
+          skill, its prompt. A client island: `getPrompt` is member+ and a
+          server component here is permanently anonymous. It writes `promptText`
+          only, so it never races the editor's body autosave (DECISIONS #38). */}
+      <div className="mb-4">
+        <SkillPromptPanel lessonId={lessonId} />
+      </div>
       <div className="min-h-0 flex-1 border-2 border-border bg-card shadow-sm">
         {/* A malformed id is rejected by the Convex validator, which surfaces
             as the route error boundary — same as every other id-in-URL route. */}

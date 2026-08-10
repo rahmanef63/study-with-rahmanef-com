@@ -15,22 +15,43 @@ import type * as Barrel from "../index";
 import { communityHref, COMMUNITY_TABS } from "@/lib/community";
 import { materiFeature } from "../config";
 import { MATERI_COPY, mergeMateriCopy } from "../config/copy";
-import { LIBRARY_PAGE_MAX, LIBRARY_PAGE_SIZE, MAX_TAGS_PER_LESSON } from "../config/limits";
+import {
+  LIBRARY_PAGE_MAX,
+  LIBRARY_PAGE_SIZE,
+  MAX_PROMPT_CHARS,
+  MAX_TAGS_PER_LESSON,
+  PROMPT_PREVIEW_CHARS,
+  SKILL_QUERY_MAX,
+  SKILL_QUERY_MIN,
+  SKILL_SEARCH_MAX_RESULTS,
+} from "../config/limits";
 import { extractMateriError, isMateriMissing, materiErrorMessage } from "../lib/errors";
 import {
   buildCourseHref,
+  buildKindLibraryHref,
+  buildKindPageHref,
   buildMateriHref,
   buildMateriPageHref,
   buildMateriTagHref,
+  buildSkillPageHref,
+  buildSkillsHref,
+  buildSkillTagHref,
 } from "../lib/hrefs";
 import { INSET_CAPTION, INSET_GROUP, INSET_ROW } from "../lib/inset";
 import sliceJson from "../slice.json";
 import manifest from "../slice.manifest.json";
 
 describe("barrel type contract (compile-time, enforced by tsc)", () => {
-  test("exports the two mounted views, the components and the hooks", () => {
+  test("exports the three mounted views, the components and the hooks", () => {
     expectTypeOf<typeof Barrel.MateriLibraryView>().toBeFunction();
     expectTypeOf<typeof Barrel.MateriDetailView>().toBeFunction();
+    expectTypeOf<typeof Barrel.SkillsLibraryView>().toBeFunction();
+    expectTypeOf<typeof Barrel.MateriPageHeader>().toBeFunction();
+    expectTypeOf<typeof Barrel.MateriList>().toBeFunction();
+    expectTypeOf<typeof Barrel.PromptPanel>().toBeFunction();
+    expectTypeOf<typeof Barrel.SkillsEmpty>().toBeFunction();
+    expectTypeOf<typeof Barrel.SortControl>().toBeFunction();
+    expectTypeOf<typeof Barrel.useSkillSearch>().toBeFunction();
     expectTypeOf<typeof Barrel.MateriRow>().toBeFunction();
     expectTypeOf<typeof Barrel.MateriBody>().toBeFunction();
     expectTypeOf<typeof Barrel.MateriBacklinks>().toBeFunction();
@@ -50,10 +71,18 @@ describe("barrel type contract (compile-time, enforced by tsc)", () => {
     expectTypeOf<Barrel.MateriDetailViewProps>().toHaveProperty("gate");
     // The server may have rendered the <h1> already (etalase) or not (draft).
     expectTypeOf<Barrel.MateriDetailViewProps>().toHaveProperty("hasServerHeading");
-    // tenantSlug is a STRING on both: a function prop cannot cross the
-    // server→client boundary, so no href builder is ever passed down.
+    // tenantSlug is a STRING on all three: a function prop cannot cross the
+    // server→client boundary, so no href builder is ever passed down. Same
+    // reason `kelolaHref` on the skills library is a string, not a builder.
     expectTypeOf<Barrel.MateriLibraryViewProps["tenantSlug"]>().toEqualTypeOf<string>();
     expectTypeOf<Barrel.MateriDetailViewProps["tenantSlug"]>().toEqualTypeOf<string>();
+    expectTypeOf<Barrel.SkillsLibraryViewProps["tenantSlug"]>().toEqualTypeOf<string>();
+    expectTypeOf<Barrel.SkillsLibraryViewProps["kelolaHref"]>().toEqualTypeOf<string>();
+    expectTypeOf<Barrel.SkillsLibraryViewProps>().toHaveProperty("gate");
+    // MateriPageHeader is the ONE exception, and only because it is a SERVER
+    // component rendered by a server component — its `tagHref` never crosses
+    // the boundary.
+    expectTypeOf<Barrel.MateriPageHeaderProps["tagHref"]>().toBeFunction();
     expect(true).toBe(true); // runtime anchor so the test registers
   });
 
@@ -69,6 +98,24 @@ describe("barrel type contract (compile-time, enforced by tsc)", () => {
     expectTypeOf<Barrel.MateriDetail>().toHaveProperty("contentMd");
     expectTypeOf<Barrel.MateriDetail>().toHaveProperty("backlinks");
     expectTypeOf<Barrel.MateriStatus>().toEqualTypeOf<"draft" | "published">();
+  });
+
+  test("the PROMPT is member-only, structurally", () => {
+    // The whole security question of the skills feature. `kind` is a category
+    // and rides the etalase so a share card and a redirect can read it; the
+    // prompt is the thing membership buys and is not on the anonymous
+    // projection AT ALL — so a server component has nothing to leak, even by
+    // mistake. The server asserts the same thing key-by-key in queries.test.ts.
+    expectTypeOf<Barrel.PublicMateri>().toHaveProperty("kind");
+    expectTypeOf<Barrel.PublicMateri>().not.toHaveProperty("promptText");
+    expectTypeOf<Barrel.PublicMateri>().not.toHaveProperty("promptPreview");
+    // MEMBER+ surfaces are the only ones that carry it.
+    expectTypeOf<Barrel.MateriDetail>().toHaveProperty("promptText");
+    expectTypeOf<Barrel.MateriCard>().toHaveProperty("promptPreview");
+    expectTypeOf<Barrel.MateriCard>().toHaveProperty("kind");
+    // An absent column reads as "materi" — the same rule as `status`.
+    expectTypeOf<Barrel.MateriKind>().toEqualTypeOf<"materi" | "skill">();
+    expectTypeOf<Barrel.MateriSort>().toEqualTypeOf<"newest" | "oldest" | "title">();
   });
 });
 
@@ -93,6 +140,27 @@ describe("hrefs match lib/community.ts (the app's route SSOT)", () => {
   test("every segment is encoded", () => {
     expect(buildMateriPageHref("a b", "c/d")).toBe("/k/a%20b/materi/c%2Fd");
     expect(buildMateriTagHref("t", "ai & data")).toBe("/k/t/materi?tag=ai%20%26%20data");
+    expect(buildSkillPageHref("a b", "c/d")).toBe("/k/a%20b/skills/c%2Fd");
+    expect(buildSkillTagHref("t", "ai & data")).toBe("/k/t/skills?tag=ai%20%26%20data");
+  });
+
+  test("the skills routes match communityHref too", () => {
+    expect(buildSkillsHref("belajar-ai")).toBe(communityHref.skills("belajar-ai"));
+    expect(buildSkillPageHref("belajar-ai", "ringkas-rapat")).toBe(
+      communityHref.skillPage("belajar-ai", "ringkas-rapat")
+    );
+  });
+
+  test("buildKindPageHref dispatches on the ROW'S kind, not the route's", () => {
+    // ONE slug namespace, two routes. This function is why a wrong-kind link
+    // is a redirect rather than a 404, and why a list never emits one.
+    expect(buildKindPageHref("t", "skill", "x")).toBe("/k/t/skills/x");
+    expect(buildKindPageHref("t", "materi", "x")).toBe("/k/t/materi/x");
+    expect(buildKindLibraryHref("t", "skill")).toBe("/k/t/skills");
+    expect(buildKindLibraryHref("t", "materi")).toBe("/k/t/materi");
+    // The two permalinks are DIFFERENT URLs — if they ever collapse, the
+    // redirect loops.
+    expect(buildKindPageHref("t", "skill", "x")).not.toBe(buildKindPageHref("t", "materi", "x"));
   });
 });
 
@@ -104,23 +172,41 @@ describe("barrel runtime contract (alias-free modules)", () => {
     expect(manifest.name).toBe("materi");
   });
 
-  test("Materi is a real tab, first in the strip", () => {
+  test("Materi and Skills are real tabs, and they lead the strip", () => {
     // The phone bar takes the first four keys off this list, so the order is
-    // load-bearing, not decoration.
+    // load-bearing, not decoration: these four ARE the five-cell bar
+    // (Materi · Skills · Kelas · Diskusi · Lainnya).
     expect(COMMUNITY_TABS[0]?.key).toBe("materi");
     expect(COMMUNITY_TABS[0]?.href("belajar-ai")).toBe(buildMateriHref("belajar-ai"));
+    expect(COMMUNITY_TABS[1]?.key).toBe("skills");
+    expect(COMMUNITY_TABS[1]?.href("belajar-ai")).toBe(buildSkillsHref("belajar-ai"));
     expect(COMMUNITY_TABS.slice(0, 4).map((t) => t.key)).toEqual([
       "materi",
+      "skills",
       "kelas",
       "diskusi",
-      "anggota",
     ]);
+  });
+
+  test("the Skills tab does not steal the Materi tab's active state", () => {
+    // Both are prefix-matched (`exact` is unset), and "/k/t/skills" must not
+    // start with "/k/t/materi" or the strip would light two cells at once.
+    expect(buildSkillsHref("t").startsWith(buildMateriHref("t"))).toBe(false);
+    expect(buildMateriHref("t").startsWith(buildSkillsHref("t"))).toBe(false);
   });
 
   test("limits mirror the server bounds", () => {
     expect(LIBRARY_PAGE_MAX).toBe(20); // clampPageSize ceiling
     expect(LIBRARY_PAGE_SIZE).toBeLessThanOrEqual(LIBRARY_PAGE_MAX);
     expect(MAX_TAGS_PER_LESSON).toBe(12);
+    // materi/validate.ts: MAX_PROMPT_CHARS, PROMPT_PREVIEW_CHARS,
+    // SEARCH_Q_MIN/MAX and MAX_SEARCH_RESULTS = LIBRARY_PAGE_MAX.
+    expect(MAX_PROMPT_CHARS).toBe(4_000);
+    expect(PROMPT_PREVIEW_CHARS).toBe(160);
+    expect(PROMPT_PREVIEW_CHARS).toBeLessThan(MAX_PROMPT_CHARS);
+    expect(SKILL_QUERY_MIN).toBe(2);
+    expect(SKILL_QUERY_MAX).toBe(60);
+    expect(SKILL_SEARCH_MAX_RESULTS).toBe(LIBRARY_PAGE_MAX);
   });
 
   test("the inset geometry keeps the design-system invariants", () => {
@@ -144,6 +230,29 @@ describe("barrel runtime contract (alias-free modules)", () => {
     const merged = mergeMateriCopy({ libraryTitle: "Bahan" });
     expect(merged.libraryTitle).toBe("Bahan");
     expect(merged.appearsInLabel).toBe(MATERI_COPY.appearsInLabel);
+  });
+
+  test("the empty skills library EXPLAINS itself instead of saying 'belum ada'", () => {
+    // The library ships empty on purpose (prompts were deferred), so this copy
+    // is the launch screen. It has to answer both questions an empty room
+    // raises: what a skill is, and who puts one here.
+    expect(MATERI_COPY.emptySkillsWhat).toMatch(/prompt/i);
+    expect(MATERI_COPY.emptySkillsWhat).toMatch(/materi/i); // what it is NOT
+    expect(MATERI_COPY.emptySkillsWhat.length).toBeGreaterThan(80);
+    expect(MATERI_COPY.emptySkillsHow).toMatch(/pengajar/i);
+    expect(MATERI_COPY.emptySkillsHowInstructor).toMatch(/Kelola/);
+    expect(MATERI_COPY.emptySkillsSearch("tabel")).toContain("tabel");
+  });
+
+  test("the sort control names all three orders and admits what A→Z does", () => {
+    expect([
+      MATERI_COPY.sortNewest,
+      MATERI_COPY.sortOldest,
+      MATERI_COPY.sortTitle,
+    ]).toEqual(["Terbaru", "Terlama", "A→Z"]);
+    // A→Z only orders the loaded pages (`lessons` has no title index and may
+    // not grow one). The note is the honesty, so it must not be empty.
+    expect(MATERI_COPY.sortTitleNote.length).toBeGreaterThan(10);
   });
 
   test("errors map to copy, never to a raw code", () => {

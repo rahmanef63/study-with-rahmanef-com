@@ -45,8 +45,55 @@ test("publicGetBySlug: anonymous gets title/tags/courses and NEVER the body", as
   expect(materi).not.toHaveProperty("youtubeVideoId");
   expect(materi).not.toHaveProperty("authorId");
   expect(Object.keys(materi!).sort()).toEqual(
-    ["_id", "courses", "createdAt", "hasVideo", "slug", "tags", "tenant", "title"].sort()
+    ["_id", "courses", "createdAt", "hasVideo", "kind", "slug", "tags", "tenant", "title"].sort()
   );
+  expect(materi!.kind).toBe("materi");
+});
+
+// THE prompt leak test. A skill's prompt is the thing membership buys, and the
+// etalase is a URL anyone can guess — so the anonymous projection carries the
+// CATEGORY and stops. The member projection carries the prompt itself.
+test("a SKILL's promptText is member-only; the etalase exposes kind and nothing more", async () => {
+  const t = setup();
+  const fx = await seedTenantFixture(t);
+  const prompt = "Kamu adalah reviewer kode. Jelaskan risiko keamanannya.";
+  await seedMateri(t, fx, {
+    slug: "review-kode",
+    title: "Review Kode",
+    status: "published",
+    kind: "skill",
+    promptText: prompt,
+  });
+  const args = { tenantSlug: fx.tenantSlug, lessonSlug: "review-kode" };
+
+  const anon = await t.query(api.features.materi.queries.publicGetBySlug, args);
+  expect(anon!.kind).toBe("skill");
+  expect(anon).not.toHaveProperty("promptText");
+  expect(JSON.stringify(anon)).not.toContain("reviewer kode");
+  expect(Object.keys(anon!).sort()).toEqual(
+    ["_id", "courses", "createdAt", "hasVideo", "kind", "slug", "tags", "tenant", "title"].sort()
+  );
+
+  const member = await t
+    .withIdentity(asUser(fx.memberId))
+    .query(api.features.materi.queries.getBySlug, args);
+  expect(member.kind).toBe("skill");
+  expect(member.promptText).toBe(prompt);
+});
+
+test("getBySlug: a plain materi reports kind materi and carries no prompt", async () => {
+  const t = setup();
+  const fx = await seedTenantFixture(t);
+  await seedMateri(t, fx, { slug: "biasa", status: "published" });
+
+  const detail = await t
+    .withIdentity(asUser(fx.memberId))
+    .query(api.features.materi.queries.getBySlug, {
+      tenantSlug: fx.tenantSlug,
+      lessonSlug: "biasa",
+    });
+  expect(detail.kind).toBe("materi");
+  expect(detail.promptText).toBeUndefined();
 });
 
 test("publicGetBySlug: draft, unknown and malformed slugs are all null; dead tenant NOT_FOUND", async () => {
@@ -243,11 +290,23 @@ test("publicListSlugs: published slugs only, drafts and suspended tenants exclud
   // counts as published. A single "published" index range would drop it.
   await seedMateri(t, fx, { title: "Lawas", slug: "lawas" });
 
+  // A skill's permalink is as shareable as any materi's, so the sitemap lists
+  // it too — no extra index range, because `kind` is just another column.
+  await seedMateri(t, fx, {
+    title: "Review Kode",
+    slug: "review-kode",
+    status: "published",
+    kind: "skill",
+    promptText: "Prompt rahasia yang tidak boleh bocor lewat sitemap.",
+  });
+
   const listed = await t.query(api.features.materi.queries.publicListSlugs, {
     tenantId: fx.tenantId,
   });
-  expect(listed.map((row) => row.slug).sort()).toEqual(["lawas", "sub-agents"]);
-  expect(Object.keys(listed[0]).sort()).toEqual(["slug", "updatedAt"]);
+  expect(listed.map((row) => row.slug).sort()).toEqual(["lawas", "review-kode", "sub-agents"]);
+  expect(Object.keys(listed[0]).sort()).toEqual(["kind", "slug", "updatedAt"]);
+  expect(listed.find((row) => row.slug === "review-kode")!.kind).toBe("skill");
+  expect(JSON.stringify(listed)).not.toContain("rahasia");
 
   await t.run(async (ctx) => {
     await ctx.db.patch(fx.tenantId, { status: "suspended" });

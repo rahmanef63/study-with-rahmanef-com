@@ -37,6 +37,23 @@ export const communityHref = {
    */
   materiPage: (slug: string, lessonSlug: string) =>
     `/k/${enc(slug)}/materi/${enc(lessonSlug)}`,
+  /**
+   * Skills — the prompt library. A skill is a MATERI with `kind: "skill"` and
+   * its own `promptText`, not a new table, so it inherits tags, search,
+   * permalinks, backlinks, OG cards and the block editor. It gets its own
+   * route anyway because it is a different READING JOB: you come to /materi to
+   * learn something and to /skills to grab a prompt and leave.
+   */
+  skills: (slug: string) => `/k/${enc(slug)}/skills`,
+  /**
+   * THE canonical skill permalink. Sibling of `materiPage`, and the two share
+   * ONE slug namespace (both are rows of `lessons`) — so either route can be
+   * handed the other kind's slug by someone who copied the wrong path. Both
+   * pages resolve the row's real `kind` and REDIRECT here rather than 404ing;
+   * see app/k/[slug]/skills/[lessonSlug]/page.tsx.
+   */
+  skillPage: (slug: string, lessonSlug: string) =>
+    `/k/${enc(slug)}/skills/${enc(lessonSlug)}`,
   diskusi: (slug: string) => `/k/${enc(slug)}/diskusi`,
   /**
    * Diskusi opened on ONE category. `?kind=` is a real deep link, not a
@@ -55,6 +72,14 @@ export const communityHref = {
   tentang: (slug: string) => `/k/${enc(slug)}/tentang`,
   cari: (slug: string) => `/k/${enc(slug)}/cari`,
   kelola: (slug: string) => `/k/${enc(slug)}/kelola`,
+  /**
+   * The BLOCK EDITOR for one materi row, of either kind — instructor+.
+   * Addressed by id, not by slug: the editor is the one surface that must keep
+   * working while the title (and therefore the slug) is being changed, and a
+   * draft row has no readable permalink yet.
+   */
+  kelolaMateri: (slug: string, lessonId: string) =>
+    `/k/${enc(slug)}/kelola/materi/${enc(lessonId)}`,
   /** Public profile. Not under /k — a person is not scoped to a community. */
   profile: (username: string) => `/u/${enc(username)}`,
 } as const;
@@ -81,24 +106,37 @@ export type CommunityTab = {
  * Not here on purpose:
  * - "Kelola" — instructor+ only, surfaced as a header link, never a learner tab.
  *
- * ORDER (changed with the materi model, DECISIONS #36/#37). Materi LEADS:
- * teaching material is now tenant-level content with its own canonical URL,
+ * ORDER (materi model DECISIONS #36/#37; Skills added 2026-08-10). Materi
+ * LEADS: teaching material is tenant-level content with its own canonical URL,
  * and a course is just one ordered arrangement of it. The library is therefore
  * the widest door into the product — every materi is reachable from it, while
- * /kelas only reaches the ones somebody placed in a course. Kelas stays second
- * because it is still the index route (`/k/<slug>`) and still the guided path
- * a new learner is sold on; Diskusi third (the daily return reason); then the
+ * /kelas only reaches the ones somebody placed in a course.
+ *
+ * SKILLS SITS SECOND, ahead of Kelas, and the ordering rule is unchanged — the
+ * list is sorted by how often a member returns, not by how much content sits
+ * behind each tab. A skill is a prompt you come back for WEEKLY and leave in
+ * under a minute; a course is a commitment you finish once. Second also keeps
+ * it beside Materi, which is what it literally is (same table, `kind:
+ * "skill"`), so the two library doors read as a pair instead of Skills looking
+ * like a third kind of course. It must NOT lead: the library ships empty and a
+ * first tab with nothing in it is the worst possible first screen.
+ *
+ * Kelas third — still the index route (`/k/<slug>`) and still the guided path
+ * a new learner is sold on; Diskusi fourth (the daily return reason); then the
  * social loop (Anggota, Peringkat), then the two read-rarely pages.
  *
- * SEVEN tabs is more than a phone bar can hold. The desktop strip shows all of
- * them; components/community/community-bottom-nav.tsx keeps FIVE cells —
- * Materi · Kelas · Diskusi · Anggota · Lainnya — and its `PRIMARY_KEYS` picks
- * the first four BY KEY off this list, so Peringkat, Kalender and Tentang fall
- * into the "Lainnya" sheet automatically. Reorder here and the phone bar
- * follows; there is no second list to keep in sync.
+ * EIGHT tabs is far more than a phone bar can hold. The desktop strip shows
+ * all of them; components/community/community-bottom-nav.tsx keeps FIVE cells
+ * — Materi · Skills · Kelas · Diskusi · Lainnya — by taking the first four
+ * BY KEY off this list, so Anggota joined Peringkat, Kalender and Tentang in
+ * the "Lainnya" sheet the moment Skills was inserted here. Reorder here and
+ * the phone bar follows; there is no second list to keep in sync. (Anggota
+ * losing its slot is the intended trade: the roster is a browse-once page,
+ * while both libraries are why a member opens the app at all.)
  */
 export const COMMUNITY_TABS: CommunityTab[] = [
   { key: "materi", label: "Materi", href: communityHref.materi },
+  { key: "skills", label: "Skills", href: communityHref.skills },
   { key: "kelas", label: "Kelas", href: communityHref.home, exact: true },
   { key: "diskusi", label: "Diskusi", href: communityHref.diskusi, alsoMatch: [(slug) => `/k/${enc(slug)}/post/`] },
   { key: "anggota", label: "Anggota", href: communityHref.anggota },

@@ -12,20 +12,23 @@
 // A ReactNode crosses the server→client boundary fine; a FUNCTION PROP DOES
 // NOT — which is why `tenantSlug` comes in as a string and every href is built
 // right here (lib/hrefs.ts) instead of being handed down as a builder.
+//
+// Its sibling is ./skills-library-view.tsx. They share the row, the list, the
+// tag rack and the sort control; they differ in exactly one thing, which is
+// what SEARCH means (see that file's header).
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import type { Id } from "@convex/_generated/dataModel";
 import { CommandSearch } from "@/components/mockup-kit";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useMyMembership } from "@/features/tenants";
-import { MateriRow, MateriRowUnlinked } from "../components/materi-row";
+import { LibraryToolbar } from "../components/library-toolbar";
+import { MateriList, MateriListSkeleton } from "../components/materi-list";
 import { TagChips } from "../components/tag-chips";
 import { mergeMateriCopy, type MateriCopyOverride } from "../config/copy";
 import { LIBRARY_PAGE_SIZE, SEARCH_FROM } from "../config/limits";
 import { useMateriLibrary, useMateriTags } from "../hooks/use-materi-library";
-import { buildMateriPageHref } from "../lib/hrefs";
-import { INSET_CAPTION, INSET_GROUP } from "../lib/inset";
+import type { MateriSort } from "../types";
 
 export type MateriLibraryViewProps = {
   tenantId: Id<"tenants">;
@@ -37,17 +40,6 @@ export type MateriLibraryViewProps = {
   gate: ReactNode;
   copy?: MateriCopyOverride;
 };
-
-function ListSkeleton() {
-  return (
-    <div className="space-y-2" aria-busy>
-      <span className="sr-only">Memuat materi…</span>
-      <Skeleton className="h-14 w-full" />
-      <Skeleton className="h-14 w-full" />
-      <Skeleton className="h-14 w-full" />
-    </div>
-  );
-}
 
 export function MateriLibraryView({
   tenantId,
@@ -62,23 +54,33 @@ export function MateriLibraryView({
 
   const [tag, setTag] = useState<string | null>(initialTag);
   const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<MateriSort>("newest");
 
   const tags = useMateriTags(tenantId, isMember);
-  const { materi, status, loadMore } = useMateriLibrary(tenantId, tag, isMember);
+  const { materi, status, loadMore } = useMateriLibrary({
+    tenantId,
+    tag,
+    sort,
+    enabled: isMember,
+  });
 
   // Client-side text filter over the LOADED pages only — there is no server
-  // search on the library (that is what /cari is for, and it is a different,
-  // indexed query). Narrowing what you can already see is the honest scope for
-  // a field that sits on top of a paginated list.
+  // search on the materi library (that is what /cari is for, and it is a
+  // different, indexed query). Narrowing what you can already see is the
+  // honest scope for a field that sits on top of a paginated list. The SKILLS
+  // library is the one that gets a real server search, because a prompt
+  // catalogue is unbrowsable without one.
   const q = query.trim().toLowerCase();
   const visible = useMemo(
     () => (q === "" ? materi : materi.filter((m) => m.title.toLowerCase().includes(q))),
     [materi, q]
   );
 
-  if (isAuthLoading || (isAuthenticated && membership === undefined)) return <ListSkeleton />;
+  if (isAuthLoading || (isAuthenticated && membership === undefined)) {
+    return <MateriListSkeleton label="Memuat materi…" />;
+  }
   if (!isMember) return <>{gate}</>;
-  if (status === "LoadingFirstPage") return <ListSkeleton />;
+  if (status === "LoadingFirstPage") return <MateriListSkeleton label="Memuat materi…" />;
 
   const showSearch = materi.length >= SEARCH_FROM || query !== "";
 
@@ -95,24 +97,24 @@ export function MateriLibraryView({
         </p>
       ) : (
         <>
-          <p className={INSET_CAPTION}>
-            {visible.length} {copy.countSuffix}
-            {status !== "Exhausted" ? "+" : ""}
-          </p>
-          <ul className={INSET_GROUP}>
-            {visible.map((m) =>
-              m.slug === null ? (
-                <MateriRowUnlinked key={m._id} materi={m} />
-              ) : (
-                <MateriRow
-                  key={m._id}
-                  materi={m}
-                  href={buildMateriPageHref(tenantSlug, m.slug)}
-                  copy={copyOverride}
-                />
-              )
-            )}
-          </ul>
+          <LibraryToolbar
+            count={visible.length}
+            countSuffix={copy.countSuffix}
+            hasMore={status !== "Exhausted"}
+            sort={sort}
+            onSortChange={setSort}
+            copy={copyOverride}
+          />
+          <MateriList rows={visible} tenantSlug={tenantSlug} copy={copyOverride} />
+          {/* A→Z rides no index (`lessons` has no title column to range over),
+              so it orders the loaded pages and page 2 restarts the alphabet.
+              Said out loud while it is still true, rather than shipping a
+              sort that quietly lies once the list is longer than one page. */}
+          {sort === "title" && status !== "Exhausted" ? (
+            <p className="text-[0.6875rem] leading-relaxed text-muted-foreground">
+              {copy.sortTitleNote}
+            </p>
+          ) : null}
         </>
       )}
 

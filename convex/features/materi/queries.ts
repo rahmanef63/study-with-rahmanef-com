@@ -19,6 +19,7 @@ import {
   canSeeMateri,
   isInstructorPlus,
   isPublishedMateri,
+  materiKind,
   requireMemberForLesson,
   requireMemberForTenantSlug,
 } from "./access";
@@ -57,6 +58,11 @@ export const publicGetBySlug = query({
       _id: lesson._id,
       slug: args.lessonSlug,
       title: lesson.title,
+      // `kind` yes, `promptText` NEVER: a crawler may know the page is a skill,
+      // but the prompt is the thing a member joined for, so handing it to an
+      // anonymous caller gives the product away on a guessable URL.
+      // queries.test.ts asserts the absence key by key.
+      kind: materiKind(lesson),
       tags,
       hasVideo: lesson.youtubeVideoId !== undefined,
       courses: courses.map((course) => ({ slug: course.slug, title: course.title })),
@@ -72,8 +78,7 @@ export const publicGetBySlug = query({
  * The permalink is the whole reason the materi model was built — a shareable,
  * indexable address for one lesson. Without this the sitemap advertises tenants
  * and courses only, the library page is `robots: { index: false }` because it
- * lists member content, and so a crawler has no path to any materi at all: the
- * indexable surface would exist and stay invisible.
+ * lists member content, and a crawler has no path to any materi at all.
  *
  * Whitelist conditions: (1) `public` prefix; (2) tenant must be ACTIVE and the
  * ranges are `by_tenant_status`, so status is IN the index and no re-check is
@@ -84,10 +89,19 @@ export const publicGetBySlug = query({
  * published (pre-migration rows), and an index pinned to "published" cannot see
  * those. One range would quietly drop any legacy materi from the sitemap —
  * invisible, because the page itself would still render fine when visited.
+ *
+ * SKILLS ARE INCLUDED, and it takes no extra range: `kind` is just another
+ * column, so a published skill already sits in `by_tenant_status`, and its
+ * permalink is as shareable as any materi's. `kind` rides along so the sitemap
+ * can route a skill to its own URL shape if the frontend grows one — a
+ * category, not content, and the etalase already exposes it.
  */
 export const publicListSlugs = query({
   args: { tenantId: v.id("tenants") },
-  handler: async (ctx, args): Promise<Array<{ slug: string; updatedAt: number }>> => {
+  handler: async (
+    ctx,
+    args
+  ): Promise<Array<{ slug: string; kind: "materi" | "skill"; updatedAt: number }>> => {
     const tenant = await ctx.db.get(args.tenantId);
     if (tenant === null || tenant.status !== "active") return [];
     const byStatus = async (status: "published" | undefined) =>
@@ -100,7 +114,11 @@ export const publicListSlugs = query({
     const lessons = [...(await byStatus("published")), ...(await byStatus(undefined))];
     return lessons
       .filter((lesson) => lesson.slug !== undefined)
-      .map((lesson) => ({ slug: lesson.slug as string, updatedAt: lesson._creationTime }));
+      .map((lesson) => ({
+        slug: lesson.slug as string,
+        kind: materiKind(lesson),
+        updatedAt: lesson._creationTime,
+      }));
   },
 });
 
@@ -134,6 +152,10 @@ export const getBySlug = query({
       slug: lesson.slug ?? null,
       title: lesson.title,
       status: lesson.status ?? "published",
+      kind: materiKind(lesson),
+      // The prompt panel's data, MEMBER+ only — the anonymous twin above returns
+      // `kind` and stops. Undefined on a materi, and on a promptless skill.
+      promptText: lesson.promptText,
       youtubeVideoId: lesson.youtubeVideoId,
       contentMd: lesson.contentMd,
       contentBlocks: lesson.contentBlocks,

@@ -47,6 +47,37 @@ export const COURSES_COPY = {
     "Materi tetap tersimpan di perpustakaan komunitas dan kelas lain yang memakainya tidak terpengaruh.",
   materiPublished: "Materi diterbitkan",
   materiDrafted: "Materi dijadikan draft",
+  // skills — a skill IS a materi (kind: "skill") with a copy-able prompt, so
+  // the console never calls it "materi baru": an author must always know which
+  // of the two libraries they are writing into.
+  newSkill: "Skill baru",
+  editSkill: "Ubah skill",
+  deleteSkill: "Hapus skill",
+  deleteSkillConfirm:
+    "Skill ini hilang dari perpustakaan skill, termasuk prompt-nya. Aksi ini tidak bisa dibatalkan.",
+  skillLabel: "Skill",
+  materiLabel: "Materi",
+  skillsTitle: "Perpustakaan skill",
+  skillsBlurb: "Prompt siap pakai — satu skill, satu prompt, plus penjelasannya.",
+  emptySkillsTitle: "Belum ada skill",
+  emptySkillsBody:
+    "Skill adalah prompt siap pakai yang bisa disalin anggota. Tulis satu prompt, jelaskan cara pakainya, terbitkan.",
+  searchSkills: "Cari skill (judul atau isi prompt)",
+  searchSkillsEmpty: "Tidak ada skill yang cocok",
+  skillNoPrompt: "Belum ada prompt",
+  skillBody: "Penjelasan",
+  skillBodyHint: "Contoh, variasi, dan cara pakai ditulis di editor blok.",
+  openContentEditor: "Buka editor isi",
+  loadMore: "Muat lebih banyak",
+  fieldPrompt: "Prompt",
+  fieldPromptPlaceholder: "Kamu adalah …\n\nTugas: …\n\nFormat keluaran: …",
+  fieldPromptHint:
+    "Teks yang disalin anggota apa adanya. Penjelasan panjang taruh di penjelasan, bukan di sini.",
+  fieldTags: "Tag",
+  fieldTagsPlaceholder: "tulis tag lalu Enter",
+  fieldTagsHint: "Huruf kecil, pisah dengan Enter atau koma. Tag dipakai filter perpustakaan.",
+  fieldTagsFull: "Tag sudah maksimal",
+  removeTag: "Hapus tag",
   fieldTitle: "Judul",
   fieldSlug: "Slug (URL)",
   fieldDescription: "Deskripsi",

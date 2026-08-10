@@ -28,6 +28,21 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-08-10",
+    version: "v2.9",
+    title: "52 materi baru, dan menu Skills untuk kumpulan prompt",
+    tags: ["Konten", "Baru"],
+    points: [
+      "Dua kelas pembuka akhirnya selengkap kelas lanjutannya. “Dasar AI untuk Semua” dan “Prompt Engineering Praktis” naik dari 4 materi jadi 14 masing-masing — selama ini justru orang baru yang mendarat di bagian paling tipis.",
+      "Komunitas Karier Digital dan Kreator Konten juga ikut dilengkapi. Totalnya 52 materi baru dalam Bahasa Indonesia, dengan contoh nyata dan alat yang semuanya gratis.",
+      "Materi lama tidak diubah — yang baru menyambung, jadi kalau kamu sudah menandai sebagian selesai, progresmu tetap utuh.",
+      "Menu Skills: tempat menyimpan prompt yang tinggal salin-pakai. Tiap skill punya panel prompt dengan tombol Salin, penjelasan kapan dipakai, tag, dan alamat sendiri yang bisa dibagikan.",
+      "Pustaka Skills dan Materi sama-sama punya saring per tag, pencarian, dan pengurutan (terbaru, terlama, A–Z). Di Skills, pencarian juga menelusuri isi prompt-nya, bukan cuma judul.",
+      "Isi prompt hanya terbuka untuk anggota. Tautan yang kamu bagikan tetap menampilkan judul supaya rapi di chat, tapi promptnya baru terbaca setelah gabung.",
+      "Pustaka Skills masih kosong — pengelola komunitas bisa mulai mengisinya lewat Kelola.",
+    ],
+  },
+  {
+    date: "2026-08-10",
     version: "v2.8.1",
     title: "Pembersihan sisa struktur modul",
     tags: ["Perbaikan"],

@@ -19,6 +19,8 @@ import type * as _seed_coursePromptEngineering from "../_seed/coursePromptEngine
 import type * as _seed_coursesData from "../_seed/coursesData.js";
 import type * as _seed_curriculum from "../_seed/curriculum.js";
 import type * as _seed_engagementData from "../_seed/engagementData.js";
+import type * as _seed_karierFreelanceData from "../_seed/karierFreelanceData.js";
+import type * as _seed_karierPortofolioData from "../_seed/karierPortofolioData.js";
 import type * as _seed_multiAgentData from "../_seed/multiAgentData.js";
 import type * as _seed_posts from "../_seed/posts.js";
 import type * as _seed_seedContent from "../_seed/seedContent.js";
@@ -73,6 +75,7 @@ import type * as features_materi_materiLinks from "../features/materi/materiLink
 import type * as features_materi_projections from "../features/materi/projections.js";
 import type * as features_materi_queries from "../features/materi/queries.js";
 import type * as features_materi_refs from "../features/materi/refs.js";
+import type * as features_materi_skills from "../features/materi/skills.js";
 import type * as features_materi_tags from "../features/materi/tags.js";
 import type * as features_materi_validate from "../features/materi/validate.js";
 import type * as features_notifications_errors from "../features/notifications/errors.js";
@@ -149,6 +152,8 @@ declare const fullApi: ApiFromModules<{
   "_seed/coursesData": typeof _seed_coursesData;
   "_seed/curriculum": typeof _seed_curriculum;
   "_seed/engagementData": typeof _seed_engagementData;
+  "_seed/karierFreelanceData": typeof _seed_karierFreelanceData;
+  "_seed/karierPortofolioData": typeof _seed_karierPortofolioData;
   "_seed/multiAgentData": typeof _seed_multiAgentData;
   "_seed/posts": typeof _seed_posts;
   "_seed/seedContent": typeof _seed_seedContent;
@@ -203,6 +208,7 @@ declare const fullApi: ApiFromModules<{
   "features/materi/projections": typeof features_materi_projections;
   "features/materi/queries": typeof features_materi_queries;
   "features/materi/refs": typeof features_materi_refs;
+  "features/materi/skills": typeof features_materi_skills;
   "features/materi/tags": typeof features_materi_tags;
   "features/materi/validate": typeof features_materi_validate;
   "features/notifications/errors": typeof features_notifications_errors;

@@ -37,6 +37,77 @@ export const LIBRARY_PAGE_MAX = 20;
  *  truncates rather than growing unbounded. */
 export const SITEMAP_TAKE = 1000;
 
+/**
+ * A skill's prompt cap. 4 000 characters ≈ 1 000 tokens: room for a long,
+ * structured system prompt while staying something you copy into a chat box,
+ * not an essay — explanation, examples and variations belong in the body, which
+ * has its own 50 000-char cap and its own search index. It is also a READ-COST
+ * bound: every skills-library card and every skills-library search reads this
+ * column, so an uncapped prompt would make browsing the library expensive.
+ * Enforced on the write side by `features/courses/lessons.assertPromptText`.
+ */
+export const MAX_PROMPT_CHARS = 4_000;
+
+/**
+ * A prompt requires `kind: "skill"` — a materi with a prompt panel is a skill
+ * nobody labelled, and it would preview in the wrong library. `kind` is the
+ * ROW'S own kind at every call site, never a client-supplied one.
+ */
+export function assertPromptText(
+  promptText: string,
+  kind: "materi" | "skill" | undefined
+): string {
+  if (kind !== "skill") fail("VALIDATION_FAILED", "Prompt hanya untuk materi bertipe skill");
+  const text = promptText.trim();
+  if (text === "" || text.length > MAX_PROMPT_CHARS) {
+    fail("VALIDATION_FAILED", `Prompt wajib diisi, maksimal ${MAX_PROMPT_CHARS} karakter`);
+  }
+  return text;
+}
+
+/** Characters of a skill's prompt a library card previews. Two lines of a
+ *  card, no more: the card is a chooser, the prompt panel is the reader. */
+export const PROMPT_PREVIEW_CHARS = 160;
+
+/**
+ * Skills scanned by `skills.searchSkills`. The skills library is a curated
+ * prompt catalogue, not the whole materi corpus, and it is ONE exact index
+ * range — so a bounded scan can match title + promptText in memory instead of
+ * needing a search index the table is not allowed to grow. Past this the search
+ * truncates rather than becoming unbounded; the read stays ~1 MB worst case
+ * because `promptText` is capped at 4 000 chars on the write side.
+ */
+export const SKILL_SCAN_TAKE = 200;
+/** Matches one search returns. Same ceiling as a library page, on purpose. */
+export const MAX_SEARCH_RESULTS = LIBRARY_PAGE_MAX;
+const SEARCH_Q_MIN = 2;
+const SEARCH_Q_MAX = 60;
+
+/** Truncate a prompt for a card. Cuts on a word boundary when there is one. */
+export function promptPreview(promptText: string | undefined): string | null {
+  if (promptText === undefined) return null;
+  const flat = promptText.replace(/\s+/g, " ").trim();
+  if (flat === "") return null;
+  if (flat.length <= PROMPT_PREVIEW_CHARS) return flat;
+  const cut = flat.slice(0, PROMPT_PREVIEW_CHARS);
+  const space = cut.lastIndexOf(" ");
+  return `${space > PROMPT_PREVIEW_CHARS / 2 ? cut.slice(0, space) : cut}…`;
+}
+
+/**
+ * Normalise + bound a skills-library search term. Mirrors features/search's
+ * 2–60 rule so one search box cannot behave differently on two pages. Returns
+ * the lowercased needle; anything outside the range is VALIDATION_FAILED, never
+ * a scan.
+ */
+export function normalizeSearchQuery(q: string): string {
+  const needle = q.trim().toLowerCase();
+  if (needle.length < SEARCH_Q_MIN || needle.length > SEARCH_Q_MAX) {
+    fail("VALIDATION_FAILED", `Kata kunci harus ${SEARCH_Q_MIN}–${SEARCH_Q_MAX} karakter`);
+  }
+  return needle;
+}
+
 /** Longest slug the backfill can mint (`baseSlug` 64 + numeric suffix). */
 const SLUG_MAX_LENGTH = 80;
 const KEBAB_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;

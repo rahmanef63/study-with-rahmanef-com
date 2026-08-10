@@ -1,35 +1,84 @@
 {
   "$schema": "../../docs/slice.manifest.schema.json",
   "name": "materi",
-  "version": "0.1.0",
-  "description": "Materi tab (DECISIONS #36/#37): the tenant's materi library + THE canonical materi permalink. Server-rendered etalase header/metadata/OG from publicGetBySlug, member-gated body through MarkdownView, tag row + 'Muncul di kelas' backlinks below it. Read-only slice; materi writes stay in the Kelola console.",
+  "version": "0.2.0",
+  "description": "Materi + Skills. A skill IS a materi (`lessons.kind === \"skill\"` + `promptText`), so ONE slice serves both: /k/<t>/materi and /k/<t>/skills are the same paginated member-gated read with a different kind, the same tag rack, the same three-way sort, the same inset rows and the same permalink shape. Skill-specific: a server search over title OR prompt text, the copy-able PROMPT PANEL above the body, and an empty state that explains what a skill is. Read-only slice; writes stay in the Kelola console.",
   "category": "lms",
   "stability": "beta",
   "deps": {
-    "shared": ["features/defineFeature"],
-    "slices": ["courses", "tenants"],
-    "convexFeatures": ["materi"],
-    "npm": { "lucide-react": "^0.460.0" },
+    "shared": [
+      "features/defineFeature"
+    ],
+    "slices": [
+      "courses",
+      "tenants",
+      "search"
+    ],
+    "convexFeatures": [
+      "materi"
+    ],
+    "npm": {
+      "lucide-react": "^0.460.0"
+    },
     "env": []
   },
   "files": {
-    "include": ["**/*"],
-    "exclude": ["__tests__/**", "*.test.ts", "*.test.tsx"]
+    "include": [
+      "**/*"
+    ],
+    "exclude": [
+      "__tests__/**",
+      "*.test.ts",
+      "*.test.tsx"
+    ]
   },
   "convexFiles": {
-    "include": ["**/*.ts"],
-    "exclude": ["*.test.ts", "test.helpers.ts"]
+    "include": [
+      "**/*.ts"
+    ],
+    "exclude": [
+      "*.test.ts",
+      "test.helpers.ts"
+    ]
   },
-  "permissions": ["materi.read", "materi.tag"],
+  "permissions": [
+    "materi.read",
+    "materi.tag"
+  ],
   "schemaTables": [
     {
       "name": "lessons",
       "namespaced": false,
-      "indexes": ["by_tenant_slug", "by_tenant_status"]
+      "indexes": [
+        "by_tenant_slug",
+        "by_tenant_status",
+        "by_tenant_kind_status"
+      ]
     },
-    { "name": "lessonTags", "namespaced": false, "indexes": ["by_tenant_tag", "by_lesson"] },
-    { "name": "lessonRefs", "namespaced": false, "indexes": ["by_from", "by_to"] },
-    { "name": "courseLessons", "namespaced": false, "indexes": ["by_course", "by_lesson"] }
+    {
+      "name": "lessonTags",
+      "namespaced": false,
+      "indexes": [
+        "by_tenant_tag",
+        "by_lesson"
+      ]
+    },
+    {
+      "name": "lessonRefs",
+      "namespaced": false,
+      "indexes": [
+        "by_from",
+        "by_to"
+      ]
+    },
+    {
+      "name": "courseLessons",
+      "namespaced": false,
+      "indexes": [
+        "by_course",
+        "by_lesson"
+      ]
+    }
   ],
   "compatibility": {
     "next": ">=15 <17",
@@ -38,5 +87,5 @@
     "tailwind": "4",
     "auth": "convex-auth"
   },
-  "notes": "0.1.0 (2026-08-10, materi-model wave): the frontend half of convex/features/materi — that feature was landed by the convex wave and is NOT modified here. SSR contract: only publicGetBySlug (anonymous etalase whitelist) is read server-side, through safeQuery; it answers null for a DRAFT materi, so the page must NOT notFound() on null — the island renders its own <h1> instead (`hasServerHeading={false}`) and an instructor still gets the page. No function prop crosses the server→client boundary: the views take `tenantSlug` as a string and build every href from lib/hrefs.ts (that mistake has taken this app down twice). getBySlug THROWS NOT_FOUND for unknown/deleted/draft-below-instructor, and convex/react rethrows during render, so the detail view wraps its content in a local <MateriErrorBoundary resetKey={lessonSlug}> — otherwise a mistyped slug lands on app/error.tsx with no community chrome. lib/inset.ts restates the class strings of app/k/[slug]/_components/inset-list.tsx because a slice may not import the app layer (rr P1); the barrel test pins radius-0, the 3px hard shadow and the 56px row floor so drift is visible. Library search narrows the LOADED pages only — /cari is the indexed search, this is a filter."
+  "notes": "0.2.0 (2026-08-10, skills wave): adds the SKILLS surface on top of 0.1.0's materi surface. A skill is not a new table — `lessons.kind` (undefined = \"materi\", exactly like `status`) plus an optional `promptText` — so tags, search, permalinks, backlinks, OG cards, the sitemap and the block editor all came for free, and only the deltas are new code. THE PROMPT IS MEMBER-ONLY, STRUCTURALLY: `promptText` is absent from `PublicMateri`, so the server component and the opengraph-image have nothing to leak; the barrel test asserts the absence at type level and convex/features/materi/queries.test.ts asserts it key by key. ONE SLUG NAMESPACE, TWO ROUTES: /materi/<slug> and /skills/<slug> each redirect a wrong-kind slug to the canonical route for the row's real kind rather than 404ing (`buildKindPageHref`); a DRAFT reads as null on the anonymous query so no redirect fires, and none is needed — the island renders the row correctly either way, so nothing dead-ends. SORT: newest/oldest ride the index; A→Z is IN-PAGE (lessons has no title index and may not grow one) and the view says so in a footnote rather than faking a global alphabet. SEARCH: the materi library still narrows the LOADED pages client-side; the skills library calls skills:searchSkills, a debounced server query over title OR promptText, which REPLACES the paginated list rather than filtering it (no cursor exists over a bounded scan). The 0.1.0 SSR contract is unchanged and still binding: only publicGetBySlug is read server-side, it answers null for a draft so the page must NOT notFound(), and NO FUNCTION PROP crosses the server→client boundary — the views take `tenantSlug` and `kelolaHref` as strings. The ONE builder prop in the slice is MateriPageHeader's `tagHref`, and that component is a SERVER component rendered by a server component."
 }

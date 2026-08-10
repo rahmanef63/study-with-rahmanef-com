@@ -17,6 +17,7 @@ import {
   MoreHorizontal,
   Trophy,
   Users,
+  Wand2,
   type LucideIcon,
 } from "lucide-react";
 import { COMMUNITY_TABS, type CommunityTab } from "@/lib/community";
@@ -30,6 +31,8 @@ import { isCommunityTabActive } from "./tab-active";
 // would let this file stop guessing.)
 const TAB_ICONS: Record<string, LucideIcon> = {
   materi: Library,
+  // A wand, not a Sparkles/Brain "AI" glyph: a skill is a prompt you WIELD.
+  skills: Wand2,
   kelas: BookOpen,
   diskusi: MessagesSquare,
   anggota: Users,
@@ -39,9 +42,10 @@ const TAB_ICONS: Record<string, LucideIcon> = {
 };
 const iconFor = (key: string) => TAB_ICONS[key] ?? Circle;
 
-// THE SPLIT. Seven tabs (Materi joined with the materi model, DECISIONS
-// #36/#37), five comfortable slots at 320px, so FOUR tabs get a slot and the
-// rest fall into "Lainnya": Materi · Kelas · Diskusi · Anggota · Lainnya.
+// THE SPLIT. Eight tabs (Materi joined with the materi model, DECISIONS
+// #36/#37; Skills joined 2026-08-10), five comfortable slots at 320px, so FOUR
+// tabs get a slot and the rest fall into "Lainnya":
+// Materi · Skills · Kelas · Diskusi · Lainnya.
 //
 // The four are simply the first four of COMMUNITY_TABS — lib/community.ts is
 // the SSOT and it already orders the strip by how often a member returns to
@@ -50,8 +54,9 @@ const iconFor = (key: string) => TAB_ICONS[key] ?? Circle;
 // disagreeing with the desktop strip: Peringkat lost its slot to Materi in one
 // edit, over there, and the phone bar followed with none.
 //
-// Peringkat, Kalender and Tentang stay one tap away in the sheet, routes
-// untouched.
+// Anggota, Peringkat, Kalender and Tentang stay one tap away in the sheet,
+// routes untouched. (Anggota lost its slot to Skills automatically, over
+// there, which is exactly the property this file was rewritten to have.)
 const PRIMARY_SLOTS = 4;
 
 const PRIMARY_TABS: CommunityTab[] = COMMUNITY_TABS.slice(0, PRIMARY_SLOTS);

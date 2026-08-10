@@ -35,3 +35,49 @@ export function buildMateriTagHref(tenantSlug: string, tag: string): string {
 export function buildCourseHref(tenantSlug: string, courseSlug: string): string {
   return `/k/${enc(tenantSlug)}/kelas/${enc(courseSlug)}`;
 }
+
+// ── SKILLS ───────────────────────────────────────────────────────────────────
+// A skill IS a materi (`lessons.kind`), so these are the same two URLs one
+// segment over. The separate route is a reading-job distinction, not a data
+// one: /materi is where you go to learn, /skills is where you go to take a
+// prompt and leave.
+
+/** The skills library. */
+export function buildSkillsHref(tenantSlug: string): string {
+  return `/k/${enc(tenantSlug)}/skills`;
+}
+
+/** THE canonical skill permalink. */
+export function buildSkillPageHref(tenantSlug: string, lessonSlug: string): string {
+  return `${buildSkillsHref(tenantSlug)}/${enc(lessonSlug)}`;
+}
+
+/** The skills library opened on ONE tag — the `?tag=` deep link again. */
+export function buildSkillTagHref(tenantSlug: string, tag: string): string {
+  return `${buildSkillsHref(tenantSlug)}?tag=${enc(tag)}`;
+}
+
+/**
+ * THE permalink for a row, chosen by the row's OWN kind.
+ *
+ * Materi and skills share ONE slug namespace — both are rows of `lessons` —
+ * so /materi/<slug> and /skills/<slug> can each be handed the other kind's
+ * slug by anyone who copied the wrong path out of a chat. Every surface that
+ * knows a row's kind builds its link through this, and the two permalink pages
+ * redirect a mismatch here instead of 404ing: a shared link must never dead-end
+ * on a detail the reader could not have known.
+ */
+export function buildKindPageHref(
+  tenantSlug: string,
+  kind: "materi" | "skill",
+  lessonSlug: string
+): string {
+  return kind === "skill"
+    ? buildSkillPageHref(tenantSlug, lessonSlug)
+    : buildMateriPageHref(tenantSlug, lessonSlug);
+}
+
+/** The library a row belongs to — same dispatch, one level up. */
+export function buildKindLibraryHref(tenantSlug: string, kind: "materi" | "skill"): string {
+  return kind === "skill" ? buildSkillsHref(tenantSlug) : buildMateriHref(tenantSlug);
+}

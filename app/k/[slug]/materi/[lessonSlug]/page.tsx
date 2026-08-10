@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import { cache, Suspense } from "react";
 import Link from "next/link";
-import { ArrowLeft, PlayCircle } from "lucide-react";
+import { redirect } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import { api } from "@convex/_generated/api";
-import { MateriDetailView, TagRow, type PublicMateri } from "@/features/materi";
-import { TombolBagikan } from "@/components/tombol-bagikan";
+import {
+  MateriDetailView,
+  MateriPageHeader,
+  type PublicMateri,
+} from "@/features/materi";
 import { Skeleton } from "@/components/ui/skeleton";
 import { communityHref } from "@/lib/community";
 import { safeQuery } from "@/lib/convex-server";
@@ -23,6 +27,10 @@ import { GabungDulu } from "../../_components/gabung-dulu";
 // 404ing here would hide unpublished work from the person writing it. Null
 // means "no server heading"; the island renders the heading from the member
 // read instead.
+//
+// Twin: ../../skills/[lessonSlug]/page.tsx. Same file, one segment over, for
+// rows with `kind: "skill"` — and each redirects to the other when handed the
+// wrong kind's slug (see the note on that check below).
 type Params = { slug: string; lessonSlug: string };
 
 // cache(): generateMetadata and the body want the same two rows, and
@@ -50,6 +58,11 @@ export async function generateMetadata({
     // Unknown, draft, or unreachable — never guess a title from the slug.
     return { title: "Materi", alternates: { canonical: path }, robots: { index: false } };
   }
+  // The canonical is the route for the row's REAL kind, so a wrong-kind URL a
+  // crawler reached before following the redirect still consolidates onto one
+  // address.
+  const canonical =
+    materi.kind === "skill" ? communityHref.skillPage(slug, lessonSlug) : path;
   const description =
     materi.courses.length > 0
       ? `Materi ${materi.tenant.name} — dipakai di ${materi.courses.map((c) => c.title).join(", ")}.`
@@ -58,12 +71,12 @@ export async function generateMetadata({
     title: materi.title,
     description,
     keywords: materi.tags,
-    alternates: { canonical: path },
+    alternates: { canonical },
     openGraph: {
       type: "article",
       title: materi.title,
       description,
-      url: absoluteUrl(path),
+      url: absoluteUrl(canonical),
     },
     twitter: { card: "summary_large_image", title: materi.title, description },
   };
@@ -74,49 +87,18 @@ async function MateriSurface({ slug, lessonSlug }: Params) {
     getMateri(slug, lessonSlug),
     safeQuery(api.features.tenants.queries.getPublicBySlug, { slug }),
   ]);
+
   const path = communityHref.materiPage(slug, lessonSlug);
 
   return (
     <div className="space-y-8">
       {materi === null ? null : (
-        <header className="space-y-4">
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="eyebrow border px-2 py-0.5 text-[10px]">Materi</span>
-            {materi.hasVideo ? (
-              <span className="inline-flex items-center gap-1 border border-accent/50 bg-accent/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-accent">
-                <PlayCircle className="size-3" aria-hidden />
-                Video
-              </span>
-            ) : null}
-            <time
-              dateTime={new Date(materi.createdAt).toISOString()}
-              className="text-muted-foreground"
-            >
-              {new Date(materi.createdAt).toLocaleDateString("id-ID", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              })}
-            </time>
-          </div>
-
-          {/* The ONE h1 of this page, in server HTML. The island is told not to
-              render a second one (`hasServerHeading`). */}
-          <h1 className="text-balance text-base [overflow-wrap:anywhere] @sm:text-lg">
-            {materi.title}
-          </h1>
-
-          <div className="flex flex-wrap items-center justify-between gap-3 border-y border-border py-3">
-            {/* Server-rendered tag links: indexable, and they work with JS off.
-                The island renders the live tag row again under the body, where
-                a reader who just finished reading wants it. */}
-            <TagRow
-              tags={materi.tags}
-              tagHref={(tag) => `${communityHref.materi(slug)}?tag=${encodeURIComponent(tag)}`}
-            />
-            <TombolBagikan url={absoluteUrl(path)} title={materi.title} variant="ghost" />
-          </div>
-        </header>
+        <MateriPageHeader
+          materi={materi}
+          kind="materi"
+          shareUrl={absoluteUrl(path)}
+          tagHref={(tag) => `${communityHref.materi(slug)}?tag=${encodeURIComponent(tag)}`}
+        />
       )}
 
       {tenant === null ? null : (
@@ -140,6 +122,17 @@ async function MateriSurface({ slug, lessonSlug }: Params) {
 
 export default async function MateriDetailPage({ params }: { params: Promise<Params> }) {
   const { slug, lessonSlug } = await params;
+
+  // ONE SLUG NAMESPACE, TWO ROUTES — the mirror of the check in the skills
+  // twin, and see that file for why it sits out here rather than inside the
+  // Suspense boundary (a streamed redirect is a client-side hop; this one is a
+  // real 307, and generateMetadata already paid for the read). A skill's slug
+  // arriving here is someone who copied /materi/ out of habit.
+  const materi = await getMateri(slug, lessonSlug);
+  if (materi !== null && materi.kind === "skill") {
+    redirect(communityHref.skillPage(slug, lessonSlug));
+  }
+
   return (
     <div className="@container mx-auto w-full max-w-3xl space-y-6">
       <Link

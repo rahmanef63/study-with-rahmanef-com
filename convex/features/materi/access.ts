@@ -65,6 +65,16 @@ export function isPublishedMateri(lesson: Doc<"lessons">): boolean {
   return (lesson.status ?? "published") === "published";
 }
 
+/**
+ * `lessons.kind` with its documented default. A row without the column is a
+ * MATERI — the 76 pre-migration rows predate it, and treating the absence as
+ * anything else would drop the whole existing library out of its own tab.
+ * Sibling of `isPublishedMateri`: both encode "undefined means the old default".
+ */
+export function materiKind(lesson: Doc<"lessons">): "materi" | "skill" {
+  return lesson.kind ?? "materi";
+}
+
 /** Clauses 1+2: can this viewer see this materi at all? */
 export function canSeeMateri(lesson: Doc<"lessons">, role: TenantRole | null): boolean {
   if (role === null) return false; // anonymous: etalase only, never this path

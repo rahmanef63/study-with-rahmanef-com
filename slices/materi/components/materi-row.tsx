@@ -33,6 +33,16 @@ export function MateriRow({ materi, href, tagsShown = 2, copy: copyOverride }: M
           <span className="block line-clamp-2 text-sm leading-snug [overflow-wrap:anywhere]">
             {materi.title}
           </span>
+          {/* A skill's prompt, one line, already truncated server-side. This
+              is what makes the skills library scannable: two prompts with
+              near-identical titles are told apart by their first clause, and
+              without it every row is a coin flip you pay a page load for.
+              Monospace because it IS the prompt, not prose about it. */}
+          {materi.promptPreview === null ? null : (
+            <span className="block truncate font-mono text-[0.6875rem] leading-normal text-muted-foreground">
+              {materi.promptPreview}
+            </span>
+          )}
           <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.6875rem] leading-none text-muted-foreground">
             {/* One template string rather than `{n} {label}`: two sibling
                 expressions leave the space at the mercy of JSX whitespace

@@ -54,7 +54,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       })) ?? [];
     for (const item of materi) {
       entries.push({
-        url: `${base}/materi/${item.slug}`,
+        // ROUTED BY KIND, and it has to be: both routes accept both kinds and
+        // 307 to the other, but each page's canonical is the route for the
+        // row's REAL kind. Listing a skill under /materi would advertise a URL
+        // that redirects away from the canonical the same page declares — a
+        // crawler resolves it, but every skill would enter the index through a
+        // hop. `publicListSlugs` returns `kind` for exactly this.
+        url:
+          item.kind === "skill"
+            ? `${base}/skills/${item.slug}`
+            : `${base}/materi/${item.slug}`,
         lastModified: new Date(item.updatedAt),
         changeFrequency: "monthly",
         priority: 0.7,

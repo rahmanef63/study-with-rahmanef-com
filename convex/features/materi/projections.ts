@@ -21,15 +21,24 @@ export type MateriRef = {
   title: string;
 };
 
+/** "materi" | "skill" — `lessons.kind`, with `undefined` read as "materi". */
+export type MateriKind = "materi" | "skill";
+
 /**
  * ANONYMOUS etalase projection. Deliberately has NO contentMd, NO contentBlocks,
  * NO links and NO youtubeVideoId — a shared materi link must unfurl with a real
  * title and index, and stop exactly there.
+ *
+ * `kind` IS here (a crawler and a share card may know this page is a skill);
+ * `promptText` is NOT and must never be. The prompt is the thing a member joined
+ * for — putting it on the anonymous surface would give the product away on a URL
+ * anyone can guess. queries.test.ts asserts its absence key by key.
  */
 export type PublicMateri = {
   _id: Id<"lessons">;
   slug: string;
   title: string;
+  kind: MateriKind;
   tags: string[];
   hasVideo: boolean;
   /** Published courses only — a draft course is never named to an anon caller. */
@@ -45,6 +54,9 @@ export type MateriDetail = {
   slug: string | null;
   title: string;
   status: "draft" | "published";
+  kind: MateriKind;
+  /** MEMBER+ ONLY, and only ever set on a skill. Absent from `PublicMateri`. */
+  promptText?: string;
   youtubeVideoId?: string;
   contentMd: string;
   contentBlocks?: string;
@@ -64,10 +76,18 @@ export type MateriCard = {
   _id: Id<"lessons">;
   slug: string | null;
   title: string;
+  kind: MateriKind;
+  /** First line(s) of a skill's prompt, truncated — the card renders it as a
+   *  teaser so the reader can tell two prompts apart without opening either.
+   *  `null` for a materi and for a skill with no prompt yet. MEMBER+ surface. */
+  promptPreview: string | null;
   tags: string[];
   courseCount: number;
   updatedAt: number;
 };
+
+/** Library ordering. `newest`/`oldest` ride the index; `title` is A→Z. */
+export type MateriSort = "newest" | "oldest" | "title";
 
 export type MateriPage = {
   page: MateriCard[];

@@ -13,7 +13,9 @@ import { ConvexError } from "convex/values";
 import { describe, expect, expectTypeOf, test } from "vitest";
 import type * as Barrel from "../index";
 import { COURSES_COPY, mergeCopy } from "../config/copy";
+import { MAX_PROMPT_CHARS, MAX_TAGS_PER_LESSON } from "../config/limits";
 import { coursesErrorMessage } from "../lib/errors";
+import { parseTagInput } from "../lib/tags";
 import { extractYoutubeVideoId } from "../lib/youtube";
 
 describe("barrel type contract (compile-time, enforced by tsc)", () => {
@@ -52,6 +54,18 @@ describe("barrel type contract (compile-time, enforced by tsc)", () => {
     // completion seam: SyllabusList accepts completedLessonIds
     expectTypeOf<Barrel.SyllabusListProps>().toHaveProperty("completedLessonIds");
     expectTypeOf<Barrel.LessonViewProps>().toHaveProperty("completionSlot");
+    // SKILLS (2026-08-10): a skill is a `lessons` row with kind "skill" + a
+    // prompt, so the console composes it from THESE manage primitives instead
+    // of cloning the materi authoring UI. The kelola console is the consumer.
+    expectTypeOf<typeof Barrel.LessonDialog>().toBeFunction();
+    expectTypeOf<typeof Barrel.ConfirmDialog>().toBeFunction();
+    expectTypeOf<typeof Barrel.PromptField>().toBeFunction();
+    expectTypeOf<Barrel.LessonDialogProps>().toHaveProperty("kind");
+    expectTypeOf<Barrel.LessonDialogProps>().toHaveProperty("initialTags");
+    expectTypeOf<Barrel.LessonKind>().toEqualTypeOf<"materi" | "skill">();
+    // the prompt rides the SAME two mutations a materi does — no skill CRUD
+    expectTypeOf<Barrel.CreateLessonInput>().toHaveProperty("promptText");
+    expectTypeOf<Barrel.UpdateLessonInput>().toHaveProperty("promptText");
     expect(true).toBe(true); // runtime anchor so the test registers
   });
 });
@@ -82,5 +96,20 @@ describe("barrel runtime contract (alias-free modules)", () => {
 
   test("pure lib functions are live through their modules", () => {
     expect(extractYoutubeVideoId("https://youtu.be/dQw4w9WgXcQ")).toBe("dQw4w9WgXcQ");
+    expect(parseTagInput("Prompt Engineering!, ai", MAX_TAGS_PER_LESSON)).toEqual([
+      "prompt-engineering",
+      "ai",
+    ]);
+  });
+
+  test("skill copy names the kind — an author never reads 'materi baru'", () => {
+    expect(COURSES_COPY.newSkill).toBe("Skill baru");
+    expect(COURSES_COPY.editSkill).toBe("Ubah skill");
+    expect(COURSES_COPY.skillLabel).toBe("Skill");
+  });
+
+  test("the UI prompt cap mirrors the server's assertPromptText bound", () => {
+    expect(MAX_PROMPT_CHARS).toBe(4_000);
+    expect(MAX_TAGS_PER_LESSON).toBe(12);
   });
 });

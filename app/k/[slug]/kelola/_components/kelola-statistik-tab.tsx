@@ -42,7 +42,7 @@ export function KelolaStatistikTab({ tenantId }: { tenantId: Id<"tenants"> }) {
           return (
             <li
               key={s.courseId}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-md border px-4 py-3"
+              className="flex flex-wrap items-center justify-between gap-3 border px-4 py-3"
             >
               <div className="min-w-0">
                 <p className="truncate font-medium">{s.title}</p>

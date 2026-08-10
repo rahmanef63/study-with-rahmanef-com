@@ -28,6 +28,13 @@ export type CoursesErrorCode =
 export type CourseStatus = "draft" | "published" | "archived";
 /** A materi publishes independently of the course that teaches it. */
 export type MateriStatus = "draft" | "published";
+/**
+ * `lessons.kind`. A SKILL is a materi row that carries a copy-able `promptText`
+ * — same table, same tags, same permalink, same block editor; only the library
+ * it browses in differs. `undefined` on the row MEANS "materi" (the 76 rows
+ * that predate the column), which is why nothing here writes "materi" back.
+ */
+export type LessonKind = "materi" | "skill";
 export type ViewerRole = "member" | "instructor" | "owner" | null;
 
 export type CourseLink = { label: string; url: string };

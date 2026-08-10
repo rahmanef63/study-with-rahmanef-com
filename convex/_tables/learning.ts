@@ -39,6 +39,27 @@ export const lessons = defineTable({
   /** Stable per-tenant handle — how one materi references another. */
   slug: v.optional(v.string()),
   status: v.optional(v.union(v.literal("draft"), v.literal("published"))),
+  /**
+   * A SKILL is a materi, not a second table: `kind: "skill"` is the whole
+   * difference. That is what buys the skills library tags, search, permalinks,
+   * backlinks, OG cards, the sitemap and the block editor without writing any
+   * of them twice.
+   *
+   * OPTIONAL, and `undefined` MEANS "materi" — the 76 production rows predate
+   * this column exactly as they predate `status`. Every NEW skill writes
+   * `kind: "skill"` explicitly, so the skills library is ONE exact index range
+   * (`by_tenant_kind_status`) with no undefined case to chase; the materi
+   * library keeps its existing range and excludes skills as it scans.
+   */
+  kind: v.optional(v.union(v.literal("materi"), v.literal("skill"))),
+  /**
+   * The prompt a skill hands the reader, verbatim and copy-able. Its own column
+   * rather than a slice of the body because three surfaces need it whole and
+   * unparsed: the copy panel, the library card preview and the skills-library
+   * search. Explanation, examples and variations stay in `contentMd` below it.
+   * Length cap + the reason for it live in `features/courses/lessons.ts`.
+   */
+  promptText: v.optional(v.string()),
   authorId: v.optional(v.id("users")),
   youtubeVideoId: v.optional(v.string()), // 11-char ID, never a full URL
   /** Canonical when `contentBlocks` is absent; DERIVED from it when present, so
@@ -50,6 +71,9 @@ export const lessons = defineTable({
 })
   .index("by_tenant_slug", ["tenantId", "slug"])
   .index("by_tenant_status", ["tenantId", "status"])
+  // The skills library, as one exact range: eq(tenantId).eq(kind, "skill").
+  // `status` rides along so the range stays useful when a skill is a draft.
+  .index("by_tenant_kind_status", ["tenantId", "kind", "status"])
   .index("by_author", ["authorId"])
   // fase-2 (#23): pencarian materi per tenant (filter tenantId; draft-guard di query)
   .searchIndex("search_content", { searchField: "contentMd", filterFields: ["tenantId"] });

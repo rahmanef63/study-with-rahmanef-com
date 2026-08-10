@@ -10,6 +10,13 @@
 // publicGetBySlug answers null for a DRAFT materi, and a draft is still a real
 // page for its author and for instructor+. When the server had nothing, this
 // renders the h1 itself from the member read.
+//
+// ONE VIEW FOR BOTH KINDS. A skill page is this page with a prompt panel on
+// top: same body, same tag row, same "muncul di", same error boundary. The
+// `kind` prop only says which route MOUNTED it — it picks the not-found copy
+// and the tag targets. What actually renders the panel is the ROW'S own kind
+// coming back from the server, so a mismatch (see the redirect in both
+// permalink pages) can never produce a prompt panel on a materi.
 import type { ReactNode } from "react";
 import type { Id } from "@convex/_generated/dataModel";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,10 +24,17 @@ import { useMyMembership } from "@/features/tenants";
 import { MateriBacklinks } from "../components/materi-backlinks";
 import { MateriBody } from "../components/materi-body";
 import { MateriErrorBoundary } from "../components/materi-error-boundary";
+import { PromptPanel } from "../components/prompt-panel";
 import { TagRow } from "../components/tag-row";
 import { mergeMateriCopy, type MateriCopyOverride } from "../config/copy";
 import { useMateri, useMateriBacklinks } from "../hooks/use-materi";
-import { buildCourseHref, buildMateriPageHref, buildMateriTagHref } from "../lib/hrefs";
+import {
+  buildCourseHref,
+  buildKindPageHref,
+  buildMateriTagHref,
+  buildSkillTagHref,
+} from "../lib/hrefs";
+import type { MateriKind } from "../types";
 
 export type MateriDetailViewProps = {
   tenantId: Id<"tenants">;
@@ -28,6 +42,10 @@ export type MateriDetailViewProps = {
   lessonSlug: string;
   /** True when the server already emitted the <h1> from the etalase read. */
   hasServerHeading: boolean;
+  /** Which route mounted this — "materi" (default) or "skill". Chooses the
+   *  not-found copy and where a tag links back to. It does NOT decide whether
+   *  the prompt panel renders; the row's own `kind` does. */
+  kind?: MateriKind;
   /** Rendered instead of the body when the viewer is not a member. */
   gate: ReactNode;
   copy?: MateriCopyOverride;
@@ -49,6 +67,7 @@ function MateriContent({
   tenantSlug,
   lessonSlug,
   hasServerHeading,
+  kind = "materi",
   copy: copyOverride,
 }: Omit<MateriDetailViewProps, "tenantId" | "gate">) {
   const copy = mergeMateriCopy(copyOverride);
@@ -78,6 +97,14 @@ function MateriContent({
         </header>
       )}
 
+      {/* THE HERO, above the body: a skill exists to be taken away, and the
+          explanation below it is context for a decision usually already made.
+          Driven by the ROW'S kind, never by the route's — a materi has no
+          promptText to render even if someone mounts this at /skills. */}
+      {materi.kind === "skill" ? (
+        <PromptPanel promptText={materi.promptText} copy={copyOverride} />
+      ) : null}
+
       <MateriBody
         title={materi.title}
         contentMd={materi.contentMd}
@@ -88,7 +115,12 @@ function MateriContent({
 
       <TagRow
         tags={materi.tags}
-        tagHref={(tag) => buildMateriTagHref(tenantSlug, tag)}
+        // A tag goes back to the library the READER came from: from a skill,
+        // "prompt-engineering" means "the other skills like this", not the
+        // whole materi shelf. Both libraries read the same tag cloud.
+        tagHref={(tag) =>
+          kind === "skill" ? buildSkillTagHref(tenantSlug, tag) : buildMateriTagHref(tenantSlug, tag)
+        }
         copy={copyOverride}
         className="border-t border-border pt-6"
       />
@@ -97,7 +129,12 @@ function MateriContent({
         courses={courses}
         related={related}
         courseHref={(courseSlug) => buildCourseHref(tenantSlug, courseSlug)}
-        materiHref={(slug) => buildMateriPageHref(tenantSlug, slug)}
+        // `MateriRef` carries no `kind` — the backlink projection is
+        // {_id, slug, title} and widening a server type is not this agent's
+        // file. So a related SKILL links at /materi/<slug> and the permalink
+        // page redirects it to /skills/<slug>: one extra hop, never a dead
+        // end, which is precisely the case the redirect was built for.
+        materiHref={(slug) => buildKindPageHref(tenantSlug, "materi", slug)}
         copy={copyOverride}
       />
     </article>
@@ -109,6 +146,7 @@ export function MateriDetailView({
   tenantSlug,
   lessonSlug,
   hasServerHeading,
+  kind = "materi",
   gate,
   copy: copyOverride,
 }: MateriDetailViewProps) {
@@ -118,6 +156,7 @@ export function MateriDetailView({
   if (isAuthLoading || (isAuthenticated && membership === undefined)) return <BodySkeleton />;
   if (!isAuthenticated || membership === null) return <>{gate}</>;
 
+  const isSkill = kind === "skill";
   return (
     // NOT_FOUND here means unknown slug / deleted row / draft below instructor
     // — one code, on purpose. It must not take the whole app to app/error.tsx.
@@ -125,8 +164,10 @@ export function MateriDetailView({
       resetKey={lessonSlug}
       fallback={
         <div className="space-y-2 border-2 border-dashed px-4 py-8 text-center">
-          <p className="text-sm">{copy.notFoundTitle}</p>
-          <p className="text-pretty text-xs text-muted-foreground">{copy.notFoundBody}</p>
+          <p className="text-sm">{isSkill ? copy.skillNotFoundTitle : copy.notFoundTitle}</p>
+          <p className="text-pretty text-xs text-muted-foreground">
+            {isSkill ? copy.skillNotFoundBody : copy.notFoundBody}
+          </p>
         </div>
       }
     >
@@ -134,6 +175,7 @@ export function MateriDetailView({
         tenantSlug={tenantSlug}
         lessonSlug={lessonSlug}
         hasServerHeading={hasServerHeading}
+        kind={kind}
         copy={copyOverride}
       />
     </MateriErrorBoundary>

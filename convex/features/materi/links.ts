@@ -4,11 +4,34 @@
 import type { Doc, Id } from "../../_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "../../_generated/server";
 import type { TenantRole } from "../../_shared/auth";
-import { canSeeMateri, isInstructorPlus } from "./access";
-import type { MateriCourseRef, MateriRef } from "./projections";
-import { BACKLINK_TAKE, PLACEMENT_TAKE, TAG_ROW_TAKE } from "./validate";
+import { canSeeMateri, isInstructorPlus, materiKind } from "./access";
+import type { MateriCard, MateriCourseRef, MateriRef } from "./projections";
+import { BACKLINK_TAKE, PLACEMENT_TAKE, promptPreview, TAG_ROW_TAKE } from "./validate";
 
 type Ctx = QueryCtx | MutationCtx;
+
+/**
+ * The library row — shared by the paginated library and the skills search so
+ * one card shape cannot drift into two. Two bounded index reads per card (tags
+ * + placements), which is why every caller slices to its page size BEFORE
+ * projecting. Member+ surface: the prompt preview lives here, never on the
+ * anonymous etalase.
+ */
+export async function toCard(ctx: Ctx, lesson: Doc<"lessons">): Promise<MateriCard> {
+  const placements = await loadPlacements(ctx, lesson._id);
+  return {
+    _id: lesson._id,
+    slug: lesson.slug ?? null,
+    title: lesson.title,
+    kind: materiKind(lesson),
+    promptPreview: promptPreview(lesson.promptText),
+    tags: await loadTags(ctx, lesson._id),
+    // Raw placement count: resolving each course to check its status would cost
+    // one read per placement per row. The number never names a course.
+    courseCount: placements.length,
+    updatedAt: lesson._creationTime,
+  };
+}
 
 /** Tag rows are per-lesson and capped; deduped + sorted for a stable UI. */
 export async function loadTags(ctx: Ctx, lessonId: Id<"lessons">): Promise<string[]> {
