@@ -155,5 +155,10 @@ kelas" hanya bisa dicapai dengan menyalin — dan dua salinan langsung menyimpan
 
 **Migrasi (disiplin yang sama seperti pageviews & boards):** widen → backfill → verifikasi `remaining` = 0
 → pindahkan pembaca → purge → drop. Step 1 (widen+backfill) live 2026-08-09: 11 kelas, 76 materi,
-76 penempatan. Step 2 (pindah 10 pembaca) = wave ini. Step 3 (cabut `modules` + `courseId/moduleId/order`)
-menyusul setelah step 2 terbukti sehat di produksi.
+76 penempatan. Step 2 (pindah 10 pembaca) live 2026-08-10, diverifikasi di produksi. Step 3 menyusul di hari
+yang sama: snapshot prod → purge (31 baris `modules` dihapus, 76 materi + 22 kuis dibersihkan) → gerbang
+membaca 0/0/0 → skema dipersempit.
+
+**Migrasi SELESAI.** `convex/_shared/legacyLesson.ts` — yang headernya menyatakan "menghapus file ini
+adalah definisi migrasi selesai" — sudah tidak ada, bersama `courses/modules.ts`, `materiBackfill.ts`,
+`legacyTreePurge.ts` dan `courses/refs.ts`.

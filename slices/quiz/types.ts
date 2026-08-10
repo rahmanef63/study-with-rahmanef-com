@@ -1,7 +1,6 @@
 // quiz slice — public types (the barrel contract's type half).
-// MIGRATION (DECISIONS #37): a quiz belongs to a COURSE and is addressed by
-// its own id — `moduleId` is gone from every shape here, and the route is
-// /kuis/<quizId>.
+// A quiz belongs to a COURSE and is addressed by its own id (DECISIONS #37);
+// the route is /kuis/<quizId>.
 // Data shapes mirror the PROJECTIONS returned by convex/features/quiz/* (not
 // raw Doc<> rows): the taking surface NEVER carries correctIndex/explanation;
 // those appear only in the manage read (instructor+) and the attempt result.

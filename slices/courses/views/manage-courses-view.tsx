@@ -72,7 +72,7 @@ export function ManageCoursesView({
           <span className="eyebrow">Studio kelas</span>
           <h1 className="text-2xl @sm:text-3xl">{copy.manageTitle}</h1>
           <p className="max-w-prose text-pretty text-sm text-muted-foreground">
-            Susun kelas, modul, dan lesson untuk komunitasmu.
+            Susun kelas dan materi untuk komunitasmu.
           </p>
         </div>
         <Button className="min-h-11 shrink-0 @sm:min-h-9" onClick={() => setCreateOpen(true)}>

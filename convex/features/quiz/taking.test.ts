@@ -57,7 +57,7 @@ test("getQuizForTaking: draft-course quiz is invisible to members, visible to in
   const asInstructor = await t
     .withIdentity(asUser(fx.instructorId))
     .query(api.features.quiz.taking.getQuizForTaking, { quizId });
-  expect(asInstructor.title).toBe("Kuis Modul 1");
+  expect(asInstructor.title).toBe("Kuis Kelas 1");
 });
 
 test("submitAttempt: grades server-side; passed boundary is inclusive (>=)", async () => {

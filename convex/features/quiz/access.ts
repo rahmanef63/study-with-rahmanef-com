@@ -5,9 +5,9 @@
 // are rejected before any domain row is touched (no existence oracle).
 // Pattern: convex/features/courses/access.ts.
 //
-// MIGRATION (DECISIONS #37): membership resolves through the quiz's own
-// tenantId, and visibility through its COURSE. The module tree is gone from
-// this feature — `quizzes.moduleId` is legacy and is never read here.
+// A quiz is owned by a COURSE (DECISIONS #37): membership resolves through the
+// quiz's own tenantId and visibility through that course. There is nothing
+// above the course to resolve — every helper here takes a courseId or a quizId.
 import type { Doc, Id } from "../../_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "../../_generated/server";
 import { requireTenantRole, requireUser } from "../../_shared/auth";

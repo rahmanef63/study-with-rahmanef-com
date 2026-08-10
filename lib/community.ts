@@ -19,7 +19,7 @@ export const communityHref = {
   lesson: (slug: string, courseSlug: string, lessonId: string) =>
     `/k/${enc(slug)}/kelas/${enc(courseSlug)}/${enc(lessonId)}`,
   /** A quiz belongs to a COURSE and is addressed by its own id (DECISIONS
-   *  #37) — the old /kuis/<moduleId> shape is gone with the module tree. */
+   *  #37); a course may hold several. */
   quiz: (slug: string, courseSlug: string, quizId: string) =>
     `/k/${enc(slug)}/kelas/${enc(courseSlug)}/kuis/${enc(quizId)}`,
   /**

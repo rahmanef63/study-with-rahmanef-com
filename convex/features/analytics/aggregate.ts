@@ -114,8 +114,8 @@ export async function countBadgesByCourse(
 
 /**
  * Quiz stats for one COURSE: attempts + passes via by_quiz, rate computed
- * in-handler. Keyed on the course because `quizzes.moduleId` is retiring — the
- * dashboard lists a course's quizzes flat, in creation order.
+ * in-handler. Keyed on the course because a quiz belongs to one (DECISIONS #37);
+ * the dashboard lists a course's quizzes flat, in creation order.
  */
 export async function quizStatsForCourse(
   ctx: QueryCtx,

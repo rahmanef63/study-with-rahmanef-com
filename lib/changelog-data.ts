@@ -28,6 +28,15 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-08-10",
+    version: "v2.8.1",
+    title: "Pembersihan sisa struktur modul",
+    tags: ["Perbaikan"],
+    points: [
+      "Struktur “modul” yang lama sudah dilepas sepenuhnya dari database. Tidak ada yang berubah di layarmu — kelas tetap berupa daftar materi berurutan — tapi isi platform sekarang punya satu bentuk saja, bukan dua yang harus terus disamakan.",
+    ],
+  },
+  {
+    date: "2026-08-10",
     version: "v2.8",
     title: "Materi berdiri sendiri — satu pelajaran, banyak kelas",
     tags: ["Baru", "Tampilan"],

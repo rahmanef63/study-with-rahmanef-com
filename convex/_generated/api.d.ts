@@ -8,6 +8,8 @@
  * @module
  */
 
+import type * as _seed_aiKerjaData from "../_seed/aiKerjaData.js";
+import type * as _seed_analisisDataData from "../_seed/analisisDataData.js";
 import type * as _seed_bootstrap from "../_seed/bootstrap.js";
 import type * as _seed_communitiesData from "../_seed/communitiesData.js";
 import type * as _seed_communityKarierDigital from "../_seed/communityKarierDigital.js";
@@ -15,14 +17,16 @@ import type * as _seed_communityKreatorKonten from "../_seed/communityKreatorKon
 import type * as _seed_courseDasarAi from "../_seed/courseDasarAi.js";
 import type * as _seed_coursePromptEngineering from "../_seed/coursePromptEngineering.js";
 import type * as _seed_coursesData from "../_seed/coursesData.js";
+import type * as _seed_curriculum from "../_seed/curriculum.js";
 import type * as _seed_engagementData from "../_seed/engagementData.js";
+import type * as _seed_multiAgentData from "../_seed/multiAgentData.js";
 import type * as _seed_posts from "../_seed/posts.js";
 import type * as _seed_seedContent from "../_seed/seedContent.js";
 import type * as _seed_seedEngagement from "../_seed/seedEngagement.js";
 import type * as _seed_seedWorld from "../_seed/seedWorld.js";
 import type * as _seed_types from "../_seed/types.js";
+import type * as _seed_webDevData from "../_seed/webDevData.js";
 import type * as _shared_auth from "../_shared/auth.js";
-import type * as _shared_legacyLesson from "../_shared/legacyLesson.js";
 import type * as _tables_boards from "../_tables/boards.js";
 import type * as _tables_community from "../_tables/community.js";
 import type * as _tables_identity from "../_tables/identity.js";
@@ -46,10 +50,7 @@ import type * as features_courses_courses from "../features/courses/courses.js";
 import type * as features_courses_errors from "../features/courses/errors.js";
 import type * as features_courses_lessons from "../features/courses/lessons.js";
 import type * as features_courses_manage from "../features/courses/manage.js";
-import type * as features_courses_materiBackfill from "../features/courses/materiBackfill.js";
-import type * as features_courses_modules from "../features/courses/modules.js";
 import type * as features_courses_queries from "../features/courses/queries.js";
-import type * as features_courses_refs from "../features/courses/refs.js";
 import type * as features_courses_slug from "../features/courses/slug.js";
 import type * as features_courses_validate from "../features/courses/validate.js";
 import type * as features_events_access from "../features/events/access.js";
@@ -137,6 +138,8 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  "_seed/aiKerjaData": typeof _seed_aiKerjaData;
+  "_seed/analisisDataData": typeof _seed_analisisDataData;
   "_seed/bootstrap": typeof _seed_bootstrap;
   "_seed/communitiesData": typeof _seed_communitiesData;
   "_seed/communityKarierDigital": typeof _seed_communityKarierDigital;
@@ -144,14 +147,16 @@ declare const fullApi: ApiFromModules<{
   "_seed/courseDasarAi": typeof _seed_courseDasarAi;
   "_seed/coursePromptEngineering": typeof _seed_coursePromptEngineering;
   "_seed/coursesData": typeof _seed_coursesData;
+  "_seed/curriculum": typeof _seed_curriculum;
   "_seed/engagementData": typeof _seed_engagementData;
+  "_seed/multiAgentData": typeof _seed_multiAgentData;
   "_seed/posts": typeof _seed_posts;
   "_seed/seedContent": typeof _seed_seedContent;
   "_seed/seedEngagement": typeof _seed_seedEngagement;
   "_seed/seedWorld": typeof _seed_seedWorld;
   "_seed/types": typeof _seed_types;
+  "_seed/webDevData": typeof _seed_webDevData;
   "_shared/auth": typeof _shared_auth;
-  "_shared/legacyLesson": typeof _shared_legacyLesson;
   "_tables/boards": typeof _tables_boards;
   "_tables/community": typeof _tables_community;
   "_tables/identity": typeof _tables_identity;
@@ -175,10 +180,7 @@ declare const fullApi: ApiFromModules<{
   "features/courses/errors": typeof features_courses_errors;
   "features/courses/lessons": typeof features_courses_lessons;
   "features/courses/manage": typeof features_courses_manage;
-  "features/courses/materiBackfill": typeof features_courses_materiBackfill;
-  "features/courses/modules": typeof features_courses_modules;
   "features/courses/queries": typeof features_courses_queries;
-  "features/courses/refs": typeof features_courses_refs;
   "features/courses/slug": typeof features_courses_slug;
   "features/courses/validate": typeof features_courses_validate;
   "features/events/access": typeof features_events_access;

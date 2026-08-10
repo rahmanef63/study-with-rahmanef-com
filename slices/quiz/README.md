@@ -3,9 +3,8 @@
 STATUS row **#8**. Backend: `convex/features/quiz/`.
 
 > **MATERI MODEL (DECISIONS #37).** A quiz belongs to a COURSE and is addressed
-> by its own id. "One quiz per module" is gone — a course may hold several
-> (server cap `MAX_QUIZZES_PER_COURSE`), the route is `/kuis/<quizId>`, and
-> `moduleId` appears nowhere in this slice.
+> by its own id. A course may hold several (server cap
+> `MAX_QUIZZES_PER_COURSE`) and the route is `/kuis/<quizId>`.
 
 Instructors build a quiz (MCQ, 2–6 options, one correct key,
 optional explanation, passing score %); members take it; grading is
@@ -31,8 +30,8 @@ navigate either way.
    `courseId` — tenant is derived server-side.
 2. **Taking entry.** `CourseQuizList` puts every quiz of the course at the end
    of the silabus with the caller's pass state; the row links to
-   `/kuis/<quizId>`, which mounts `QuizTakeView`. The old per-module
-   "has a quiz?" probe is gone — one list query covers the whole course.
+   `/kuis/<quizId>`, which mounts `QuizTakeView`. One list query covers the
+   whole course — there is no per-row "has a quiz?" probe.
 3. **Progress/badge (optional, out of scope for #8).** If passing a quiz should
    gate lesson/course completion later, that belongs in `slices/progress`; this
    slice exposes `passed` on the attempt result and `listMyAttempts` to build on.
@@ -50,13 +49,13 @@ No shared-surface edits were made (no `app/`, no `convex/schema.ts`, no
 - Every function calls an authz helper first (auth BEFORE any by-id read — see
   `authz-order.test.ts` dangling-id specs). Draft-course quizzes are invisible to
   plain members (`NOT_FOUND`, no existence leak).
-- Builder writes are instructor+ on the module's own tenant; `tenantId`/`courseId`
-  are derived from the module, never trusted from the client.
+- Builder writes are instructor+ on the COURSE's own tenant; `tenantId`/`courseId`
+  are derived from the resolved course, never trusted from the client.
 
 ## Tests
 
 `convex/features/quiz/*.test.ts` (convex-test): `authz-order` (dangling-id →
-`NOT_AUTHENTICATED`), `builder` (denied paths, one-per-module, validation,
+`NOT_AUTHENTICATED`), `builder` (denied paths, `MAX_QUIZZES_PER_COURSE` cap, validation,
 delete-blocked-by-attempts), `taking` (answer-stripping shape, draft
 invisibility, grading incl. passed boundary, own-attempts-only), `grade`
 (pure rounding/boundary). `slices/quiz/__tests__/barrel.test.ts` (barrel

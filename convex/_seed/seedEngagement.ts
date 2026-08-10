@@ -13,7 +13,9 @@ import {
   SEED_USULAN,
 } from "./engagementData";
 import type { SeedFeedPost } from "./types";
-import { legacyOrder } from "../_shared/legacyLesson";
+
+/** Bound on the comment idempotency probe (see the call site). */
+const SEED_THREAD_SCAN = 200;
 
 export type SeedEngagementArgs = { ownerEmail: string; tenantSlug: string };
 
@@ -56,20 +58,21 @@ export async function runSeedEngagement(ctx: MutationCtx, args: SeedEngagementAr
   }
   const resolve = (username: string): Id<"users"> | null => byUsername[username] ?? null;
 
-  // course slug → { courseId, firstLessonId } (first lesson = module.order 0, lesson.order 0).
+  // course slug → { courseId, firstLessonId }. The first materi is the first
+  // PLACEMENT: `courseLessons.by_course` is ["courseId","order"], so the index
+  // range is already the syllabus order and `.first()` is the opening materi —
+  // no module walk, no client-side sort (DECISIONS #37).
   async function courseCtx(slug: string) {
     const course = await ctx.db
       .query("courses")
       .withIndex("by_tenant_slug", (q) => q.eq("tenantId", tenantId).eq("slug", slug))
       .unique();
     if (course === null) return null;
-    const modules = await ctx.db.query("modules").withIndex("by_course", (q) => q.eq("courseId", course._id)).collect();
-    modules.sort((a, b) => a.order - b.order);
-    const first = modules[0];
-    if (!first) return { courseId: course._id, firstLessonId: null as Id<"lessons"> | null };
-    const lessons = await ctx.db.query("lessons").withIndex("by_module", (q) => q.eq("moduleId", first._id)).collect();
-    lessons.sort((a, b) => legacyOrder(a) - legacyOrder(b));
-    return { courseId: course._id, firstLessonId: lessons[0]?._id ?? null };
+    const first = await ctx.db
+      .query("courseLessons")
+      .withIndex("by_course", (q) => q.eq("courseId", course._id))
+      .first();
+    return { courseId: course._id, firstLessonId: first?.lessonId ?? (null as Id<"lessons"> | null) };
   }
   const courseCache = new Map<string, Awaited<ReturnType<typeof courseCtx>>>();
   const getCourse = async (slug: string) => {
@@ -100,7 +103,13 @@ export async function runSeedEngagement(ctx: MutationCtx, args: SeedEngagementAr
     const lessonId = cc.firstLessonId;
     const rootAuthor = resolve(t.root.author);
     if (!rootAuthor) { made.skipped++; continue; }
-    const existing = await ctx.db.query("comments").withIndex("by_lesson", (q) => q.eq("lessonId", lessonId)).collect();
+    // Bounded (P0: no unbounded read). A seeded materi's thread is a handful of
+    // rows; past this many real comments the seed simply stops recognising its
+    // own and is a no-op, which is the safe direction.
+    const existing = await ctx.db
+      .query("comments")
+      .withIndex("by_lesson", (q) => q.eq("lessonId", lessonId))
+      .take(SEED_THREAD_SCAN);
     let rootId = existing.find((c) => c.userId === rootAuthor && c.bodyMd === t.root.bodyMd)?._id ?? null;
     if (rootId === null) {
       rootId = await ctx.db.insert("comments", { tenantId, lessonId, userId: rootAuthor, bodyMd: t.root.bodyMd });

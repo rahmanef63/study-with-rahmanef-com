@@ -1,4 +1,5 @@
-// Extra community: "Kreator Konten bareng Rahman".
+// Extra community: "Kreator Konten bareng Rahman". Courses are flat lists of
+// materi (DECISIONS #37) — no module tree, one quiz per course.
 import type { SeedCommunity } from "./types";
 
 export const COMMUNITY_KREATOR_KONTEN: SeedCommunity = {
@@ -12,39 +13,36 @@ export const COMMUNITY_KREATOR_KONTEN: SeedCommunity = {
       slug: "ide-konten",
       title: "Ide Konten Tanpa Buntu",
       description: "Sistem sederhana biar nggak pernah kehabisan ide.",
-      modules: [
+      lessons: [
         {
-          title: "Sistem Ide",
-          lessons: [
-            {
-              title: "Pancing ide dengan AI",
-              contentMd: `## AI = partner brainstorming
+          title: "Pancing ide dengan AI",
+          contentMd: `## AI = partner brainstorming
 
 Jangan cuma minta "kasih ide konten". Beri konteks: audiens, niche, tujuan.
 
 Contoh prompt: *"10 ide Reels untuk pemula belajar AI, format tips singkat, gaya santai."*
 
 AI memancing, **kamu yang menyaring** sesuai selera.`,
-            },
-            {
-              title: "Kalender konten 30 hari",
-              contentMd: `## Batch, jangan harian
+        },
+        {
+          title: "Kalender konten 30 hari",
+          contentMd: `## Batch, jangan harian
 
 Sisihkan 1 hari untuk merencanakan 30 hari. Pilih 3–4 **pilar konten** lalu rotasi:
 
 - Edukasi · Cerita · Promosi · Interaksi
 
 Konsistensi mengalahkan viral sesekali.`,
-            },
+        },
+      ],
+      quizzes: [
+        {
+          title: "Kuis: Ide Konten",
+          passingScorePct: 60,
+          questions: [
+            { prompt: "Prompt ide yang baik memberi AI…", options: ["Satu kata", "Konteks: audiens/niche/tujuan", "Hanya emoji", "Tanpa arahan"], correctIndex: 1 },
+            { prompt: "Cara menjaga konsistensi konten?", options: ["Bikin harian dadakan", "Batch & pakai pilar konten", "Tunggu mood", "Hanya pas viral"], correctIndex: 1 },
           ],
-          quiz: {
-            title: "Kuis: Ide Konten",
-            passingScorePct: 60,
-            questions: [
-              { prompt: "Prompt ide yang baik memberi AI…", options: ["Satu kata", "Konteks: audiens/niche/tujuan", "Hanya emoji", "Tanpa arahan"], correctIndex: 1 },
-              { prompt: "Cara menjaga konsistensi konten?", options: ["Bikin harian dadakan", "Batch & pakai pilar konten", "Tunggu mood", "Hanya pas viral"], correctIndex: 1 },
-            ],
-          },
         },
       ],
     },
@@ -52,39 +50,36 @@ Konsistensi mengalahkan viral sesekali.`,
       slug: "skrip-caption",
       title: "Skrip & Caption Cepat",
       description: "Nulis hook & caption yang ngajak aksi, cepat.",
-      modules: [
+      lessons: [
         {
-          title: "Nulis Cepat",
-          lessons: [
-            {
-              title: "Rumus hook 3 detik",
-              contentMd: `## 3 detik pertama menentukan
+          title: "Rumus hook 3 detik",
+          contentMd: `## 3 detik pertama menentukan
 
 Hook = **janji + rasa penasaran.**
 
 Pola: *"Berhenti lakukan X"*, *"3 kesalahan Y"*, *"Cara Z tanpa W"*.
 
 Uji beberapa hook, pertahankan yang paling menahan tontonan.`,
-            },
-            {
-              title: "Caption yang ngajak aksi",
-              contentMd: `## Struktur caption
+        },
+        {
+          title: "Caption yang ngajak aksi",
+          contentMd: `## Struktur caption
 
 1. **Hook** (baris pertama).
 2. **Nilai** (1–3 poin).
 3. **CTA** (komentar / simpan / bagikan).
 
 Cukup **satu ajakan** per caption.`,
-            },
+        },
+      ],
+      quizzes: [
+        {
+          title: "Kuis: Skrip & Caption",
+          passingScorePct: 60,
+          questions: [
+            { prompt: "Hook yang kuat berisi…", options: ["Salam panjang", "Janji + rasa penasaran", "Deretan hashtag", "Tag teman"], correctIndex: 1 },
+            { prompt: "Caption sebaiknya punya berapa CTA utama?", options: ["Sebanyak mungkin", "Satu", "Nol", "Lima"], correctIndex: 1 },
           ],
-          quiz: {
-            title: "Kuis: Skrip & Caption",
-            passingScorePct: 60,
-            questions: [
-              { prompt: "Hook yang kuat berisi…", options: ["Salam panjang", "Janji + rasa penasaran", "Deretan hashtag", "Tag teman"], correctIndex: 1 },
-              { prompt: "Caption sebaiknya punya berapa CTA utama?", options: ["Sebanyak mungkin", "Satu", "Nol", "Lima"], correctIndex: 1 },
-            ],
-          },
         },
       ],
     },

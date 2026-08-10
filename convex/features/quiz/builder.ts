@@ -1,11 +1,10 @@
 // quiz feature — builder mutations (instructor+ on the quiz's own tenant, R6).
 // P0 contract per handler: v.* validators + authz BEFORE any read/write.
 //
-// MIGRATION (DECISIONS #37): a quiz is created ON A COURSE. The old "one quiz
-// per module" rule died with the module tree; a course may now carry up to
-// MAX_QUIZZES_PER_COURSE quizzes, which is also what keeps the course-page read
-// bounded. tenantId is DERIVED from the resolved course, never taken from the
-// client, and `moduleId` is not written at all any more.
+// A quiz is created ON A COURSE (DECISIONS #37) and a course may carry up to
+// MAX_QUIZZES_PER_COURSE of them, which is also what keeps the course-page read
+// bounded. tenantId and courseId are DERIVED from the resolved course, never
+// taken from the client.
 import { v } from "convex/values";
 import { mutation } from "../../_generated/server";
 import { requireInstructorForCourse, requireInstructorForQuiz } from "./access";

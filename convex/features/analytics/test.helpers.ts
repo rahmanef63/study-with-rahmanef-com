@@ -57,14 +57,14 @@ export async function seedTenantFixture(t: T, slug = "komunitas-test"): Promise<
 
 export type CourseFixture = {
   courseId: Id<"courses">;
-  moduleId: Id<"modules">;
   lessonIds: Id<"lessons">[];
 };
 
 /**
  * Course + N materi PLACED in it via `courseLessons`. N = 0 seeds no materi.
- * Legacy tree columns are written as production still has them — the specs
- * prove analytics reads the placement table, not the tree.
+ * A materi is tenant-owned (DECISIONS #36/#37): `courseLessons` is the ONLY
+ * thing that says a course teaches it — no module row, no `courseId`/`moduleId`
+ * /`order` on the lesson itself.
  */
 export async function seedCourseWithLessons(
   t: T,
@@ -82,24 +82,15 @@ export async function seedCourseWithLessons(
       status,
       createdBy: fx.instructorId,
     });
-    const moduleId = await ctx.db.insert("modules", {
-      tenantId: fx.tenantId,
-      courseId,
-      title: "Modul 1",
-      order: 1,
-    });
     const lessonIds: Id<"lessons">[] = [];
     for (let i = 0; i < lessonCount; i++) {
       const lessonId = await ctx.db.insert("lessons", {
         tenantId: fx.tenantId,
-        courseId,
-        moduleId,
         slug: `${slug}-materi-${i + 1}`,
         status: "published",
         title: `Lesson ${i + 1}`,
         contentMd: `# Materi ${i + 1}`,
         links: [],
-        order: i + 1,
       });
       await ctx.db.insert("courseLessons", {
         tenantId: fx.tenantId,
@@ -109,7 +100,7 @@ export async function seedCourseWithLessons(
       });
       lessonIds.push(lessonId);
     }
-    return { courseId, moduleId, lessonIds };
+    return { courseId, lessonIds };
   });
 }
 
@@ -163,7 +154,7 @@ export async function insertBadge(t: T, fx: TenantFixture, courseId: Id<"courses
   });
 }
 
-/** One-question quiz owned by the COURSE (no moduleId — the tree is retiring). */
+/** One-question quiz owned by the COURSE. */
 export async function seedQuiz(t: T, fx: TenantFixture, c: CourseFixture): Promise<Id<"quizzes">> {
   return await t.run(async (ctx) => {
     return await ctx.db.insert("quizzes", {

@@ -77,7 +77,12 @@ export async function seedNotification(
   );
 }
 
-/** Course + module + lesson for producer specs (owned by the instructor). */
+/**
+ * Course + one materi PLACED in it, for producer specs. The materi is
+ * tenant-owned (DECISIONS #36/#37) and `courseLessons` is what makes the course
+ * teach it; the notification href is built from the materi slug, never from a
+ * course path.
+ */
 export async function seedLesson(
   t: T,
   fx: TenantFixture,
@@ -93,23 +98,17 @@ export async function seedLesson(
       status,
       createdBy: fx.instructorId,
     });
-    const moduleId = await ctx.db.insert("modules", {
-      tenantId: fx.tenantId,
-      courseId,
-      title: "Modul 1",
-      order: 1,
-    });
     const lessonId = await ctx.db.insert("lessons", {
       tenantId: fx.tenantId,
-      courseId,
-      moduleId,
+      slug: `${slug}-materi`,
+      status: "published",
       title: "Lesson 1",
       youtubeVideoId: "dQw4w9WgXcQ",
       contentMd: "# Halo\n\nMateri pertama.",
       links: [],
-      order: 1,
     });
-    return { courseId, moduleId, lessonId };
+    await ctx.db.insert("courseLessons", { tenantId: fx.tenantId, courseId, lessonId, order: 1 });
+    return { courseId, lessonId };
   });
 }
 

@@ -85,8 +85,6 @@ test("createLesson: the materi lands in NO course, gets a tenant-unique slug", a
   expect(first?.slug).toBe("materi-baru");
   expect(second?.slug).toBe("materi-baru-2");
   expect(first?.status).toBe("published");
-  expect(first?.courseId).toBeUndefined(); // legacy columns are never written
-  expect(first?.moduleId).toBeUndefined();
   expect(placements).toHaveLength(0); // in no course until explicitly placed
 
   // An explicit slug that is already taken is rejected, not silently suffixed.

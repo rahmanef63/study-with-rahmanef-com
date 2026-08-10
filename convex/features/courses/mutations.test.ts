@@ -101,45 +101,6 @@ test("courses.update: member denied; instructor patches title; empty patch fails
   ).rejects.toThrow(/VALIDATION_FAILED/);
 });
 
-test("modules.*: every mutation is a retired stub that throws for EVERY caller", async () => {
-  const t = setup();
-  const fx = await seedTenantFixture(t);
-  const { courseId } = await seedCourse(t, fx, "draft");
-  const moduleId = await t.run(async (ctx) =>
-    ctx.db.insert("modules", { tenantId: fx.tenantId, courseId, title: "Modul lawas", order: 1 })
-  );
-  const asInstructor = t.withIdentity(asUser(fx.instructorId));
-
-  await expect(
-    asInstructor.mutation(api.features.courses.modules.createModule, {
-      courseId,
-      title: "Modul 2",
-    })
-  ).rejects.toThrow(/VALIDATION_FAILED/);
-  await expect(
-    asInstructor.mutation(api.features.courses.modules.renameModule, {
-      moduleId,
-      title: "Modul Satu",
-    })
-  ).rejects.toThrow(/VALIDATION_FAILED/);
-  await expect(
-    asInstructor.mutation(api.features.courses.modules.reorderModules, {
-      courseId,
-      orderedModuleIds: [moduleId],
-    })
-  ).rejects.toThrow(/VALIDATION_FAILED/);
-  await expect(
-    asInstructor.mutation(api.features.courses.modules.deleteModule, { moduleId })
-  ).rejects.toThrow(/VALIDATION_FAILED/);
-
-  // Anonymous callers hit the same wall, and nothing was mutated.
-  await expect(
-    t.mutation(api.features.courses.modules.deleteModule, { moduleId })
-  ).rejects.toThrow(/VALIDATION_FAILED/);
-  const still = await t.run(async (ctx) => ctx.db.get(moduleId));
-  expect(still?.title).toBe("Modul lawas");
-});
-
 test("manage queries: listForManage shows drafts to instructor, denies member and anon", async () => {
   const t = setup();
   const fx = await seedTenantFixture(t);

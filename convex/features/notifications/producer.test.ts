@@ -34,9 +34,9 @@ async function fixture() {
   const fx = await seedTenantFixture(t);
   const lf = await seedLesson(t, fx);
   await t.run(async (ctx) => {
-    // The materi handle the CANONICAL deep-link is built from (DECISIONS
-    // #36/#37) — the shared fixture still writes a pre-migration row.
-    await ctx.db.patch(lf.lessonId, { slug: "materi-1", status: "published" });
+    // Pin the materi handle the CANONICAL deep-link is built from (DECISIONS
+    // #36/#37) so the href assertions below can spell it out literally.
+    await ctx.db.patch(lf.lessonId, { slug: "materi-1" });
     await ctx.db.insert("profiles", {
       userId: fx.instructorId,
       username: "guru",

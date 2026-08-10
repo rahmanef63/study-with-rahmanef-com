@@ -86,7 +86,7 @@ export async function seedQuiz(
   fx: TenantFixture,
   c: CourseFixture,
   passingScorePct = 50,
-  title = "Kuis Modul 1"
+  title = "Kuis Kelas 1"
 ): Promise<Id<"quizzes">> {
   return await t.run(async (ctx) => {
     return await ctx.db.insert("quizzes", {

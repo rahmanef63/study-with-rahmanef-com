@@ -60,7 +60,6 @@ export async function seedTenantFixture(
 
 export type CourseFixture = {
   courseId: Id<"courses">;
-  moduleId: Id<"modules">;
   lessonId: Id<"lessons">;
 };
 
@@ -78,8 +77,8 @@ export type SeedCourseOpts = {
 
 /**
  * Course + 1 materi PLACED in it (courseLessons), with controllable searchable
- * text. Legacy tree columns are written too, exactly as production still has
- * them — the specs prove the search reader no longer depends on them.
+ * text. The materi is tenant-owned (DECISIONS #36/#37); the placement row is
+ * the only thing tying it to the course.
  */
 export async function seedCourseWithLesson(
   t: T,
@@ -95,25 +94,16 @@ export async function seedCourseWithLesson(
       status: opts.status,
       createdBy: fx.instructorId,
     });
-    const moduleId = await ctx.db.insert("modules", {
-      tenantId: fx.tenantId,
-      courseId,
-      title: "Modul 1",
-      order: 1,
-    });
     const lessonId = await ctx.db.insert("lessons", {
       tenantId: fx.tenantId,
-      courseId,
-      moduleId,
       slug: opts.lessonSlug ?? `${opts.slug}-materi`,
       status: opts.lessonStatus,
       title: opts.lessonTitle ?? "Lesson 1",
       contentMd: opts.contentMd ?? "Materi pertama.",
       links: [],
-      order: 1,
     });
     await ctx.db.insert("courseLessons", { tenantId: fx.tenantId, courseId, lessonId, order: 1 });
-    return { courseId, moduleId, lessonId };
+    return { courseId, lessonId };
   });
 }
 

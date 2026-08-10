@@ -172,7 +172,9 @@ throw new ConvexError({ code: "NOT_AUTHORIZED", message: "Admin role required" }
 ## File modularity (P2 — tooling-enforced)
 
 - **≤200 LOC per source file.** Enforced by `audit:file-size`. Exclusions: pure data
-  exports (`lib/content/*.ts`, `*/seed.ts`, theme presets), `_generated/`, test files,
+  exports (`lib/content/*.ts`, `*/seed.ts`, `convex/_seed/*Data.ts` — course copy in
+  Bahasa Indonesia, one `import type` and no runtime import; splitting a curriculum
+  across files would only hide it, theme presets), `_generated/`, test files,
   and **`components/ui/*` (vendored shadcn — never edit, never count; customize by
   wrapping in `shared/` or slice components, or regenerate via the shadcn CLI).**
 - **Single responsibility per file.** One default export OR one cohesive named-export

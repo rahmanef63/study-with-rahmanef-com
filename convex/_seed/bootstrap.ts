@@ -4,7 +4,6 @@
 // become callable from a client. Run once, after the owner has logged in with
 // Google. Idempotent: existing rows are kept.
 import type { MutationCtx } from "../_generated/server";
-import type { SeedCourse } from "./types";
 
 export type BootstrapArgs = { ownerEmail: string; username: string; displayName: string; tenantSlug: string; tenantName: string; tenantDescription: string };
 

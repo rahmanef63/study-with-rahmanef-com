@@ -21,7 +21,6 @@ import {
   lessonRefs,
   lessonTags,
   lessons,
-  modules,
   quizAttempts,
   quizzes,
 } from "./_tables/learning";
@@ -36,7 +35,6 @@ export default defineSchema({
 
   // learning
   courses,
-  modules,
   lessons,
   // materi (DECISIONS #36/#37): placement, tags and page-to-page references.
   courseLessons,

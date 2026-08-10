@@ -18,28 +18,21 @@ export const courses = defineTable({
   // fase-2 (#23): pencarian judul kelas per tenant
   .searchIndex("search_title", { searchField: "title", filterFields: ["tenantId", "status"] });
 
-// RETIRING (DECISIONS #37): a course is an ordered list of materi, not a tree.
-// Production had 30 modules for 75 lessons — 2.5 lessons each, which carried
-// almost no information. Kept declared until the backfill has flattened every
-// one into `courseLessons` and the reads have moved over.
-export const modules = defineTable({
-  tenantId: v.id("tenants"),
-  courseId: v.id("courses"),
-  title: v.string(),
-  order: v.number(),
-}).index("by_course", ["courseId"]);
+// `modules` is GONE (DECISIONS #37, dropped 2026-08-10). A course is an ordered
+// list of materi, not a tree. Production held 31 modules for 76 lessons — 2.5
+// lessons each, carrying almost no information — and every one was flattened
+// into `courseLessons` before `courses/legacyTreePurge` deleted them.
 
 // MATERI. A lesson is a standalone piece of teaching that BELONGS TO A TENANT,
 // not to a course: "sub agents" can sit in the Claude Code course and the
 // Hermes course at once (DECISIONS #36). Placement lives in `courseLessons`.
 //
-// MIGRATION IN PROGRESS. `courseId`/`moduleId`/`order` are the legacy ownership
-// tree, kept OPTIONAL while reads move over; `slug`/`status`/`authorId` are the
-// new columns, also optional because Convex validates every existing row and 75
-// of them predate the change. Step 3 drops the legacy three and tightens the
-// new three. Until then:
-//   - a row with no `status` is PUBLISHED (drafts were a course-level concept),
-//   - a row with no `slug` has not been backfilled yet.
+// `slug` / `status` / `authorId` stay OPTIONAL even though the backfill filled
+// all 76 rows. `status` in particular has a MEANINGFUL absence — a row without
+// it reads as PUBLISHED, which is what kept pre-migration materi visible — so
+// the visibility rule in features/courses/access.ts is the authority here, not
+// the validator. Tightening them would move that decision into the schema,
+// where the "missing means published" case cannot be expressed.
 export const lessons = defineTable({
   tenantId: v.id("tenants"),
   title: v.string(),
@@ -54,13 +47,7 @@ export const lessons = defineTable({
   /** Notion-style block JSON. Canonical when present. */
   contentBlocks: v.optional(v.string()),
   links: v.array(v.object({ label: v.string(), url: v.string() })),
-  // ── legacy ownership tree, retiring ────────────────────────────────────
-  courseId: v.optional(v.id("courses")),
-  moduleId: v.optional(v.id("modules")),
-  order: v.optional(v.number()),
 })
-  .index("by_module", ["moduleId"])
-  .index("by_course", ["courseId"])
   .index("by_tenant_slug", ["tenantId", "slug"])
   .index("by_tenant_status", ["tenantId", "status"])
   .index("by_author", ["authorId"])
@@ -142,16 +129,9 @@ export const courseCompletions = defineTable({
 // A quiz hangs off the COURSE. `courseId` is the owner and has ALWAYS been
 // required, so every existing row already resolves to a course — there is no
 // backfill to run (DECISIONS #37).
-//
-// MIGRATION IN PROGRESS. `moduleId` is the legacy tree link: it is now OPTIONAL,
-// no longer read by any quiz function, and step 3 drops it together with
-// `modules`. The `by_module` index is kept only because analytics still walks it
-// while its own migration lands; nothing in features/quiz reads either one.
 export const quizzes = defineTable({
   tenantId: v.id("tenants"),
   courseId: v.id("courses"),
-  /** @deprecated legacy module tree — write-only until step 3 drops it. */
-  moduleId: v.optional(v.id("modules")),
   title: v.string(),
   passingScorePct: v.number(),
   questions: v.array(
@@ -164,8 +144,7 @@ export const quizzes = defineTable({
     })
   ),
 })
-  .index("by_course", ["courseId"])
-  .index("by_module", ["moduleId"]);
+  .index("by_course", ["courseId"]);
 
 export const quizAttempts = defineTable({
   tenantId: v.id("tenants"),

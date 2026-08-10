@@ -8,8 +8,8 @@
 //   taking.listQuizzesForCourse (member, titles/counts only)
 //   taking.listMyAttempts · attempts.submitAttempt (member, server-graded)
 //
-// MIGRATION (DECISIONS #37): quizzes belong to a COURSE and are addressed by
-// their own id. No moduleId crosses this barrel; the route is /kuis/<quizId>.
+// Quizzes belong to a COURSE and are addressed by their own id (DECISIONS
+// #37); the route is /kuis/<quizId>.
 
 // feature descriptor
 export { quizFeature } from "./config";

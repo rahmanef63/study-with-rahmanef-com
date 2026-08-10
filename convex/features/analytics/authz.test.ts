@@ -39,7 +39,6 @@ test("getCourseAnalytics: anonymous + dangling id → NOT_AUTHENTICATED (auth be
   const c = await seedCourseWithLessons(t, fx, "published", 1, "kelas-dangling");
   await t.run(async (ctx) => {
     await ctx.db.delete(c.lessonIds[0]);
-    await ctx.db.delete(c.moduleId);
     await ctx.db.delete(c.courseId);
   });
   await expect(

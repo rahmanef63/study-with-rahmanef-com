@@ -51,31 +51,18 @@ describe("addComment — target XOR", () => {
 
   test("neither target and both targets → VALIDATION_FAILED", async () => {
     const { t, fx, postId } = await fixture();
-    const lesson = await t.run(async (ctx) => {
-      const courseId = await ctx.db.insert("courses", {
+    // A tenant-owned materi in no course at all (DECISIONS #36/#37) — the XOR
+    // check runs before anything resolves the target, so no placement is needed.
+    const lesson = await t.run(async (ctx) =>
+      ctx.db.insert("lessons", {
         tenantId: fx.tenantId,
-        slug: "kelas-xor",
-        title: "Kelas",
-        description: "Deskripsi",
+        slug: "materi-xor",
         status: "published",
-        createdBy: fx.instructorId,
-      });
-      const moduleId = await ctx.db.insert("modules", {
-        tenantId: fx.tenantId,
-        courseId,
-        title: "Modul",
-        order: 1,
-      });
-      return ctx.db.insert("lessons", {
-        tenantId: fx.tenantId,
-        courseId,
-        moduleId,
         title: "Lesson",
         contentMd: "Materi",
         links: [],
-        order: 1,
-      });
-    });
+      })
+    );
     const as = t.withIdentity(asUser(fx.memberId));
     await expect(
       as.mutation(api.features.comments.comments.addComment, { bodyMd: "Halo" })

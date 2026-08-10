@@ -1,19 +1,29 @@
-// Shared shapes for the seed DATA modules. Types only — no Convex imports, so
-// a data file never drags the server runtime in.
+// Shared shapes for the seed DATA modules. Types only — every import here is
+// `import type`, so a data file never drags the server runtime in.
 //
 // Why these live apart from convex/seed.ts: that file was 984 LOC, ~5x the
 // repo's 200-LOC ceiling, and almost all of it was Bahasa-Indonesia course
 // copy rather than logic. Splitting DATA from the mutations means adding a
 // course is an edit to one array, and the seeding rules stay readable.
 
-export type SeedLesson = { title: string; contentMd: string; links?: { label: string; url: string }[] };
-export type SeedQuiz = {
-  title: string;
-  passingScorePct: number;
-  questions: { prompt: string; options: string[]; correctIndex: number; explanation?: string }[];
-};
-export type SeedModule = { title: string; lessons: SeedLesson[]; quiz?: SeedQuiz };
-export type SeedCourse = { slug: string; title: string; description: string; modules: SeedModule[] };
+/**
+ * A course is a FLAT, ordered list of materi plus the quizzes that hang off the
+ * COURSE — no module tree (DECISIONS #37). `SeedModule` is gone and the module
+ * titles it carried were dropped on purpose: modules are not a product concept
+ * any more, so re-introducing them as headings or as a `section` column would
+ * smuggle back exactly what step 3 is removing.
+ *
+ * `lessons` order IS the teaching order: `upsertCurriculum` turns it into
+ * `courseLessons.order` 1..n — the same flattened sequence the materi backfill
+ * produced from the tree.
+ *
+ * ALIASED, not redeclared: `_seed/curriculum.ts` owns the shape AND the single
+ * writer that all seeds (these data modules plus the standalone per-course
+ * seeds) go through, so there is exactly one definition of "a seeded kelas".
+ */
+import type { SeedCurriculum } from "./curriculum";
+export type { SeedMateri as SeedLesson, SeedCourseQuiz as SeedQuiz } from "./curriculum";
+export type SeedCourse = SeedCurriculum;
 
 export type SeedCommunity = {
   slug: string;

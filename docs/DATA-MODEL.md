@@ -519,9 +519,9 @@ yang menunjuk materi. `modules` PENSIUN.
 | `lessonTags` (baru) | `tenantId`, `tag`, `lessonId` | `by_tenant_tag` · `by_lesson` · `by_tenant_tag_lesson` |
 | `lessonRefs` (baru) | `tenantId`, `fromLessonId`, `toLessonId` | `by_from` · `by_to` · `by_from_to` |
 | `lessons` (+) | `slug`, `status`, `authorId`, `contentBlocks` — semua optional | `by_tenant_slug` *(permalink)* · `by_tenant_status` · `by_author` |
-| `lessons` (−) | `courseId`, `moduleId`, `order` → optional, **tidak dibaca lagi**, dicabut di step 3 | `by_module` / `by_course` ikut dicabut |
+| `lessons` (−) | `courseId`, `moduleId`, `order` **DICABUT** 2026-08-10 | index `by_module` / `by_course` ikut dicabut |
 | `lessonCompletions` (Δ) | `courseId` → **optional**: provenance, BUKAN identitas | + `by_lesson` [lessonId] |
-| `quizzes` (Δ) | `moduleId` → optional & tidak dibaca; `courseId` jadi pemilik | + `by_course` |
+| `quizzes` (Δ) | `moduleId` **DICABUT**; `courseId` jadi pemilik | + `by_course`, − `by_module` |
 
 ### Invarian yang menggantikan yang lama
 
@@ -544,3 +544,15 @@ yang menunjuk materi. `modules` PENSIUN.
 ### Batas (tetap: tanpa bare `.collect()`)
 materi per kelas ≤ 200 · penempatan per materi ≤ 50 · tag per materi ≤ 12 · ref per materi ≤ 50 ·
 halaman pustaka ≤ 20 · sitemap ≤ 1000 materi/tenant.
+
+### Step 3 — selesai 2026-08-10
+
+`modules` **dihapus dari skema**, begitu juga `lessons.courseId/moduleId/order` dan `quizzes.moduleId`.
+Urutannya wajib begitu: Convex memvalidasi tiap dokumen terhadap skema, jadi kolomnya tidak bisa pergi
+selagi satu baris pun masih membawanya. `features/courses/legacyTreePurge` (one-shot, sudah dihapus)
+menghapus **31 baris `modules`**, membersihkan **76 materi** dan **22 kuis**; gerbangnya membaca 0/0/0
+sebelum skema dipersempit. Snapshot prod diambil lebih dulu. Index yang ikut hilang: `lessons.by_module`,
+`lessons.by_course`, `quizzes.by_module`, `modules.by_course`.
+
+`_shared/legacyLesson.ts`, `courses/modules.ts`, `courses/materiBackfill.ts`, `courses/legacyTreePurge.ts`
+dan `courses/refs.ts` dihapus — file terakhir itu tinggal berisi referensi ke dua one-shot yang sudah pergi.

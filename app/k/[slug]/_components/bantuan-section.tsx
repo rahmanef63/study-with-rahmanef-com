@@ -23,7 +23,7 @@ export function BantuanSection() {
         <p>
           Ruang belajar dan komunitas untuk mempraktikkan AI, dalam Bahasa Indonesia — gratis dan
           terbuka. Fokusnya penerapan sehari-hari, bukan teori atau coding: kelas disusun sebagai
-          modul dan lesson yang bisa kamu ikuti sesuai kecepatanmu sendiri.
+          daftar materi berurutan yang bisa kamu ikuti sesuai kecepatanmu sendiri.
         </p>
       </Bagian>
 
@@ -33,7 +33,7 @@ export function BantuanSection() {
           <li>Gabung komunitas ini lewat tombol di atas.</li>
           <li>Buka sebuah kelas, tonton lesson-nya, dan baca materinya.</li>
           <li>Tandai lesson selesai untuk melacak progresmu.</li>
-          <li>Kerjakan kuis di akhir modul untuk menguji pemahaman.</li>
+          <li>Kerjakan kuis kelas untuk menguji pemahaman.</li>
         </ol>
       </Bagian>
 
@@ -43,7 +43,7 @@ export function BantuanSection() {
             <b className="text-foreground">Komunitas</b> — ruang belajar dengan tema tertentu.
           </li>
           <li>
-            <b className="text-foreground">Kelas</b> — kumpulan modul dan lesson di dalam sebuah
+            <b className="text-foreground">Kelas</b> — daftar materi berurutan di dalam sebuah
             komunitas.
           </li>
           <li>

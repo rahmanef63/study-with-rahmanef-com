@@ -38,7 +38,6 @@ test("createQuiz: anon NOT_AUTHENTICATED, member NOT_AUTHORIZED, instructor crea
   expect(quiz?.tenantId).toBe(fx.tenantId);
   expect(quiz?.courseId).toBe(c.courseId);
   expect(quiz?.questions).toHaveLength(2);
-  expect(quiz?.moduleId).toBeUndefined();
 });
 
 test("createQuiz: a course may carry several quizzes (the one-per-module rule is gone)", async () => {

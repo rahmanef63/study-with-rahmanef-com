@@ -16,7 +16,6 @@ async function danglingFixture() {
   await t.run(async (ctx) => {
     await ctx.db.delete(commentId);
     await ctx.db.delete(lf.lessonId);
-    await ctx.db.delete(lf.moduleId);
     await ctx.db.delete(lf.courseId);
   });
   return { t, fx, commentId, ...lf };

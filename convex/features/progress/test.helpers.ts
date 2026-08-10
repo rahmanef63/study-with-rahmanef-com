@@ -58,15 +58,14 @@ export async function seedTenantFixture(t: T): Promise<TenantFixture> {
 
 export type CourseFixture = {
   courseId: Id<"courses">;
-  moduleId: Id<"modules">;
   lessonIds: Id<"lessons">[];
 };
 
 /**
  * Course + `lessonCount` materi PLACED in it via `courseLessons`.
- * The legacy tree columns are written too, exactly as production still has
- * them — the specs prove the readers no longer depend on them (seedMateri +
- * placeLesson cover the rows that have NO legacy placement at all).
+ * A materi is tenant-owned (DECISIONS #36/#37); the placement row is what makes
+ * the course teach it. Same shape as seedMateri + placeLesson below, just in
+ * one call.
  */
 export async function seedCourseWithLessons(
   t: T,
@@ -84,24 +83,15 @@ export async function seedCourseWithLessons(
       status,
       createdBy: fx.instructorId,
     });
-    const moduleId = await ctx.db.insert("modules", {
-      tenantId: fx.tenantId,
-      courseId,
-      title: "Modul 1",
-      order: 1,
-    });
     const lessonIds: Id<"lessons">[] = [];
     for (let i = 0; i < lessonCount; i++) {
       const lessonId = await ctx.db.insert("lessons", {
         tenantId: fx.tenantId,
-        courseId,
-        moduleId,
         slug: `${slug}-materi-${i + 1}`,
         status: "published",
         title: `Lesson ${i + 1}`,
         contentMd: "Materi",
         links: [],
-        order: i + 1,
       });
       await ctx.db.insert("courseLessons", {
         tenantId: fx.tenantId,
@@ -111,11 +101,11 @@ export async function seedCourseWithLessons(
       });
       lessonIds.push(lessonId);
     }
-    return { courseId, moduleId, lessonIds };
+    return { courseId, lessonIds };
   });
 }
 
-/** A standalone materi: tenant-owned, NO legacy courseId/moduleId/order. */
+/** A materi that no course teaches yet — tenant-owned, no placement row. */
 export async function seedMateri(
   t: T,
   fx: TenantFixture,
