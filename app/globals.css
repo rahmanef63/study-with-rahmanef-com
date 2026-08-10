@@ -420,6 +420,47 @@ body {
     color: var(--primary);
     text-shadow: 2px 2px 0 var(--pixel-shadow);
   }
+  /* ── iOS large-title navigation ────────────────────────────────────────
+     The phone nav bar (components/community/community-nav-bar.tsx) is a plain
+     sticky server-rendered element. Its two states are driven by ONE boolean —
+     <html data-nav-collapsed>, published by an IntersectionObserver on a 1px
+     sentinel (nav-collapse-sentinel.tsx) — so no scroll listener, no React
+     state, and nothing to re-render while a finger is on the glass.
+
+     At the top of the page the bar is invisible chrome: no rule, no title, just
+     the one action floating over the large title below it. Once the large title
+     has slid underneath, the rule and the compact title appear.
+
+     The rule travels as a CUSTOM PROPERTY, not as border-bottom-color: the
+     unlayered `* { border-color: var(--color-border) }` further down this file
+     beats anything in @layer utilities no matter how specific, so the bar reads
+     this var through an inline style (community-nav-bar.tsx) instead. */
+  .nav-rule {
+    --nav-rule-color: transparent;
+    transition: border-bottom-color 120ms steps(2, end);
+  }
+  [data-nav-collapsed="true"] .nav-rule {
+    --nav-rule-color: var(--color-border);
+  }
+  .nav-title-compact {
+    opacity: 0;
+    /* Rises into place, the way the iOS title does. */
+    transform: translateY(0.375rem);
+    /* steps(): things in a cabinet snap between frames, they do not ease. */
+    transition:
+      opacity 120ms steps(2, end),
+      transform 120ms steps(2, end);
+  }
+  [data-nav-collapsed="true"] .nav-title-compact {
+    opacity: 1;
+    transform: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nav-title-compact {
+      transition: none;
+    }
+  }
+
   /* Slow blink for "INSERT COIN"-style prompts. Static under reduced-motion. */
   .blink {
     animation: pixel-blink 1.2s steps(1, end) infinite;

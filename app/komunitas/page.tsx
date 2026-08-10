@@ -26,14 +26,14 @@ const DESCRIPTION =
   "Komunitas belajar aktif di belajar-with-rahmanef.com — gratis, terbuka, berbahasa Indonesia.";
 
 export const metadata: Metadata = {
-  title: TITLE,
-  description: DESCRIPTION,
-  alternates: { canonical: "/komunitas" },
-  openGraph: {
-    type: "website",
-    title: TITLE,
-    description: DESCRIPTION,
-    url: absoluteUrl("/komunitas"),
+ title: TITLE,
+ description: DESCRIPTION,
+ alternates: { canonical: "/komunitas" },
+ openGraph: {
+ type: "website",
+ title: TITLE,
+ description: DESCRIPTION,
+ url: absoluteUrl("/komunitas"),
   },
 };
 
@@ -42,13 +42,13 @@ async function CommunityList() {
   // cacheComponents tries to prerender the list at build time — where the Convex
   // client's uncached fetch is illegal. Opting in here keeps the page shell
   // static and streams only this list at request time.
-  await connection();
-  const tenants = await safeQuery(api.features.tenants.queries.listActive, {});
+ await connection();
+ const tenants = await safeQuery(api.features.tenants.queries.listActive, {});
 
   // safeQuery returns null on a Convex outage too, not just "no rows" — same
   // decision either way: say nothing is listable rather than render a 500.
-  if (tenants === null || tenants.length === 0) {
-    return (
+ if (tenants === null || tenants.length === 0) {
+ return (
       <Empty className="border">
         <EmptyHeader>
           <EmptyMedia variant="icon">
@@ -63,13 +63,13 @@ async function CommunityList() {
     );
   }
 
-  return (
+ return (
     <ul className="grid gap-3 @2xl:grid-cols-2">
       {tenants.map((tenant) => (
         <li key={tenant._id}>
           <Link
-            href={communityHref.home(tenant.slug)}
-            className="group flex h-full flex-col gap-1.5 rounded-xl border bg-card px-5 py-4 transition-colors hover:border-primary/40 hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+ href={communityHref.home(tenant.slug)}
+ className="group flex h-full flex-col gap-1.5 border bg-card px-5 py-4 transition-colors hover:border-primary/40 hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <span className="flex flex-wrap items-center gap-2">
               <span className="min-w-0 font-display text-base font-medium group-hover:text-primary">
@@ -92,7 +92,7 @@ async function CommunityList() {
 }
 
 export default function KomunitasPage() {
-  return (
+ return (
     // @container: the mounted slice views and the mockup-kit primitives size
     // themselves with container queries (a leftover of the windowed shell), so
     // a real route has to declare the container they resolve against.
@@ -105,12 +105,12 @@ export default function KomunitasPage() {
         <AjukanKomunitas />
       </header>
       {/* Own boundary: the etalase read is dynamic (cacheComponents), so the
-          heading above still ships in the static shell. */}
+ heading above still ships in the static shell. */}
       <Suspense
-        fallback={
+ fallback={
           <div className="grid gap-3 @2xl:grid-cols-2">
-            <Skeleton className="h-24 w-full rounded-xl" />
-            <Skeleton className="h-24 w-full rounded-xl" />
+            <Skeleton className="h-24 w-full " />
+            <Skeleton className="h-24 w-full " />
           </div>
         }
       >

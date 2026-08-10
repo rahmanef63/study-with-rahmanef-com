@@ -9,7 +9,6 @@ export const COMMUNITY_KARIER_DIGITAL: SeedCommunity = {
   description:
     "Bangun karier digital dari nol — portofolio, freelance, dan skill yang dicari pasar. Berbahasa Indonesia.",
   track: "kerja",
-  coverImageUrl: "https://picsum.photos/seed/karier-digital/1200/400",
   courses: [
     {
       slug: "portofolio-dilirik",

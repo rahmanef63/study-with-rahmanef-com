@@ -22,52 +22,52 @@ import { TrackPicker } from "./track-picker";
 import { UiTextarea } from "./ui-textarea";
 
 export type RequestTenantFormProps = {
-  labels?: Partial<TenantLabels["request"]>;
-  className?: string;
+ labels?: Partial<TenantLabels["request"]>;
+ className?: string;
   /** Called after a successful request with the new tenant slug. */
-  onSuccess?: (slug: string) => void;
+ onSuccess?: (slug: string) => void;
 };
 
 export function RequestTenantForm({ labels, className, onSuccess }: RequestTenantFormProps) {
-  const t = { ...DEFAULT_TENANT_LABELS.request, ...labels };
-  const { isAuthenticated, isLoading } = useConvexAuth();
-  const [request, { isPending }] = useRequestTenant({ success: t.success });
+ const t = { ...DEFAULT_TENANT_LABELS.request, ...labels };
+ const { isAuthenticated, isLoading } = useConvexAuth();
+ const [request, { isPending }] = useRequestTenant({ success: t.success });
 
-  const [name, setName] = useState("");
-  const [slug, setSlug] = useState("");
-  const [description, setDescription] = useState("");
-  const [track, setTrack] = useState("");
-  const [message, setMessage] = useState("");
+ const [name, setName] = useState("");
+ const [slug, setSlug] = useState("");
+ const [description, setDescription] = useState("");
+ const [track, setTrack] = useState("");
+ const [message, setMessage] = useState("");
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    const result = await request({
-      slug,
-      name,
-      description,
-      track: track.trim() === "" ? undefined : track,
-      requestMessage: message.trim() === "" ? undefined : message,
+ const handleSubmit = async (e: FormEvent) => {
+ e.preventDefault();
+ const result = await request({
+ slug,
+ name,
+ description,
+ track: track.trim() === "" ? undefined : track,
+ requestMessage: message.trim() === "" ? undefined : message,
     });
-    if (result) {
-      setName("");
-      setSlug("");
-      setDescription("");
-      setTrack("");
-      setMessage("");
-      onSuccess?.(result.slug);
+ if (result) {
+ setName("");
+ setSlug("");
+ setDescription("");
+ setTrack("");
+ setMessage("");
+ onSuccess?.(result.slug);
     }
   };
 
-  if (isLoading) {
-    return (
+ if (isLoading) {
+ return (
       <div className={className}>
-        <Skeleton className="h-96 w-full rounded-xl" />
+        <Skeleton className="h-96 w-full " />
       </div>
     );
   }
 
-  if (!isAuthenticated) {
-    return (
+ if (!isAuthenticated) {
+ return (
       <Empty className={className}>
         <EmptyHeader>
           <EmptyTitle>{t.loginFirstTitle}</EmptyTitle>
@@ -77,29 +77,29 @@ export function RequestTenantForm({ labels, className, onSuccess }: RequestTenan
     );
   }
 
-  return (
+ return (
     <form onSubmit={handleSubmit} className={`flex flex-col gap-5 ${className ?? ""}`}>
       <div className="flex flex-col gap-2">
         <Label htmlFor="request-name">{t.nameLabel}</Label>
         <Input
-          id="request-name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder={t.namePlaceholder}
-          disabled={isPending}
-          required
+ id="request-name"
+ value={name}
+ onChange={(e) => setName(e.target.value)}
+ placeholder={t.namePlaceholder}
+ disabled={isPending}
+ required
         />
       </div>
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="request-slug">{t.slugLabel}</Label>
         <Input
-          id="request-slug"
-          value={slug}
-          onChange={(e) => setSlug(e.target.value)}
-          placeholder={t.slugPlaceholder}
-          disabled={isPending}
-          required
+ id="request-slug"
+ value={slug}
+ onChange={(e) => setSlug(e.target.value)}
+ placeholder={t.slugPlaceholder}
+ disabled={isPending}
+ required
         />
         <p className="text-muted-foreground text-xs">{t.slugHelp}</p>
       </div>
@@ -107,13 +107,13 @@ export function RequestTenantForm({ labels, className, onSuccess }: RequestTenan
       <div className="flex flex-col gap-2">
         <Label htmlFor="request-description">{t.descriptionLabel}</Label>
         <UiTextarea
-          id="request-description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder={t.descriptionPlaceholder}
-          disabled={isPending}
-          rows={4}
-          required
+ id="request-description"
+ value={description}
+ onChange={(e) => setDescription(e.target.value)}
+ placeholder={t.descriptionPlaceholder}
+ disabled={isPending}
+ rows={4}
+ required
         />
       </div>
 
@@ -121,29 +121,29 @@ export function RequestTenantForm({ labels, className, onSuccess }: RequestTenan
         <Label>{t.trackLabel}</Label>
         <p className="text-muted-foreground text-xs">{t.trackHelp}</p>
         <TrackPicker
-          value={track}
-          onChange={setTrack}
-          customPlaceholder={t.trackCustomPlaceholder}
-          disabled={isPending}
+ value={track}
+ onChange={setTrack}
+ customPlaceholder={t.trackCustomPlaceholder}
+ disabled={isPending}
         />
       </div>
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="request-message">{t.messageLabel}</Label>
         <UiTextarea
-          id="request-message"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder={t.messagePlaceholder}
-          disabled={isPending}
-          rows={3}
+ id="request-message"
+ value={message}
+ onChange={(e) => setMessage(e.target.value)}
+ placeholder={t.messagePlaceholder}
+ disabled={isPending}
+ rows={3}
         />
       </div>
 
       <Button
-        type="submit"
-        disabled={isPending}
-        className="min-h-11 w-full @sm:min-h-9 @sm:w-fit"
+ type="submit"
+ disabled={isPending}
+ className="min-h-11 w-full @sm:min-h-9 @sm:w-fit"
       >
         {isPending ? t.submitting : t.submit}
       </Button>

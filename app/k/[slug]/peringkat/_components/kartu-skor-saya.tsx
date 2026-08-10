@@ -1,4 +1,5 @@
-// The caller's own standing — the "1UP" panel above the board.
+// The caller's own standing — the "1UP" panel above the board, and the one
+// primary thing on the Peringkat screen.
 //
 // Thresholds come from the pure derive module the query itself uses, so the
 // progress bar's floor can never drift from the level the server reported.
@@ -14,7 +15,7 @@ const poin = new Intl.NumberFormat("id-ID");
 
 export function KartuSkorSaya({ mine }: { mine: MyRank | undefined }) {
   if (mine === undefined) {
-    return <Skeleton className="h-32 w-full" aria-label="Memuat skor kamu" />;
+    return <Skeleton className="h-28 w-full" aria-label="Memuat skor kamu" />;
   }
 
   const floor = LEVEL_THRESHOLDS[mine.level - 1] ?? 0;
@@ -24,34 +25,37 @@ export function KartuSkorSaya({ mine }: { mine: MyRank | undefined }) {
   const maxed = mine.nextLevelAt === null || mine.pointsToNext === null;
 
   return (
-    <div className="border-2 border-primary bg-card p-4 shadow-[4px_4px_0_0_var(--pixel-shadow)]">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+    <div className="border-2 border-primary bg-card p-3.5 shadow-[4px_4px_0_0_var(--pixel-shadow)]">
+      <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <span className="eyebrow">Skor kamu</span>
-          <p className="marquee-text text-lg tabular-nums @sm:text-xl">{poin.format(mine.points)}</p>
-          <p className="text-xs text-muted-foreground">poin terkumpul</p>
+          {/* "poin terkumpul" deleted: the unit is already on every row of the
+              board below and in the level line right under this number. */}
+          <p className="marquee-text text-base tabular-nums @sm:text-lg">
+            {poin.format(mine.points)}
+          </p>
         </div>
-        <div className="min-w-0 text-right">
+        <div className="min-w-0 shrink-0 text-right">
           <span className="eyebrow">Peringkat</span>
           {/* rank is null past the scan cap — never render the word "null".
               At 0 poin the derived rank would read "#01" on an empty board,
               which contradicts it: a never-scored member is not on the board. */}
           {mine.points === 0 ? (
-            <p className="text-sm text-muted-foreground">Belum masuk papan</p>
+            <p className="text-xs text-muted-foreground">Belum masuk papan</p>
           ) : mine.rank === null ? (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Di luar {poin.format(RANK_SCAN_CAP)} besar
             </p>
           ) : (
-            <p className="font-display text-sm tabular-nums @sm:text-base">
+            <p className="font-display text-sm tabular-nums">
               #{String(mine.rank).padStart(2, "0")}
             </p>
           )}
         </div>
       </div>
 
-      <div className="mt-4 space-y-2">
-        <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="mt-3 space-y-1.5">
+        <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
           <LevelChip level={mine.level} />
           <span className="text-xs text-muted-foreground">
             {maxed
@@ -67,7 +71,7 @@ export function KartuSkorSaya({ mine }: { mine: MyRank | undefined }) {
           aria-label={
             maxed ? `Level ${MAX_LEVEL}, sudah maksimal` : `Kemajuan ke level ${mine.level + 1}`
           }
-          className="h-3 w-full border-2 border-border bg-muted"
+          className="h-2.5 w-full border-2 border-border bg-muted"
         >
           {/* Stepped block fill, not a gradient — it is a power bar, not a meter. */}
           <div className="h-full bg-primary" style={{ width: `${persen}%` }} />

@@ -144,8 +144,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             600px sonner switches to a full-width bottom-anchored toast at
             z-index 999999999, which sat ON TOP of the fixed 56px nav and — with
             VersionWatcher's duration: Infinity — covered all five nav cells
-            until the user reloaded. 3.5rem is the bar height (BAR_H in
-            components/community/community-bottom-nav.tsx). */}
+            until the user reloaded. The bar is 3.0625rem tall (BAR_H in
+            components/community/community-bottom-nav.tsx); 3.5rem is that plus
+            a deliberate ~7px of slack, so the toast clears it either way. */}
         <Toaster
           position="bottom-right"
           mobileOffset={{

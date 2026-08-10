@@ -23,7 +23,16 @@ export function CategoryChips({ value, onChange, copy: copyOverride, className }
     <div
       role="group"
       aria-label={copy.fieldKind}
-      className={className ? `flex flex-wrap gap-2 ${className}` : "flex flex-wrap gap-2"}
+      // ONE row that scrolls, never a wrapping rack. Five chips wrapped to two
+      // rows at 390px and cost ~100px above the first post; a single row is how
+      // a segmented filter behaves on a phone. -mx-4 px-4 lets it bleed to the
+      // screen edge so the last chip is visibly cut off — the affordance that
+      // says "there is more here".
+      className={
+        className
+          ? `-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:px-0 ${className}`
+          : "-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:px-0"
+      }
     >
       <FilterChip label={copy.filterAll} active={value === null} onClick={() => onChange(null)} />
       {POST_KINDS.map((kind) => (

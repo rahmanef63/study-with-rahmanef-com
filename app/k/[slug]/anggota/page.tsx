@@ -31,9 +31,11 @@ async function AnggotaBody({ slug }: { slug: string }) {
   const tenant = await safeQuery(api.features.tenants.queries.getPublicBySlug, { slug });
   if (tenant === null) {
     return (
-      <Empty className="border">
-        <EmptyHeader>
-          <EmptyTitle className="font-display">Anggota belum bisa dimuat</EmptyTitle>
+      <Empty className="gap-4 border-2 p-5 md:p-8">
+        <EmptyHeader className="gap-1.5">
+          <EmptyTitle className="font-display text-xs uppercase leading-relaxed">
+            Anggota belum bisa dimuat
+          </EmptyTitle>
           <EmptyDescription className="text-pretty">
             Koneksi ke server sedang bermasalah. Coba muat ulang halaman ini sebentar lagi.
           </EmptyDescription>
@@ -47,7 +49,7 @@ async function AnggotaBody({ slug }: { slug: string }) {
 export default async function AnggotaPage({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
   return (
-    <Suspense fallback={<Skeleton className="h-64 w-full rounded-[var(--radius-win)]" />}>
+    <Suspense fallback={<Skeleton className="h-64 w-full" />}>
       <AnggotaBody slug={slug} />
     </Suspense>
   );

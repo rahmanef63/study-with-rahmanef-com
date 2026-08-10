@@ -68,7 +68,9 @@ export function BantuanSection() {
 
       <Bagian title="Ada yang baru?">
         <p>Semua pembaruan platform dicatat di Changelog.</p>
-        <Button variant="outline" size="sm" asChild className="min-h-9">
+        {/* 44px on a phone (the touch floor), the original 36px from md up so
+            the desktop density of this section is unchanged. */}
+        <Button variant="outline" size="sm" asChild className="min-h-11 md:min-h-9">
           <Link href="/changelog">Buka Changelog</Link>
         </Button>
       </Bagian>

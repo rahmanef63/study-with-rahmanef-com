@@ -18,35 +18,35 @@ import type { TenantLabels } from "../types";
 import { TenantProfileForm } from "./tenant-profile-form";
 
 export type TenantSettingsViewProps = {
-  slug: string;
-  labels?: Partial<TenantLabels["settings"]>;
-  className?: string;
+ slug: string;
+ labels?: Partial<TenantLabels["settings"]>;
+ className?: string;
 };
 
 export function TenantSettingsView({ slug, labels, className }: TenantSettingsViewProps) {
-  const t = { ...DEFAULT_TENANT_LABELS.settings, ...labels };
-  const tenant = useTenantBySlug(slug);
-  const { membership, isAuthenticated, isAuthLoading } = useMyMembership(tenant?._id);
-  const isOwner = membership?.role === "owner";
-  const managed = useTenantManageView(isOwner ? tenant?._id : undefined);
-  const [updateProfile, { isPending }] = useUpdateTenantProfile({ success: t.success });
+ const t = { ...DEFAULT_TENANT_LABELS.settings, ...labels };
+ const tenant = useTenantBySlug(slug);
+ const { membership, isAuthenticated, isAuthLoading } = useMyMembership(tenant?._id);
+ const isOwner = membership?.role === "owner";
+ const managed = useTenantManageView(isOwner ? tenant?._id : undefined);
+ const [updateProfile, { isPending }] = useUpdateTenantProfile({ success: t.success });
 
-  const loading =
-    tenant === undefined ||
-    isAuthLoading ||
+ const loading =
+ tenant === undefined ||
+ isAuthLoading ||
     (isAuthenticated && tenant !== null && membership === undefined) ||
     (isOwner && managed === undefined);
 
-  if (loading) {
-    return (
+ if (loading) {
+ return (
       <div className={className}>
-        <Skeleton className="h-72 w-full rounded-xl" />
+        <Skeleton className="h-72 w-full " />
       </div>
     );
   }
 
-  if (tenant === null || !isOwner || !managed) {
-    return (
+ if (tenant === null || !isOwner || !managed) {
+ return (
       <Empty className={className}>
         <EmptyHeader>
           <EmptyTitle>{t.loadDeniedTitle}</EmptyTitle>
@@ -56,7 +56,7 @@ export function TenantSettingsView({ slug, labels, className }: TenantSettingsVi
     );
   }
 
-  return (
+ return (
     <section className={cn("space-y-6", className)}>
       <div className="border-b pb-5">
         <span className="eyebrow">Kelola</span>
@@ -66,10 +66,10 @@ export function TenantSettingsView({ slug, labels, className }: TenantSettingsVi
         </p>
       </div>
       <TenantProfileForm
-        tenant={managed}
-        isPending={isPending}
-        labels={labels}
-        onSubmit={(values) => updateProfile({ tenantId: managed._id, ...values })}
+ tenant={managed}
+ isPending={isPending}
+ labels={labels}
+ onSubmit={(values) => updateProfile({ tenantId: managed._id, ...values })}
       />
     </section>
   );

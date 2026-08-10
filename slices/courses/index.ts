@@ -15,6 +15,7 @@ export { coursesFeature } from "./config";
 
 // member/public components
 export { CourseCard, type CourseCardProps } from "./components/course-card";
+export { CourseCover, type CourseCoverProps } from "./components/course-cover";
 export { CourseOverview, type CourseOverviewProps } from "./components/course-overview";
 export { SyllabusList, type SyllabusListProps } from "./components/syllabus-list";
 export { LessonView, type LessonViewProps } from "./components/lesson-view";
@@ -62,6 +63,7 @@ export {
   isValidYoutubeVideoId,
 } from "./lib/youtube";
 export { coursesErrorMessage, extractCoursesError } from "./lib/errors";
+export { coverArt, type CoverArt, type CoverLayer } from "./lib/cover-art";
 
 // copy + limits (props-driven defaults)
 export { COURSES_COPY, mergeCopy, type CoursesCopy, type CoursesCopyOverride } from "./config/copy";

@@ -77,7 +77,14 @@ export function PostCard({
         </div>
 
         <h3 className="text-pretty text-base font-semibold leading-snug [overflow-wrap:anywhere]">
-          <Link href={href} className="hover:text-primary hover:underline underline-offset-4">
+          {/* Below md the link is a full-width 44px block, not an inline run of
+              text: a one-line title was a 19px target and the author link below
+              was 14px, both well under the touch floor. `max-md:` so the
+              desktop card keeps its inline heading and its exact density. */}
+          <Link
+            href={href}
+            className="hover:text-primary hover:underline underline-offset-4 max-md:flex max-md:min-h-11 max-md:items-center"
+          >
             {post.title}
           </Link>
         </h3>
@@ -99,7 +106,14 @@ export function PostCard({
         <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3 text-xs text-muted-foreground">
           <span className="min-w-0 truncate">
             {authorHref ? (
-              <Link href={authorHref} className="text-foreground hover:text-primary hover:underline">
+              // leading-[44px] rather than min-h-11: an inline-block whose
+              // height IS its line box keeps `truncate` working on the parent
+              // span, and the footer row is already 44px tall (the like and
+              // comment buttons are min-h-11), so nothing grows.
+              <Link
+                href={authorHref}
+                className="text-foreground hover:text-primary hover:underline max-md:inline-block max-md:leading-[44px]"
+              >
                 {authorName}
               </Link>
             ) : (

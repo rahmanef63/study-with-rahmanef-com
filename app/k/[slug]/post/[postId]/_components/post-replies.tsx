@@ -51,7 +51,6 @@ export function PostReplies({
       <GabungDulu
         tenantId={tenantId}
         nextHref={backHref}
-        title="Gabung dulu untuk ikut membalas"
         description="Postnya terbuka untuk siapa saja. Balasan, suka, dan menulis post baru khusus anggota komunitas."
       />
     );

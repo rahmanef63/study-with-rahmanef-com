@@ -59,7 +59,9 @@ export async function runSeedWorld(ctx: MutationCtx, args: SeedWorldArgs) {
   // Back-fill a cover on the flagship community if it has none.
   const flagship = await ctx.db.query("tenants").withIndex("by_slug", (q) => q.eq("slug", "belajar-ai")).unique();
   if (flagship && !flagship.coverImageUrl) {
-    await ctx.db.patch(flagship._id, { coverImageUrl: "https://picsum.photos/seed/belajar-ai/1200/400" });
+    // No cover patch. Communities render procedural pixel art from their slug
+    // (slices/courses/lib/cover-art.ts); pointing them at picsum.photos put a
+    // third-party stock host in the request path of a zero-cost product.
     made.covers++;
   }
 

@@ -34,7 +34,6 @@ function CariBody({ tenantId, slug }: { tenantId: Id<"tenants">; slug: string })
       <GabungDulu
         tenantId={tenantId}
         nextHref={communityHref.cari(slug)}
-        title="Pencarian untuk anggota"
         description="Gabung komunitasnya dulu — gratis — lalu semua kelas dan materinya bisa dicari."
       />
     );

@@ -1,6 +1,6 @@
 "use client";
 
-// Member roster.
+// Member roster — an iOS inset grouped list (see ./inset-list.tsx).
 //
 // NOT <MembersList/> from the tenants barrel: that component self-fetches and
 // exposes no filter, no row href and no join date, and slices/ is out of scope
@@ -11,12 +11,18 @@
 import { useMemo, useState } from "react";
 import type { Id } from "@convex/_generated/dataModel";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge, CommandSearch, SectionHeader } from "@/components/mockup-kit";
+import { CommandSearch } from "@/components/mockup-kit";
 import { useMyMembership, useSetMemberRole, useTenantMembers } from "@/features/tenants";
 import { useCurrentProfile } from "@/features/profiles";
 import { communityHref } from "@/lib/community";
 import { AnggotaMemberRow } from "./anggota-member-row";
 import { GabungDulu } from "./gabung-dulu";
+import { InsetList } from "./inset-list";
+
+// Below this the search field is pure chrome: a 46px control plus its gap, in
+// front of a list you can read in one glance. It appears when the roster is
+// actually long enough to lose someone in.
+const SEARCH_FROM = 10;
 
 export function AnggotaRoster({
   tenantId,
@@ -46,8 +52,8 @@ export function AnggotaRoster({
     return (
       <div className="space-y-2" aria-busy>
         <span className="sr-only">Memuat anggota…</span>
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-14 w-full" />
+        <Skeleton className="h-14 w-full" />
       </div>
     );
   }
@@ -57,7 +63,6 @@ export function AnggotaRoster({
       <GabungDulu
         tenantId={tenantId}
         nextHref={communityHref.anggota(slug)}
-        title="Gabung dulu untuk melihat anggota"
         description="Daftar anggota komunitas hanya terbuka untuk sesama anggota."
       />
     );
@@ -65,33 +70,36 @@ export function AnggotaRoster({
 
   const canManageRoles = membership?.role === "owner";
 
+  // No SectionHeader. The bottom tab bar and the desktop tab strip both already
+  // read "Anggota", and an eyebrow + title + hairline in front of an obvious
+  // list of people is 70px spent restating the navigation. The member count
+  // survives as the group caption, where iOS puts it.
+  if (members === undefined) {
+    return (
+      <div className="space-y-2" aria-busy>
+        <span className="sr-only">Memuat anggota…</span>
+        <Skeleton className="h-14 w-full" />
+        <Skeleton className="h-14 w-full" />
+        <Skeleton className="h-14 w-full" />
+      </div>
+    );
+  }
+
+  if (members.length === 0) {
+    return <p className="text-sm text-muted-foreground">Belum ada anggota.</p>;
+  }
+
   return (
-    <section className="space-y-4">
-      <SectionHeader
-        eyebrow="Komunitas"
-        title="Anggota"
-        actions={
-          members && members.length > 0 ? (
-            <Badge tone="muted">{members.length} anggota</Badge>
-          ) : undefined
-        }
-      />
-      {members && members.length > 0 ? (
+    <div className="space-y-3">
+      {members.length >= SEARCH_FROM ? (
         <CommandSearch value={query} onChange={setQuery} placeholder="Cari anggota…" />
       ) : null}
-      {members === undefined ? (
-        <div className="space-y-2" aria-busy>
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-        </div>
-      ) : members.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Belum ada anggota.</p>
-      ) : visible && visible.length === 0 ? (
-        <p className="rounded-[var(--radius-win)] border border-dashed bg-muted/30 px-4 py-6 text-center text-sm text-muted-foreground">
+      {visible && visible.length === 0 ? (
+        <p className="border-2 border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
           Tidak ada anggota yang cocok dengan “{query}”.
         </p>
       ) : (
-        <ul className="divide-y divide-border">
+        <InsetList caption={`${members.length} anggota`}>
           {visible?.map((m) => (
             <AnggotaMemberRow
               key={m.userId}
@@ -103,8 +111,8 @@ export function AnggotaRoster({
               onSetRole={(targetUserId, role) => setRole({ tenantId, targetUserId, role })}
             />
           ))}
-        </ul>
+        </InsetList>
       )}
-    </section>
+    </div>
   );
 }

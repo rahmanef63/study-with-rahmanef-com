@@ -1,36 +1,60 @@
 import type { Metadata } from "next";
 import { cache, Suspense } from "react";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Search } from "lucide-react";
 import { api } from "@convex/_generated/api";
-import { LogoMark } from "@/components/brand/logo";
 import { CommunityActions } from "@/components/community/community-actions";
 import { CommunityBottomNav } from "@/components/community/community-bottom-nav";
+import { CommunityBrandRow } from "@/components/community/community-brand-row";
+import { CommunityNavAction } from "@/components/community/community-nav-action";
+import {
+  CommunityNavBar,
+  CommunityNavBarSkeleton,
+} from "@/components/community/community-nav-bar";
 import { CommunityTabs } from "@/components/community/community-tabs";
+import { NavCollapseSentinel } from "@/components/community/nav-collapse-sentinel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { safeQuery } from "@/lib/convex-server";
 import { absoluteUrl } from "@/lib/site";
 import { communityHref } from "@/lib/community";
 
 // The community shell. Server-rendered, so the community name is real HTML on
-// every page under it — the whole "OS desktop → Skool" transformation from a
-// learner's point of view, in ~120 lines instead of a window manager.
+// every page under it.
+//
+// TWO SHAPES, ONE DATA READ. Below md this is an iOS navigation bar: a 54px
+// sticky compact bar plus a large title that scrolls under it. At md and up it
+// is the desktop header it always was — brand row, title, description, counts,
+// actions, tab strip — pixel for pixel.
+//
+// WHAT THE PHONE HEADER NO LONGER CARRIES (152px of the old 261px):
+//   · brand mark + wordmark (48px) — inside a community, the community IS the
+//     brand; in an installed PWA the wordmark is the icon you just tapped.
+//   · the description (44px) — read once, before joining. It is the opening
+//     paragraph of Tentang, one tap away in the phone bar's "Lainnya" sheet.
+//   · "Cari" + "Komunitas lain" — already in that same sheet, and Cari is also
+//     the bar's trailing action for a member (community-nav-action.tsx).
+//   · "Bagikan" (60px row, with Login) — occasional, and already on Tentang
+//     beside the description it is sharing.
+// WHAT SURVIVES: the name (you must know where you are), the counts as a 10px
+// subtitle (social proof, on the screen where joining is the decision), and
+// exactly one action.
 //
 // getPublicBySlug / getPublicStatsBySlug are on the anonymous etalase
 // whitelist (AGENTS.md §6). Anything membership-aware is a client island
-// (<CommunityActions/>) because server components here are always anonymous.
+// because server components here are always anonymous.
 type Params = { slug: string };
 
-// cache(): generateMetadata and the header child both need the tenant, and
-// fetchQuery has no per-request dedupe of its own — without this every page
-// under /k costs two identical Convex round trips before it renders anything.
+// cache(): generateMetadata, the bar and the title block all need the tenant,
+// and fetchQuery has no per-request dedupe of its own — without this every page
+// under /k costs three identical Convex round trips before it renders.
 const getTenant = cache(async (slug: string) =>
   safeQuery(api.features.tenants.queries.getPublicBySlug, { slug })
 );
 const getStats = cache(async (slug: string) =>
   safeQuery(api.features.tenants.queries.getPublicStatsBySlug, { slug })
 );
+
+/** Shared gutter: 16px on a phone, the original 20px from md up. */
+const SHELL = "mx-auto w-full max-w-5xl px-4 md:px-5";
 
 export async function generateMetadata({
   params,
@@ -54,11 +78,24 @@ export async function generateMetadata({
   };
 }
 
-async function CommunityHeader({ slug }: { slug: string }) {
-  const [tenant, stats] = await Promise.all([
-    getTenant(slug),
-    getStats(slug),
-  ]);
+// Rendered OUTSIDE <header> on purpose: a sticky element can only stick inside
+// its own parent's box, and the header is ~100px tall — parked in there the bar
+// scrolled away with it after the first flick. Its parent is the page root, so
+// it now sticks for the full length of the document.
+async function CommunityNavBarSlot({ slug }: { slug: string }) {
+  const tenant = await getTenant(slug);
+  // Unknown slug: stay silent and let the title block below render the 404.
+  if (tenant === null) return null;
+  return (
+    <CommunityNavBar
+      title={tenant.name}
+      action={<CommunityNavAction tenantId={tenant._id} slug={slug} />}
+    />
+  );
+}
+
+async function CommunityTitle({ slug }: { slug: string }) {
+  const [tenant, stats] = await Promise.all([getTenant(slug), getStats(slug)]);
   // notFound() here (not in the layout body) so an unknown slug renders the
   // real 404 page instead of an empty shell with tabs.
   if (tenant === null) notFound();
@@ -69,18 +106,48 @@ async function CommunityHeader({ slug }: { slug: string }) {
       : `${stats.memberCount}${stats.memberCountCapped ? "+" : ""} anggota · ${stats.courseCount} kelas`;
 
   return (
-    <div className="space-y-4 pt-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="min-w-0 space-y-1">
-          <h1 className="text-balance font-display text-base @sm:text-lg">{tenant.name}</h1>
-          <p className="max-w-2xl text-pretty text-sm text-muted-foreground">
-            {tenant.description}
-          </p>
-          {memberLabel ? (
-            <p className="text-xs text-muted-foreground">{memberLabel}</p>
-          ) : null}
+    <>
+      {/* @container: every reused slice view and mockup-kit primitive sizes
+          itself with container queries (a leftover of the windowed shell). A
+          real route has to declare one or those variants never match. */}
+      <div className={`@container ${SHELL} pb-2 md:pb-0`}>
+        <div className="pt-1 md:flex md:flex-wrap md:items-start md:justify-between md:gap-4 md:pt-6">
+          <div className="min-w-0 md:space-y-1">
+            {/* ONE h1 at every width — the large title and the desktop heading
+                are the same element, not two hidden copies. The max-md: caps
+                hold it to two lines so a long name cannot blow the budget. */}
+            <h1 className="text-balance font-display text-base @sm:text-lg max-md:line-clamp-2 max-md:text-sm max-md:leading-[1.1]">
+              {tenant.name}
+            </h1>
+            <p className="hidden max-w-2xl text-pretty text-sm text-muted-foreground md:block">
+              {tenant.description}
+            </p>
+            {memberLabel ? (
+              // Desktop metrics untouched (`text-xs`, inherited 1.7 leading);
+              // the phone shrinks it to a 10px subtitle riding under the title.
+              <p className="text-xs text-muted-foreground max-md:text-[0.625rem] max-md:leading-tight">
+                {memberLabel}
+              </p>
+            ) : null}
+          </div>
+          {/* Phone gets <CommunityNavAction/> in the bar instead. */}
+          <div className="hidden md:block">
+            <CommunityActions tenantId={tenant._id} slug={slug} name={tenant.name} />
+          </div>
         </div>
-        <CommunityActions tenantId={tenant._id} slug={slug} name={tenant.name} />
+      </div>
+      <NavCollapseSentinel />
+    </>
+  );
+}
+
+function CommunityTitleSkeleton() {
+  return (
+    <div className={`${SHELL} pb-2 md:pb-0`}>
+      <div className="space-y-2 pt-1 md:pt-6">
+        <Skeleton className="h-4 w-56 md:h-8 md:w-64" />
+        <Skeleton className="hidden h-4 w-full max-w-xl md:block" />
+        <Skeleton className="h-3 w-32" />
       </div>
     </div>
   );
@@ -97,69 +164,23 @@ export default async function CommunityLayout({
 
   return (
     <div className="min-h-dvh bg-background">
-      <header className="border-b bg-card/40">
-        {/* @container: every reused slice view and mockup-kit primitive sizes
-            itself with container queries (a leftover of the windowed shell,
-            which established the container). A real route has to declare one or
-            those variants never match and the views collapse to one column. */}
-        {/* pb below md replaces the bottom padding the (now desktop-only) tab
-            strip used to contribute. */}
-        <div className="@container mx-auto w-full max-w-5xl px-5 pb-4 md:pb-0">
-          {/* One line at EVERY width. At 320px this used to wrap onto two lines
-              and collide, so below `sm` the wordmark and "Komunitas lain" drop
-              out: the mark alone still reads as home, and "Komunitas lain" is a
-              rare action that now lives in the phone bar's "Lainnya" sheet. */}
-          <div className="flex min-h-12 items-center justify-between gap-3 text-sm">
-            <Link
-              href="/"
-              // min-w-11 + negative margin: below sm the label is gone and the
-              // 16px mark alone would be a 16px tap target.
-              className="-ml-2 inline-flex min-h-11 min-w-11 items-center gap-2 px-2 font-medium sm:ml-0 sm:min-w-0 sm:px-0"
-              aria-label="Beranda belajar with rahmanef"
-            >
-              <LogoMark className="size-4 shrink-0 text-primary" aria-hidden />
-              <span className="hidden font-display text-[0.6rem] uppercase tracking-wider text-muted-foreground sm:inline">
-                belajar·with·rahmanef
-              </span>
-            </Link>
-            <div className="flex items-center gap-1 sm:gap-3">
-              {/* Search is a tool, not a destination — a header affordance
-                  instead of a sixth tab competing for a learner's attention.
-                  Icon-only below sm, but still a full 44px target. */}
-              <Link
-                href={communityHref.cari(slug)}
-                aria-label="Cari kelas & materi"
-                className="-mr-2 inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 text-muted-foreground hover:text-foreground sm:mr-0 sm:min-w-0"
-              >
-                <Search className="size-4 shrink-0 sm:size-3.5" aria-hidden />
-                <span className="hidden sm:inline">Cari</span>
-              </Link>
-              <Link
-                href="/komunitas"
-                className="hidden min-h-11 items-center text-muted-foreground hover:text-foreground sm:inline-flex"
-              >
-                Komunitas lain
-              </Link>
-            </div>
-          </div>
-          {/* Own boundary: the awaited etalase reads are dynamic. The tab strip
-              below renders immediately so navigation never waits on data. */}
-          <Suspense
-            fallback={
-              <div className="space-y-3 pt-6">
-                <Skeleton className="h-8 w-64" />
-                <Skeleton className="h-4 w-full max-w-xl" />
-              </div>
-            }
-          >
-            <CommunityHeader slug={slug} />
-          </Suspense>
-          <div className="hidden pt-4 md:block">
-            <CommunityTabs slug={slug} />
-          </div>
+      <Suspense fallback={<CommunityNavBarSkeleton />}>
+        <CommunityNavBarSlot slug={slug} />
+      </Suspense>
+      {/* Solid card below md so the large title disappears INTO the bar rather
+          than under a translucent one; the original wash from md up. */}
+      <header className="border-b bg-card md:bg-card/40">
+        {/* Desktop chrome, outside every Suspense boundary on purpose: it needs
+            no data, so navigation never waits on Convex for it. */}
+        <CommunityBrandRow slug={slug} className={`hidden ${SHELL} md:block`} />
+        <Suspense fallback={<CommunityTitleSkeleton />}>
+          <CommunityTitle slug={slug} />
+        </Suspense>
+        <div className={`hidden ${SHELL} pt-4 md:block`}>
+          <CommunityTabs slug={slug} />
         </div>
       </header>
-      <main className="@container mx-auto w-full max-w-5xl px-5 py-8">{children}</main>
+      <main className={`@container ${SHELL} py-5 md:py-8`}>{children}</main>
       {/* Phone-only. Renders its own in-flow spacer, so <main> needs no extra
           bottom padding and pages where the bar hides get none. */}
       <CommunityBottomNav slug={slug} />

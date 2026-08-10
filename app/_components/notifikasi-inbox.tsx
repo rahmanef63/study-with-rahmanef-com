@@ -18,11 +18,11 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function NotifikasiInbox() {
-  const { isAuthenticated, isLoading } = useCurrentProfile();
-  const router = useRouter();
+ const { isAuthenticated, isLoading } = useCurrentProfile();
+ const router = useRouter();
 
-  if (isLoading) {
-    return (
+ if (isLoading) {
+ return (
       <div className="space-y-3" aria-busy>
         <span className="sr-only">Memuat notifikasi…</span>
         <Skeleton className="h-14 w-full rounded-md" />
@@ -32,8 +32,8 @@ export function NotifikasiInbox() {
     );
   }
 
-  if (!isAuthenticated) {
-    return (
+ if (!isAuthenticated) {
+ return (
       <Empty className="border">
         <EmptyHeader>
           <EmptyMedia variant="icon">
@@ -53,14 +53,14 @@ export function NotifikasiInbox() {
     );
   }
 
-  return (
-    <div className="rounded-xl border bg-card">
+ return (
+    <div className="border bg-card">
       {/* Every stored href is a same-origin path (the Convex validator rejects
-          absolute URLs), so router.push keeps this a client navigation instead
-          of the slice's default full page load. */}
+ absolute URLs), so router.push keeps this a client navigation instead
+ of the slice's default full page load. */}
       <NotificationInbox
-        onNavigate={(href) => router.push(href)}
-        className="flex max-h-[70vh] w-full flex-col"
+ onNavigate={(href) => router.push(href)}
+ className="flex max-h-[70vh] w-full flex-col"
       />
     </div>
   );

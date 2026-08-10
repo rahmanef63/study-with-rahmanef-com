@@ -7,7 +7,6 @@ export const COMMUNITY_KREATOR_KONTEN: SeedCommunity = {
   description:
     "Bikin konten konsisten pakai bantuan AI — ide, skrip, dan caption tanpa buntu.",
   track: "konten",
-  coverImageUrl: "https://picsum.photos/seed/kreator-konten/1200/400",
   courses: [
     {
       slug: "ide-konten",

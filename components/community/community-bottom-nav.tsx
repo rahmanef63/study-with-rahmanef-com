@@ -71,15 +71,27 @@ const OVERFLOW_TABS = COMMUNITY_TABS.filter((tab) => !PRIMARY_KEYS.includes(tab.
 // desktop-only.
 const READING_SURFACE = /\/kelas\/[^/]+\/[^/]+/;
 
-/** Height of the bar itself, before the safe-area inset. Shared with the spacer. */
-const BAR_H = "3.5rem";
+/**
+ * Height of the bar itself, before the safe-area inset. Shared with the spacer.
+ *
+ * 49px = the iOS tab bar (49pt), down from the 56px Material height this used
+ * to be. Seven pixels sounds like nothing; it is seven pixels of course card,
+ * on every single screen of the app, forever — and 49 still clears the 44px
+ * target floor on its own, before the safe-area inset is added below.
+ */
+const BAR_H = "3.0625rem";
 
-// 56px tall × ≥64px wide at 320px — comfortably past the 44px target floor.
-// Label is the BODY face: Press Start 2P at nav size is unreadable and ~2x wide.
-// The 9px step below 360px is what keeps "Peringkat" whole on a 320px screen;
-// above that it goes back to 10px.
+// ≥64px wide at 320px. Label is the BODY face: Press Start 2P at nav size is
+// unreadable and ~2x wide. The 9px step below 360px is what keeps "Peringkat"
+// whole on a 320px screen; above that it goes back to 10px.
 const cellClass =
-  "pixel-press relative flex flex-col items-center justify-center gap-1 px-0.5 text-[0.5625rem] leading-none tracking-tight min-[360px]:px-1 min-[360px]:text-[0.625rem]";
+  "pixel-press relative flex flex-col items-center justify-center gap-0.5 px-0.5 text-[0.5625rem] leading-none tracking-tight min-[360px]:px-1 min-[360px]:text-[0.625rem]";
+
+// The active cell is a lit coin slot, not a tinted label: gold text, a gold
+// wash, and a hard 2px gold cap. Three signals, because the one thing a tab bar
+// must never be is ambiguous about where you are.
+const activeCell = "bg-primary/10 font-medium text-primary";
+const idleCell = "text-muted-foreground";
 
 export function CommunityBottomNav({ slug }: { slug: string }) {
   const pathname = usePathname();
@@ -123,7 +135,7 @@ export function CommunityBottomNav({ slug }: { slug: string }) {
                 <Link
                   href={tab.href(slug)}
                   aria-current={active ? "page" : undefined}
-                  className={cn(cellClass, active ? "text-primary" : "text-muted-foreground")}
+                  className={cn(cellClass, active ? activeCell : idleCell)}
                   style={{ minHeight: BAR_H }}
                 >
                   {active ? <span aria-hidden className="absolute inset-x-0 top-0 h-0.5 bg-primary" /> : null}
@@ -139,7 +151,7 @@ export function CommunityBottomNav({ slug }: { slug: string }) {
               onClick={() => setMoreOpen(true)}
               aria-expanded={moreOpen}
               aria-haspopup="dialog"
-              className={cn(cellClass, "w-full", moreActive ? "text-primary" : "text-muted-foreground")}
+              className={cn(cellClass, "w-full", moreActive ? activeCell : idleCell)}
               style={{ minHeight: BAR_H }}
             >
               {moreActive ? <span aria-hidden className="absolute inset-x-0 top-0 h-0.5 bg-primary" /> : null}

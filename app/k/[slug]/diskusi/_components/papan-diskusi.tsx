@@ -31,6 +31,16 @@ export function PapanDiskusi({
       postHref={(postId) => communityHref.post(slug, postId)}
       profileHref={(username) => communityHref.profile(username)}
       loginHref={`/masuk?next=${encodeURIComponent(communityHref.diskusi(slug))}`}
+      // The logged-out gate is now the FIRST thing on the phone feed, since
+      // this page's own title block is gone — so its words are worth 40px.
+      // The slice's default title runs to two full Press Start 2P lines and
+      // the hint to three; these say the same thing in one and two. The
+      // gate's HEIGHT is structural and lives in slices/posts (FeedView) —
+      // reported upward; `copy` is the only lever a consumer is given.
+      copy={{
+        gateTitle: "Gabung untuk menulis",
+        gateHint: "Baca bebas untuk siapa saja. Menulis, menyukai, dan membalas khusus anggota.",
+      }}
     />
   );
 }

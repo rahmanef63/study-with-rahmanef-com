@@ -14,80 +14,80 @@ import { SectionHeader } from "@/components/mockup-kit";
 import { KelolaEmpty, KelolaSkeleton } from "./kelola-parts";
 
 const rowClass =
-  "flex min-h-11 w-full items-center gap-3 rounded-xl border bg-card px-4 py-3 text-left transition-colors hover:border-primary/40 hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+  "flex min-h-11 w-full items-center gap-3 border bg-card px-4 py-3 text-left transition-colors hover:border-primary/40 hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 const rowIconClass =
-  "grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary";
+  "grid size-9 shrink-0 place-items-center bg-primary/10 text-primary";
 
 const backButtonClass = "-ml-2 min-h-11 text-muted-foreground @sm:min-h-9";
 
 export function KelolaKuisTab({ tenantId }: { tenantId: Id<"tenants"> }) {
-  const [courseId, setCourseId] = useState<Id<"courses"> | null>(null);
-  const [moduleId, setModuleId] = useState<Id<"modules"> | null>(null);
+ const [courseId, setCourseId] = useState<Id<"courses"> | null>(null);
+ const [moduleId, setModuleId] = useState<Id<"modules"> | null>(null);
 
-  if (courseId === null) {
-    return (
+ if (courseId === null) {
+ return (
       <CoursePicker
-        tenantId={tenantId}
-        onSelect={(id) => {
-          setModuleId(null);
-          setCourseId(id);
+ tenantId={tenantId}
+ onSelect={(id) => {
+ setModuleId(null);
+ setCourseId(id);
         }}
       />
     );
   }
 
-  if (moduleId === null) {
-    return (
+ if (moduleId === null) {
+ return (
       <ModulePicker courseId={courseId} onBack={() => setCourseId(null)} onSelect={setModuleId} />
     );
   }
 
-  return (
+ return (
     <div className="space-y-4">
       <Button
-        variant="ghost"
-        size="sm"
-        className={backButtonClass}
-        onClick={() => setModuleId(null)}
+ variant="ghost"
+ size="sm"
+ className={backButtonClass}
+ onClick={() => setModuleId(null)}
       >
         <ArrowLeft aria-hidden /> Pilih modul lain
       </Button>
       <QuizBuilderView
-        moduleId={moduleId}
-        courseId={courseId}
-        tenantId={tenantId}
-        onDeleted={() => setModuleId(null)}
+ moduleId={moduleId}
+ courseId={courseId}
+ tenantId={tenantId}
+ onDeleted={() => setModuleId(null)}
       />
     </div>
   );
 }
 
 function CoursePicker({
-  tenantId,
-  onSelect,
+ tenantId,
+ onSelect,
 }: {
-  tenantId: Id<"tenants">;
-  onSelect: (id: Id<"courses">) => void;
+ tenantId: Id<"tenants">;
+ onSelect: (id: Id<"courses">) => void;
 }) {
-  const courses = useManageCourses(tenantId);
-  if (courses === undefined) return <KelolaSkeleton />;
-  if (courses.length === 0) {
-    return (
+ const courses = useManageCourses(tenantId);
+ if (courses === undefined) return <KelolaSkeleton />;
+ if (courses.length === 0) {
+ return (
       <KelolaEmpty
-        icon={ListChecks}
-        title="Belum ada kelas"
-        body="Buat kelas dulu di tab Kelas sebelum menyusun kuis."
+ icon={ListChecks}
+ title="Belum ada kelas"
+ body="Buat kelas dulu di tab Kelas sebelum menyusun kuis."
       />
     );
   }
-  return (
+ return (
     <section className="space-y-4">
       <SectionHeader
-        eyebrow="Studio kuis"
-        title="Pilih kelas"
-        as="h3"
-        actions={
+ eyebrow="Studio kuis"
+ title="Pilih kelas"
+ as="h3"
+ actions={
           <span className="text-sm text-muted-foreground">
             Kuis dikelola per modul. Pilih kelasnya dulu.
           </span>
@@ -113,26 +113,26 @@ function CoursePicker({
 }
 
 function ModulePicker({
-  courseId,
-  onBack,
-  onSelect,
+ courseId,
+ onBack,
+ onSelect,
 }: {
-  courseId: Id<"courses">;
-  onBack: () => void;
-  onSelect: (id: Id<"modules">) => void;
+ courseId: Id<"courses">;
+ onBack: () => void;
+ onSelect: (id: Id<"modules">) => void;
 }) {
-  const tree = useCourseTree(courseId);
-  if (tree === undefined) return <KelolaSkeleton />;
-  return (
+ const tree = useCourseTree(courseId);
+ if (tree === undefined) return <KelolaSkeleton />;
+ return (
     <section className="space-y-4">
       <Button variant="ghost" size="sm" className={backButtonClass} onClick={onBack}>
         <ArrowLeft aria-hidden /> Pilih kelas lain
       </Button>
       <SectionHeader
-        eyebrow="Kuis"
-        title={tree.course.title}
-        as="h3"
-        actions={
+ eyebrow="Kuis"
+ title={tree.course.title}
+ as="h3"
+ actions={
           <span className="text-sm text-muted-foreground">
             Pilih modul untuk menyusun kuisnya.
           </span>
@@ -140,9 +140,9 @@ function ModulePicker({
       />
       {tree.modules.length === 0 ? (
         <KelolaEmpty
-          icon={ListChecks}
-          title="Belum ada modul"
-          body="Tambahkan modul di editor kelas dulu, lalu susun kuisnya di sini."
+ icon={ListChecks}
+ title="Belum ada modul"
+ body="Tambahkan modul di editor kelas dulu, lalu susun kuisnya di sini."
         />
       ) : (
         <ul className="grid gap-2 @2xl:grid-cols-2">

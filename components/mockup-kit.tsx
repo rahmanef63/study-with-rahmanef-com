@@ -11,7 +11,7 @@
 // Home: shared by the Dashboard chrome AND every app view (os-shell + slice views),
 // so it lives in @/components (importable from both without a slice dependency edge).
 import type { ReactNode } from "react";
-import { Search, ChevronDown, LayoutGrid, List } from "lucide-react";
+import { Search, LayoutGrid, List } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /** Page hero — eyebrow + display title + optional lead + slot (search / actions).
@@ -223,14 +223,13 @@ export function FilterChip({
       className={cn(
         // min-h-11 on a phone: a 36px chip is under the 44px floor and these are the
         // primary filter on the most-tapped page in the app.
-        "inline-flex items-center gap-1.5 border-2 px-3.5 py-1.5 text-[13px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring min-h-11 @sm:min-h-9",
+        "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap border-2 px-3.5 py-1.5 text-[13px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring min-h-11 @sm:min-h-9",
         active
           ? "border-primary/40 bg-primary/10 text-primary"
           : "border-border text-muted-foreground hover:text-foreground",
       )}
     >
       {label}
-      <ChevronDown className="size-3.5 opacity-60" aria-hidden />
     </button>
   );
 }

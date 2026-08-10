@@ -42,7 +42,6 @@ function LessonBody({ tenantId, slug, courseSlug, lessonId }: Props & { tenantId
       <GabungDulu
         tenantId={tenantId}
         nextHref={communityHref.lesson(slug, courseSlug, lessonId)}
-        title="Materi ini untuk anggota"
         description="Gabung komunitasnya dulu — gratis — lalu materinya langsung kebuka 🌱"
       />
     );

@@ -7,6 +7,11 @@
 // §6 forbids exposing anonymously), and server components here are permanently
 // anonymous. Both reads stay "skip" until membership is CONFIRMED, so a stranger
 // never fires a call that would throw NOT_AUTHORIZED into app/error.tsx.
+//
+// Screen order, top to bottom: YOUR score, then the board, then the rules. One
+// primary thing (your standing), one list, one footnote — instead of the old
+// eyebrow + title + badge + panel + rule box + column labels + ten cards, which
+// spent ~200px before the first rank appeared.
 import Link from "next/link";
 import { useQuery } from "convex/react";
 import { Trophy } from "lucide-react";
@@ -22,13 +27,20 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge, SectionHeader } from "@/components/mockup-kit";
 import { useCurrentProfile } from "@/features/profiles";
 import { useMyMembership } from "@/features/tenants";
 import { communityHref } from "@/lib/community";
 import { GabungDulu } from "../../_components/gabung-dulu";
-import { BarisSkor, SKOR_GRID } from "./baris-skor";
+import { InsetList } from "../../_components/inset-list";
+import { BarisSkor } from "./baris-skor";
 import { KartuSkorSaya } from "./kartu-skor-saya";
+
+// The owner's explicit call (PRD §2.1, DECISIONS #30): points rank people, they
+// never ration learning. It used to sit BETWEEN the score panel and the board,
+// interrupting the one thing a player came to read. As the list's footer it is
+// still unmissable and now reads as what it is — the rules of the list above it.
+const ATURAN =
+  "1 suka = 1 poin. Level cuma penanda keaktifan — tidak ada kelas atau materi yang dikunci di balik level, semuanya tetap gratis untuk semua anggota.";
 
 export function PapanSkor({ tenantId, slug }: { tenantId: Id<"tenants">; slug: string }) {
   const { membership, isAuthenticated, isAuthLoading } = useMyMembership(tenantId);
@@ -42,7 +54,7 @@ export function PapanSkor({ tenantId, slug }: { tenantId: Id<"tenants">; slug: s
     return (
       <div className="space-y-3" aria-busy>
         <span className="sr-only">Memuat papan skor…</span>
-        <Skeleton className="h-32 w-full" />
+        <Skeleton className="h-28 w-full" />
         <Skeleton className="h-14 w-full" />
         <Skeleton className="h-14 w-full" />
       </div>
@@ -55,30 +67,14 @@ export function PapanSkor({ tenantId, slug }: { tenantId: Id<"tenants">; slug: s
       <GabungDulu
         tenantId={tenantId}
         nextHref={communityHref.peringkat(slug)}
-        title="Gabung dulu untuk lihat papan skor"
         description="Peringkat menampilkan sesama anggota, jadi hanya terbuka untuk anggota komunitas."
       />
     );
   }
 
   return (
-    <section className="space-y-5">
-      <SectionHeader
-        eyebrow="Hi-Score"
-        title="Papan skor"
-        actions={
-          papan && papan.length > 0 ? <Badge tone="muted">{papan.length} pemain</Badge> : undefined
-        }
-      />
-
+    <div className="space-y-4">
       <KartuSkorSaya mine={skorSaya} />
-
-      {/* The owner's explicit call (PRD §2.1, DECISIONS #30): points rank people,
-          they never ration learning. Say it here so nobody grinds for access. */}
-      <p className="border-l-2 border-accent bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-        1 suka = 1 poin. Level cuma penanda keaktifan — tidak ada kelas atau materi yang dikunci di
-        balik level, semuanya tetap gratis untuk semua anggota.
-      </p>
 
       {papan === undefined ? (
         <div className="space-y-2" aria-busy>
@@ -90,38 +86,36 @@ export function PapanSkor({ tenantId, slug }: { tenantId: Id<"tenants">; slug: s
       ) : papan.length === 0 ? (
         <PapanKosong slug={slug} />
       ) : (
-        <div className="space-y-2">
-          <div className={`${SKOR_GRID} px-3 pb-1`}>
-            <span className="eyebrow text-[0.5rem]">#</span>
-            <span className="eyebrow text-[0.5rem]">Pemain</span>
-            <span className="eyebrow text-right text-[0.5rem]">Poin</span>
-          </div>
-          <ol className="space-y-2">
-            {papan.map((entry) => (
-              <BarisSkor
-                key={entry.username}
-                entry={entry}
-                isMe={profile?.username === entry.username}
-              />
-            ))}
-          </ol>
-        </div>
+        // No "#/Pemain/Poin" column strip: a numeral, a face and a number on the
+        // right need no headings, and the strip cost a row's worth of height to
+        // label three self-evident columns.
+        <InsetList as="ol" caption={`${papan.length} pemain`} footer={ATURAN}>
+          {papan.map((entry) => (
+            <BarisSkor
+              key={entry.username}
+              entry={entry}
+              isMe={profile?.username === entry.username}
+            />
+          ))}
+        </InsetList>
       )}
-    </section>
+    </div>
   );
 }
 
 function PapanKosong({ slug }: { slug: string }) {
   return (
-    <Empty className="border-2 border-dashed">
-      <EmptyHeader>
-        <EmptyMedia variant="icon">
+    <Empty className="gap-4 border-2 border-dashed p-5 md:p-8">
+      <EmptyHeader className="gap-1.5">
+        <EmptyMedia variant="icon" className="mb-0 size-9">
           <Trophy aria-hidden />
         </EmptyMedia>
-        <EmptyTitle className="font-display text-xs uppercase">Belum ada skor</EmptyTitle>
+        <EmptyTitle className="font-display text-xs uppercase leading-relaxed">
+          Belum ada skor
+        </EmptyTitle>
         <EmptyDescription className="text-pretty">
-          Komunitas ini masih muda dan belum ada yang mengumpulkan poin. Mulai dengan menulis di
-          Diskusi — setiap suka yang kamu terima bernilai 1 poin.
+          Belum ada yang mengumpulkan poin di sini. Mulai dengan menulis di Diskusi — setiap suka
+          yang kamu terima bernilai 1 poin.
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>

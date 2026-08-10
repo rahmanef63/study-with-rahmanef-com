@@ -21,11 +21,11 @@ const BASE = process.env.PWA_SHOT_URL ?? "http://localhost:3000";
 
 const SHOTS = [
   // Pixel-7 class viewport — the device this product is actually used on.
-  // The narrow shot IS the Android rich-install card. "/" redirects to the
-  // Kelas grid, where two of three visible cards are the empty-cover
-  // checkerboard fallback — the install prompt would advertise a product that
-  // looks unfinished. Diskusi is text-dense and renders honestly at 412px.
-  { file: "narrow.png", path: "/k/belajar-ai/diskusi", width: 412, height: 915 },
+  // The narrow shot IS the Android rich-install card, so it shows the product:
+  // the Kelas grid, two columns of procedural cabinet art. It was temporarily
+  // pointed at Diskusi while every course card was an empty-cover
+  // checkerboard; slices/courses/lib/cover-art.ts ended that.
+  { file: "narrow.png", path: "/", width: 412, height: 915 },
   { file: "wide.png", path: "/", width: 1280, height: 720 },
 ];
 

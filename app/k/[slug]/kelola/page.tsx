@@ -12,22 +12,22 @@ import { KelolaConsole } from "./_components/kelola-console";
 type Params = { slug: string };
 
 export const metadata: Metadata = {
-  title: "Kelola",
+ title: "Kelola",
   // A private admin surface: nothing here should ever reach an index.
-  robots: { index: false },
+ robots: { index: false },
 };
 
 async function Console({ params }: { params: Promise<Params> }) {
-  const { slug } = await params;
-  const tenant = await safeQuery(api.features.tenants.queries.getPublicBySlug, { slug });
+ const { slug } = await params;
+ const tenant = await safeQuery(api.features.tenants.queries.getPublicBySlug, { slug });
   // Unknown or inactive slug — same 404 the layout gives, so a mistyped URL
   // never renders an empty console.
-  if (tenant === null) notFound();
-  return <KelolaConsole tenantId={tenant._id} slug={tenant.slug} />;
+ if (tenant === null) notFound();
+ return <KelolaConsole tenantId={tenant._id} slug={tenant.slug} />;
 }
 
 export default function KelolaPage({ params }: { params: Promise<Params> }) {
-  return (
+ return (
     // @container: the management views mounted below size themselves with
     // container queries (a leftover of the windowed shell), so this page has to
     // declare the container they resolve against — the layout's <main> is not one.
@@ -40,8 +40,8 @@ export default function KelolaPage({ params }: { params: Promise<Params> }) {
         </p>
       </header>
       {/* Reading params + the tenant lookup are both dynamic under
-          cacheComponents, so they live in their own boundary. */}
-      <Suspense fallback={<Skeleton className="h-64 w-full rounded-xl" />}>
+ cacheComponents, so they live in their own boundary. */}
+      <Suspense fallback={<Skeleton className="h-64 w-full " />}>
         <Console params={params} />
       </Suspense>
     </div>

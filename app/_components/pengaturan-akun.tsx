@@ -21,13 +21,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 function Avatar({ url, className }: { url: string | null; className?: string }) {
-  if (url) {
+ if (url) {
     // eslint-disable-next-line @next/next/no-img-element -- external OAuth avatar, no next/image
-    return <img src={url} alt="" className={cn("object-cover", className)} />;
+ return <img src={url} alt="" className={cn("object-cover", className)} />;
   }
-  return (
+ return (
     <span
-      className={cn("grid place-items-center bg-primary/15 text-primary", className)}
+ className={cn("grid place-items-center bg-primary/15 text-primary", className)}
     >
       <CircleUser className="size-[62%]" aria-hidden />
     </span>
@@ -35,20 +35,20 @@ function Avatar({ url, className }: { url: string | null; className?: string }) 
 }
 
 export function PengaturanAkun() {
-  const { profile, isAuthenticated, isLoading } = useCurrentProfile();
-  const { signOut } = useAuthFlow();
-  const router = useRouter();
+ const { profile, isAuthenticated, isLoading } = useCurrentProfile();
+ const { signOut } = useAuthFlow();
+ const router = useRouter();
 
-  if (isLoading) {
-    return (
+ if (isLoading) {
+ return (
       <div className="flex flex-col gap-3" aria-busy="true">
-        <Skeleton className="h-16 w-full rounded-xl" />
+        <Skeleton className="h-16 w-full " />
       </div>
     );
   }
 
-  if (!isAuthenticated) {
-    return (
+ if (!isAuthenticated) {
+ return (
       <Empty className="border">
         <EmptyHeader>
           <EmptyMedia variant="icon">
@@ -68,10 +68,10 @@ export function PengaturanAkun() {
     );
   }
 
-  const name = profile?.displayName ?? "Akun";
+ const name = profile?.displayName ?? "Akun";
 
-  return (
-    <div className="flex flex-wrap items-center gap-3 rounded-xl border bg-card p-3">
+ return (
+    <div className="flex flex-wrap items-center gap-3 border bg-card p-3">
       <Avatar url={profile?.avatarUrl ?? null} className="size-11" />
       <div className="min-w-0 flex-1">
         <p className="truncate font-medium">{name}</p>
@@ -85,15 +85,15 @@ export function PengaturanAkun() {
         </span>
       ) : null}
       <Button
-        variant="outline"
-        size="sm"
-        className="shrink-0 gap-1.5"
-        onClick={async () => {
-          await signOut();
-          toast("Kamu sudah keluar.");
+ variant="outline"
+ size="sm"
+ className="shrink-0 gap-1.5"
+ onClick={async () => {
+ await signOut();
+ toast("Kamu sudah keluar.");
           // Members-only views cached in this tree still hold the old session's
           // data until the router re-renders them as anonymous.
-          router.refresh();
+ router.refresh();
         }}
       >
         <LogOut className="size-4" aria-hidden /> Keluar

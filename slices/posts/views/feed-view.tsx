@@ -100,16 +100,20 @@ export function FeedView({
           copy={copyOverride}
         />
       ) : (
-        <div className="flex flex-wrap items-center justify-between gap-3 border-2 border-dashed border-border p-4">
-          <div className="min-w-0 space-y-1">
-            <p className="font-display text-xs uppercase tracking-wide">{copy.gateTitle}</p>
-            <p className="text-xs text-muted-foreground">{copy.gateHint}</p>
-          </div>
-          {/* The only way into the feed for a logged-out visitor — it cannot be
-              a 32px target on the app's most-tapped page. */}
-          <Button asChild size="sm" className="min-h-11 @sm:min-h-9">
-            <Link href={loginHref}>{copy.gateAction}</Link>
-          </Button>
+        // One 44px row, not a 160px dashed panel. This is a NOTICE ("reading is
+        // free, writing needs an account"), not the screen's job — it used to
+        // push the first post to y=404 on a 390px phone, 48% of the fold, and
+        // its gold button shouted the same word as the gold Join in the sticky
+        // nav bar 150px above it. Quiet link + one line: the primary action
+        // stays where the nav bar already put it.
+        <div className="flex min-h-11 items-center justify-between gap-3 border-b border-border pb-2">
+          <p className="min-w-0 truncate text-xs text-muted-foreground">{copy.gateHint}</p>
+          <Link
+            href={loginHref}
+            className="shrink-0 text-xs font-medium text-primary underline-offset-4 hover:underline"
+          >
+            {copy.gateAction}
+          </Link>
         </div>
       )}
 

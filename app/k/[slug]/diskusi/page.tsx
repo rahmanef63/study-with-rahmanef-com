@@ -55,9 +55,9 @@ async function DiskusiBody({
   // unreachable — say so instead of rendering an empty page.
   if (tenant === null) {
     return (
-      <Empty className="border-2">
-        <EmptyHeader>
-          <EmptyTitle className="font-display text-xs uppercase">
+      <Empty className="gap-4 border-2 p-5 md:p-8">
+        <EmptyHeader className="gap-1.5">
+          <EmptyTitle className="font-display text-xs uppercase leading-relaxed">
             Diskusi belum bisa dimuat
           </EmptyTitle>
           <EmptyDescription className="text-pretty">
@@ -94,27 +94,29 @@ export default async function DiskusiPage({
   searchParams: Promise<Search>;
 }) {
   const { slug } = await params;
+  // No title block. The eyebrow "Papan diskusi" + h1 "Diskusi" + a two-line
+  // description cost ~150px in front of the kind chips, and the chips are the
+  // control this screen exists for: choosing between Semua / Diskusi /
+  // Pengumuman / Usulan / Sumber is the first thing anyone does here. The tab
+  // bar already names the page, and every one of those five chips is a plainer
+  // statement of "pertanyaan, pengumuman, usulan, dan sumber belajar" than the
+  // sentence was. The wording survives where it still does work: the <title>
+  // and the OG description in generateMetadata above.
+  //
+  // The layout's <h1> (the community name) is still the page's heading, so
+  // nothing here is left headingless.
   return (
-    <div className="space-y-6">
-      <header className="space-y-2">
-        <span className="eyebrow">Papan diskusi</span>
-        <h1 className="text-base @sm:text-lg">{FEED_TITLE}</h1>
-        <p className="max-w-2xl text-pretty text-sm text-muted-foreground">
-          {FEED_DESCRIPTION}
-        </p>
-      </header>
-      {/* Own boundary: the awaited etalase reads are dynamic (cacheComponents). */}
-      <Suspense
-        fallback={
-          <div className="space-y-3" aria-busy>
-            <Skeleton className="h-28 w-full" />
-            <Skeleton className="h-40 w-full" />
-            <Skeleton className="h-40 w-full" />
-          </div>
-        }
-      >
-        <DiskusiBody slug={slug} searchParams={searchParams} />
-      </Suspense>
-    </div>
+    // Own boundary: the awaited etalase reads are dynamic (cacheComponents).
+    <Suspense
+      fallback={
+        <div className="space-y-3" aria-busy>
+          <Skeleton className="h-28 w-full" />
+          <Skeleton className="h-40 w-full" />
+          <Skeleton className="h-40 w-full" />
+        </div>
+      }
+    >
+      <DiskusiBody slug={slug} searchParams={searchParams} />
+    </Suspense>
   );
 }

@@ -19,6 +19,13 @@ export type JoinButtonProps = {
   loginHref?: string;
   labels?: Partial<TenantLabels["join"]>;
   roleLabels?: TenantLabels["roles"];
+  /**
+   * Visual weight. `default` is the coin-gold primary. Pass `outline` when a
+   * primary Join is ALREADY on the same screen — the sticky community nav bar
+   * carries one on every phone page, and two gold controls shouting the same
+   * action means neither is the primary.
+   */
+  variant?: "default" | "outline";
   className?: string;
 };
 
@@ -27,6 +34,7 @@ export function JoinButton({
   loginHref = "/masuk",
   labels,
   roleLabels,
+  variant = "default",
   className,
 }: JoinButtonProps) {
   const t = { ...DEFAULT_TENANT_LABELS.join, ...labels };
@@ -39,7 +47,7 @@ export function JoinButton({
 
   if (!isAuthenticated) {
     return (
-      <Button asChild className={cn("min-h-11 @sm:min-h-9", className)}>
+      <Button asChild variant={variant} className={cn("min-h-11 @sm:min-h-9", className)}>
         <Link href={loginHref}>{t.loginFirst}</Link>
       </Button>
     );
@@ -56,6 +64,7 @@ export function JoinButton({
 
   return (
     <Button
+      variant={variant}
       className={cn("min-h-11 @sm:min-h-9", className)}
       disabled={isPending}
       onClick={() => void join({ tenantId })}

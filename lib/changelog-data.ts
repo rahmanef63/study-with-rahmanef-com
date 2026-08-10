@@ -27,6 +27,20 @@ export type ChangelogEntry = {
 // NEWEST FIRST. Prepend here on every update.
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-08-10",
+    version: "v2.5",
+    title: "Tampilan HP dirombak jadi aplikasi",
+    tags: ["Tampilan", "Baru"],
+    points: [
+      "Setiap kelas sekarang punya sampul sendiri — gambar piksel ala kabinet arcade yang dibuat otomatis dari nama kelasnya. Kelas baru dapat sampulnya sendiri tanpa perlu unggah apa pun.",
+      "Daftar kelas di HP jadi dua kolom. Sebelumnya satu kolom, dan hanya dua kelas yang kelihatan sebelum harus scroll — sekarang keenamnya muat dalam satu layar.",
+      "Bagian atas layar dipangkas dari 261 piksel jadi 96, dan mengecil jadi 54 saat kamu scroll — seperti aplikasi iOS. Nama komunitas, logo, deskripsi panjang, dan baris tombol yang menumpuk di atas sudah dirapikan atau dipindah ke Tentang.",
+      "Papan Diskusi: kotak ajakan gabung yang memakan tempat diganti satu baris, dan filter kategorinya jadi satu baris yang bisa digeser.",
+      "Halaman yang khusus anggota tidak lagi menampilkan kotak besar berisi penjelasan — cukup satu kalimat dan satu tombol.",
+      "Judul kelas di HP memakai huruf yang lebih mudah dibaca, jadi tidak terpotong lagi.",
+    ],
+  },
+  {
     date: "2026-08-09",
     version: "v2.4",
     title: "Bisa dipasang di HP",

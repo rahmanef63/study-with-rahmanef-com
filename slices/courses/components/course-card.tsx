@@ -1,11 +1,19 @@
 // courses slice — public etalase card (consumed by landing #5 + tenant home).
-// Cover uses a background-image div (not next/image) because remote image
-// domains need next.config.mjs remotePatterns — an integrator surface.
-// TODO(rr): propose remotePatterns to alpha, then upgrade to next/image.
+//
+// Phone-first. At ~171px wide (the 2-column phone grid) the card is cover +
+// title + progress and NOTHING else: the description is the first thing to go
+// because it pushes the next class off the screen and nobody reads three lines
+// of blurb in a 171px column. Everything restores at @sm (the desktop card
+// keeps its h-28 cover, its blurb and its roomy padding).
+//
+// Container queries, not media queries: these cards are reused inside panels
+// and the community <main> is the @container.
 import Link from "next/link";
 import { Badge } from "@/components/mockup-kit";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardDescription, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import type { CourseCardData } from "../types";
+import { CourseCover } from "./course-cover";
 
 export type CourseCardProps = {
   course: CourseCardData;
@@ -22,42 +30,50 @@ export function CourseCard({ course, href, progress, className }: CourseCardProp
       ? Math.round((progress.completedCount / progress.totalCount) * 100)
       : null;
   return (
-    <Link href={href} className="block focus-visible:outline-none">
+    <Link
+      href={href}
+      className="block focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+    >
       <Card
-        className={
-          className
-            ? `h-full overflow-hidden transition-colors hover:border-primary/50 ${className}`
-            : "h-full overflow-hidden transition-colors hover:border-primary/50"
-        }
+        className={cn(
+          "h-full gap-0 overflow-hidden py-0 transition-colors hover:border-primary/50",
+          className,
+        )}
       >
-        {/* Cover art. With no image the fallback is a pixel checkerboard drawn
-            from two gradients — an owner who never sets a cover still gets
-            something that belongs on the cabinet, not a muddy blur. */}
-        <div
-          aria-hidden
-          className="h-28 w-full border-b-2 border-border bg-card bg-cover bg-center [image-rendering:pixelated]"
-          style={
-            course.coverImageUrl !== undefined
-              ? { backgroundImage: `url(${JSON.stringify(course.coverImageUrl)})` }
-              : {
-                  backgroundImage:
-                    "repeating-conic-gradient(color-mix(in oklab, var(--primary) 16%, transparent) 0% 25%, transparent 0% 50%)",
-                  backgroundSize: "16px 16px",
-                }
-          }
+        {/* 2:1 on a phone so the art is unmistakable at 171px but still leaves
+            the title above the fold; the desktop cover keeps its old h-28. */}
+        <CourseCover
+          slug={course.slug}
+          src={course.coverImageUrl}
+          className="aspect-[2/1] w-full border-b-2 border-border @sm:aspect-auto @sm:h-28"
         />
-        <CardHeader>
-          <CardTitle className="line-clamp-2 font-display text-xs leading-snug">
+        <div className="flex flex-col gap-1.5 p-2.5 @sm:gap-2 @sm:p-5">
+          {/* Three lines on a phone, two from @sm. Press Start 2P is a
+              full-width face: in the 173px phone column it fits ~15 glyphs a
+              line, so a 2-line clamp truncated FIVE of the six real course
+              titles ("Prompt Engineering…", "AI untuk Produktivitas…"). A card
+              you cannot read the name of is not a denser card, it is a worse
+              one. The third line costs 16px; six cards still clear the fold. */}
+          {/* BODY face on a phone, display face from @sm. Press Start 2P fits ~15
+              glyphs in a 173px column, so it was truncating 3 of 6 course names
+              — the single most important string on the screen. A display face
+              that stops you reading the content is decoration winning over
+              deference; the arcade voice still carries the cover badge, the
+              eyebrow and every heading. */}
+          <CardTitle className="line-clamp-2 text-sm font-medium leading-snug @sm:line-clamp-2 @sm:font-display @sm:text-xs @sm:font-normal @sm:leading-snug">
             {course.title}
           </CardTitle>
-          <CardDescription className="line-clamp-3 text-pretty">
-            {course.description}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          {/* The wrapper carries the hide/show; the clamp stays on the text.
+              Both on one element and `@sm:block` beats `line-clamp-3`'s own
+              `display:-webkit-box`, which silently unclamps the desktop card. */}
+          <div className="hidden @sm:block">
+            <CardDescription className="line-clamp-3 text-pretty">
+              {course.description}
+            </CardDescription>
+          </div>
           {pct !== null && progress ? (
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-2.5">
+            <div className="mt-0.5 space-y-1 @sm:mt-1 @sm:space-y-1.5">
+              <div className="flex items-center gap-2 @sm:gap-2.5">
                 <div
                   className="h-1.5 min-w-0 flex-1 overflow-hidden bg-muted"
                   role="progressbar"
@@ -70,12 +86,12 @@ export function CourseCard({ course, href, progress, className }: CourseCardProp
                 </div>
                 {pct === 100 ? <Badge tone="success">Selesai ✓</Badge> : null}
               </div>
-              <p className="text-xs tabular-nums text-muted-foreground">
+              <p className="text-[10px] tabular-nums text-muted-foreground @sm:text-xs">
                 {progress.completedCount}/{progress.totalCount} lesson selesai
               </p>
             </div>
           ) : null}
-        </CardContent>
+        </div>
       </Card>
     </Link>
   );

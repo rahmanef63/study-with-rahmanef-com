@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { BookOpen, ExternalLink, Users } from "lucide-react";
 import { api } from "@convex/_generated/api";
-import { Badge, SectionHeader, StatTile } from "@/components/mockup-kit";
+import { Badge, StatTile } from "@/components/mockup-kit";
+import { CourseCover } from "@/features/courses";
 import { TombolBagikan } from "@/components/tombol-bagikan";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -57,32 +58,36 @@ async function TentangBody({ slug }: { slug: string }) {
 
   return (
     <div className="space-y-6">
-      {tenant.coverImageUrl ? (
-        // Plain <img>: covers are owner-supplied URLs on arbitrary hosts and
-        // next.config.mjs only allowlists images.unsplash.com for next/image.
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={tenant.coverImageUrl}
-          alt=""
-          loading="lazy"
-          decoding="async"
-          className="h-40 w-full rounded-[var(--radius-win)] border border-border object-cover @md:h-56"
-        />
-      ) : null}
+      {/* Procedural cabinet art, the same generator the course cards use. The
+          seeds used to point this at picsum.photos — a third-party stock host
+          inside a product whose first law is zero running cost, dropping a
+          blurry photo of pencils on top of a pixel-art cabinet. An owner URL
+          still wins; the default is now on-brand and costs nothing. */}
+      <CourseCover
+        slug={tenant.slug}
+        src={tenant.coverImageUrl}
+        className="hidden h-40 w-full border-2 border-border @md:block @md:h-56"
+      />
 
       <div className="space-y-3">
-        <SectionHeader
-          eyebrow="Tentang komunitas"
-          title={tenant.name}
-          actions={tenant.track ? <Badge tone="accent">Track: {tenant.track}</Badge> : undefined}
-        />
+        {/* No title here. The community name is already the <h1> pinned to the
+            top of the screen on phone and the header h1 on desktop; repeating
+            it 266px below was the same fact rendered twice. The eyebrow keeps
+            the section labelled. */}
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="eyebrow">Tentang komunitas</span>
+          {tenant.track ? <Badge tone="accent">Track: {tenant.track}</Badge> : null}
+        </div>
         <p className="max-w-2xl whitespace-pre-line text-pretty text-muted-foreground">
           {tenant.description}
         </p>
       </div>
 
+      {/* Counts are in the nav subtitle on phone ("7 anggota · 6 kelas"), so the
+          tiles are desktop-only — on a phone they were a third rendering of two
+          numbers already on screen. */}
       {stats !== null ? (
-        <div className="grid gap-3 @sm:grid-cols-2">
+        <div className="hidden gap-3 @sm:grid @sm:grid-cols-2">
           <StatTile
             icon={<Users className="size-5" aria-hidden />}
             label="Anggota"

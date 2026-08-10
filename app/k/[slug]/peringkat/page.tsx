@@ -31,9 +31,9 @@ async function PeringkatBody({ slug }: { slug: string }) {
   const tenant = await safeQuery(api.features.tenants.queries.getPublicBySlug, { slug });
   if (tenant === null) {
     return (
-      <Empty className="border-2">
-        <EmptyHeader>
-          <EmptyTitle className="font-display text-xs uppercase">
+      <Empty className="gap-4 border-2 p-5 md:p-8">
+        <EmptyHeader className="gap-1.5">
+          <EmptyTitle className="font-display text-xs uppercase leading-relaxed">
             Papan skor belum bisa dimuat
           </EmptyTitle>
           <EmptyDescription className="text-pretty">
