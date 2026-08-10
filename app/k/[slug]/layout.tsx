@@ -73,7 +73,10 @@ export async function generateMetadata({
       title: tenant.name,
       description: tenant.description,
       url: absoluteUrl(communityHref.home(slug)),
-      images: tenant.coverImageUrl ? [{ url: tenant.coverImageUrl }] : undefined,
+      // No `images` here on purpose: the colocated opengraph-image.tsx supplies
+      // the card. Setting this key at all (even to undefined) is what suppressed
+      // the app-root fallback and left /k/<slug> with no card once the seeded
+      // stock covers were cleared.
     },
   };
 }
