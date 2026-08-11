@@ -3,8 +3,11 @@
 // else. The route layout that mounts it owns every read.
 //
 // TWO SHAPES, ONE NAV. At md and up a persistent 14/16rem rail with the content
-// beside it; below md the rail is gone and its contents live in the slide-over
-// behind <ShellTopBar/>. There is no tab strip and no bottom bar any more.
+// beside it. Below md the rail becomes a slide-over, and a four-cell DOCK sits
+// on the bottom edge as the shortcut to it — the rail is the map, the dock is
+// the thumb-reachable path to the places people actually go. The dock owns the
+// menu trigger, so there is exactly one way to open the panel and it is not in
+// the top-left corner.
 //
 // WHY THERE IS NO <ViewTransition> ANYWHERE NEAR THIS. It used to wrap the
 // whole document in app/layout.tsx, and React ran a full-page transition for
@@ -21,14 +24,19 @@ export const SHELL_GUTTER = "mx-auto w-full max-w-5xl px-4 md:px-6";
 export function AppShell({
   rail,
   topBar,
+  dock,
   heading,
   children,
 }: {
   /** The md+ sidebar body. Wrapped in <aside> here so its Suspense fallback
    *  inherits the same box and the frame cannot jump. */
   rail: React.ReactNode;
-  /** The below-md compact bar (which owns the slide-over copy of the nav). */
+  /** The below-md compact bar: community name and one action. */
   topBar: React.ReactNode;
+  /** The below-md bottom dock, which owns the slide-over copy of the nav and
+   *  its own in-flow spacer. Omitted on shells that have no community to dock
+   *  into (the account pages). */
+  dock?: React.ReactNode;
   /** Server-rendered <h1>. Above <main> so the reading order is right. */
   heading?: React.ReactNode;
   children: React.ReactNode;
@@ -53,6 +61,7 @@ export function AppShell({
         >
           {children}
         </main>
+        {dock}
       </div>
     </div>
   );

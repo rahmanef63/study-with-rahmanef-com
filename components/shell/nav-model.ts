@@ -8,25 +8,7 @@
 // tab strip used. Re-declaring those rows here would freeze them into a static
 // list and quietly regress that. All this file adds is the ICON per tab key and
 // the two sections the tab SSOT does not own (community tools, account).
-import {
-  Bell,
-  BookOpen,
-  CalendarDays,
-  Circle,
-  Compass,
-  Info,
-  Library,
-  MessagesSquare,
-  ScrollText,
-  Search,
-  Settings,
-  SlidersHorizontal,
-  Trophy,
-  UserRound,
-  Users,
-  Wand2,
-  type LucideIcon,
-} from "lucide-react";
+import { Bell, BookOpen, CalendarDays, Circle, Compass, Info, Library, Map, MessagesSquare, ScrollText, Search, Settings, SlidersHorizontal, Trophy, UserRound, Users, Wand2, type LucideIcon } from "lucide-react";
 import { communityHref } from "@/lib/community";
 
 /** One rail row. `icon` is a component, so this module is client-only — it is
@@ -71,7 +53,17 @@ export const ICON_KEYS = Object.keys(TAB_ICONS);
  * row. There is NO global /cari: that path 404s.
  */
 export function communityToolLinks(slug: string): ShellLink[] {
-  return [{ key: "cari", label: "Cari", href: communityHref.cari(slug), icon: Search }];
+  return [
+    { key: "cari", label: "Cari", href: communityHref.cari(slug), icon: Search },
+    // /mulai and /roadmap are GLOBAL, and they are listed here anyway. The
+    // owner could not find the assessment at all — "aku belum lihat card swipe
+    // left right itu" — because its only entry point was a client-only callout
+    // that rendered nothing during SSR. A door nobody can see is not a door.
+    // They sit under the community's own rows because that is where a member
+    // already is when they wonder what to learn next.
+    { key: "roadmap", label: "Roadmap", href: "/roadmap", icon: Map, exact: true },
+    { key: "peta", label: "Peta belajar", href: "/mulai", icon: Compass, exact: true },
+  ];
 }
 
 /** Instructor+ only — resolved in the browser, see shell-action.tsx. */

@@ -17,12 +17,7 @@
 // are tuned for the bottom-anchored, drag-to-dismiss idiom over content that
 // does not scroll. Radix Dialog gives the focus trap, Escape, restore-focus and
 // scroll lock for free.
-import { useCallback, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { Menu } from "lucide-react";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { useCloseAboveMd } from "@/components/shell";
-import { AccountNav } from "./account-nav";
 
 /** Matches BAR_H in components/shell/shell-top-bar.tsx. 52 + the 2px rule. */
 const BAR_H = "3.25rem";
@@ -42,45 +37,20 @@ const TITLES: Record<string, string> = {
   "/pengaturan": "Pengaturan",
 };
 
+// NO MENU TRIGGER HERE. It moved to <AccountDock/> on the bottom edge when the
+// dock came back, so the app has one phone-navigation model and one reachable
+// place to change screens. This bar is now just: where you are.
 export function AccountTopBar() {
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
-  const close = useCallback(() => setOpen(false), []);
   const title = TITLES[pathname] ?? "Belajar";
 
-  // Closes on navigation, including a browser Back out of the sheet — which the
-  // rows' own onClick handler alone would miss.
-  useEffect(() => setOpen(false), [pathname]);
-  // …and when the viewport grows past md, where the persistent rail takes over.
-  useCloseAboveMd(open, close);
 
   return (
     <header className="sticky top-0 z-30 border-b-2 bg-card pt-[var(--safe-t)] md:hidden">
       <div
-        className="mx-auto flex w-full max-w-5xl items-center gap-2 pr-4 pl-2"
+        className="mx-auto flex w-full max-w-5xl items-center gap-3 px-4"
         style={{ minHeight: BAR_H }}
       >
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger
-            aria-label="Buka navigasi"
-            className="pixel-press inline-flex size-11 shrink-0 items-center justify-center text-muted-foreground hover:text-foreground"
-          >
-            <Menu className="size-5" aria-hidden />
-          </SheetTrigger>
-          <SheetContent
-            side="left"
-            showCloseButton={false}
-            // Without this Radix logs a missing-describedby warning on open.
-            aria-describedby={undefined}
-            className="w-[17.5rem] gap-0 border-r-2 bg-sidebar p-0 sm:max-w-[17.5rem]"
-          >
-            <SheetTitle className="sr-only">Navigasi</SheetTitle>
-            <AccountNav
-              onNavigate={close}
-              className="pt-[calc(var(--safe-t)+0.75rem)] pl-[var(--safe-l)]"
-            />
-          </SheetContent>
-        </Sheet>
         {/* Body face, never Press Start 2P: the display face is DISPLAY-ONLY.
             aria-hidden because the page's own visible <h1> says the same thing
             a few pixels below. */}

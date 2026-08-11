@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Pixelify_Sans, Press_Start_2P } from "next/font/google";
+import { Press_Start_2P } from "next/font/google";
 import { ConvexClientProvider } from "@/components/convex-provider";
 import { VersionWatcher } from "@/components/version-watcher";
 import { LocalStoragePurge } from "@/components/local-storage-purge";
@@ -7,12 +7,22 @@ import { ServiceWorkerRegistrar } from "@/components/pwa/service-worker";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
-// Arcade type pair. Pixelify Sans is the body face — a pixel font that still
-// has real lowercase and word shapes, so a lesson paragraph stays readable.
-// Press Start 2P is the cabinet marquee: display sizes only (globals.css caps
-// h1/h2 with clamp() because every glyph is full-width and a normal display
-// scale would overflow a phone).
-const sans = Pixelify_Sans({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
+// ONE downloaded face, and it is the marquee only.
+//
+// Pixelify Sans used to be the BODY face on the argument that it "keeps real
+// lowercase and word shapes, so lesson prose stays legible". The owner read the
+// site and reported the opposite: "fontnya agak sulit dibaca". They are right,
+// and the argument was wrong in a specific way — a pixel face costs legibility
+// on every glyph, and body text is where the platform spends nearly all of its
+// glyphs. 128 materi of Bahasa-Indonesia prose is the product; the arcade
+// styling is the wrapper. When the wrapper starts taxing the product, the
+// wrapper loses.
+//
+// The identity is unharmed: Press Start 2P still carries every heading, the
+// brand, the eyebrows and the chrome, which is where a display face belongs.
+// Body text now uses the platform UI stack, which is hinted for the reader's
+// own screen, renders instantly with no swap, and downloads NOTHING — so this
+// change makes the site faster as well as readable.
 const display = Press_Start_2P({
   subsets: ["latin"],
   weight: "400",
@@ -119,7 +129,7 @@ const SAFE_AREA = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     // `dark` is permanent: one theme, no switcher (see globals.css).
-    <html lang="id" className={`dark ${sans.variable} ${display.variable}`}>
+    <html lang="id" className={`dark ${display.variable}`}>
       {/* `antialiased` is deliberately OFF: subpixel smoothing muddies a pixel
           font. The scanline overlay is a fixed pseudo-element on <body> — see
           .scanlines in globals.css. */}

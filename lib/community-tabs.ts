@@ -153,10 +153,34 @@ export function visibleCommunityTabs(
   return COMMUNITY_TABS.filter((tab) => tab.needs === undefined || signal[tab.needs]);
 }
 
-// GONE with the phone bottom bar (2026-08-11): `PHONE_BAR_SLOTS` and
-// `phoneBarTabs()`, which split this list into four visible cells plus a
-// "Lainnya" sheet. A rail has no cell budget — every row above is rendered, at
-// every width — so a splitter would now only be a second, quieter ordering that
-// could drift from this one. Whatever ranking argument the split encoded now
-// lives in the ORDER comment above, where it applies to the list people
-// actually see.
+/**
+ * The four destinations that earn a cell in the phone dock, best first.
+ *
+ * The dock was removed with the tab strip on 2026-08-11 and the owner asked for
+ * it back the same week — correctly. A rail behind a hamburger is fine on a
+ * desktop where it is always visible; on a phone it turns every navigation into
+ * two taps and puts the trigger in the top-left corner, the furthest point from
+ * a thumb. The rail still exists as the slide-over; the dock is the shortcut to
+ * the four places people actually go.
+ *
+ * SEPARATE from COMMUNITY_TABS order on purpose, and this is the one thing that
+ * could drift, so the reason is written here: the rail is a MAP and reads
+ * best in a stable, structural order (Kelas first, because a course is the
+ * unit a community is organised around). The dock is a SHORTCUT and ranks by
+ * traffic — materi is the thing people open, and the owner's whole last three
+ * waves were about making it so. `dockTabs` filters this against the same tab
+ * signal, so a hidden destination can never take a cell.
+ */
+const DOCK_PRIORITY = ["materi", "kelas", "diskusi", "skills", "anggota", "peringkat", "tentang"];
+
+/** DOCK_CELLS destinations for this tenant; the fifth cell is always Menu. */
+export const DOCK_CELLS = 4;
+
+export function dockTabs(signal?: TenantTabSignal): CommunityTab[] {
+  const visible = visibleCommunityTabs(signal);
+  const rank = (tab: CommunityTab) => {
+    const i = DOCK_PRIORITY.indexOf(tab.key);
+    return i === -1 ? DOCK_PRIORITY.length : i;
+  };
+  return [...visible].sort((a, b) => rank(a) - rank(b)).slice(0, DOCK_CELLS);
+}

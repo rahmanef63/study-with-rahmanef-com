@@ -5,6 +5,7 @@ import {
   AppShell,
   ShellNav,
   ShellRailSkeleton,
+  ShellDock,
   ShellTopBar,
   ShellTopBarSkeleton,
 } from "@/components/shell";
@@ -89,6 +90,12 @@ async function TopBarSlot({ slug }: Params) {
   return <ShellTopBar {...props} />;
 }
 
+async function DockSlot({ slug }: Params) {
+  const props = await navProps(slug);
+  if (props === null) return null;
+  return <ShellDock {...props} />;
+}
+
 /**
  * THE PAGE HEADING, server-rendered on every route under /k.
  *
@@ -133,6 +140,14 @@ export default async function CommunityLayout({
       topBar={
         <Suspense fallback={<ShellTopBarSkeleton />}>
           <TopBarSlot slug={slug} />
+        </Suspense>
+      }
+      dock={
+        // No fallback: the dock owns its own in-flow spacer, so a placeholder
+        // would reserve the space twice. A late dock slides up under content
+        // that has not moved.
+        <Suspense fallback={null}>
+          <DockSlot slug={slug} />
         </Suspense>
       }
       heading={

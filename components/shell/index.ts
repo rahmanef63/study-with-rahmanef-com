@@ -11,6 +11,8 @@
 // would put a member's navigation around a page whose whole job is to be read
 // by someone who is not one.
 export { AppShell, ShellRailSkeleton, SHELL_GUTTER } from "./app-shell";
+export { DockBar, DOCK_CELL_CLASS, type DockCell } from "./dock-bar";
+export { ShellDock } from "./shell-dock";
 export { ShellNav, type ShellNavProps } from "./shell-nav";
 export { ShellAccountNav } from "./shell-account-nav";
 export { ShellTopBar, ShellTopBarSkeleton } from "./shell-top-bar";

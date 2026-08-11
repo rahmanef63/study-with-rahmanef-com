@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { PETA_CODE_PARAM, PetaView } from "@/features/peta";
 import { Skeleton } from "@/components/ui/skeleton";
-import { absoluteUrl } from "@/lib/site";
 import { readCatalogue } from "./catalogue";
 
 // /mulai — the widest door into the product.
@@ -28,12 +27,9 @@ export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
   alternates: { canonical: "/mulai" },
-  openGraph: {
-    type: "website",
-    title: TITLE,
-    description: DESCRIPTION,
-    url: absoluteUrl("/mulai"),
-  },
+  // No `openGraph` key. Declaring one without `images` suppresses the inherited
+  // card, which is how /diskusi and /komunitas shipped with no og:image at all;
+  // this is the most shareable page on the site and must not repeat it.
 };
 
 function DeckSkeleton() {

@@ -28,6 +28,20 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-08-11",
+    version: "v3.1",
+    title: "Huruf yang enak dibaca, menu bawah kembali, dan halaman Roadmap",
+    tags: ["Tampilan", "Baru"],
+    points: [
+      "Teks isi materi tidak lagi memakai huruf piksel. Judul dan tombol tetap bergaya arcade, tapi paragraf yang kamu baca sekarang memakai huruf bawaan perangkatmu — lebih tajam, lebih cepat muncul, dan tidak perlu diunduh sama sekali.",
+      "Menu bawah kembali di HP: empat tujuan yang paling sering dibuka plus tombol Menu untuk sisanya, semuanya dalam jangkauan jempol. Tombol menu pindah dari pojok kiri atas ke bar bawah.",
+      "Halaman akun sekarang punya menu bawah yang sama, jadi cara berpindah halaman tidak berubah-ubah tergantung kamu sedang di mana.",
+      "Halaman Roadmap baru: seluruh jalur belajar dalam satu peta, dari nol sampai menjalankan beberapa agent. Bisa dibuka tanpa akun dan bisa dibagikan.",
+      "Peta belajar dan Roadmap sekarang ada di menu. Sebelumnya Peta belajar cuma bisa ditemukan lewat satu ajakan kecil yang bahkan tidak muncul di HTML awal — praktis tersembunyi.",
+      "Halaman Peta belajar juga sempat tidak punya gambar pratinjau saat dibagikan. Sekarang punya.",
+    ],
+  },
+  {
+    date: "2026-08-11",
     version: "v3.0",
     title: "Sidebar, dan halaman berhenti “terbuka dua kali”",
     tags: ["Tampilan", "Perbaikan"],

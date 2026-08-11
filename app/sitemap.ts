@@ -28,6 +28,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // acquisition channel that could carry the page a stranger most needs, and
     // leaving it out of the sitemap switched that channel off.
     { url: `${SITE_ORIGIN}/mulai`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${SITE_ORIGIN}/roadmap`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
   ];
 
   const tenants = (await safeQuery(api.features.tenants.queries.listActive, {})) ?? [];

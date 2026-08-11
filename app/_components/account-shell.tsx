@@ -41,11 +41,16 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { AppShell } from "@/components/shell";
 import { AccountNav } from "./account-nav";
+import { AccountDock } from "./account-dock";
 import { AccountTopBar } from "./account-top-bar";
 
 export function AccountShell({ children }: { children: React.ReactNode }) {
   return (
-    <AppShell rail={<AccountNav className="pt-3" />} topBar={<AccountTopBar />}>
+    <AppShell
+      rail={<AccountNav className="pt-3" />}
+      topBar={<AccountTopBar />}
+      dock={<AccountDock />}
+    >
       {/* No width cap and no second @container here. <main> (AppShell) supplies
           the gutter, the safe-area padding and a max-w-5xl outer cap; each page
           then declares its OWN reading width and its OWN `@container` — a
