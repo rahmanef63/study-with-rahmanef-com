@@ -337,145 +337,23 @@
   }
 }
 
-/* ── ROUTE TRANSITIONS ──────────────────────────────────────────────────────
-   Screens now MOVE. Forward pushes the new screen in from the right and slides
-   the old one out to the left; Back plays the same thing mirrored. That single
-   directional cue is what tells a thumb "you went deeper" vs "you came back",
-   and its absence is the loudest reason a PWA still reads as a website.
+/* ── ROUTE TRANSITIONS — DELETED 2026-08-11 ─────────────────────────────────
+   There is no document-level view transition any more, so there are no
+   ::view-transition-* rules left to write.
 
-   The three moving parts:
-     1. next.config.mjs `experimental.viewTransition: true` — required, this is
-        the flag that lets React's <ViewTransition> render in Next 16.
-     2. <ViewTransition> around {children} in app/layout.tsx — that is what puts
-        the router update inside document.startViewTransition(). Without it the
-        rules below never match anything.
-     3. <RouteDirection/> (components/ui/route-direction.tsx) publishes
-        `<html data-nav-dir="forward|back">` BEFORE the snapshot is taken, which
-        is the only reason a direction exists at all: Next passes transition
-        types for Link clicks but adds NOTHING for a browser Back, so the
-        history position has to be tracked by hand.
+   What was here: a universal `::view-transition-old(*)/new(*)` slide, plus two
+   reserved chrome names ("app-nav", "app-tabbar") that were never assigned to
+   any element. It was driven by <ViewTransition> around {children} in
+   app/layout.tsx and by <RouteDirection/>. Both are gone — see the comment at
+   that call site for the measurement. The short version: React ran a full-page
+   transition for EVERY transition update inside that boundary, Suspense reveals
+   included, so ONE tap played the whole-app entrance two or three times. That
+   is the "seperti terbuka 2 kali" the owner reported, and CSS could not reach
+   it (Next 16 emits no transition types, so the extra runs are unselectable).
 
-   The selector is the UNIVERSAL `::view-transition-old(*)`, not `(root)`, and
-   that is a measured decision: React gives the <ViewTransition> boundary a
-   GENERATED name (`_t_0_` in this build), so the page content is NOT part of
-   the `root` snapshot and rules written against `root` animate nothing but the
-   body background. `*` covers root, the generated name, and any name a sibling
-   introduces later. The reserved chrome names below then override it.
-
-   Not supported anywhere is fine: no view-transition support means an instant
-   swap, which is exactly today's behaviour. */
-@media (prefers-reduced-motion: no-preference) {
-  @supports (view-transition-name: none) {
-    /* Old and new overlap for the whole transition. The UA default is
-       `mix-blend-mode: plus-lighter`, which ADDS the two snapshots together —
-       on a near-black CRT palette that flashes the overlap grey. */
-    ::view-transition-old(*),
-    ::view-transition-new(*) {
-      mix-blend-mode: normal;
-    }
-    ::view-transition-old(*) {
-      animation: vt-exit-forward 170ms cubic-bezier(0.4, 0, 1, 1) both;
-    }
-    ::view-transition-new(*) {
-      animation: vt-enter-forward 220ms cubic-bezier(0, 0, 0.2, 1) both;
-    }
-    [data-nav-dir="back"]::view-transition-old(*) {
-      animation-name: vt-exit-back;
-    }
-    [data-nav-dir="back"]::view-transition-new(*) {
-      animation-name: vt-enter-back;
-    }
-    /* The group interpolates the OLD box into the NEW one. Two pages of very
-       different height would visibly squash during that morph, so the group
-       snaps and the two snapshots are pinned to their own top-left corner at
-       natural size instead of being stretched to fit. */
-    ::view-transition-group(*) {
-      animation: none;
-    }
-    ::view-transition-old(*),
-    ::view-transition-new(*) {
-      object-fit: none;
-      object-position: top left;
-    }
-
-    /* RESERVED NAMES — chrome that must NOT travel with the page.
-       A bottom tab bar that slides off screen with the content is the single
-       most obvious "this is fake" tell. A sibling opts an element out by
-       wrapping it in <ViewTransition name="app-tabbar"> (or "app-nav"); it then
-       gets its own snapshot, and these rules pin that snapshot in place.
-
-       Source order matters here: a named `::view-transition-old(app-nav)` and
-       the universal `::view-transition-old(*)` above carry the SAME
-       specificity, so these must stay last to win. */
-    ::view-transition-old(app-nav),
-    ::view-transition-old(app-tabbar) {
-      /* The outgoing copy would slide out over the identical incoming one and
-         read as a flicker. There is nothing to see: drop it. */
-      display: none;
-    }
-    ::view-transition-new(app-nav),
-    ::view-transition-new(app-tabbar) {
-      animation: none;
-    }
-  }
-
-  /* Percentages, not pixels: the slide should read the same on a 320px phone
-     and a 1280px desktop. The outgoing screen travels a THIRD as far as the
-     incoming one — parallax, the same trick UIKit uses, and the reason the
-     motion feels like paper stacking instead of two panels swapping. */
-  @keyframes vt-enter-forward {
-    from {
-      opacity: 0;
-      transform: translateX(4%);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-  @keyframes vt-exit-forward {
-    from {
-      opacity: 1;
-      transform: none;
-    }
-    to {
-      opacity: 0;
-      transform: translateX(-1.5%);
-    }
-  }
-  @keyframes vt-enter-back {
-    from {
-      opacity: 0;
-      transform: translateX(-4%);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-  @keyframes vt-exit-back {
-    from {
-      opacity: 1;
-      transform: none;
-    }
-    to {
-      opacity: 0;
-      transform: translateX(1.5%);
-    }
-  }
-}
-
-/* A HARD no-op under reduced motion, not a shortened animation: the universal
-   selector also kills the UA's own default cross-fade, which would otherwise
-   still run. `!important` because UA pseudo-element defaults are stubborn and
-   there is nothing in this codebase that should ever want to override it. */
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-group(*),
-  ::view-transition-old(*),
-  ::view-transition-new(*) {
-    animation: none !important;
-  }
-}
+   If motion comes back, it belongs on the CONTENT PANE as a bounded CSS
+   animation, not on the document: the dashboard rail
+   (components/shell/) must never travel with the page. */
 
 /* ── ARCADE CABINET palette ─────────────────────────────────────────────────
    Supersedes "Editorial Warmth" (warm paper + Fraunces + terracotta), which was
@@ -713,45 +591,7 @@ body {
     color: var(--primary);
     text-shadow: 2px 2px 0 var(--pixel-shadow);
   }
-  /* ── iOS large-title navigation ────────────────────────────────────────
-     The phone nav bar (components/community/community-nav-bar.tsx) is a plain
-     sticky server-rendered element. Its two states are driven by ONE boolean —
-     <html data-nav-collapsed>, published by an IntersectionObserver on a 1px
-     sentinel (nav-collapse-sentinel.tsx) — so no scroll listener, no React
-     state, and nothing to re-render while a finger is on the glass.
-
-     At the top of the page the bar is invisible chrome: no rule, no title, just
-     the one action floating over the large title below it. Once the large title
-     has slid underneath, the rule and the compact title appear.
-
-     The rule travels as a CUSTOM PROPERTY, not as border-bottom-color: the
-     unlayered `* { border-color: var(--color-border) }` further down this file
-     beats anything in @layer utilities no matter how specific, so the bar reads
-     this var through an inline style (community-nav-bar.tsx) instead. */
-  .nav-rule {
-    --nav-rule-color: transparent;
-    transition: border-bottom-color 120ms steps(2, end);
-  }
-  [data-nav-collapsed="true"] .nav-rule {
-    --nav-rule-color: var(--color-border);
-  }
-  .nav-title-compact {
-    opacity: 0;
-    /* Rises into place, the way the iOS title does. */
-    transform: translateY(0.375rem);
-    /* steps(): things in a cabinet snap between frames, they do not ease. */
-    transition:
-      opacity 120ms steps(2, end),
-      transform 120ms steps(2, end);
-  }
-  [data-nav-collapsed="true"] .nav-title-compact {
-    opacity: 1;
-    transform: none;
-  }
   @media (prefers-reduced-motion: reduce) {
-    .nav-title-compact {
-      transition: none;
-    }
   }
 
   /* Slow blink for "INSERT COIN"-style prompts. Static under reduced-motion. */

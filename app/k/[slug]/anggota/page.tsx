@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { communityHref } from "@/lib/community";
 import { safeQuery } from "@/lib/convex-server";
 import { AnggotaRoster } from "../_components/anggota-roster";
+import { PageHeading } from "../_components/page-heading";
 
 // Anggota tab. Same shape as Diskusi: an anonymous slug→tenantId resolution
 // server-side, then a client island, because listMembers is member-gated (it
@@ -49,8 +50,14 @@ async function AnggotaBody({ slug }: { slug: string }) {
 export default async function AnggotaPage({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
   return (
-    <Suspense fallback={<Skeleton className="h-64 w-full" />}>
-      <AnggotaBody slug={slug} />
-    </Suspense>
+    <>
+      {/* The roster deliberately renders no header of its own (see
+          ../_components/anggota-roster.tsx); this is the one place the page is
+          named, and outside the boundary so it paints before the list does. */}
+      <PageHeading title="Anggota" />
+      <Suspense fallback={<Skeleton className="h-64 w-full" />}>
+        <AnggotaBody slug={slug} />
+      </Suspense>
+    </>
   );
 }

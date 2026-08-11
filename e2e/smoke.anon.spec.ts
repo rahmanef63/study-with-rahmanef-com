@@ -26,12 +26,13 @@ const ERROR_ALLOWLIST = [
   /Failed to load resource/i,
   /React DevTools/i,
   /net::ERR_/i,
-  // Browser-level rejection from the View Transitions API, not app code: the
-  // whole app renders inside React's <ViewTransition> (app/layout.tsx), and a
-  // transition that is interrupted — a second navigation, a backgrounded tab —
-  // rejects with exactly this. It surfaces as a pageerror on a passing page and
-  // made spec 14 flaky before it was listed here.
-  /Transition was skipped/i,
+  // GONE 2026-08-11: /Transition was skipped/i. It masked a browser-level
+  // rejection from the View Transitions API, which the app entered on every
+  // router update because <ViewTransition> wrapped {children} in
+  // app/layout.tsx. That wrapper was deleted (it was the "terbuka 2 kali"
+  // defect: one tap ran two or three whole-app entrances), so the app now calls
+  // startViewTransition zero times and this entry could only ever hide a real
+  // error from here on.
 ];
 
 function collectErrors(page: Page) {
@@ -61,19 +62,25 @@ async function expectNoCrash(page: Page) {
 }
 
 test.describe("community routes — anon smoke", () => {
-  test("1. / redirects into the flagship community and lands on the Kelas tab", async ({
+  test("1. / redirects into the flagship community and lands on the Kelas section", async ({
     page,
   }) => {
     const errors = collectErrors(page);
     await page.goto("/");
     await expect(page).toHaveURL(new RegExp(`/k/${TENANT}$`));
-    // The Kelas tab is a bare grid of course covers — the eyebrow, the heading
-    // "Mulai belajar di sini." and the paragraph that used to sit above it were
-    // deleted for costing 190px on a 390px phone (app/k/[slug]/page.tsx). So
-    // the landing marker is the community name in the header plus at least one
-    // real course link; asserting the removed heading is what made this spec
-    // fail against every build since.
-    await expect(page.locator("header").getByRole("heading", { level: 1 })).toBeVisible();
+    // WAS: `page.locator("header").getByRole("heading", { level: 1 })`, i.e.
+    // the community name inside the community <header>. Both are gone — the
+    // stacked header was replaced by a dashboard rail on 2026-08-11, and the
+    // layout's <h1> is now sr-only in the content column, outside any <header>.
+    //
+    // The landing marker is the page's own <h2>, which is real server HTML and
+    // is the ONE thing on a 390px phone that names the section (the rail is
+    // behind a hamburger there). Plus, unchanged, at least one real course link
+    // — the only crawl path from a community to its courses.
+    await expect(page.getByRole("heading", { level: 2, name: "Kelas" })).toBeVisible();
+    // Exactly one <h1> per route under /k: the layout's. A page that adds its
+    // own on top of it is the doubled-heading regression this guards.
+    await expect(page.getByRole("heading", { level: 1, includeHidden: true })).toHaveCount(1);
     await expect(page.locator(`main a[href*="/kelas/"]`).first()).toBeVisible();
     await expectNoCrash(page);
     expect(errors).toEqual([]);

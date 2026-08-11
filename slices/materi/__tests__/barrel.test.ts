@@ -172,20 +172,29 @@ describe("barrel runtime contract (alias-free modules)", () => {
     expect(manifest.name).toBe("materi");
   });
 
-  test("Materi and Skills are real tabs, and they lead the strip", () => {
-    // The phone bar takes the first four keys off this list, so the order is
-    // load-bearing, not decoration: these four ARE the five-cell bar
-    // (Materi · Skills · Kelas · Diskusi · Lainnya).
-    expect(COMMUNITY_TABS[0]?.key).toBe("materi");
-    expect(COMMUNITY_TABS[0]?.href("belajar-ai")).toBe(buildMateriHref("belajar-ai"));
-    expect(COMMUNITY_TABS[1]?.key).toBe("skills");
-    expect(COMMUNITY_TABS[1]?.href("belajar-ai")).toBe(buildSkillsHref("belajar-ai"));
-    expect(COMMUNITY_TABS.slice(0, 4).map((t) => t.key)).toEqual([
-      "materi",
-      "skills",
-      "kelas",
-      "diskusi",
-    ]);
+  test("Materi and Skills are real nav rows, adjacent, and this slice owns their hrefs", () => {
+    // WAS: an ordinal pin — `COMMUNITY_TABS[0] === "materi"`, `[1] === "skills"`,
+    // `slice(0,4) === [materi, skills, kelas, diskusi]` — because the phone
+    // bottom bar took the first four keys off the list and those four WERE the
+    // five-cell bar. The bar, the "Lainnya" sheet and `phoneBarTabs()` were all
+    // deleted on 2026-08-11 in favour of a dashboard rail that renders every
+    // row, so nothing is decided by an index any more and the catalogue was
+    // re-ordered for reading (Kelas first: it is /k/<slug>, the route you land
+    // on). Pinning positions here would have made this slice the veto on a list
+    // it does not own.
+    //
+    // What this slice DOES have a stake in, and what is pinned instead: both
+    // rows exist, both point at the hrefs built here, and they sit next to each
+    // other — a skill IS a materi (`kind: "skill"`, same table), so a row
+    // between them would split one content model in the navigation. The reading
+    // order itself is pinned where it belongs, in
+    // components/community/tab-visibility.test.ts.
+    const keys = COMMUNITY_TABS.map((t) => t.key);
+    const materi = COMMUNITY_TABS.find((t) => t.key === "materi");
+    const skills = COMMUNITY_TABS.find((t) => t.key === "skills");
+    expect(materi?.href("belajar-ai")).toBe(buildMateriHref("belajar-ai"));
+    expect(skills?.href("belajar-ai")).toBe(buildSkillsHref("belajar-ai"));
+    expect(keys.indexOf("skills")).toBe(keys.indexOf("materi") + 1);
   });
 
   test("the Skills tab does not steal the Materi tab's active state", () => {

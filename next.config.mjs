@@ -21,14 +21,17 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: "5mb",
     },
-    // Lets React's <ViewTransition> render, which is what puts a router update
-    // inside document.startViewTransition() and gives the app real forward/back
-    // motion between screens. See the ROUTE TRANSITIONS block in
-    // app/globals.css and components/ui/view-transition.tsx.
-    // It does NOT switch the build to the experimental React channel — that is
-    // gated on taint / transitionIndicator / gestureTransition only
-    // (next/dist/lib/needs-experimental-react.js). Bundle cost: zero new deps.
-    viewTransition: true,
+    // `viewTransition` WAS here and is deliberately gone. It let React's
+    // <ViewTransition> put router updates inside document.startViewTransition()
+    // — but React animates EVERY transition update inside that boundary,
+    // including a Suspense reveal, and every /k page has 3–4 boundaries. One
+    // tap therefore played the whole-app entrance two or three times back to
+    // back: measured at 1.2s of continuous sliding on a throttled phone, with
+    // the middle transition animating a frame that had not changed at all.
+    // That is the "terbuka 2 kali" the owner reported. It cannot be fixed in
+    // CSS: `transition.types` is empty because Next 16 tags neither the router
+    // push nor the reveal, so no selector can target one and not the other.
+    // Do not switch it back on without a way to scope it to navigations.
   },
   // Every URL below was a live OS-shell deep link, shared in WhatsApp and
   // Discord and — more importantly — PERSISTED in notifications.href rows that

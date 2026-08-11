@@ -70,10 +70,13 @@ export function AnggotaRoster({
 
   const canManageRoles = membership?.role === "owner";
 
-  // No SectionHeader. The bottom tab bar and the desktop tab strip both already
-  // read "Anggota", and an eyebrow + title + hairline in front of an obvious
-  // list of people is 70px spent restating the navigation. The member count
-  // survives as the group caption, where iOS puts it.
+  // No header of its own. The PAGE owns the title now (<PageHeading title=
+  // "Anggota"/> in ../anggota/page.tsx, outside the Suspense boundary so it
+  // paints before this list does) — it used to be the tab strip and the bottom
+  // bar that named the screen, and both were deleted on 2026-08-11. Either way
+  // the rule here is unchanged: an eyebrow + title + hairline INSIDE the island
+  // would be a second heading for the same page. The member count survives as
+  // the group caption, where iOS puts it.
   if (members === undefined) {
     return (
       <div className="space-y-2" aria-busy>

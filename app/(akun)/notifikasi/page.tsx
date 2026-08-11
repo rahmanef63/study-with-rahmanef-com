@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
-import { NotifikasiInbox } from "../_components/notifikasi-inbox";
+import { NotifikasiInbox } from "../../_components/notifikasi-inbox";
 
 // Notification inbox. The whole body is membership-gated, so it is a client
 // island; the page itself is static chrome and needs no Suspense boundary.
+//
+// No <main> here any more: app/(akun)/layout.tsx wraps this in <AccountShell/>,
+// which owns the one <main>, the gutter and the safe-area padding. Two <main>s
+// is invalid HTML and gives a screen reader two "main" landmarks to choose
+// between. The reading width and the `@container` stay on the page, where the
+// widths differ per surface.
 export const metadata: Metadata = {
   title: "Notifikasi",
   description: "Balasan diskusi, hasil kurasi sumber, dan status usulanmu.",
@@ -11,7 +17,7 @@ export const metadata: Metadata = {
 
 export default function NotifikasiPage() {
   return (
-    <main className="@container mx-auto w-full max-w-2xl px-6 py-12">
+    <div className="@container mx-auto w-full max-w-2xl">
       <header className="mb-8 space-y-2">
         <span className="eyebrow">Notifikasi</span>
         <h1 className="font-display text-lg @sm:text-xl">
@@ -22,6 +28,6 @@ export default function NotifikasiPage() {
         </p>
       </header>
       <NotifikasiInbox />
-    </main>
+    </div>
   );
 }

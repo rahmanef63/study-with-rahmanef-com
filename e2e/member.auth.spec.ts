@@ -28,17 +28,27 @@ test.beforeEach(() => {
 });
 
 test.describe("community routes — member (storage state)", () => {
-  test("A1. sesi hidup: header komunitas menyapa anggota, bukan menawarkan login", async ({
+  test("A1. sesi hidup: sidebar komunitas menyapa anggota, bukan menawarkan login", async ({
     page,
   }) => {
     await page.goto(`/k/${TENANT}`);
-    // JoinButton punya tiga state; untuk member ia merender "Kamu sudah
-    // bergabung" + RoleChip. State kedaluwarsa ⇒ spec ini gagal = sinyal rekam
-    // ulang (itu SATU-SATUNYA prosedur refresh — lihat e2e/README.md).
-    await expect(page.getByText("Kamu sudah bergabung").first()).toBeVisible({
+    // MARKER BARU (2026-08-11). Dulu spec ini menunggu "Kamu sudah bergabung" —
+    // state ketiga JoinButton di header komunitas. Header itu diganti dashboard
+    // sidebar, dan <ShellAction/> (components/shell/shell-action.tsx) sekarang
+    // TIDAK merender apa pun untuk member biasa: rail-nya sudah memuat semua
+    // tujuan, jadi JoinButton cuma muncul buat yang belum gabung. Assertion
+    // lama otomatis gagal untuk member — persis kebalikan maksudnya.
+    //
+    // Penanda sesi hidup yang sekarang: blok "Akun" di rail. Signed out ia satu
+    // baris "Masuk"; signed in ia Profil saya · Notifikasi · Pengaturan ·
+    // Changelog. Viewport default Playwright 1280px ⇒ rail terlihat (md+).
+    // Kalau state kedaluwarsa spec ini gagal = sinyal rekam ulang (itu
+    // SATU-SATUNYA prosedur refresh — lihat e2e/README.md).
+    await expect(page.getByRole("link", { name: "Notifikasi" })).toBeVisible({
       timeout: DATA_TIMEOUT,
     });
-    await expect(page.getByRole("link", { name: "Login untuk gabung" })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Masuk", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Gabung", exact: true })).toHaveCount(0);
     await expectNoCrash(page);
   });
 

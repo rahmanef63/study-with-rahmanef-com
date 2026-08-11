@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { ProfileSettingsView } from "@/features/profiles";
-import { PengaturanAkun } from "../_components/pengaturan-akun";
+import { PengaturanAkun } from "../../_components/pengaturan-akun";
 
 // Account settings. The OS version was a three-pane master/detail whose nav
 // chrome differed per emulated OS; on a real route it collapses to one column
@@ -36,16 +36,22 @@ function Section({
 
 export default function PengaturanPage() {
   return (
-    // @container: ProfileSettingsView still sizes with container queries (a
-    // leftover of the windowed shell), so a real route has to declare the
-    // container they resolve against.
-    <main className="@container mx-auto w-full max-w-2xl space-y-10 px-6 py-12">
+    // No <main> and no gutter: app/(akun)/layout.tsx owns both. The reading
+    // width and the @container stay here — ProfileSettingsView still sizes
+    // itself with container queries (a leftover of the windowed shell), and
+    // they have to resolve against the 672px form, not against the 1024px cap
+    // <main> carries for /k's grids.
+    <div className="@container mx-auto w-full max-w-2xl space-y-10">
       <header className="space-y-2">
         <span className="eyebrow">Akun</span>
         <h1 className="font-display text-lg @sm:text-xl">Pengaturan</h1>
       </header>
 
-      <Section title="Sesi masuk" blurb="Kamu masuk sebagai berikut. Bisa keluar kapan saja.">
+      {/* The blurb is SERVER copy above a client card that resolves ~400ms
+          later, so it has to be true in both outcomes. It used to read "Kamu
+          masuk sebagai berikut" — asserted to a signed-out visitor, on top of a
+          card that then said "Belum masuk". */}
+      <Section title="Sesi masuk" blurb="Akun yang sedang dipakai di perangkat ini.">
         <PengaturanAkun />
       </Section>
 
@@ -56,6 +62,6 @@ export default function PengaturanPage() {
         {/* Owns its own signed-out card (a real /masuk link), so no gate here. */}
         <ProfileSettingsView />
       </Section>
-    </main>
+    </div>
   );
 }

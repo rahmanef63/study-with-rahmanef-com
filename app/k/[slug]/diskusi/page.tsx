@@ -5,6 +5,7 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/u
 import { Skeleton } from "@/components/ui/skeleton";
 import { communityHref } from "@/lib/community";
 import { safeQuery } from "@/lib/convex-server";
+import { PageHeading } from "../_components/page-heading";
 import { PapanDiskusi } from "./_components/papan-diskusi";
 import { FEED_PAGE_SIZE, parsePostKind } from "@/features/posts";
 
@@ -35,7 +36,11 @@ export async function generateMetadata({
     alternates: { canonical: communityHref.diskusi(slug) },
     // Indexable now (it was not while the tab was three member-only boards):
     // the feed body is anonymous etalase and every card links a real permalink.
-    openGraph: { type: "website", title: FEED_TITLE, description: FEED_DESCRIPTION },
+    // NO `openGraph` key. Declaring one here without `images` SUPPRESSES the
+    // inherited card entirely — the same trap the /k/[slug] layout documents —
+    // and this page was shipping with no og:image at all. Omitting it lets the
+    // parent's openGraph and its colocated opengraph-image.tsx apply, and Next
+    // still fills og:title from the title template above.
   };
 }
 
@@ -94,29 +99,34 @@ export default async function DiskusiPage({
   searchParams: Promise<Search>;
 }) {
   const { slug } = await params;
-  // No title block. The eyebrow "Papan diskusi" + h1 "Diskusi" + a two-line
-  // description cost ~150px in front of the kind chips, and the chips are the
-  // control this screen exists for: choosing between Semua / Diskusi /
-  // Pengumuman / Usulan / Sumber is the first thing anyone does here. The tab
-  // bar already names the page, and every one of those five chips is a plainer
-  // statement of "pertanyaan, pengumuman, usulan, dan sumber belajar" than the
-  // sentence was. The wording survives where it still does work: the <title>
-  // and the OG description in generateMetadata above.
+  // ONE LINE, not the old title block. The eyebrow "Papan diskusi" + h1
+  // "Diskusi" + a two-line description cost ~150px in front of the kind chips,
+  // and the chips are the control this screen exists for: choosing between
+  // Semua / Diskusi / Pengumuman / Usulan / Sumber is the first thing anyone
+  // does here, and every one of those five chips is a plainer statement of
+  // "pertanyaan, pengumuman, usulan, dan sumber belajar" than the sentence was.
+  // So the description stays deleted and lives on in the <title> and the OG
+  // description in generateMetadata above.
   //
-  // The layout's <h1> (the community name) is still the page's heading, so
-  // nothing here is left headingless.
+  // The TITLE, however, came back. It was removed because "the tab bar already
+  // names the page" — and the tab bar was deleted on 2026-08-11. Below md the
+  // rail that replaced it is behind a hamburger and the layout's <h1> is
+  // sr-only, so without this the screen opened on a row of unlabelled chips.
   return (
-    // Own boundary: the awaited etalase reads are dynamic (cacheComponents).
-    <Suspense
-      fallback={
-        <div className="space-y-3" aria-busy>
-          <Skeleton className="h-28 w-full" />
-          <Skeleton className="h-40 w-full" />
-          <Skeleton className="h-40 w-full" />
-        </div>
-      }
-    >
-      <DiskusiBody slug={slug} searchParams={searchParams} />
-    </Suspense>
+    <>
+      <PageHeading title="Diskusi" />
+      {/* Own boundary: the awaited etalase reads are dynamic (cacheComponents). */}
+      <Suspense
+        fallback={
+          <div className="space-y-3" aria-busy>
+            <Skeleton className="h-28 w-full" />
+            <Skeleton className="h-40 w-full" />
+            <Skeleton className="h-40 w-full" />
+          </div>
+        }
+      >
+        <DiskusiBody slug={slug} searchParams={searchParams} />
+      </Suspense>
+    </>
   );
 }

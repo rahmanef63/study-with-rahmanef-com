@@ -28,6 +28,20 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-08-11",
+    version: "v3.0",
+    title: "Sidebar, dan halaman berhenti “terbuka dua kali”",
+    tags: ["Tampilan", "Perbaikan"],
+    points: [
+      "Kelihatan seperti halaman terbuka dua kali setiap kali kamu pindah menu — dan memang begitu: aplikasinya memainkan animasi masuk dua sampai tiga kali per satu ketukan. Di HP yang lambat itu 1,2 detik geseran tanpa henti, dan geseran yang di tengah tidak menampilkan perubahan apa pun. Animasi antar layar dicabut; sekarang pindah halaman langsung sampai.",
+      "Bar tab di atas dan bar menu di bawah diganti satu sidebar. Di layar lebar ia menetap di kiri; di HP ia muncul dari samping lewat tombol menu, dan menutup sendiri begitu kamu memilih tujuan.",
+      "Semua tujuan sekarang ada di satu daftar, jadi tidak ada lagi menu yang “ketutup” di balik tombol Lainnya. Menu yang tidak ada isinya tetap disembunyikan seperti sebelumnya.",
+      "Tombol gabung memakai satu kata yang sama di mana-mana. Sebelumnya rak samping bilang “Gabung” sementara isi halaman bilang “Login untuk gabung” — dua nama untuk satu hal, kadang di layar yang sama.",
+      "Halaman Diskusi dan daftar Komunitas sebelumnya tidak punya gambar pratinjau saat dibagikan. Sekarang punya.",
+      "Halaman Peta belajar, sertifikat, dan halaman masuk sengaja tidak memakai sidebar — itu halaman yang dibuka orang sebelum bergabung, bukan ruang kerja anggota.",
+    ],
+  },
+  {
+    date: "2026-08-11",
     version: "v2.10",
     title: "Peta belajar: jawab beberapa kartu, dapat rencana belajarmu sendiri",
     tags: ["Baru", "Tampilan"],

@@ -7,7 +7,9 @@
 //                         a repo-wide grep.
 //   ./community-tabs.ts — which sections a community offers, in what order, and
 //                         which of them hide when the tenant has nothing behind
-//                         them (TenantTabSignal).
+//                         them (TenantTabSignal). Since 2026-08-11 this is the
+//                         DASHBOARD RAIL's catalogue; the "tab" in every name
+//                         is history, not a widget.
 //
 // The backend stays fully multi-tenant; the UI is single-community-FIRST: `/`
 // redirects to DEFAULT_COMMUNITY_SLUG and the directory is demoted to
@@ -15,9 +17,7 @@
 export { DEFAULT_COMMUNITY_SLUG, communityHref } from "./community-href";
 export {
   COMMUNITY_TABS,
-  PHONE_BAR_SLOTS,
   TAB_SIGNAL_UNKNOWN,
-  phoneBarTabs,
   visibleCommunityTabs,
   type CommunityTab,
   type TenantTabSignal,

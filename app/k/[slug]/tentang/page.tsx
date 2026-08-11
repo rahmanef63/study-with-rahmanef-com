@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { communityHref } from "@/lib/community";
 import { absoluteUrl, safeQuery } from "@/lib/convex-server";
 import { BantuanSection } from "../_components/bantuan-section";
+import { PageHeading } from "../_components/page-heading";
 
 // Tentang — the only fully public tab. Both reads are on the anonymous etalase
 // whitelist, so this renders as real HTML for crawlers and for the WhatsApp
@@ -50,7 +51,7 @@ async function TentangBody({ slug }: { slug: string }) {
   ]);
   if (tenant === null) {
     return (
-      <p className="rounded-[var(--radius-win)] border border-dashed bg-muted/30 px-4 py-6 text-center text-sm text-muted-foreground">
+      <p className="border-2 border-dashed bg-muted/30 px-4 py-6 text-center text-sm text-muted-foreground">
         Profil komunitas belum bisa dimuat. Coba muat ulang sebentar lagi.
       </p>
     );
@@ -70,20 +71,22 @@ async function TentangBody({ slug }: { slug: string }) {
       />
 
       <div className="space-y-3">
-        {/* No title here. The community name is already the <h1> pinned to the
-            top of the screen on phone and the header h1 on desktop; repeating
-            it 266px below was the same fact rendered twice. The eyebrow keeps
-            the section labelled. */}
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="eyebrow">Tentang komunitas</span>
-          {tenant.track ? <Badge tone="accent">Track: {tenant.track}</Badge> : null}
-        </div>
+        {/* No title here — <PageHeading title="Tentang"/> is rendered by the
+            page ABOVE this boundary, so it paints immediately and cannot move
+            when the reads land. Repeating the COMMUNITY name here would still
+            be wrong for the reason it always was: the rail (md+) and the
+            compact bar (below md) both already carry it. */}
+        {tenant.track ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge tone="accent">Track: {tenant.track}</Badge>
+          </div>
+        ) : null}
         <p className="max-w-2xl whitespace-pre-line text-pretty text-muted-foreground">
           {tenant.description}
         </p>
       </div>
 
-      {/* Counts are in the nav subtitle on phone ("7 anggota · 6 kelas"), so the
+      {/* Counts are in the rail/bar subtitle ("7 anggota · 6 kelas"), so the
           tiles are desktop-only — on a phone they were a third rendering of two
           numbers already on screen. */}
       {stats !== null ? (
@@ -120,13 +123,51 @@ async function TentangBody({ slug }: { slug: string }) {
   );
 }
 
+/**
+ * Fallback SHAPED LIKE THE ANSWER, not a single h-64 block.
+ *
+ * The old one-box fallback was measured reflowing this page mid-navigation:
+ * <BantuanSection/> resolved first and rendered under a 256px hole, then
+ * <TentangBody/> landed taller than the hole and shoved already-readable help
+ * text down the screen at +454ms. Every skeleton below mirrors the element it
+ * stands in for at the SAME breakpoint — the cover is @md+ only and the stat
+ * tiles are @sm+ only, exactly as in <TentangBody/> — so what arrives lands in
+ * the space that was held for it.
+ */
+function TentangSkeleton() {
+  return (
+    <div className="space-y-6" aria-busy="true">
+      <span className="sr-only">Memuat profil komunitas…</span>
+      <Skeleton className="hidden h-40 w-full @md:block @md:h-56" />
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-full max-w-2xl" />
+        <Skeleton className="h-4 w-full max-w-2xl" />
+        <Skeleton className="h-4 w-2/3 max-w-md" />
+      </div>
+      <div className="hidden gap-3 @sm:grid @sm:grid-cols-2">
+        <Skeleton className="h-20" />
+        <Skeleton className="h-20" />
+      </div>
+      <Skeleton className="h-11 w-44" />
+    </div>
+  );
+}
+
 export default async function TentangPage({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
   return (
-    <div className="space-y-12">
+    // @container so the fallback's @sm/@md variants resolve against the same
+    // box <TentangBody/> does; without one they would never match and the
+    // fallback would understate the height it exists to reserve.
+    <div className="@container space-y-12">
+      {/* The title is a constant, so it sits OUTSIDE the boundary: it paints
+          first and it never moves. Below md it is also the only thing on screen
+          naming this page — the rail is behind a hamburger and the layout's
+          <h1> is sr-only. */}
+      <PageHeading title="Tentang" className="mb-0" />
       {/* Own boundary: the two awaited etalase reads are dynamic. Bantuan below
           is static and prerenders regardless of Convex. */}
-      <Suspense fallback={<Skeleton className="h-64 w-full rounded-[var(--radius-win)]" />}>
+      <Suspense fallback={<TentangSkeleton />}>
         <TentangBody slug={slug} />
       </Suspense>
       <BantuanSection />

@@ -13,10 +13,9 @@ import {
 } from "@/components/ui/empty";
 import { Compass } from "lucide-react";
 import { safeQuery } from "@/lib/convex-server";
-import { absoluteUrl } from "@/lib/site";
 import { communityHref } from "@/lib/community";
 import { PetaCallout } from "@/features/peta";
-import { AjukanKomunitas } from "../_components/ajukan-komunitas";
+import { AjukanKomunitas } from "../../_components/ajukan-komunitas";
 
 // The community directory. `/` redirects to the flagship, so almost nobody
 // lands here — it stays a plain server-rendered list instead of the OS app's
@@ -27,15 +26,13 @@ const DESCRIPTION =
   "Komunitas belajar aktif di belajar-with-rahmanef.com — gratis, terbuka, berbahasa Indonesia.";
 
 export const metadata: Metadata = {
- title: TITLE,
- description: DESCRIPTION,
- alternates: { canonical: "/komunitas" },
- openGraph: {
- type: "website",
- title: TITLE,
- description: DESCRIPTION,
- url: absoluteUrl("/komunitas"),
-  },
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: { canonical: "/komunitas" },
+  // NO `openGraph` key — see the note in app/k/[slug]/diskusi/page.tsx.
+  // Declaring one without `images` suppresses the inherited card, so this page
+  // was shipping with no og:image at all; app/opengraph-image.tsx is the
+  // fallback it was suppressing.
 };
 
 async function CommunityList() {
@@ -94,10 +91,11 @@ async function CommunityList() {
 
 export default function KomunitasPage() {
  return (
-    // @container: the mounted slice views and the mockup-kit primitives size
-    // themselves with container queries (a leftover of the windowed shell), so
-    // a real route has to declare the container they resolve against.
-    <main className="@container mx-auto w-full max-w-3xl px-6 py-12">
+    // No <main> and no gutter: app/(akun)/layout.tsx owns both. Wider than the
+    // account pages — a two-column card grid, not a reading column — and it
+    // keeps its own @container so the mockup-kit primitives resolve against
+    // that width.
+    <div className="@container mx-auto w-full max-w-3xl">
       <header className="mb-8 space-y-3">
         <span className="eyebrow">Direktori</span>
         <h1 className="font-display text-lg @sm:text-xl">Komunitas belajar</h1>
@@ -121,6 +119,6 @@ export default function KomunitasPage() {
       >
         <CommunityList />
       </Suspense>
-    </main>
+    </div>
   );
 }

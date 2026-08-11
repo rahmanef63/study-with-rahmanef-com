@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { communityHref } from "@/lib/community";
 import { safeQuery } from "@/lib/convex-server";
 import { GabungDulu } from "../_components/gabung-dulu";
+import { PageHeading } from "../_components/page-heading";
 
 // Materi tab — the community's whole library of teaching material.
 //
@@ -83,8 +84,14 @@ export default async function MateriPage({
 }) {
   const [{ slug }, search] = await Promise.all([params, searchParams]);
   return (
-    <Suspense fallback={<Skeleton className="h-64 w-full" />}>
-      <MateriBody slug={slug} tag={firstTag(search.tag)} />
-    </Suspense>
+    <>
+      {/* Outside the boundary: the title is a constant, so it must not wait on
+          a Convex round trip the way the list does. It is also the only thing
+          naming this screen below md, where the rail is behind a hamburger. */}
+      <PageHeading title="Materi" />
+      <Suspense fallback={<Skeleton className="h-64 w-full" />}>
+        <MateriBody slug={slug} tag={firstTag(search.tag)} />
+      </Suspense>
+    </>
   );
 }

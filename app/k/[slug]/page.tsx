@@ -6,6 +6,7 @@ import { PetaEntryCard } from "@/features/peta";
 import { Skeleton } from "@/components/ui/skeleton";
 import { communityHref } from "@/lib/community";
 import { safeQuery } from "@/lib/convex-server";
+import { PageHeading } from "./_components/page-heading";
 
 // Kelas — the community's default tab: its published-course grid.
 //
@@ -94,16 +95,19 @@ export default async function KelasTabPage({ params }: { params: Promise<Params>
     // @container: the reused slice views size to their CONTAINER, never the
     // viewport, so the grid needs a container context to break out of 1 column.
     //
-    // NOTHING above the grid. What used to live here — eyebrow "Kelas", title
-    // "Mulai belajar di sini.", and a three-line paragraph — cost 190px on a
-    // 390px phone, a whole course card's worth, and every word of it was
-    // already on screen: the tab bar says Kelas, the header says the community
-    // name and "N anggota · M kelas", and the join CTA is the header's primary
-    // button. A labelled grid of course covers does not need a label. The one
-    // fact that was NOT redundant ("gratis, gabung dulu untuk membuka
-    // materinya") belongs on the course page where a learner hits the wall, not
-    // as a pre-emptive apology in front of the catalogue.
+    // ONE LINE above the grid, and it is the section name. What used to live
+    // here — eyebrow "Kelas", title "Mulai belajar di sini." and a three-line
+    // paragraph — cost 190px on a 390px phone, a whole course card's worth, and
+    // it was deleted because the tab bar already said Kelas. The tab bar is
+    // gone (2026-08-11) and the rail that replaced it is behind a hamburger
+    // below md, so on a phone this grid had nothing naming it. <PageHeading/>
+    // is ~30px and says the one word; the three lines are not coming back. The
+    // fact that was never redundant ("gratis, gabung dulu untuk membuka
+    // materinya") still belongs on the course page where a learner hits the
+    // wall, not as a pre-emptive apology in front of the catalogue.
     <section className="@container space-y-5">
+      {/* mb-0: the section's space-y-5 already owns the gap. */}
+      <PageHeading title="Kelas" className="mb-0" />
       {/* The one thing that IS worth putting in front of the catalogue: a way
           out of it. Six course covers cannot answer "which of these is for
           me?", and that is the question a newcomer actually arrives with.

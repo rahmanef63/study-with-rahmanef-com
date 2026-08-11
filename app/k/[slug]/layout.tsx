@@ -1,46 +1,37 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { CommunityActions } from "@/components/community/community-actions";
-import { CommunityBottomNav } from "@/components/community/community-bottom-nav";
-import { CommunityBrandRow } from "@/components/community/community-brand-row";
-import { CommunityNavAction } from "@/components/community/community-nav-action";
 import {
-  CommunityNavBar,
-  CommunityNavBarSkeleton,
-} from "@/components/community/community-nav-bar";
-import { CommunityTabs } from "@/components/community/community-tabs";
-import { NavCollapseSentinel } from "@/components/community/nav-collapse-sentinel";
-import { Skeleton } from "@/components/ui/skeleton";
+  AppShell,
+  ShellNav,
+  ShellRailSkeleton,
+  ShellTopBar,
+  ShellTopBarSkeleton,
+} from "@/components/shell";
 import { absoluteUrl } from "@/lib/site";
 import { communityHref } from "@/lib/community";
 import { getStats, getTabSignal, getTenant } from "./_lib/tenant-reads";
 
-// The community shell. Server-rendered, so the community name is real HTML on
-// every page under it.
+// The community shell — a DASHBOARD SIDEBAR, owned by the layout.
 //
-// TWO SHAPES, ONE DATA READ. Below md this is an iOS navigation bar: a 54px
-// sticky compact bar plus a large title that scrolls under it. At md and up it
-// is the desktop header it always was — brand row, title, description, counts,
-// actions, tab strip — pixel for pixel.
+// WHAT REPLACED WHAT. Gone: the desktop tab strip, the phone bottom bar and its
+// "Lainnya" sheet, the brand row, and the 261px stacked header. In their place
+// there is ONE nav (components/shell/shell-nav.tsx), rendered as a persistent
+// rail at md and up and as a left slide-over below it. One list to keep
+// correct instead of three.
 //
-// WHAT THE PHONE HEADER NO LONGER CARRIES (152px of the old 261px):
-//   · brand mark + wordmark (48px) — inside a community, the community IS the
-//     brand; in an installed PWA the wordmark is the icon you just tapped.
-//   · the description (44px) — read once, before joining. It is the opening
-//     paragraph of Tentang, one tap away in the phone bar's "Lainnya" sheet.
-//   · "Cari" + "Komunitas lain" — already in that same sheet; Cari is also the
-//     bar's trailing action for a member (community-nav-action.tsx).
-//   · "Bagikan" (60px row, with Login) — occasional, and already on Tentang.
-// WHAT SURVIVES: the name (you must know where you are), the counts as a 10px
-// subtitle (social proof, where joining is the decision), and one action.
-//
-// Every read here is anonymous and memoised in ./_lib/tenant-reads.ts; anything
-// membership-aware is a client island.
+// WHAT SURVIVED, deliberately:
+//   · DATA-DRIVEN HIDING. The rows still come from `visibleCommunityTabs(
+//     getTabSignal(slug))`, so belajar-ai still has no Kalender row. The signal
+//     crosses the boundary as three plain booleans — never the tab list, whose
+//     `href` members are functions (a function cannot cross server→client; it
+//     has broken this app three times).
+//   · A real <h1> in the server HTML of every page, `generateMetadata`, the
+//     colocated OG cards, and the `@container` on <main> that every reused
+//     slice sizes itself against.
+//   · Every read is anonymous and memoised in ./_lib/tenant-reads.ts; anything
+//     membership-aware is a client island.
 type Params = { slug: string };
-
-/** Shared gutter: 16px on a phone, the original 20px from md up. */
-const SHELL = "mx-auto w-full max-w-5xl px-4 md:px-5";
 
 export async function generateMetadata({
   params,
@@ -66,93 +57,57 @@ export async function generateMetadata({
   };
 }
 
-// Rendered OUTSIDE <header> on purpose: a sticky element can only stick inside
-// its own parent's box, and the header is ~100px tall — parked in there the bar
-// scrolled away after the first flick. Its parent is the page root, so it now
-// sticks for the full length of the document.
-async function CommunityNavBarSlot({ slug }: { slug: string }) {
-  const tenant = await getTenant(slug);
-  // Unknown slug: stay silent and let the title block below render the 404.
+/** "12+ anggota · 5 kelas", or null when the stats read failed. */
+async function memberLabel(slug: string): Promise<string | null> {
+  const stats = await getStats(slug);
+  if (stats === null) return null;
+  const capped = stats.memberCountCapped ? "+" : "";
+  return `${stats.memberCount}${capped} anggota · ${stats.courseCount} kelas`;
+}
+
+/** Everything both renderings of the nav need. One await, all memoised. */
+async function navProps(slug: string) {
+  const [tenant, label, signal] = await Promise.all([
+    getTenant(slug),
+    memberLabel(slug),
+    getTabSignal(slug),
+  ]);
   if (tenant === null) return null;
-  return (
-    <CommunityNavBar
-      title={tenant.name}
-      action={<CommunityNavAction tenantId={tenant._id} slug={slug} />}
-    />
-  );
+  return { slug, name: tenant.name, tenantId: tenant._id, memberLabel: label, signal };
 }
 
-async function CommunityTitle({ slug }: { slug: string }) {
-  const [tenant, stats] = await Promise.all([getTenant(slug), getStats(slug)]);
-  // notFound() here (not in the layout body) so an unknown slug renders the
-  // real 404 page instead of an empty shell with tabs.
+async function RailSlot({ slug }: Params) {
+  const props = await navProps(slug);
+  // Unknown slug: stay silent and let the heading slot render the 404.
+  if (props === null) return null;
+  return <ShellNav {...props} className="pt-3" />;
+}
+
+async function TopBarSlot({ slug }: Params) {
+  const props = await navProps(slug);
+  if (props === null) return null;
+  return <ShellTopBar {...props} />;
+}
+
+/**
+ * THE PAGE HEADING, server-rendered on every route under /k.
+ *
+ * `sr-only`, and that is a decision rather than an oversight. The community
+ * name is already on screen at every width — in the rail at md and up, in the
+ * compact bar below it — and printing it a third time at the top of the content
+ * pane is the stacked header this rebuild removed. What a heading must actually
+ * do it still does: it is real HTML in the server response (crawlers, the
+ * document outline), it is the first thing a screen reader hears inside the
+ * content, and there is exactly ONE of it at every breakpoint rather than two
+ * hidden copies. The visible chrome copies are `aria-hidden` for that reason.
+ *
+ * notFound() lives here (not in the layout body) so an unknown slug renders the
+ * real 404 page instead of an empty shell with a nav in it.
+ */
+async function HeadingSlot({ slug }: Params) {
+  const tenant = await getTenant(slug);
   if (tenant === null) notFound();
-
-  const memberLabel =
-    stats === null
-      ? null
-      : `${stats.memberCount}${stats.memberCountCapped ? "+" : ""} anggota · ${stats.courseCount} kelas`;
-
-  return (
-    <>
-      {/* @container: every reused slice view and mockup-kit primitive sizes
-          itself with container queries (a leftover of the windowed shell). A
-          real route has to declare one or those variants never match. */}
-      <div className={`@container ${SHELL} pb-2 md:pb-0`}>
-        <div className="pt-1 md:flex md:flex-wrap md:items-start md:justify-between md:gap-4 md:pt-6">
-          <div className="min-w-0 md:space-y-1">
-            {/* ONE h1 at every width — the large title and the desktop heading
-                are the same element, not two hidden copies. The max-md: caps
-                hold it to two lines so a long name cannot blow the budget. */}
-            <h1 className="text-balance font-display text-base @sm:text-lg max-md:line-clamp-2 max-md:text-sm max-md:leading-[1.1]">
-              {tenant.name}
-            </h1>
-            <p className="hidden max-w-2xl text-pretty text-sm text-muted-foreground md:block">
-              {tenant.description}
-            </p>
-            {memberLabel ? (
-              // Desktop metrics untouched (`text-xs`, inherited 1.7 leading);
-              // the phone shrinks it to a 10px subtitle riding under the title.
-              <p className="text-xs text-muted-foreground max-md:text-[0.625rem] max-md:leading-tight">
-                {memberLabel}
-              </p>
-            ) : null}
-          </div>
-          {/* Phone gets <CommunityNavAction/> in the bar instead. */}
-          <div className="hidden md:block">
-            <CommunityActions tenantId={tenant._id} slug={slug} name={tenant.name} />
-          </div>
-        </div>
-      </div>
-      <NavCollapseSentinel />
-    </>
-  );
-}
-
-function CommunityTitleSkeleton() {
-  return (
-    <div className={`${SHELL} pb-2 md:pb-0`}>
-      <div className="space-y-2 pt-1 md:pt-6">
-        <Skeleton className="h-4 w-56 md:h-8 md:w-64" />
-        <Skeleton className="hidden h-4 w-full max-w-xl md:block" />
-        <Skeleton className="h-3 w-32" />
-      </div>
-    </div>
-  );
-}
-
-// Both navs sit behind their OWN Suspense boundary: the tab signal is a Convex
-// read, and awaiting it in the layout body would delay the whole shell rather
-// than just the strip. They resolve off the same memoised promise CommunityTitle
-// is already awaiting, so in practice they arrive together. Neither fallback
-// renders TABS — a strip painted unfiltered and then narrowed is a flicker on
-// the first paint of every page; a blank of the right height is not.
-async function CommunityTabsSlot({ slug }: { slug: string }) {
-  return <CommunityTabs slug={slug} signal={await getTabSignal(slug)} />;
-}
-
-async function CommunityBottomNavSlot({ slug }: { slug: string }) {
-  return <CommunityBottomNav slug={slug} signal={await getTabSignal(slug)} />;
+  return <h1 className="sr-only">{tenant.name}</h1>;
 }
 
 export default async function CommunityLayout({
@@ -165,36 +120,28 @@ export default async function CommunityLayout({
   const { slug } = await params;
 
   return (
-    <div className="min-h-dvh bg-background">
-      <Suspense fallback={<CommunityNavBarSkeleton />}>
-        <CommunityNavBarSlot slug={slug} />
-      </Suspense>
-      {/* Solid card below md so the large title disappears INTO the bar rather
-          than under a translucent one; the original wash from md up. */}
-      <header className="border-b bg-card md:bg-card/40">
-        {/* Desktop chrome, outside every Suspense boundary on purpose: it needs
-            no data, so navigation never waits on Convex for it. */}
-        <CommunityBrandRow slug={slug} className={`hidden ${SHELL} md:block`} />
-        <Suspense fallback={<CommunityTitleSkeleton />}>
-          <CommunityTitle slug={slug} />
+    <AppShell
+      // Each slot has its OWN boundary: the tenant read is a Convex round trip,
+      // and awaiting it in the layout body would hold the whole frame — the
+      // content column included — instead of just the chrome. They resolve off
+      // the same memoised promise, so in practice they arrive together.
+      rail={
+        <Suspense fallback={<ShellRailSkeleton />}>
+          <RailSlot slug={slug} />
         </Suspense>
-        <div className={`hidden ${SHELL} pt-4 md:block`}>
-          {/* h-11 == the strip's own min-h-11, so the header does not resize
-              under the reader when the real tabs arrive. */}
-          <Suspense fallback={<div className="h-11" aria-hidden />}>
-            <CommunityTabsSlot slug={slug} />
-          </Suspense>
-        </div>
-      </header>
-      <main className={`@container ${SHELL} py-5 md:py-8`}>{children}</main>
-      {/* Phone-only. Renders its own in-flow spacer, so <main> needs no extra
-          bottom padding and pages where the bar hides get none — which is also
-          why the fallback is nothing at all: the spacer belongs to the bar, and
-          a bar-shaped box on the lesson player (where the bar is deliberately
-          hidden) would be a phantom. */}
-      <Suspense fallback={null}>
-        <CommunityBottomNavSlot slug={slug} />
-      </Suspense>
-    </div>
+      }
+      topBar={
+        <Suspense fallback={<ShellTopBarSkeleton />}>
+          <TopBarSlot slug={slug} />
+        </Suspense>
+      }
+      heading={
+        <Suspense fallback={null}>
+          <HeadingSlot slug={slug} />
+        </Suspense>
+      }
+    >
+      {children}
+    </AppShell>
   );
 }

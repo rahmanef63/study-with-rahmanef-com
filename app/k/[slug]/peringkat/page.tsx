@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { communityHref } from "@/lib/community";
 import { safeQuery } from "@/lib/convex-server";
 import { PapanSkor } from "./_components/papan-skor";
+import { PageHeading } from "../_components/page-heading";
 
 // Peringkat tab. Same shape as Anggota: one anonymous slug→tenantId resolution
 // server-side, then a client island — the board is a member list, so listTop is
@@ -49,8 +50,14 @@ async function PeringkatBody({ slug }: { slug: string }) {
 export default async function PeringkatPage({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
   return (
-    <Suspense fallback={<Skeleton className="h-64 w-full" />}>
-      <PeringkatBody slug={slug} />
-    </Suspense>
+    <>
+      {/* A board of numbers is the surface that needs its label most: without
+          one, a phone shows a rank column and a score column and nothing that
+          says these are community standings. */}
+      <PageHeading title="Peringkat" />
+      <Suspense fallback={<Skeleton className="h-64 w-full" />}>
+        <PeringkatBody slug={slug} />
+      </Suspense>
+    </>
   );
 }

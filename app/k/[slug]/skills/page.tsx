@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { communityHref } from "@/lib/community";
 import { safeQuery } from "@/lib/convex-server";
 import { GabungDulu } from "../_components/gabung-dulu";
+import { PageHeading } from "../_components/page-heading";
 
 // Skills tab — the community's prompt library.
 //
@@ -89,8 +90,14 @@ export default async function SkillsPage({
 }) {
   const [{ slug }, search] = await Promise.all([params, searchParams]);
   return (
-    <Suspense fallback={<Skeleton className="h-64 w-full" />}>
-      <SkillsBody slug={slug} tag={firstTag(search.tag)} />
-    </Suspense>
+    <>
+      {/* Outside the boundary, same as the Materi tab it mirrors: a constant
+          title must not wait on Convex, and below md it is the only thing on
+          screen that says which library you are in. */}
+      <PageHeading title="Skills" />
+      <Suspense fallback={<Skeleton className="h-64 w-full" />}>
+        <SkillsBody slug={slug} tag={firstTag(search.tag)} />
+      </Suspense>
+    </>
   );
 }

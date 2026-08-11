@@ -3,7 +3,6 @@ import { cache, Suspense } from "react";
 import Link from "next/link";
 import { CalendarDays } from "lucide-react";
 import { api } from "@convex/_generated/api";
-import { SectionHeader } from "@/components/mockup-kit";
 import { TombolBagikan } from "@/components/tombol-bagikan";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +18,7 @@ import { communityHref } from "@/lib/community";
 import { absoluteUrl, safeQuery } from "@/lib/convex-server";
 import { AgendaMendatang, ArsipAcara } from "./_components/daftar-acara";
 import { PanelJadwal } from "./_components/panel-jadwal";
+import { PageHeading } from "../_components/page-heading";
 import { kalenderHref, labelHari, labelRentang } from "./_components/acara-lib";
 
 // Kalender — the community's live cadence, SERVER-rendered and indexable.
@@ -117,9 +117,14 @@ async function IsiKalender({ slug }: Params) {
   const { tenant, mendatang, lampau } = data;
   return (
     <div className="space-y-8">
-      <SectionHeader
-        eyebrow="Papan jadwal"
-        title="Kalender sesi"
+      {/* <PageHeading/>, not <SectionHeader/>: this is the PAGE's title, and
+          every other section under /k now says its name the same way. The
+          eyebrow "Papan jadwal" went with the swap — two labels for one screen,
+          one of them a synonym of the other. The share button stays, which is
+          why the heading lives in here with the tenant rather than above the
+          boundary: it needs the community name. */}
+      <PageHeading
+        title="Kalender"
         actions={
           <TombolBagikan
             url={absoluteUrl(kalenderHref(slug))}

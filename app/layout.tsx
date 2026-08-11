@@ -5,8 +5,6 @@ import { VersionWatcher } from "@/components/version-watcher";
 import { LocalStoragePurge } from "@/components/local-storage-purge";
 import { ServiceWorkerRegistrar } from "@/components/pwa/service-worker";
 import { Toaster } from "@/components/ui/sonner";
-import { ViewTransition } from "@/components/ui/view-transition";
-import { RouteDirection } from "@/components/ui/route-direction";
 import "./globals.css";
 
 // Arcade type pair. Pixelify Sans is the body face — a pixel font that still
@@ -161,35 +159,37 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             OS shell's UrlSync read window.location during prerender, which
             suspended EVERY route to a full-screen splash. Pages own their own
             boundaries around the specific reads that are dynamic. */}
-        {/* Screens move now. <ViewTransition> is what makes a router update run
-            inside document.startViewTransition(); RouteDirection stamps
-            <html data-nav-dir> so the animation knows forward from back. The
-            animations live in the ROUTE TRANSITIONS block of app/globals.css
-            and are a hard no-op under prefers-reduced-motion. The wrapper sits
-            INSIDE the Convex provider so a provider re-render cannot remount
-            the boundary — a remount reads as the whole app exiting. */}
-        <RouteDirection />
-        <ConvexClientProvider>
-          {/* No `name`, and deliberately no `default="none"` — measured, both:
-              "none" makes React skip the transition entirely (0 animations),
-              and a name would have to be kept in sync with the CSS. React
-              assigns this boundary a GENERATED view-transition-name (observed:
-              `_t_0_`), which is precisely why the rules in globals.css are
-              written against the universal `::view-transition-old(*)` and not
-              against `root`. */}
-          <ViewTransition>{children}</ViewTransition>
-        </ConvexClientProvider>
-        {/* mobileOffset lifts the toast clear of <CommunityBottomNav/>. Below
-            600px sonner switches to a full-width bottom-anchored toast at
-            z-index 999999999, which sat ON TOP of the fixed 56px nav and — with
-            VersionWatcher's duration: Infinity — covered all five nav cells
-            until the user reloaded. The bar is 3.0625rem tall (BAR_H in
-            components/community/community-bottom-nav.tsx); 3.5rem is that plus
-            a deliberate ~7px of slack, so the toast clears it either way. */}
+        {/* NO <ViewTransition> HERE, AND THAT IS THE FIX FOR "terbuka 2 kali".
+            It used to wrap {children}, which put every router update inside
+            document.startViewTransition(). React animates EVERY transition
+            update inside such a boundary — a Suspense reveal included — and
+            every page under /k has 3–4 Suspense boundaries, so one tap produced
+            two or three consecutive whole-app entrances. Measured on a
+            throttled 390px phone: 1.2s of continuous sliding across three
+            transitions, the middle one animating a frame in which the DOM had
+            not changed at all.
+            It cannot be fixed in CSS: `transition.types` is empty here (Next 16
+            tags neither the router push nor the Suspense reveal), so no
+            selector can single out the extra runs. Naming the chrome only fixed
+            the SECOND, smaller defect — the sticky bar being painted twice
+            mid-slide — while leaving the content pane re-entering 2–3x.
+            The route animations and the reserved chrome names are gone from
+            app/globals.css with it. A dashboard whose rail stays put has no
+            business sliding its content pane in from the right anyway; if
+            motion is wanted back it has to be a bounded CSS animation on the
+            content pane, not a document-level view transition.
+            Orphaned by this change and safe to delete:
+            components/ui/view-transition.tsx, components/ui/route-direction.tsx
+            and `experimental.viewTransition` in next.config.mjs. */}
+        <ConvexClientProvider>{children}</ConvexClientProvider>
+        {/* The 3.5rem of lift removed here cleared <CommunityBottomNav/>, the
+            fixed 56px bar this rebuild deleted. Nothing is bottom-anchored any
+            more — a left rail at md+, a left Sheet below — so a toast floating
+            56px above nothing reads as a bug. Do not restore the lift. */}
         <Toaster
           position="bottom-right"
           mobileOffset={{
-            bottom: "calc(3.5rem + env(safe-area-inset-bottom, 0px) + 1rem)",
+            bottom: "calc(env(safe-area-inset-bottom, 0px) + 1rem)",
             left: "1rem",
             right: "1rem",
           }}

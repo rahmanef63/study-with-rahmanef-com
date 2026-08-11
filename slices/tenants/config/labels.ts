@@ -15,9 +15,15 @@ export const DEFAULT_TENANT_LABELS = {
     backToHome: "Kembali ke beranda",
   },
   join: {
-    cta: "Gabung komunitas",
+    // ONE WORD, everywhere. The rail's action already said "Gabung" while the
+    // content gates on /anggota, /materi and /diskusi said "Login untuk gabung"
+    // — both on screen at once at 1280, naming the same act two ways. The long
+    // form also explains a mechanism ("login") when the promise ("gabung") is
+    // what the reader is deciding about, and it costs three times the width on
+    // the surface where it appears most: a phone.
+    cta: "Gabung",
     pending: "Memproses…",
-    loginFirst: "Login untuk gabung",
+    loginFirst: "Gabung",
     alreadyMember: "Kamu sudah bergabung",
     success: "Selamat datang di komunitas!",
   },

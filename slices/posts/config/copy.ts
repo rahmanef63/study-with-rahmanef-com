@@ -54,7 +54,7 @@ export const POSTS_COPY = {
   createSuccess: "Post terkirim",
   gateTitle: "Gabung dulu untuk ikut menulis",
   gateHint: "Membaca bebas untuk siapa saja. Menulis, menyukai, dan membalas khusus anggota.",
-  gateAction: "Masuk / gabung",
+  gateAction: "Gabung", // one word, matching DEFAULT_TENANT_LABELS.join
 
   // ── errors (ConvexError.code → copy; VALIDATION/RATE pakai pesan server) ──
   errNotAuthenticated: "Silakan login dulu",
