@@ -1,0 +1,30 @@
+{
+  "$schema": "../../docs/slice.manifest.schema.json",
+  "name": "peta",
+  "version": "0.1.0",
+  "description": "Peta belajar — the /mulai assessment deck (tap rows, one multi-select, a pointer-event swipe deck) and the plan it produces (level, 2–3 ranked paths with three concrete weekly steps each, budget verdict, knowledge gaps, one primary CTA). Fully anonymous, mirrored to localStorage, shareable through a `?p=` code, and resolved against the live etalase catalogue so a recommendation never links to an unpublished course. Owns NO Convex tables and adds NO npm dependency.",
+  "category": "lms",
+  "stability": "beta",
+  "deps": {
+    "shared": ["features/defineFeature"],
+    "slices": ["progress"],
+    "convexFeatures": ["tenants", "courses", "materi", "insight"],
+    "npm": {},
+    "env": []
+  },
+  "files": {
+    "include": ["**/*"],
+    "exclude": ["__tests__/**", "*.test.ts", "*.test.tsx"]
+  },
+  "convexFiles": { "include": [], "exclude": [] },
+  "permissions": [],
+  "schemaTables": [],
+  "compatibility": {
+    "next": ">=15 <17",
+    "react": "^19",
+    "convex": "^1.16",
+    "tailwind": "4",
+    "auth": "convex-auth"
+  },
+  "notes": "0.1.0 (2026-08-11): first cut. The SCORING is deliberately NOT in this slice — it is `@/lib/peta`, a pure engine with no React, Convex, clock or randomness, which is what lets a plan be reproduced from a URL with nothing stored server-side. Reads the progress BARREL only (P1). Two invariants worth knowing before editing: (1) `draft.known` is DERIVED from per-card swipe verdicts intersected with the deck the current answers imply, so a stale `known` array cannot survive a back-navigation and inflate a level; (2) `situation` answers are pruned when their branch closes, so the scorers never see an answer to a question that was not asked. Accessibility is load-bearing here, not polish: every swipe has a button and an arrow-key path, the deck announces itself through aria-live, the swipe card is NOT keyed by concept (a remount would drop keyboard focus after every card), and prefers-reduced-motion disables the drag outright instead of shortening it."
+}

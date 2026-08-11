@@ -37,10 +37,31 @@ export const getPublicBySlug = query({
 });
 
 /**
+ * Canceled events are not in `by_tenant_start`, so "has a live session" needs a
+ * few rows read and filtered rather than one. 25 is a ceiling, not a page: a
+ * community would have to cancel 25 sessions in a row for the probe to answer
+ * "no" while a live one exists further down — and the failure mode there is a
+ * hidden Kalender tab whose route still works, not lost data.
+ */
+const EVENT_PROBE_TAKE = 25;
+
+/**
  * Public community stats for the community header — ANONYMOUS (etalase, §6).
  * Member COUNT only; never the member list, never any user data. Bounded by
  * membersPageMax, so a big community reports "200+" rather than walking the
  * table. Returns null for unknown/inactive slugs, same as getPublicBySlug.
+ *
+ * IT ALSO CARRIES THE TAB SIGNAL (`lib/community-tabs.ts` `TenantTabSignal`),
+ * and that is the whole reason it lives here rather than in a query of its own.
+ * The community layout is a server component, permanently anonymous, and it
+ * already awaits this function on EVERY page under /k/<slug> for the
+ * "N anggota · M kelas" line. Three `.take(1)`-shaped index probes ride along
+ * inside the same round trip, so hiding always-empty tabs costs the app no
+ * extra query — which is the only budget a per-page-load layout read has.
+ *
+ * The probes are existence checks, never counts: `hasSkills` must not become
+ * `skillCount`, or the next reader will render it and this query will start
+ * paying for a number nobody navigates by.
  */
 export const getPublicStatsBySlug = query({
   args: { slug: v.string() },
@@ -63,11 +84,50 @@ export const getPublicStatsBySlug = query({
       )
       .take(TENANT_LIMITS.activeListMax + 1);
 
+    // ---- tab signal: three existence probes, all indexed, all bounded ------
+    // Materi takes TWO probes because the visibility contract counts a MISSING
+    // `status` as published (rows that predate the column) and an index range
+    // pinned to "published" cannot see them — the same two-range shape
+    // features/materi/queries.ts `publicListSlugs` uses for the sitemap.
+    // KIND IS PINNED, and it has to be: a skill IS a `lessons` row, so probing
+    // by_tenant_status alone lit `hasMateri` for a skills-only community — the
+    // Materi tab would appear and open a library that filters kind === "materi"
+    // and renders empty. That is precisely the "tabs are decoration" outcome
+    // this signal exists to prevent. Plain materi leave `kind` UNWRITTEN
+    // (courses/lessons.createLesson), so undefined IS the materi range.
+    const materiWith = async (status: "published" | undefined) =>
+      ctx.db
+        .query("lessons")
+        .withIndex("by_tenant_kind_status", (q) =>
+          q.eq("tenantId", tenant._id).eq("kind", undefined).eq("status", status)
+        )
+        .first();
+    const [publishedMateri, legacyMateri] = await Promise.all([
+      materiWith("published"),
+      materiWith(undefined),
+    ]);
+    // Skills are ONE exact range — every skill row writes `kind` and `status`
+    // explicitly (convex/_seed/seedSkills.ts), so there is no undefined case.
+    const skill = await ctx.db
+      .query("lessons")
+      .withIndex("by_tenant_kind_status", (q) =>
+        q.eq("tenantId", tenant._id).eq("kind", "skill").eq("status", "published")
+      )
+      .first();
+    const events = await ctx.db
+      .query("events")
+      .withIndex("by_tenant_start", (q) => q.eq("tenantId", tenant._id))
+      .take(EVENT_PROBE_TAKE);
+
     return {
       memberCount: Math.min(members.length, cap),
       /** true = the real count exceeds memberCount (render "200+"). */
       memberCountCapped: members.length > cap,
       courseCount: Math.min(courses.length, TENANT_LIMITS.activeListMax),
+      /** `TenantTabSignal` — booleans only, never counts. See the note above. */
+      hasMateri: publishedMateri !== null || legacyMateri !== null,
+      hasSkills: skill !== null,
+      hasEvents: events.some((event) => event.canceledAt === undefined),
     };
   },
 });

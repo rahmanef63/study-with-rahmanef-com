@@ -22,6 +22,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [
     { url: SITE_ORIGIN, lastModified: now, changeFrequency: "daily", priority: 1 },
     { url: `${SITE_ORIGIN}/komunitas`, lastModified: now, changeFrequency: "weekly" },
+    // /mulai is indexable, self-canonical and server-rendered above the fold,
+    // but its only in-product entry points are a link on /komunitas and a
+    // client-only callout that renders nothing during SSR. Search is the one
+    // acquisition channel that could carry the page a stranger most needs, and
+    // leaving it out of the sitemap switched that channel off.
+    { url: `${SITE_ORIGIN}/mulai`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
   ];
 
   const tenants = (await safeQuery(api.features.tenants.queries.listActive, {})) ?? [];

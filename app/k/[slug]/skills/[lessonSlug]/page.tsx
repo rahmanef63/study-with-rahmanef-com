@@ -4,6 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { api } from "@convex/_generated/api";
+import { MateriViewRecorder } from "@/features/analytics";
 import {
   MateriDetailView,
   MateriPageHeader,
@@ -84,6 +85,14 @@ async function SkillSurface({ slug, lessonSlug }: Params) {
 
   return (
     <div className="space-y-8">
+      {/* Twin of the mount in ../../materi/[lessonSlug]/page.tsx, and it counts
+          into the SAME `materiViews` table — a skill is a materi row, so a
+          "grabbed the prompt" read shows up in the community's read
+          distribution exactly like a lesson read does. */}
+      {skill === null || tenant === null ? null : (
+        <MateriViewRecorder tenantId={tenant._id} lessonId={skill._id} />
+      )}
+
       {skill === null ? null : (
         <MateriPageHeader
           materi={skill}

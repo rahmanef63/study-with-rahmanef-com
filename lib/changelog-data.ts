@@ -27,6 +27,25 @@ export type ChangelogEntry = {
 // NEWEST FIRST. Prepend here on every update.
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-08-11",
+    version: "v2.10",
+    title: "Peta belajar: jawab beberapa kartu, dapat rencana belajarmu sendiri",
+    tags: ["Baru", "Tampilan"],
+    points: [
+      "Buka /mulai. Beberapa kartu singkat — sudah berapa lama pakai AI, kerjanya apa, mau capai apa, sanggup keluar berapa per bulan, punya langganan atau tidak, dan istilah mana yang sudah kamu tahu — lalu kamu dapat rencana belajar yang disusun dari jawabanmu.",
+      "Hasilnya bukan satu jalur, tapi dua sampai tiga pilihan berperingkat, masing-masing dengan alasan yang menyebut jawabanmu sendiri, kelas mana yang diambil lebih dulu, dan tiga langkah konkret untuk minggu ini.",
+      "Pertanyaannya menyesuaikan. Kalau kamu baru mulai, kamu tidak akan pernah ditanya soal RAG atau fine-tuning — istilah yang cuma bikin orang merasa bodoh dan berhenti.",
+      "Soal biaya dijawab jujur: kalau kamu pilih Rp0, rencananya benar-benar bisa dituntaskan dengan tier gratis, lengkap dengan batasnya. Kalau kamu sudah bayar ChatGPT Plus atau Claude Pro, sarannya menyesuaikan supaya yang sudah kamu bayar terpakai — dan kalau ternyata kamu tidak butuh langganan itu, kami bilang.",
+      "Tidak perlu akun. Bisa dikerjakan sambil jalan, jawabannya tersimpan di HP-mu, dan rencananya bisa dibagikan lewat tautan.",
+      "Pustaka Skills kini terisi 14 prompt siap pakai — balas email, notulen rapat, rapikan data, caption, review tulisan, dan lainnya.",
+      "Tab yang tidak ada isinya untuk komunitasmu tidak lagi ditampilkan. Kalender hilang selama belum ada jadwal sesi; Skills hilang selama pustaka promptnya masih kosong. Alamatnya tetap hidup — tautan lama tidak rusak — hanya menunya yang berhenti menjanjikan halaman kosong.",
+      "Karena ada slot yang kosong, Anggota kembali masuk ke bar bawah di HP untuk komunitas yang belum punya pustaka Skills. Urutannya ikut isi, bukan ditentukan sekali lalu dilupakan.",
+      "Untuk pengelola: tab Statistik dirombak. Di atas ada denyut komunitas — berapa anggota yang aktif minggu ini, berapa yang menyelesaikan materi, dan berapa materi yang belum pernah dibuka sama sekali.",
+      "Per kelas, ada peta “di mana orang berhenti”: daftar materi urut sesuai kelas, lengkap dengan berapa orang membacanya, berapa yang menyelesaikannya, dan berapa yang berhenti di antara dua materi. Materi dengan penurunan terbesar ditandai merah.",
+      "Angka baca hanya menghitung anggota yang login, satu kali per materi per hari. Pengunjung anonim dan trafik dari Google tidak masuk hitungan — ini tertulis di layar supaya tidak salah dibaca sebagai jumlah pengunjung.",
+    ],
+  },
+  {
     date: "2026-08-10",
     version: "v2.9",
     title: "52 materi baru, dan menu Skills untuk kumpulan prompt",

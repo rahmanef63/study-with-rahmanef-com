@@ -1,0 +1,122 @@
+{
+  "$schema": "https://resource.rahmanef.com/slice-schema.json",
+  "slug": "peta",
+  "version": "0.1.0",
+  "category": "lms",
+  "kind": "frontend",
+  "title": "Peta belajar — the /mulai assessment and the plan it produces",
+  "description": "A mobile-first, fully ANONYMOUS questionnaire at /mulai that ends in a concrete, budget-aware learning plan. Answers the owner's actual problem — 'orang tidak tahu mau belajar apa dan setiap orang punya kasus dan modal yang berbeda-beda' — which a catalogue of six courses cannot. The deck is one question per screen: tappable option rows, one multi-select, and a swipe deck of concept cards driven by raw pointer events plus a CSS transform (no animation library exists in this repo and none may be added). Every swipe has an equal button and ArrowLeft/ArrowRight path, the deck narrates itself through an aria-live region, and under prefers-reduced-motion the drag is disabled outright rather than shortened. Progress is a visible N/M and one step of Back. The run mirrors to localStorage so a phone call does not cost nine answers, and a finished run encodes into `?p=` — the assessment is a PURE FUNCTION, so a shareable plan needs no database row. The result screen carries the level, two or three ranked paths with their match, their reason in the visitor's own words and three concrete steps, the budget verdict (including when to STOP paying), the knowledge gaps with links to the real materi that close them, and one primary CTA into the first materi of the top path. Every course and materi slug is checked against the LIVE etalase catalogue before it is rendered as a link. SCORING IS NOT HERE: it lives in `@/lib/peta`, a pure engine with no React, no Convex and no clock. Zero paid-API surface (DECISIONS #34).",
+  "namespace": "@/features/peta",
+  "frontend": {
+    "slicePath": "slices/peta",
+    "configExport": "petaFeature"
+  },
+  "deps": {
+    "npm": [
+      "convex",
+      "lucide-react"
+    ],
+    "shadcn": [
+      "button",
+      "skeleton"
+    ],
+    "env": [],
+    "peers": [
+      {
+        "slug": "progress",
+        "reason": "useRecentCourses — the community-home CTA hides itself for anyone who already has lesson completions"
+      }
+    ]
+  },
+  "contract": {
+    "barrel": {
+      "views": [
+        "PetaView",
+        "PetaResultView"
+      ],
+      "components": [
+        "PetaCallout",
+        "PetaEntryCard",
+        "PetaProgress",
+        "ChoiceQuestion",
+        "MultiChoiceQuestion",
+        "SwipeQuestion",
+        "SwipeCard",
+        "LevelBlock",
+        "PathCard",
+        "BudgetBlock",
+        "GapsBlock",
+        "PrimaryCta",
+        "ResultActions"
+      ],
+      "hooks": [
+        "usePetaRun",
+        "useSavePeta",
+        "useSavedPeta",
+        "useReducedMotion"
+      ],
+      "lib": [
+        "resolveAgainstCatalogue",
+        "indexCatalogue",
+        "communityFor",
+        "encodeRun",
+        "decodeRun",
+        "PETA_CODE_PARAM",
+        "sanitizeDraft",
+        "sanitizeSwipe",
+        "toProfilePayload",
+        "MAX_PROFILE_ANSWERS",
+        "runSteps",
+        "runProgress",
+        "runFromDraft",
+        "normalise",
+        "back",
+        "setSingle",
+        "setMulti",
+        "setSwipe",
+        "currentQuestion",
+        "EMPTY_RUN",
+        "loadRun",
+        "saveRun",
+        "clearRun",
+        "PETA_STORAGE_KEY",
+        "EMPTY_CATALOGUE",
+        "PETA_HREF"
+      ],
+      "consumerSeams": {
+        "app-shell": [
+          "/mulai ← server page reads the live catalogue via safeQuery (tenants.getPublicBySlug + courses.listPublished + materi.publicListSlugs, all anonymous-whitelisted) and mounts <PetaView catalogue sharedCode />",
+          "/k/[slug] ← <PetaEntryCard /> above the course grid; self-hiding, never nags",
+          "/komunitas ← <PetaCallout variant=\"compact\" /> in the directory header"
+        ]
+      }
+    },
+    "convexFunctions": {
+      "anonymous": [
+        "features/tenants/queries:getPublicBySlug",
+        "features/courses/queries:listPublished",
+        "features/courses/queries:getOverview",
+        "features/materi/queries:publicListSlugs"
+      ],
+      "member": [],
+      "instructor": [],
+      "authenticated": [
+        "features/insight/profiles:saveProfile",
+        "features/insight/profiles:myProfile"
+      ]
+    }
+  },
+  "registers": [],
+  "license": "MIT",
+  "tags": [
+    "lms",
+    "assessment",
+    "onboarding",
+    "swipe",
+    "mobile-first",
+    "accessibility",
+    "anonymous",
+    "zero-cost"
+  ],
+  "providers": []
+}

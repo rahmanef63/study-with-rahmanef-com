@@ -2,7 +2,7 @@
 // paths below are what the CLI, README and docs/STATUS.md runbook reference, so
 // a function may move between _seed/ modules but must keep its name here.
 //
-// All four are internalMutation: not callable from any client (P0). Run them in
+// All five are internalMutation: not callable from any client (P0). Run them in
 // order, from the repo root:
 //
 //   npx convex run seed:bootstrap '{
@@ -16,6 +16,7 @@
 //   npx convex run seed:seedContent    '{"ownerEmail":"…","tenantSlug":"belajar-ai"}'
 //   npx convex run seed:seedWorld      '{"ownerEmail":"…"}'
 //   npx convex run seed:seedEngagement '{"ownerEmail":"…","tenantSlug":"belajar-ai"}'
+//   npx convex run seed:seedSkills     '{"ownerEmail":"…","tenantSlug":"belajar-ai"}'
 //
 // Every one is idempotent — re-running keeps existing rows. Add `--prod` to
 // target rare-toucan-552.
@@ -31,6 +32,7 @@ import { internalMutation } from "./_generated/server";
 import { runBootstrap } from "./_seed/bootstrap";
 import { runSeedContent } from "./_seed/seedContent";
 import { runSeedEngagement } from "./_seed/seedEngagement";
+import { runSeedSkills } from "./_seed/seedSkills";
 import { runSeedWorld } from "./_seed/seedWorld";
 
 export const bootstrap = internalMutation({
@@ -58,4 +60,11 @@ export const seedWorld = internalMutation({
 export const seedEngagement = internalMutation({
   args: { ownerEmail: v.string(), tenantSlug: v.string() },
   handler: (ctx, args) => runSeedEngagement(ctx, args),
+});
+
+/** Stocks the SKILLS library (materi with `kind: "skill"` + a prompt). Separate
+ *  from seedContent because a skill has no course to be placed in. */
+export const seedSkills = internalMutation({
+  args: { ownerEmail: v.string(), tenantSlug: v.string() },
+  handler: (ctx, args) => runSeedSkills(ctx, args),
 });

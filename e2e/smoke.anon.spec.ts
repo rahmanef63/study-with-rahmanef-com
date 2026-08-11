@@ -11,6 +11,7 @@
 // need the old 15s "wait for the client to fetch" budget; only the pages whose
 // body is a client island (Diskusi, Kelola) still do.
 import { test, expect, type Page, type ConsoleMessage } from "@playwright/test";
+import { expectNoPromptLeak, htmlText, sitemapPaths } from "./helpers";
 
 // Seeded fixtures (docs/STATUS.md #11: tenant `belajar-ai`, Rahman = owner).
 // Env-overridable so staging can point at its own seed without editing specs.
@@ -21,15 +22,31 @@ const USERNAME = process.env.E2E_USERNAME ?? "abdurrahman-fakhrul";
 /** Only client-island surfaces still wait on a Convex round trip. */
 const DATA_TIMEOUT = 15_000;
 
-const CONSOLE_ALLOWLIST = [/Failed to load resource/i, /React DevTools/i, /net::ERR_/i];
+const ERROR_ALLOWLIST = [
+  /Failed to load resource/i,
+  /React DevTools/i,
+  /net::ERR_/i,
+  // Browser-level rejection from the View Transitions API, not app code: the
+  // whole app renders inside React's <ViewTransition> (app/layout.tsx), and a
+  // transition that is interrupted — a second navigation, a backgrounded tab —
+  // rejects with exactly this. It surfaces as a pageerror on a passing page and
+  // made spec 14 flaky before it was listed here.
+  /Transition was skipped/i,
+];
 
 function collectErrors(page: Page) {
   const errors: string[] = [];
-  page.on("pageerror", (err) => errors.push(`pageerror: ${err.message}`));
+  // The allowlist applies to BOTH channels: an uncaught rejection and a
+  // console.error are the same class of evidence, so filtering one and not the
+  // other just moves the flake.
+  page.on("pageerror", (err) => {
+    if (ERROR_ALLOWLIST.some((re) => re.test(err.message))) return;
+    errors.push(`pageerror: ${err.message}`);
+  });
   page.on("console", (msg: ConsoleMessage) => {
     if (msg.type() !== "error") return;
     const text = msg.text();
-    if (CONSOLE_ALLOWLIST.some((re) => re.test(text))) return;
+    if (ERROR_ALLOWLIST.some((re) => re.test(text))) return;
     errors.push(`console.error: ${text}`);
   });
   return errors;
@@ -50,7 +67,14 @@ test.describe("community routes — anon smoke", () => {
     const errors = collectErrors(page);
     await page.goto("/");
     await expect(page).toHaveURL(new RegExp(`/k/${TENANT}$`));
-    await expect(page.getByRole("heading", { name: "Mulai belajar di sini." })).toBeVisible();
+    // The Kelas tab is a bare grid of course covers — the eyebrow, the heading
+    // "Mulai belajar di sini." and the paragraph that used to sit above it were
+    // deleted for costing 190px on a 390px phone (app/k/[slug]/page.tsx). So
+    // the landing marker is the community name in the header plus at least one
+    // real course link; asserting the removed heading is what made this spec
+    // fail against every build since.
+    await expect(page.locator("header").getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page.locator(`main a[href*="/kelas/"]`).first()).toBeVisible();
     await expectNoCrash(page);
     expect(errors).toEqual([]);
   });
@@ -126,9 +150,12 @@ test.describe("community routes — anon smoke", () => {
     // A syntactically valid but non-existent lesson id: the gate must fire on
     // MEMBERSHIP before anything tries to read the lesson.
     await page.goto(`/k/${TENANT}/kelas/${COURSE}/j570000000000000000000000000`);
-    await expect(page.getByText("Materi ini untuk anggota")).toBeVisible({
+    // SSOT: lesson-surface.tsx → <GabungDulu description=…>. (The old copy
+    // "Materi ini untuk anggota" no longer exists anywhere in the product.)
+    await expect(page.getByText("Gabung komunitasnya dulu")).toBeVisible({
       timeout: DATA_TIMEOUT,
     });
+    await expect(page.locator("iframe")).toHaveCount(0);
     await expectNoCrash(page);
   });
 
@@ -177,5 +204,190 @@ test.describe("community routes — anon smoke", () => {
     const xml = await sitemap.text();
     expect(xml).toContain("<urlset");
     expect(xml).toContain(`/k/${TENANT}`);
+  });
+
+  // ── the materi/skills model, from the outside ─────────────────────────────
+  // The two LIBRARY tabs are member-gated lists; the two PERMALINK pages are
+  // the indexable half. These four specs are the anonymous side of that
+  // contract: the lists show nothing, the permalinks show a real title, and
+  // neither ever emits a body or a prompt.
+
+  test("13. /materi as anon is a gate — no rows, no body, and noindex", async ({ page }) => {
+    const errors = collectErrors(page);
+    const res = await page.goto(`/k/${TENANT}/materi`);
+    expect(res?.status()).toBe(200);
+    const html = await res!.text();
+
+    await expect(
+      page.getByText("Perpustakaan materi komunitas hanya terbuka untuk anggota.")
+    ).toBeVisible({ timeout: DATA_TIMEOUT });
+    // Everything the list is made of must be absent, not merely hidden: one
+    // permalink row in the HTML is a catalogue of member content leaking.
+    await expect(page.locator(`main a[href*="/materi/"]`)).toHaveCount(0);
+    await expect(page.getByRole("group", { name: "Urutkan" })).toHaveCount(0);
+    await expect(page.locator("main article")).toHaveCount(0);
+    // A list of every materi in a community must never be indexed.
+    expect(html).toMatch(/name="robots"[^>]*noindex|noindex[^>]*name="robots"/);
+    expectNoPromptLeak(html);
+
+    await expectNoCrash(page);
+    expect(errors).toEqual([]);
+  });
+
+  test("14. /skills as anon is a gate — never a prompt", async ({ page }) => {
+    const errors = collectErrors(page);
+    const res = await page.goto(`/k/${TENANT}/skills`);
+    expect(res?.status()).toBe(200);
+    const html = await res!.text();
+
+    await expect(
+      page.getByText("Kumpulan prompt komunitas hanya terbuka untuk anggota.")
+    ).toBeVisible({ timeout: DATA_TIMEOUT });
+    await expect(page.locator(`main a[href*="/skills/"]`)).toHaveCount(0);
+    // The prompt panel is `<section aria-label="Prompt">`. Anon: zero of them,
+    // on the library and on every skill page below.
+    await expect(page.locator('section[aria-label="Prompt"]')).toHaveCount(0);
+    expect(html).toMatch(/name="robots"[^>]*noindex|noindex[^>]*name="robots"/);
+    expectNoPromptLeak(html);
+
+    await expectNoCrash(page);
+    expect(errors).toEqual([]);
+  });
+
+  test("15. a materi permalink server-renders its real title", async ({ page }) => {
+    const errors = collectErrors(page);
+    // Discovered, not hardcoded: the sitemap is the only anonymous enumeration
+    // of materi permalinks, and it is the crawl path the model exists for.
+    const paths = await sitemapPaths(
+      page.request,
+      new RegExp(`^/k/${TENANT}/materi/[^/]+$`)
+    );
+    test.skip(
+      paths.length === 0,
+      "sitemap.xml mengiklankan 0 permalink materi — deployment ini belum punya materi terbit."
+    );
+
+    const res = await page.goto(paths[0]);
+    expect(res?.status()).toBe(200);
+    const html = await res!.text();
+
+    // The ONE <h1> of the page body (the community name in the layout header is
+    // the other h1 on this route — outside <main>).
+    const heading = page.locator("main").getByRole("heading", { level: 1 });
+    await expect(heading).toHaveCount(1);
+    // textContent, not innerText: innerText applies CSS `text-transform`, and
+    // this theme uppercases display text — comparing an UPPERCASED reading of
+    // the DOM against the server's HTML fails on every mixed-case title.
+    const title = ((await heading.textContent()) ?? "").trim();
+    expect(title.length).toBeGreaterThan(0);
+    // In the HTML THE SERVER SENT — the whole point of the permalink. A title
+    // that only appears after hydration is invisible to a crawler and to a
+    // WhatsApp unfurl.
+    expect(htmlText(html)).toContain(title);
+    expect(await page.title()).toContain(title);
+    expect(html).toContain('property="og:title"');
+    expect(html).toContain(`${paths[0]}`); // its own canonical
+
+    // …and nothing else. The body is the member island; anon gets the CTA.
+    await expect(page.getByText("Gabung komunitasnya dulu")).toBeVisible({
+      timeout: DATA_TIMEOUT,
+    });
+    await expect(page.locator("main article")).toHaveCount(0);
+    await expect(page.locator('section[aria-label="Prompt"]')).toHaveCount(0);
+    expectNoPromptLeak(html);
+
+    await expectNoCrash(page);
+    expect(errors).toEqual([]);
+  });
+
+  test("16. a skill permalink shows the title and NEVER the prompt", async ({ page }) => {
+    const errors = collectErrors(page);
+    const paths = await sitemapPaths(
+      page.request,
+      new RegExp(`^/k/${TENANT}/skills/[^/]+$`)
+    );
+    // The skills library ships EMPTY on purpose (prompts are seeded later), so
+    // this is expected to skip until the first skill is published — at which
+    // point it starts guarding the leak without anyone re-enabling it.
+    test.skip(
+      paths.length === 0,
+      "Belum ada skill terbit (perpustakaan skill sengaja kosong) — spec ini hidup sendiri begitu skill pertama terbit."
+    );
+
+    const res = await page.goto(paths[0]);
+    expect(res?.status()).toBe(200);
+    const html = await res!.text();
+
+    const heading = page.locator("main").getByRole("heading", { level: 1 });
+    await expect(heading).toHaveCount(1);
+    const title = ((await heading.textContent()) ?? "").trim();
+    expect(htmlText(html)).toContain(title);
+
+    // THE assertion of this feature: the etalase stops at the title.
+    await expect(page.locator('section[aria-label="Prompt"]')).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Salin" })).toHaveCount(0);
+    expectNoPromptLeak(html);
+    await expect(page.getByText("Gabung komunitasnya dulu")).toBeVisible({
+      timeout: DATA_TIMEOUT,
+    });
+
+    await expectNoCrash(page);
+    expect(errors).toEqual([]);
+  });
+
+  test("17. the two permalink routes share one slug namespace and redirect, never 404", async ({
+    page,
+  }) => {
+    const paths = await sitemapPaths(
+      page.request,
+      new RegExp(`^/k/${TENANT}/materi/[^/]+$`)
+    );
+    test.skip(paths.length === 0, "sitemap.xml mengiklankan 0 permalink materi.");
+    const slug = paths[0].split("/").pop() as string;
+
+    // A materi's slug typed under /skills/ is someone who copied the wrong path
+    // out of a chat: it must land on the canonical materi page, not dead-end.
+    await page.goto(`/k/${TENANT}/skills/${slug}`);
+    await expect(page).toHaveURL(new RegExp(`/k/${TENANT}/materi/${slug}$`));
+    await expectNoCrash(page);
+  });
+
+  // ── /mulai — the assessment ───────────────────────────────────────────────
+  test("18. /mulai is fully usable WITHOUT logging in", async ({ page }) => {
+    const errors = collectErrors(page);
+    // 390px is the design target (AGENTS.md / globals.css: mobile-first, 44px
+    // touch floor), and this is the one surface built for a stranger on a
+    // phone — so it is measured at the width it was designed for.
+    await page.setViewportSize({ width: 390, height: 844 });
+    const res = await page.goto("/mulai");
+    // ESCAPE HATCH, delete when /mulai ships: the assessment is being built in
+    // parallel with this suite. A 404 skips; anything else is asserted for
+    // real, so the spec starts guarding the route the moment it exists.
+    test.skip(
+      res?.status() === 404,
+      "/mulai belum ada di build ini — spec hidup sendiri begitu rutenya di-deploy."
+    );
+    expect(res?.status()).toBe(200);
+
+    // The whole point of the assessment is that a stranger can finish it. Any
+    // login bounce or member gate defeats the feature entirely.
+    await expect(page).toHaveURL(/\/mulai/);
+    await expect(page.getByText(/Masuk untuk|hanya terbuka untuk anggota/)).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: /Masuk dengan Google|Continue with Google/i })
+    ).toHaveCount(0);
+
+    // Usable, not merely reachable: there is something to answer, it is a real
+    // 44px touch target, and answering it does not bounce the visitor to login.
+    const answers = page.locator("main").getByRole("button").or(page.locator("main input"));
+    await expect(answers.first()).toBeVisible({ timeout: DATA_TIMEOUT });
+    const box = await answers.first().boundingBox();
+    expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
+    await answers.first().click();
+    await expect(page).toHaveURL(/\/mulai/);
+    await expect(page.getByText(/Masuk untuk|hanya terbuka untuk anggota/)).toHaveCount(0);
+
+    await expectNoCrash(page);
+    expect(errors).toEqual([]);
   });
 });

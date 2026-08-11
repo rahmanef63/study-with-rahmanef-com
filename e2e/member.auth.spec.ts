@@ -1,45 +1,44 @@
 // Authenticated member smoke — jalan di project "chromium-auth"
 // (playwright.config.ts), yaitu HANYA bila kamu sudah merekam
-// e2e/.auth/user.json (resep: e2e/auth.setup.ts). READ-ONLY: tidak ada spec
+// e2e/.auth/user.json (resep: e2e/README.md). READ-ONLY: tidak ada spec
 // yang menulis data — aman untuk akun sungguhan; meski begitu, prod DITOLAK
 // kecuali E2E_ALLOW_PROD_AUTH=1 (kebijakan e2e/README.md: authed = lokal/staging).
 //
-// Ditulis ulang untuk rute komunitas (/k/<tenant>/…) setelah OS desktop dihapus.
+// A1–A5 = fondasi sesi (sesi hidup, notifikasi, cari, player materi, diskusi).
+// Perpustakaan materi/skills ada di library.auth.spec.ts (B1–B7); konsol
+// Kelola di kelola.auth.spec.ts (C1–C4).
+//
 // Selector policy sama dengan smoke.anon.spec.ts: role/teks atas copy SSOT
-// Bahasa Indonesia — sengaja pecah bila kontrak copy berubah.
-import { test, expect, type Page } from "@playwright/test";
-
-const TENANT = process.env.E2E_TENANT ?? "belajar-ai";
-const COURSE = process.env.E2E_COURSE ?? "dasar-ai";
-const DATA_TIMEOUT = 15_000;
-
-const IS_PROD = (process.env.E2E_BASE_URL ?? "").includes("study-with.rahmanef.com");
-const ALLOW_PROD = process.env.E2E_ALLOW_PROD_AUTH === "1";
+// Bahasa Indonesia — sengaja pecah bila kontrak copy berubah. (A1/A4 memang
+// pernah pecah begitu: heading "Mulai belajar di sini." dan
+// section[aria-label="Modul"] sudah dihapus dari produk, jadi assertion-nya
+// diganti ke marker yang sekarang benar-benar ada.)
+import { test, expect } from "@playwright/test";
+import {
+  COURSE,
+  DATA_TIMEOUT,
+  DENY_PROD_AUTH,
+  DENY_PROD_AUTH_REASON,
+  TENANT,
+  expectNoCrash,
+} from "./helpers";
 
 test.beforeEach(() => {
-  test.skip(
-    IS_PROD && !ALLOW_PROD,
-    "Authed suite menolak prod (kebijakan README) — set E2E_ALLOW_PROD_AUTH=1 hanya bila sadar risikonya (tetap read-only).",
-  );
+  test.skip(DENY_PROD_AUTH, DENY_PROD_AUTH_REASON);
 });
 
-/** Crash guard yang sama dengan suite anon. */
-async function expectNoCrash(page: Page) {
-  await expect(page.getByText(/Application error|Unhandled Runtime Error/)).toHaveCount(0);
-  await expect(page.getByText("Ada yang tidak beres")).toHaveCount(0);
-}
-
 test.describe("community routes — member (storage state)", () => {
-  test("A1. sesi hidup: header komunitas menampilkan peran, bukan tombol Masuk", async ({
+  test("A1. sesi hidup: header komunitas menyapa anggota, bukan menawarkan login", async ({
     page,
   }) => {
     await page.goto(`/k/${TENANT}`);
-    await expect(page.getByRole("heading", { name: "Mulai belajar di sini." })).toBeVisible();
-    // JoinButton punya tiga state; untuk member ia merender RoleChip, bukan
-    // link login. State kedaluwarsa ⇒ spec ini gagal = sinyal rekam ulang.
-    await expect(page.getByRole("link", { name: /^Masuk$/ })).toHaveCount(0, {
+    // JoinButton punya tiga state; untuk member ia merender "Kamu sudah
+    // bergabung" + RoleChip. State kedaluwarsa ⇒ spec ini gagal = sinyal rekam
+    // ulang (itu SATU-SATUNYA prosedur refresh — lihat e2e/README.md).
+    await expect(page.getByText("Kamu sudah bergabung").first()).toBeVisible({
       timeout: DATA_TIMEOUT,
     });
+    await expect(page.getByRole("link", { name: "Login untuk gabung" })).toHaveCount(0);
     await expectNoCrash(page);
   });
 
@@ -57,7 +56,6 @@ test.describe("community routes — member (storage state)", () => {
     await page.goto(`/k/${TENANT}/cari`);
     const input = page.getByLabel("Kata kunci pencarian");
     await expect(input).toBeVisible({ timeout: DATA_TIMEOUT });
-    await expect(page.getByText("Pencarian untuk anggota")).toHaveCount(0);
     await input.fill("ai");
     // Hasil ATAU empty-state — dua-duanya valid; yang haram: crash/error page.
     await expect(
@@ -75,9 +73,9 @@ test.describe("community routes — member (storage state)", () => {
     // Masuk lewat silabus → klik materi pertama, supaya tidak bergantung pada
     // lessonId env. Di rute nyata ini navigasi biasa, bukan state window.
     await page.goto(`/k/${TENANT}/kelas/${COURSE}`);
-    const modul = page.locator('section[aria-label="Modul"]');
-    await expect(modul).toBeVisible({ timeout: DATA_TIMEOUT });
-    await modul.locator("a[href*='/kelas/']").first().click();
+    const silabus = page.locator('section[aria-label="Silabus"]');
+    await expect(silabus).toBeVisible({ timeout: DATA_TIMEOUT });
+    await silabus.locator("a[href*='/kelas/']").first().click();
     await expect(page).toHaveURL(new RegExp(`/k/${TENANT}/kelas/${COURSE}/.+`));
     // Member view: diskusi per materi ter-mount (comments slice) — anon tidak
     // pernah melihat ini (spec anon 7 menegaskan kebalikannya).

@@ -64,7 +64,9 @@ const TABS: { key: TabKey; label: string; icon: LucideIcon; blurb: string }[] = 
     key: "statistik",
     label: "Statistik",
     icon: BarChart3,
-    blurb: "Progres per materi & hasil kuis.",
+    // The blurb sells the drop-off, not the total: "where do people stop" is
+    // the question this tab was rebuilt around (0.3.0).
+    blurb: "Denyut komunitas & di mana pembaca berhenti.",
   },
 ];
 
@@ -172,7 +174,9 @@ export function KelolaConsole({
           {tab === "kuis" ? <KelolaKuisTab tenantId={tenantId} /> : null}
           {tab === "anggota" ? <KelolaAnggotaTab tenantId={tenantId} /> : null}
           {tab === "komunitas" ? <TenantSettingsView slug={slug} /> : null}
-          {tab === "statistik" ? <KelolaStatistikTab tenantId={tenantId} /> : null}
+          {tab === "statistik" ? (
+            <KelolaStatistikTab tenantId={tenantId} slug={slug} />
+          ) : null}
         </div>
       </section>
     </div>

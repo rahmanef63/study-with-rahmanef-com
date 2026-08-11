@@ -15,6 +15,7 @@ import { Compass } from "lucide-react";
 import { safeQuery } from "@/lib/convex-server";
 import { absoluteUrl } from "@/lib/site";
 import { communityHref } from "@/lib/community";
+import { PetaCallout } from "@/features/peta";
 import { AjukanKomunitas } from "../_components/ajukan-komunitas";
 
 // The community directory. `/` redirects to the flagship, so almost nobody
@@ -103,6 +104,10 @@ export default function KomunitasPage() {
         <p className="max-w-xl text-pretty text-muted-foreground">{DESCRIPTION}</p>
         {/* The only entry point to the open-a-community flow (PRD R7). */}
         <AjukanKomunitas />
+        {/* Someone browsing a directory of communities is, by definition, still
+            deciding. Unconditional here (unlike the community home): this page
+            has no session to read and nobody lands on it twice by accident. */}
+        <PetaCallout variant="compact" className="mt-2" />
       </header>
       {/* Own boundary: the etalase read is dynamic (cacheComponents), so the
  heading above still ships in the static shell. */}

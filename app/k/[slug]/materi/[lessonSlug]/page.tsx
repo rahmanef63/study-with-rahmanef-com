@@ -4,6 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { api } from "@convex/_generated/api";
+import { MateriViewRecorder } from "@/features/analytics";
 import {
   MateriDetailView,
   MateriPageHeader,
@@ -92,6 +93,16 @@ async function MateriSurface({ slug, lessonSlug }: Params) {
 
   return (
     <div className="space-y-8">
+      {/* Counts this read for the instructor's funnel. Renders nothing, gates
+          itself on membership, and is fire-and-forget — see the component.
+          Mounted from the SERVER page because `materi._id` is already in hand
+          here: no extra lookup, and no id at all for a draft (publicGetBySlug
+          answers null), which is the right outcome — an author previewing
+          unpublished work should not appear in their own numbers. */}
+      {materi === null || tenant === null ? null : (
+        <MateriViewRecorder tenantId={tenant._id} lessonId={materi._id} />
+      )}
+
       {materi === null ? null : (
         <MateriPageHeader
           materi={materi}

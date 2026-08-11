@@ -24,6 +24,7 @@ import {
   quizAttempts,
   quizzes,
 } from "./_tables/learning";
+import { insightTables } from "./features/insight/tables";
 
 export default defineSchema({
   ...authTables,
@@ -54,4 +55,12 @@ export default defineSchema({
   // in-app inbox (the three legacy boards folded into `posts` — see
   // ./_tables/boards.ts for the retirement note)
   notifications,
+
+  // insight — materiViews / materiViewCounts / learnerProfiles. FEATURE-OWNED
+  // (spread in from features/insight/tables.ts, the same arrangement the
+  // retired features/pageviews used) because these three tables exist only to
+  // serve that one slice and die with it. NOT a revival of `pageviews`: reads
+  // are one row per MEMBER per materi per DAY, so there is no unbounded
+  // anonymous write surface and no rate-limit table.
+  ...insightTables,
 });

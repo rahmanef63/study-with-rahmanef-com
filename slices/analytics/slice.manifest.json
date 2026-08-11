@@ -1,15 +1,15 @@
 {
   "$schema": "../../docs/slice.manifest.schema.json",
   "name": "analytics",
-  "version": "0.2.0",
-  "description": "Instructor+ per-course analytics: per-lesson completion counts, badge count, member count, quiz attempt/pass stats per course. Read-only derived aggregates over shared tables (no new tables, no writes); bounded takes documented in constants.ts; no PII in outputs.",
+  "version": "0.3.0",
+  "description": "Instructor+ per-course analytics AND reader insight: completion counts, badge count, member count, quiz stats, the per-course drop-off funnel, and the community's weekly pulse. Derived aggregates over shared tables plus the insight feature's materiViews roll-up; bounded takes; no PII in outputs. One write (recordView) via MateriViewRecorder. Reader numbers count logged-in members only.",
   "category": "lms",
   "stability": "beta",
   "deps": {
     "shared": ["features/defineFeature"],
-    "slices": ["progress"],
-    "convexFeatures": ["analytics"],
-    "npm": {},
+    "slices": ["progress", "tenants"],
+    "convexFeatures": ["analytics", "insight"],
+    "npm": { "recharts": "^3.10.1" },
     "env": []
   },
   "files": {
@@ -29,5 +29,5 @@
     "tailwind": "4",
     "auth": "convex-auth"
   },
-  "notes": "0.2.0 (2026-08-10): DECISIONS #37 materi model \u2014 LessonCompletionStat lost moduleId/moduleTitle (flat, ordered by courseLessons.order) and ModuleQuizStat became CourseQuizStat. 0.1.0 (2026-07-10, agent gamma): wave v1.2 scope of STATUS row #17. Owns ZERO tables — reads the shared memberships/lessons/courseLessons/lessonCompletions/courseCompletions/quizzes/quizAttempts tables directly (sanctioned precedent: progress/profiles shared-table reads). courseCompletions has no by_course index, so badge counts derive per CURRENT member via by_user (exact, bounded; ex-members' badges uncounted) — by_course index proposed to alpha. toPercent consumed via the progress BARREL (extract-on-second-occurrence: util shared by two slices; shared/ is integrator-only surface)."
+  "notes": "0.3.0 (2026-08-11): reader insight folded in. The slice now spans TWO convex features (analytics + insight) because it is ONE screen; splitting the UI would make an instructor cross-reference two lists of the same materi by eye. CourseAnalyticsView DROPPED LessonCompletionBars in favour of FunnelStepList (same materi, same order, strictly more data) — the component stays exported for a consumer without the insight feature. recharts is code-split behind next/dynamic and renders ONE chart (the retention curve, the only value here that is a shape rather than a number); MIN_POINTS=3 keeps it from drawing a two-dot line. biggestDrop ranks by PEOPLE, not percent — see __tests__/dropoff.test.ts. Reader counts are members-only and MembersOnlyNote is a component so the caveat cannot be dropped from a third surface. 0.2.0 (2026-08-10): DECISIONS #37 materi model \u2014 LessonCompletionStat lost moduleId/moduleTitle (flat, ordered by courseLessons.order) and ModuleQuizStat became CourseQuizStat. 0.1.0 (2026-07-10, agent gamma): wave v1.2 scope of STATUS row #17. Owns ZERO tables — reads the shared memberships/lessons/courseLessons/lessonCompletions/courseCompletions/quizzes/quizAttempts tables directly (sanctioned precedent: progress/profiles shared-table reads). courseCompletions has no by_course index, so badge counts derive per CURRENT member via by_user (exact, bounded; ex-members' badges uncounted) — by_course index proposed to alpha. toPercent consumed via the progress BARREL (extract-on-second-occurrence: util shared by two slices; shared/ is integrator-only surface)."
 }

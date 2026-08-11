@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { cache, Suspense } from "react";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { api } from "@convex/_generated/api";
 import { CommunityActions } from "@/components/community/community-actions";
 import { CommunityBottomNav } from "@/components/community/community-bottom-nav";
 import { CommunityBrandRow } from "@/components/community/community-brand-row";
@@ -13,9 +12,9 @@ import {
 import { CommunityTabs } from "@/components/community/community-tabs";
 import { NavCollapseSentinel } from "@/components/community/nav-collapse-sentinel";
 import { Skeleton } from "@/components/ui/skeleton";
-import { safeQuery } from "@/lib/convex-server";
 import { absoluteUrl } from "@/lib/site";
 import { communityHref } from "@/lib/community";
+import { getStats, getTabSignal, getTenant } from "./_lib/tenant-reads";
 
 // The community shell. Server-rendered, so the community name is real HTML on
 // every page under it.
@@ -30,28 +29,15 @@ import { communityHref } from "@/lib/community";
 //     brand; in an installed PWA the wordmark is the icon you just tapped.
 //   · the description (44px) — read once, before joining. It is the opening
 //     paragraph of Tentang, one tap away in the phone bar's "Lainnya" sheet.
-//   · "Cari" + "Komunitas lain" — already in that same sheet, and Cari is also
-//     the bar's trailing action for a member (community-nav-action.tsx).
-//   · "Bagikan" (60px row, with Login) — occasional, and already on Tentang
-//     beside the description it is sharing.
+//   · "Cari" + "Komunitas lain" — already in that same sheet; Cari is also the
+//     bar's trailing action for a member (community-nav-action.tsx).
+//   · "Bagikan" (60px row, with Login) — occasional, and already on Tentang.
 // WHAT SURVIVES: the name (you must know where you are), the counts as a 10px
-// subtitle (social proof, on the screen where joining is the decision), and
-// exactly one action.
+// subtitle (social proof, where joining is the decision), and one action.
 //
-// getPublicBySlug / getPublicStatsBySlug are on the anonymous etalase
-// whitelist (AGENTS.md §6). Anything membership-aware is a client island
-// because server components here are always anonymous.
+// Every read here is anonymous and memoised in ./_lib/tenant-reads.ts; anything
+// membership-aware is a client island.
 type Params = { slug: string };
-
-// cache(): generateMetadata, the bar and the title block all need the tenant,
-// and fetchQuery has no per-request dedupe of its own — without this every page
-// under /k costs three identical Convex round trips before it renders.
-const getTenant = cache(async (slug: string) =>
-  safeQuery(api.features.tenants.queries.getPublicBySlug, { slug })
-);
-const getStats = cache(async (slug: string) =>
-  safeQuery(api.features.tenants.queries.getPublicStatsBySlug, { slug })
-);
 
 /** Shared gutter: 16px on a phone, the original 20px from md up. */
 const SHELL = "mx-auto w-full max-w-5xl px-4 md:px-5";
@@ -74,17 +60,16 @@ export async function generateMetadata({
       description: tenant.description,
       url: absoluteUrl(communityHref.home(slug)),
       // No `images` here on purpose: the colocated opengraph-image.tsx supplies
-      // the card. Setting this key at all (even to undefined) is what suppressed
-      // the app-root fallback and left /k/<slug> with no card once the seeded
-      // stock covers were cleared.
+      // the card. Setting this key at all (even to undefined) suppressed the
+      // app-root fallback and left /k/<slug> with no card.
     },
   };
 }
 
 // Rendered OUTSIDE <header> on purpose: a sticky element can only stick inside
 // its own parent's box, and the header is ~100px tall — parked in there the bar
-// scrolled away with it after the first flick. Its parent is the page root, so
-// it now sticks for the full length of the document.
+// scrolled away after the first flick. Its parent is the page root, so it now
+// sticks for the full length of the document.
 async function CommunityNavBarSlot({ slug }: { slug: string }) {
   const tenant = await getTenant(slug);
   // Unknown slug: stay silent and let the title block below render the 404.
@@ -156,6 +141,20 @@ function CommunityTitleSkeleton() {
   );
 }
 
+// Both navs sit behind their OWN Suspense boundary: the tab signal is a Convex
+// read, and awaiting it in the layout body would delay the whole shell rather
+// than just the strip. They resolve off the same memoised promise CommunityTitle
+// is already awaiting, so in practice they arrive together. Neither fallback
+// renders TABS — a strip painted unfiltered and then narrowed is a flicker on
+// the first paint of every page; a blank of the right height is not.
+async function CommunityTabsSlot({ slug }: { slug: string }) {
+  return <CommunityTabs slug={slug} signal={await getTabSignal(slug)} />;
+}
+
+async function CommunityBottomNavSlot({ slug }: { slug: string }) {
+  return <CommunityBottomNav slug={slug} signal={await getTabSignal(slug)} />;
+}
+
 export default async function CommunityLayout({
   children,
   params,
@@ -180,13 +179,22 @@ export default async function CommunityLayout({
           <CommunityTitle slug={slug} />
         </Suspense>
         <div className={`hidden ${SHELL} pt-4 md:block`}>
-          <CommunityTabs slug={slug} />
+          {/* h-11 == the strip's own min-h-11, so the header does not resize
+              under the reader when the real tabs arrive. */}
+          <Suspense fallback={<div className="h-11" aria-hidden />}>
+            <CommunityTabsSlot slug={slug} />
+          </Suspense>
         </div>
       </header>
       <main className={`@container ${SHELL} py-5 md:py-8`}>{children}</main>
       {/* Phone-only. Renders its own in-flow spacer, so <main> needs no extra
-          bottom padding and pages where the bar hides get none. */}
-      <CommunityBottomNav slug={slug} />
+          bottom padding and pages where the bar hides get none — which is also
+          why the fallback is nothing at all: the spacer belongs to the bar, and
+          a bar-shaped box on the lesson player (where the bar is deliberately
+          hidden) would be a phantom. */}
+      <Suspense fallback={null}>
+        <CommunityBottomNavSlot slug={slug} />
+      </Suspense>
     </div>
   );
 }

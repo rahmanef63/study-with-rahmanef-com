@@ -21,6 +21,18 @@ describe("analytics barrel type contract (compile-time, enforced by tsc)", () =>
     expectTypeOf<typeof Barrel.QuizStatList>().toBeFunction();
     expectTypeOf<typeof Barrel.useCourseAnalytics>().toBeFunction();
     expectTypeOf<typeof Barrel.useCourseSummaries>().toBeFunction();
+    // 0.3.0 — the insight half.
+    expectTypeOf<typeof Barrel.CourseFunnelView>().toBeFunction();
+    expectTypeOf<typeof Barrel.TenantPulseView>().toBeFunction();
+    expectTypeOf<typeof Barrel.FunnelStepList>().toBeFunction();
+    expectTypeOf<typeof Barrel.PulseMateriList>().toBeFunction();
+    expectTypeOf<typeof Barrel.MembersOnlyNote>().toBeFunction();
+    expectTypeOf<typeof Barrel.MateriViewRecorder>().toBeFunction();
+    expectTypeOf<typeof Barrel.useCourseFunnel>().toBeFunction();
+    expectTypeOf<typeof Barrel.useTenantPulse>().toBeFunction();
+    expectTypeOf<typeof Barrel.biggestDrop>().toBeFunction();
+    expectTypeOf<typeof Barrel.funnelEnds>().toBeFunction();
+    expectTypeOf<typeof Barrel.lostBefore>().toBeFunction();
     expectTypeOf<typeof Barrel.analyticsErrorMessage>().toBeFunction();
     expectTypeOf<typeof Barrel.analyticsFeature>().toMatchTypeOf<{ slug: string }>();
     expectTypeOf<Barrel.CourseAnalyticsData>().toBeObject();
@@ -40,6 +52,31 @@ describe("analytics barrel type contract (compile-time, enforced by tsc)", () =>
       quizTitle: string;
       passRatePct: number;
     }>();
+    // The funnel step is what every drop-off component reads. `viewedCount` is
+    // DISTINCT MEMBERS and `viewCount` is member-days; a rename that collapsed
+    // them would silently turn re-reads into extra people.
+    expectTypeOf<Barrel.FunnelStepData>().toMatchTypeOf<{
+      lessonId: unknown;
+      title: string;
+      order: number;
+      viewedCount: number;
+      viewCount: number;
+      completedCount: number;
+      retentionPct: number;
+    }>();
+    expectTypeOf<Barrel.CourseFunnelData>().toMatchTypeOf<{
+      memberCount: number;
+      startedCount: number;
+      steps: readonly Barrel.FunnelStepData[];
+    }>();
+    expectTypeOf<Barrel.TenantPulseData>().toMatchTypeOf<{
+      memberCount: number;
+      activeThisWeek: number;
+      materiCount: number;
+      neverReadCount: number;
+      mostRead: readonly Barrel.PulseMateriData[];
+      leastRead: readonly Barrel.PulseMateriData[];
+    }>();
     expectTypeOf<Barrel.AnalyticsErrorCode>().toEqualTypeOf<
       "NOT_AUTHENTICATED" | "NOT_AUTHORIZED" | "NOT_FOUND" | "VALIDATION_FAILED" | "RATE_LIMITED"
     >();
@@ -50,6 +87,12 @@ describe("copy + error mapping (runtime, alias-free imports)", () => {
   test("copy defaults are full Bahasa; override merges over defaults", () => {
     expect(ANALYTICS_COPY.statMembers).toBeTruthy();
     expect(ANALYTICS_COPY.emptyQuizzes).toBeTruthy();
+    // THE CAVEAT IS PART OF THE CONTRACT (0.3.0): every reader number on this
+    // screen counts logged-in members only, and the copy that says so must not
+    // be quietly emptied by an override merge or a copy-tidying pass.
+    expect(ANALYTICS_COPY.membersOnlyBadge).toBeTruthy();
+    expect(ANALYTICS_COPY.membersOnlyNote).toMatch(/ANGGOTA/);
+    expect(ANALYTICS_COPY.membersOnlyNote).toMatch(/anonim/i);
     const merged = mergeAnalyticsCopy({ statMembers: "Anggota" });
     expect(merged.statMembers).toBe("Anggota");
     expect(merged.statLessons).toBe(ANALYTICS_COPY.statLessons);

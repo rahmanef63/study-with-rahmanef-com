@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { api } from "@convex/_generated/api";
 import { CourseCard, type CourseCardData } from "@/features/courses";
+import { PetaEntryCard } from "@/features/peta";
 import { Skeleton } from "@/components/ui/skeleton";
 import { communityHref } from "@/lib/community";
 import { safeQuery } from "@/lib/convex-server";
@@ -102,7 +103,14 @@ export default async function KelasTabPage({ params }: { params: Promise<Params>
     // fact that was NOT redundant ("gratis, gabung dulu untuk membuka
     // materinya") belongs on the course page where a learner hits the wall, not
     // as a pre-emptive apology in front of the catalogue.
-    <section className="@container">
+    <section className="@container space-y-5">
+      {/* The one thing that IS worth putting in front of the catalogue: a way
+          out of it. Six course covers cannot answer "which of these is for
+          me?", and that is the question a newcomer actually arrives with.
+          <PetaEntryCard/> renders nothing at all for anyone who has already
+          taken the assessment or already has a completion — it is an
+          invitation, never a nag. */}
+      <PetaEntryCard />
       <Suspense fallback={<KatalogSkeleton />}>
         <Katalog slug={slug} />
       </Suspense>

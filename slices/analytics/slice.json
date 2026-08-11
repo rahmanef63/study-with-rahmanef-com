@@ -1,46 +1,67 @@
 {
   "$schema": "https://resource.rahmanef.com/slice-schema.json",
   "slug": "analytics",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "category": "lms",
   "kind": "fullstack",
   "title": "Analytics — agregat instruktur per kelas",
-  "description": "Instructor+ analytics for belajar-with-rahmanef.com (STATUS #17, deferred from #3 'agregat instructor+'): per-lesson completion counts, course-completion (badge) count, tenant member count, and quiz attempt/pass stats per course. READ-ONLY aggregates over shared tables — no new tables, no mutations, every number derived on read with documented bounded takes (no bare .collect(), P1). Outputs carry no user identifiers (no PII). No routes: the Kelola › Statistik tab mounts CourseAnalyticsView; useCourseSummaries feeds that tab's course list. 0.2.0: module grouping dropped (DECISIONS #37) — completions render as a FLAT per-materi list and ModuleQuizStat is now CourseQuizStat.",
+  "description": "Instructor+ analytics for belajar-with-rahmanef.com: per-materi completion counts, course-completion (badge) count, tenant member count, quiz attempt/pass stats per course, and — 0.3.0 — READER counts: the per-course drop-off funnel and the community's weekly pulse. Aggregates are derived on read over shared tables with documented bounded takes (no bare .collect(), P1) and carry no user identifiers. ONE write: MateriViewRecorder → insight/views:recordView, member-only and idempotent per member per materi per WIB day. EVERY reader number counts LOGGED-IN MEMBERS ONLY — anonymous reads are invisible — and MembersOnlyNote ships that caveat with the numbers. No routes: the Kelola › Statistik tab mounts TenantPulseView + CourseAnalyticsView (which leads with CourseFunnelView). 0.2.0: module grouping dropped (DECISIONS #37).",
   "namespace": "@/features/analytics",
   "convex": {
     "tablesExport": "",
     "schemaPath": "convex/schema.ts",
-    "rootPaths": ["convex/features/analytics"]
+    "rootPaths": ["convex/features/analytics", "convex/features/insight"]
   },
   "frontend": { "slicePath": "slices/analytics", "configExport": "analyticsFeature" },
   "deps": {
-    "npm": [],
+    "npm": ["recharts"],
     "shadcn": ["card", "skeleton"],
     "env": [],
-    "peers": ["progress"]
+    "peers": ["progress", "tenants"]
   },
   "contract": {
     "barrel": {
-      "components": ["StatCard", "LessonCompletionBars", "QuizStatList"],
-      "views": ["CourseAnalyticsView"],
-      "hooks": ["useCourseAnalytics", "useCourseSummaries"],
-      "lib": ["analyticsErrorMessage", "extractAnalyticsError"],
+      "components": [
+        "StatCard",
+        "LessonCompletionBars",
+        "QuizStatList",
+        "FunnelStepList",
+        "PulseMateriList",
+        "MembersOnlyNote",
+        "MateriViewRecorder"
+      ],
+      "views": ["CourseAnalyticsView", "CourseFunnelView", "TenantPulseView"],
+      "hooks": ["useCourseAnalytics", "useCourseSummaries", "useCourseFunnel", "useTenantPulse"],
+      "lib": [
+        "analyticsErrorMessage",
+        "extractAnalyticsError",
+        "biggestDrop",
+        "lostBefore",
+        "funnelEnds"
+      ],
       "consumerSeams": {
         "kelola › statistik tab (alpha #17)": [
+          "TenantPulseView(tenantId) ← denyut komunitas di atas daftar kelas",
           "CourseAnalyticsView ← courseId dari daftar kelas di tab Statistik",
           "useCourseSummaries(tenantId) ← angka {completionCount, memberCount} di daftar kelas kelola"
+        ],
+        "reading surfaces (materi permalink, skill permalink, in-course reader)": [
+          "MateriViewRecorder(tenantId, lessonId) ← renders null; fires recordView once per mount for members only"
         ]
       }
     },
     "convexFunctions": {
       "instructor": [
         "features/analytics/queries:getCourseAnalytics",
-        "features/analytics/queries:listCourseSummaries"
-      ]
+        "features/analytics/queries:listCourseSummaries",
+        "features/insight/funnel:courseFunnel",
+        "features/insight/pulse:tenantPulse"
+      ],
+      "member": ["features/insight/views:recordView"]
     }
   },
   "registers": [],
   "license": "MIT",
-  "tags": ["lms", "analytics", "instructor", "aggregates", "multi-tenant"],
+  "tags": ["lms", "analytics", "instructor", "aggregates", "multi-tenant", "funnel", "drop-off"],
   "providers": []
 }

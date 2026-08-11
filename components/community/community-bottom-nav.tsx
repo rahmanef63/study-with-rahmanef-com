@@ -20,15 +20,16 @@ import {
   Wand2,
   type LucideIcon,
 } from "lucide-react";
-import { COMMUNITY_TABS, type CommunityTab } from "@/lib/community";
+import { phoneBarTabs, type CommunityTab, type TenantTabSignal } from "@/lib/community";
 import { cn } from "@/lib/utils";
 import { buildMoreLinks, CommunityMoreDrawer } from "./community-more-drawer";
 import { isCommunityTabActive } from "./tab-active";
 
-// lib/community.ts is the SSOT and a sibling owns writes to it, so the icon and
-// the mobile priority are mapped here by key rather than added as fields.
-// (Reported upward: a `mobile?: "primary" | "more"` + `icon` on CommunityTab
-// would let this file stop guessing.)
+// The mobile priority is NO LONGER guessed here — `phoneBarTabs()` in
+// lib/community-tabs.ts owns it, and that request from the previous revision of
+// this comment is now answered. Icons stay mapped by key: a lucide component is
+// a function, and lib/community-tabs.ts is imported by the SERVER layout, so
+// putting one on CommunityTab would drag an icon set into every RSC payload.
 const TAB_ICONS: Record<string, LucideIcon> = {
   materi: Library,
   // A wand, not a Sparkles/Brain "AI" glyph: a skill is a prompt you WIELD.
@@ -42,25 +43,10 @@ const TAB_ICONS: Record<string, LucideIcon> = {
 };
 const iconFor = (key: string) => TAB_ICONS[key] ?? Circle;
 
-// THE SPLIT. Eight tabs (Materi joined with the materi model, DECISIONS
-// #36/#37; Skills joined 2026-08-10), five comfortable slots at 320px, so FOUR
-// tabs get a slot and the rest fall into "Lainnya":
-// Materi · Skills · Kelas · Diskusi · Lainnya.
-//
-// The four are simply the first four of COMMUNITY_TABS — lib/community.ts is
-// the SSOT and it already orders the strip by how often a member returns to
-// each tab (its comment justifies that order). Reading the priority off the
-// list instead of restating it here is what stopped this file from silently
-// disagreeing with the desktop strip: Peringkat lost its slot to Materi in one
-// edit, over there, and the phone bar followed with none.
-//
-// Anggota, Peringkat, Kalender and Tentang stay one tap away in the sheet,
-// routes untouched. (Anggota lost its slot to Skills automatically, over
-// there, which is exactly the property this file was rewritten to have.)
-const PRIMARY_SLOTS = 4;
-
-const PRIMARY_TABS: CommunityTab[] = COMMUNITY_TABS.slice(0, PRIMARY_SLOTS);
-const OVERFLOW_TABS = COMMUNITY_TABS.slice(PRIMARY_SLOTS);
+// THE SPLIT lives in lib/community-tabs.ts `phoneBarTabs()`, which splits the
+// tabs this TENANT actually has content behind — so an always-empty tab does
+// not merely leave the bar, it hands its slot to a real one. The derivation and
+// the per-community outcome are argued there; this file only renders it.
 
 // Reading surfaces keep the full screen: the lesson player
 // (/kelas/<course>/<lessonId>) and the module quiz (/kelas/<course>/kuis/<id>)
@@ -94,15 +80,28 @@ const cellClass =
 const activeCell = "bg-primary/10 font-medium text-primary";
 const idleCell = "text-muted-foreground";
 
-export function CommunityBottomNav({ slug }: { slug: string }) {
+/** `signal` crosses the boundary as three plain booleans — never the tab list
+ *  itself, whose `href` members are functions. See community-tabs.tsx. */
+export function CommunityBottomNav({
+  slug,
+  signal,
+}: {
+  slug: string;
+  signal?: TenantTabSignal;
+}) {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
 
   if (READING_SURFACE.test(pathname)) return null;
 
+  const { primary, overflow } = phoneBarTabs(signal);
   const isActive = (tab: CommunityTab) => isCommunityTabActive(tab, slug, pathname);
-  const moreActive = OVERFLOW_TABS.some(isActive);
-  const cells = PRIMARY_TABS.length + 1;
+  const moreActive = overflow.some(isActive);
+  // "Lainnya" is unconditional even if the tab signal ever emptied `overflow`:
+  // the sheet also carries Cari and "Komunitas lain" (buildMoreLinks), which
+  // have nowhere else to live on a phone. `cells` is derived anyway so the grid
+  // stays correct if `primary` is ever shorter than PHONE_BAR_SLOTS.
+  const cells = primary.length + 1;
 
   return (
     <>
@@ -128,7 +127,7 @@ export function CommunityBottomNav({ slug }: { slug: string }) {
           className="grid"
           style={{ gridTemplateColumns: `repeat(${cells}, minmax(0, 1fr))` }}
         >
-          {PRIMARY_TABS.map((tab) => {
+          {primary.map((tab) => {
             const Icon = iconFor(tab.key);
             const active = isActive(tab);
             return (
@@ -165,7 +164,7 @@ export function CommunityBottomNav({ slug }: { slug: string }) {
       <CommunityMoreDrawer
         open={moreOpen}
         onOpenChange={setMoreOpen}
-        links={buildMoreLinks(OVERFLOW_TABS, slug, iconFor, isActive)}
+        links={buildMoreLinks(overflow, slug, iconFor, isActive)}
       />
     </>
   );

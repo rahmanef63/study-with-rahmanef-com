@@ -11,6 +11,7 @@
 // nothing a permanently-anonymous server component could render here.
 import { List } from "lucide-react";
 import type { Id } from "@convex/_generated/dataModel";
+import { MateriViewRecorder } from "@/features/analytics";
 import { LessonPlayerView, useCourseOverview } from "@/features/courses";
 import { LessonComments } from "@/features/comments";
 import { LessonCompletion } from "@/features/progress";
@@ -61,6 +62,13 @@ function LessonBody({ tenantId, slug, courseSlug, lessonId }: Props & { tenantId
 
   return (
     <div className="@3xl:grid @3xl:grid-cols-[minmax(15rem,17rem)_1fr] @3xl:gap-8">
+      {/* THE MOUNT THAT MAKES THE FUNNEL REAL. Almost all reading happens here
+          rather than on the permalink, so without this the course drop-off in
+          Kelola › Statistik would be a flat line of zeros. Placed after the
+          viewerRole gate above, so it never fires for an outsider who followed
+          a shared link. Renders nothing; see the component for the once-per-
+          view / never-on-prefetch / never-blocking contract. */}
+      <MateriViewRecorder tenantId={tenantId} lessonId={lessonId} />
       {/* Secondary sidebar: a rail on wide screens. Flows in the page scroll
           rather than pinning itself — a `sticky` rail with its own scroll needs
           a height container the tabbed host does not give it. */}

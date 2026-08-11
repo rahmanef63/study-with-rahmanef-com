@@ -26,6 +26,10 @@ export default defineConfig({
       "convex/**/*.test.ts",
       "slices/**/*.test.{ts,tsx}",
       "shared/**/*.test.ts",
+      // lib/ holds the pure engines the slices are thin shells over —
+      // lib/peta/** is the whole /mulai assessment. Without this line its 56
+      // specs (incl. the 274k-case reachability sweep) never run in CI.
+      "lib/**/*.test.ts",
       // components/editor holds the block-editor adapter seam; its pure halves
       // (block transforms, lesson→Page mapping) are unit-tested there.
       "components/**/*.test.ts",
