@@ -29,28 +29,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
-import type { Id } from "@convex/_generated/dataModel";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { isCommunityTabActive } from "@/components/community/tab-active";
-import { dockTabs, type TenantTabSignal } from "@/lib/community";
+import { dockTabs } from "@/lib/community";
 import { DockBar, DOCK_CELL_CLASS, dockIconBox } from "./dock-bar";
-import { iconFor } from "./nav-model";
-import { ShellNav } from "./shell-nav";
+import { GLOBAL_DOCK_LINKS, iconFor, isPathActive } from "./nav-model";
+import { ShellNav, type ShellCommunity } from "./shell-nav";
 import { useCloseAboveMd } from "./use-close-above-md";
 
-export function ShellDock({
-  slug,
-  name,
-  tenantId,
-  memberLabel,
-  signal,
-}: {
-  slug: string;
-  name: string;
-  tenantId: Id<"tenants">;
-  memberLabel?: string | null;
-  signal?: TenantTabSignal;
-}) {
+export function ShellDock({ community }: { community?: ShellCommunity }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const close = useCallback(() => setOpen(false), []);
@@ -63,13 +50,26 @@ export function ShellDock({
   // panel open OVER the rail with the scroll lock still held.
   useCloseAboveMd(open, close);
 
-  const cells = dockTabs(signal).map((tab) => ({
-    key: tab.key,
-    label: tab.label,
-    href: tab.href(slug),
-    icon: iconFor(tab.key),
-    active: isCommunityTabActive(tab, slug, pathname),
-  }));
+  // Four cells, wherever you are. Inside a community they are its busiest
+  // destinations; outside one they are the global ones. Same bar, same shape,
+  // same Menu — the app used to grow a DIFFERENT dock on the account pages,
+  // which is half of why it read as two navigations.
+  const cells =
+    community === undefined
+      ? GLOBAL_DOCK_LINKS.map((link) => ({
+          key: link.key,
+          label: link.label,
+          href: link.href,
+          icon: link.icon,
+          active: isPathActive(link.href, pathname, link.exact),
+        }))
+      : dockTabs(community.signal).map((tab) => ({
+          key: tab.key,
+          label: tab.label,
+          href: tab.href(community.slug),
+          icon: iconFor(tab.key),
+          active: isCommunityTabActive(tab, community.slug, pathname),
+        }));
 
   return (
     <DockBar
@@ -100,13 +100,7 @@ export function ShellDock({
             className="w-[17.5rem] gap-0 border-r-2 bg-sidebar p-0 sm:max-w-[17.5rem]"
           >
             <SheetTitle className="sr-only">Navigasi</SheetTitle>
-            <ShellNav
-              slug={slug}
-              name={name}
-              tenantId={tenantId}
-              memberLabel={memberLabel}
-              signal={signal}
-              onNavigate={close}
+            <ShellNav community={community} onNavigate={close}
               className="pt-[calc(var(--safe-t)+0.75rem)] pl-[var(--safe-l)]"
             />
           </SheetContent>

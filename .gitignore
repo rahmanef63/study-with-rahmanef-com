@@ -16,3 +16,9 @@ next-env.d.ts
 # Added by si-coder deploy (secret-leak guard)
 .env.*
 !.env.example
+
+# Only npm ships here — Dockerfile runs `npm ci` against package-lock.json.
+# A second lockfile means `pnpm install` silently builds a different tree than
+# production, which is how three dependencies stayed "removed" locally while
+# the deployed image still had them.
+pnpm-lock.yaml

@@ -9,22 +9,14 @@
 // sync. The Sheet, its focus trap and the close-above-md guard all live with
 // the trigger.
 //
-import type { Id } from "@convex/_generated/dataModel";
 import { ShellAction } from "./shell-action";
+import type { ShellCommunity } from "./shell-nav";
 
 /** Content height, before --safe-t. 52 + the 2px rule = 54px: inside the 56px
  *  iOS cap, with 4px of air around a 44px control instead of squeezing it. */
 const BAR_H = "3.25rem";
 
-export function ShellTopBar({
-  slug,
-  name,
-  tenantId,
-}: {
-  slug: string;
-  name: string;
-  tenantId: Id<"tenants">;
-}) {
+export function ShellTopBar({ community, title }: { community?: ShellCommunity; title?: string }) {
   return (
     <header
       // z-30: above content, under the sheet (50) and the CRT overlay (9999).
@@ -36,14 +28,15 @@ export function ShellTopBar({
         style={{ minHeight: BAR_H }}
       >
         {/* Body face, not Press Start 2P: the display face is DISPLAY-ONLY and
-            at bar size it is unreadable and ~2x as wide — 24 characters of
-            community name would not survive the 278px this slot gets on a
-            390px screen. aria-hidden because the <h1> in the content column
-            already gives a screen reader the same string. */}
+            at bar size it is unreadable and ~2x as wide. aria-hidden because
+            the content column's own heading already gives a screen reader the
+            same string. */}
         <span aria-hidden className="min-w-0 flex-1 truncate text-sm font-medium">
-          {name}
+          {community?.name ?? title ?? "Belajar"}
         </span>
-        <ShellAction tenantId={tenantId} slug={slug} variant="bar" />
+        {community === undefined ? null : (
+          <ShellAction tenantId={community.tenantId} slug={community.slug} variant="bar" />
+        )}
       </div>
     </header>
   );

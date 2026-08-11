@@ -20,7 +20,6 @@ export {
   TAB_SIGNAL_UNKNOWN,
   visibleCommunityTabs,
   dockTabs,
-  DOCK_CELLS,
   type CommunityTab,
   type TenantTabSignal,
 } from "./community-tabs";

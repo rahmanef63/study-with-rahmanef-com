@@ -28,6 +28,18 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-08-11",
+    version: "v3.3",
+    title: "Satu menu untuk seluruh aplikasi",
+    tags: ["Tampilan", "Perbaikan"],
+    points: [
+      "Menu sampingnya tinggal satu. Sebelumnya ada dua sistem menu yang berbeda — satu di dalam komunitas, satu lagi di halaman akun — jadi menunya berganti total setiap kali kamu pindah. Sekarang bentuknya sama di mana pun kamu berada, hanya isinya yang menyesuaikan.",
+      "Halaman Changelog akhirnya ikut punya menu. Begitu juga halaman profil.",
+      "Roadmap dan Peta belajar sekarang bisa dibuka dari mana saja. Sebelumnya keduanya cuma ada di menu komunitas, jadi dari halaman Pengaturan kamu tidak bisa ke sana sama sekali.",
+      "Menu bawah di HP juga tinggal satu bentuk: empat tujuan plus tombol Menu, di halaman mana pun.",
+    ],
+  },
+  {
+    date: "2026-08-11",
     version: "v3.2",
     title: "Materi jauh lebih enak dibaca, dan halaman profil punya menu",
     tags: ["Tampilan", "Perbaikan"],

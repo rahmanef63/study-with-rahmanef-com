@@ -1,6 +1,7 @@
 {
   "name": "belajar-with-rahmanef",
   "version": "0.0.0",
+  "packageManager": "npm@10.9.4",
   "private": true,
   "type": "module",
   "scripts": {
@@ -26,12 +27,9 @@
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
-    "@radix-ui/react-label": "^2.1.0",
-    "@radix-ui/react-slot": "^1.1.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "convex": "^1.18.0",
-    "jose": "^5.9.6",
     "katex": "^0.16.47",
     "lucide-react": "^0.460.0",
     "mermaid": "^11.16.1",

@@ -53,18 +53,31 @@ export const ICON_KEYS = Object.keys(TAB_ICONS);
  * row. There is NO global /cari: that path 404s.
  */
 export function communityToolLinks(slug: string): ShellLink[] {
-  return [
-    { key: "cari", label: "Cari", href: communityHref.cari(slug), icon: Search },
-    // /mulai and /roadmap are GLOBAL, and they are listed here anyway. The
-    // owner could not find the assessment at all — "aku belum lihat card swipe
-    // left right itu" — because its only entry point was a client-only callout
-    // that rendered nothing during SSR. A door nobody can see is not a door.
-    // They sit under the community's own rows because that is where a member
-    // already is when they wonder what to learn next.
-    { key: "roadmap", label: "Roadmap", href: "/roadmap", icon: Map, exact: true },
-    { key: "peta", label: "Peta belajar", href: "/mulai", icon: Compass, exact: true },
-  ];
+  return [{ key: "cari", label: "Cari", href: communityHref.cari(slug), icon: Search }];
 }
+
+/**
+ * Global destinations, in EVERY rail.
+ *
+ * These lived inside `communityToolLinks` and were therefore unreachable from
+ * the account pages — a reader on /pengaturan could not get to the roadmap or
+ * the assessment at all. They are not community-scoped and never were; the
+ * only reason they sat there is that a community rail was the only rail that
+ * listed anything.
+ */
+/** The dock's four cells when there is no community — same budget as inside
+ *  one, so the bar never changes shape as you move around the app. */
+export const GLOBAL_DOCK_LINKS: ShellLink[] = [
+  { key: "komunitas", label: "Komunitas", href: "/komunitas", icon: Compass, exact: true },
+  { key: "roadmap", label: "Roadmap", href: "/roadmap", icon: Map, exact: true },
+  { key: "peta", label: "Peta belajar", href: "/mulai", icon: Compass, exact: true },
+  { key: "notifikasi", label: "Notifikasi", href: "/notifikasi", icon: Bell, exact: true },
+];
+
+export const EXPLORE_LINKS: ShellLink[] = [
+  { key: "roadmap", label: "Roadmap", href: "/roadmap", icon: Map, exact: true },
+  { key: "peta", label: "Peta belajar", href: "/mulai", icon: Compass, exact: true },
+];
 
 /** Instructor+ only — resolved in the browser, see shell-action.tsx. */
 export function kelolaLink(slug: string): ShellLink {

@@ -81,19 +81,19 @@ async function RailSlot({ slug }: Params) {
   const props = await navProps(slug);
   // Unknown slug: stay silent and let the heading slot render the 404.
   if (props === null) return null;
-  return <ShellNav {...props} className="pt-3" />;
+  return <ShellNav community={props} className="pt-3" />;
 }
 
 async function TopBarSlot({ slug }: Params) {
   const props = await navProps(slug);
   if (props === null) return null;
-  return <ShellTopBar {...props} />;
+  return <ShellTopBar community={props} />;
 }
 
 async function DockSlot({ slug }: Params) {
   const props = await navProps(slug);
   if (props === null) return null;
-  return <ShellDock {...props} />;
+  return <ShellDock community={props} />;
 }
 
 /**

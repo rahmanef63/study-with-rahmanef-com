@@ -58,9 +58,18 @@ export function NavLink({
 }
 
 /**
- * A labelled group of rows. The label is a real <nav aria-label>, not a visual
- * caption with nothing behind it: a keyboard user jumping by landmark lands on
- * "Bagian komunitas" or "Akun" and knows which list they are in.
+ * A labelled group of rows INSIDE the rail's single <nav>.
+ *
+ * It used to render a <nav aria-label> of its own, on the argument that a
+ * keyboard user jumping by landmark should know which list they are in. The
+ * cost was two and three landmarks stacked in one sidebar, which reads — and
+ * was reported — as "2 sidebar menu". Grouping links inside ONE navigation is
+ * what headings are for; landmarks are for telling navigation apart from main
+ * and from search, and there is only one navigation here.
+ *
+ * The label survives as the group's accessible name via aria-labelledby, so
+ * nothing is lost for a screen reader: the rows still announce which group
+ * they belong to, they just no longer fragment the landmark map.
  */
 export function NavSection({
   label,
@@ -68,18 +77,24 @@ export function NavSection({
   children,
 }: {
   label: string;
-  /** Visible caption. Omit for the primary list, which needs no title. */
+  /** Visible caption. Omit and the label becomes an sr-only one. */
   heading?: string;
   children: React.ReactNode;
 }) {
+  const id = `nav-group-${label.replace(/\s+/g, "-").toLowerCase()}`;
   return (
-    <nav aria-label={label} className="px-2">
-      {heading ? (
-        <p className="px-3 pt-3 pb-1 text-caption uppercase tracking-wider text-muted-foreground/70">
-          {heading}
-        </p>
-      ) : null}
+    <div role="group" aria-labelledby={id} className="px-2">
+      <p
+        id={id}
+        className={
+          heading
+            ? "px-3 pt-3 pb-1 text-caption uppercase tracking-wider text-muted-foreground/70"
+            : "sr-only"
+        }
+      >
+        {heading ?? label}
+      </p>
       <ul className="space-y-0.5">{children}</ul>
-    </nav>
+    </div>
   );
 }

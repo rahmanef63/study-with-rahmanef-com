@@ -173,8 +173,8 @@ export function visibleCommunityTabs(
  */
 const DOCK_PRIORITY = ["materi", "kelas", "diskusi", "skills", "anggota", "peringkat", "tentang"];
 
-/** DOCK_CELLS destinations for this tenant; the fifth cell is always Menu. */
-export const DOCK_CELLS = 4;
+/** Cells before the Menu one. Internal: `dockTabs` is the API. */
+const DOCK_CELLS = 4;
 
 export function dockTabs(signal?: TenantTabSignal): CommunityTab[] {
   const visible = visibleCommunityTabs(signal);

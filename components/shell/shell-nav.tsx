@@ -20,9 +20,13 @@ import { cn } from "@/lib/utils";
 import { NavLink, NavSection } from "./nav-link";
 import { ShellAccountNav } from "./shell-account-nav";
 import { ShellAction } from "./shell-action";
-import { communityToolLinks, iconFor, isPathActive, KOMUNITAS_LINK } from "./nav-model";
+import { communityToolLinks, iconFor, isPathActive, KOMUNITAS_LINK,
+  EXPLORE_LINKS,
+  type ShellLink,
+} from "./nav-model";
 
-export type ShellNavProps = {
+/** The community this rail is inside, when it is inside one. */
+export type ShellCommunity = {
   slug: string;
   name: string;
   tenantId: Id<"tenants">;
@@ -31,70 +35,109 @@ export type ShellNavProps = {
   /**
    * Three plain booleans from the server. DATA-DRIVEN HIDING LIVES HERE: the
    * rows come from `visibleCommunityTabs(signal)`, so a community with no
-   * published skill has no Skills row and no event has no Kalender row, exactly
-   * as the old strip behaved. Omitted → every destination shows (fail open); a
-   * failed read must never make a route vanish from the navigation.
+   * published skill has no Skills row and no event has no Kalender row.
+   * Omitted → every destination shows (fail open); a failed read must never
+   * make a route vanish from the navigation.
    */
   signal?: TenantTabSignal;
+};
+
+export type ShellNavProps = {
+  /** Absent on the account surfaces — the rail is the same rail either way. */
+  community?: ShellCommunity;
   /** Closes the phone slide-over. Absent in the persistent rail. */
   onNavigate?: () => void;
   className?: string;
 };
 
-export function ShellNav({
-  slug,
-  name,
-  tenantId,
-  memberLabel,
-  signal,
-  onNavigate,
-  className,
-}: ShellNavProps) {
+export function ShellNav({ community, onNavigate, className }: ShellNavProps) {
   const pathname = usePathname();
-  const tools = communityToolLinks(slug);
 
   return (
     <div className={cn("flex min-h-0 flex-1 flex-col", className)}>
-      {/* ── The community. Who you are inside, and the way back out. ── */}
+      {/* ── Where you are. Inside a community that is its identity and the way
+             back out; outside one the brand IS the way in, since "/" redirects
+             to the flagship. One block, two fillings — this used to be two
+             components with two headers, which is what made the app look like
+             it had two different sidebars depending on the page. ── */}
       <div className="shrink-0 space-y-2 border-b-2 px-4 pb-4">
-        <Link
-          href={KOMUNITAS_LINK.href}
-          onClick={onNavigate}
-          className="pixel-press -ml-1 inline-flex min-h-11 items-center gap-1 pr-2 text-caption text-muted-foreground hover:text-foreground"
-        >
-          <ChevronLeft className="size-3.5 shrink-0" aria-hidden />
-          {KOMUNITAS_LINK.label}
-        </Link>
-        {/* Not an <h1>: the page's heading is server-rendered in the content
-            column (app/k/[slug]/layout.tsx). This is the rail's identity, and
-            two <h1>s that say the same thing is one too many. line-clamp-2
-            because Press Start 2P is ~2x the advance width of the body face and
-            a long community name would otherwise push the whole rail wide. */}
-        <p className="line-clamp-2 font-display text-marquee uppercase [overflow-wrap:anywhere]">
-          {name}
-        </p>
-        {memberLabel ? (
-          <p className="text-caption text-muted-foreground">{memberLabel}</p>
-        ) : null}
-        <ShellAction tenantId={tenantId} slug={slug} variant="rail" onNavigate={onNavigate} />
+        {community === undefined ? (
+          <Link
+            href="/"
+            onClick={onNavigate}
+            className="pixel-press -ml-1 inline-flex min-h-11 items-center px-1 font-display text-marquee uppercase hover:text-primary"
+          >
+            Belajar
+          </Link>
+        ) : (
+          <>
+            <Link
+              href={KOMUNITAS_LINK.href}
+              onClick={onNavigate}
+              className="pixel-press -ml-1 inline-flex min-h-11 items-center gap-1 pr-2 text-caption text-muted-foreground hover:text-foreground"
+            >
+              <ChevronLeft className="size-3.5 shrink-0" aria-hidden />
+              {KOMUNITAS_LINK.label}
+            </Link>
+            {/* Not an <h1>: the page's heading is server-rendered in the content
+                column. line-clamp-2 because Press Start 2P is ~2x the advance
+                width of the body face. */}
+            <p className="line-clamp-2 font-display text-marquee uppercase [overflow-wrap:anywhere]">
+              {community.name}
+            </p>
+            {community.memberLabel ? (
+              <p className="text-caption text-muted-foreground">{community.memberLabel}</p>
+            ) : null}
+            <ShellAction
+              tenantId={community.tenantId}
+              slug={community.slug}
+              variant="rail"
+              onNavigate={onNavigate}
+            />
+          </>
+        )}
       </div>
 
-      {/* ── Its destinations, then the account. Scrolls; the block above does
-             not, so the join CTA and the way out are always reachable. ── */}
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain py-2 pb-[calc(var(--safe-b)+1rem)]">
-        <NavSection label="Bagian komunitas">
-          {visibleCommunityTabs(signal).map((tab) => (
-            <li key={tab.key}>
-              <NavLink
-                href={tab.href(slug)}
-                label={tab.label}
-                icon={iconFor(tab.key)}
-                active={isCommunityTabActive(tab, slug, pathname)}
-                onNavigate={onNavigate}
-              />
-            </li>
-          ))}
-          {tools.map((link) => (
+      {/* ONE <nav>. The groups inside are groups, not landmarks — see NavSection. */}
+      <nav
+        aria-label="Navigasi"
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain py-2 pb-[calc(var(--safe-b)+1rem)]"
+      >
+        {community === undefined ? null : (
+          <NavSection label="Bagian komunitas">
+            {visibleCommunityTabs(community.signal).map((tab) => (
+              <li key={tab.key}>
+                <NavLink
+                  href={tab.href(community.slug)}
+                  label={tab.label}
+                  icon={iconFor(tab.key)}
+                  active={isCommunityTabActive(tab, community.slug, pathname)}
+                  onNavigate={onNavigate}
+                />
+              </li>
+            ))}
+            {communityToolLinks(community.slug).map((link: ShellLink) => (
+              <li key={link.key}>
+                <NavLink
+                  href={link.href}
+                  label={link.label}
+                  icon={link.icon}
+                  active={isPathActive(link.href, pathname, link.exact)}
+                  onNavigate={onNavigate}
+                />
+              </li>
+            ))}
+          </NavSection>
+        )}
+
+        {/* Reachable from EVERYWHERE, which is the point of one rail: the
+            roadmap and the assessment used to exist only inside a community,
+            so a reader on /pengaturan could not get to them at all. */}
+        <NavSection label="Jelajah" heading={community === undefined ? undefined : "Jelajah"}>
+          {(community === undefined
+            ? [{ ...KOMUNITAS_LINK, label: "Komunitas" }, ...EXPLORE_LINKS]
+            : EXPLORE_LINKS
+          ).map((link) => (
             <li key={link.key}>
               <NavLink
                 href={link.href}
@@ -106,8 +149,9 @@ export function ShellNav({
             </li>
           ))}
         </NavSection>
+
         <ShellAccountNav onNavigate={onNavigate} />
-      </div>
+      </nav>
     </div>
   );
 }

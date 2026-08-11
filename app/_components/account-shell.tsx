@@ -47,17 +47,20 @@
 // its own kind of misleading, so "no chrome" is not automatically the safe
 // answer — ask where the reader would go next, and whether they can.
 // ─────────────────────────────────────────────────────────────────────────────
-import { AppShell } from "@/components/shell";
-import { AccountNav } from "./account-nav";
-import { AccountDock } from "./account-dock";
-import { AccountTopBar } from "./account-top-bar";
+import { AppShell, ShellDock, ShellNav } from "@/components/shell";
+import { AccountTitle } from "./account-title";
 
 export function AccountShell({ children }: { children: React.ReactNode }) {
   return (
     <AppShell
-      rail={<AccountNav className="pt-3" />}
-      topBar={<AccountTopBar />}
-      dock={<AccountDock />}
+      // THE SAME THREE COMPONENTS the community shell mounts, with no
+      // community passed. There used to be an AccountNav, an AccountDock and an
+      // AccountTopBar — three near-copies whose only real difference was the
+      // header block, and together they made the app look like it had two
+      // different sidebars depending on which page you were on.
+      rail={<ShellNav className="pt-3" />}
+      topBar={<AccountTitle />}
+      dock={<ShellDock />}
     >
       {/* No width cap and no second @container here. <main> (AppShell) supplies
           the gutter, the safe-area padding and a max-w-5xl outer cap; each page
