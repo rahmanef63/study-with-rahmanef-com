@@ -28,6 +28,20 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-08-11",
+    version: "v3.2",
+    title: "Materi jauh lebih enak dibaca, dan halaman profil punya menu",
+    tags: ["Tampilan", "Perbaikan"],
+    points: [
+      "Isi materi sekarang diketik untuk dibaca lama: hurufnya lebih besar, jarak antar barisnya lega, dan lebar barisnya dibatasi supaya matamu tidak kehilangan baris berikutnya. Sebelumnya 14 piksel dengan jarak rapat di kolom selebar layar — sekitar 95 huruf per baris, hampir dua kali lipat batas nyaman.",
+      "Judul materi, kelas, dan nama orang tidak lagi memakai huruf arcade. Huruf itu tetap memegang menu, label, dan nama bagian — tapi judul isi ada untuk dibaca, bukan untuk dipajang.",
+      "Menu bawah dirombak mengikuti pola aplikasi: ikon duduk di dalam kotak, dan kotaknya terisi penuh saat aktif. Bentuk yang terisi masih terbaca di bawah matahari dan bagi yang buta warna — warna ikon saja tidak.",
+      "Halaman profil publik akhirnya punya menu. Sebelumnya halaman itu jalan buntu: dibuka dari tautan yang dibagikan, lalu tidak ada satu pun jalan ke bagian lain situs.",
+      "Nama di halaman profil sempat tercetak dua kali — sekali sebagai judul, sekali di dalam kartu. Sekarang sekali.",
+      "Kotak “gabung dulu” tidak lagi mengambang di ruang kosong setinggi sepertiga layar.",
+    ],
+  },
+  {
+    date: "2026-08-11",
     version: "v3.1",
     title: "Huruf yang enak dibaca, menu bawah kembali, dan halaman Roadmap",
     tags: ["Tampilan", "Baru"],

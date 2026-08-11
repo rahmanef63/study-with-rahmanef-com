@@ -19,12 +19,34 @@ export type DockCell = {
   active: boolean;
 };
 
-/** 56px tall: the iOS tab-bar height, and comfortably over the 44px floor. */
+/**
+ * A cell. 60px tall: a 36px icon box, 4px gap and an 11px label need more room
+ * than the 56px iOS tab bar, and CareerPack budgets the same via --nav-height.
+ *
+ * Shape borrowed from ../CareerPack's BottomNav, which the owner asked for by
+ * name: a fixed-size box holding the icon with the LABEL BELOW it, rather than
+ * an icon and a caption sharing one flow. The box is what makes an active state
+ * legible at a glance — CareerPack fills it with a tint, and a filled shape
+ * survives sunlight, a cracked screen and colour-blindness in a way a
+ * recoloured 20px glyph does not.
+ */
 export const DOCK_CELL_CLASS =
-  "flex min-h-14 flex-1 flex-col items-center justify-center gap-0.5 px-1 pt-1 text-[0.625rem] leading-tight transition-colors focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring";
+  "group flex min-h-[3.75rem] flex-1 flex-col items-center justify-center gap-1 px-1 pt-1 text-[0.6875rem] font-medium leading-none transition-colors focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring";
+
+/** The icon box. Square, because --radius is 0 — CareerPack's rounded-xl is
+ *  their language, the filled-box IDEA is what transfers. */
+export const DOCK_ICON_BOX =
+  "grid size-9 shrink-0 place-items-center border-2 transition-colors";
+
+export const dockIconBox = (active: boolean) =>
+  `${DOCK_ICON_BOX} ${
+    active
+      ? "border-primary bg-primary text-primary-foreground shadow-[2px_2px_0_0_var(--pixel-shadow)]"
+      : "border-transparent"
+  }`;
 
 /** The in-flow spacer the fixed bar owes the document. Rendered by DockBar. */
-const SPACER = "h-[calc(3.5rem+var(--safe-b))] md:hidden";
+const SPACER = "h-[calc(3.75rem+var(--safe-b))] md:hidden";
 
 export function DockBar({
   cells,
@@ -59,7 +81,9 @@ export function DockBar({
                 cell.active ? "text-primary" : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <cell.icon className="size-5 shrink-0" aria-hidden />
+              <span className={dockIconBox(cell.active)}>
+                <cell.icon className="size-5" aria-hidden />
+              </span>
               <span className="max-w-full truncate">{cell.label}</span>
             </Link>
           ))}

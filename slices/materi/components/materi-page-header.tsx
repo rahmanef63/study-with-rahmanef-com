@@ -64,7 +64,7 @@ export function MateriPageHeader({
 
       {/* The ONE h1 of this page, in server HTML. The island is told not to
           render a second one (`hasServerHeading`). */}
-      <h1 className="text-balance text-base [overflow-wrap:anywhere] @sm:text-lg">
+      <h1 className="title-content text-balance text-2xl [overflow-wrap:anywhere] @sm:text-3xl">
         {materi.title}
       </h1>
 

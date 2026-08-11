@@ -48,7 +48,10 @@ async function ProfileHeading({ username }: { username: string }) {
  if (profile === null) return null;
  return (
     <header className="mb-6 space-y-2">
-      <h1 className="font-display text-lg @sm:text-xl">{profile.displayName}</h1>
+      {/* `title-content`: a person's NAME is content, not chrome. In the marquee
+          face it set as two lines of uppercase pixels — the least readable
+          rendering of the one string this page exists to show. */}
+      <h1 className="title-content text-2xl @sm:text-3xl">{profile.displayName}</h1>
       <p className="text-muted-foreground">@{profile.username}</p>
       {profile.bio ? <p className="text-pretty text-muted-foreground">{profile.bio}</p> : null}
       <div className="pt-1">
@@ -64,11 +67,15 @@ async function ProfileHeading({ username }: { username: string }) {
 export default async function ProfilPublikPage({ params }: { params: Promise<Params> }) {
  const { username } = await params;
  return (
-    <main className="mx-auto w-full max-w-2xl px-6 py-12">
+    // A DIV, not <main>: AppShell already renders the <main> landmark, and this
+    // page only moved inside it on 2026-08-11. Two nested <main> elements is
+    // invalid HTML and gives a screen reader two "main" landmarks to choose
+    // between on a page that has one.
+    <div className="mx-auto w-full max-w-2xl py-2">
       <Suspense fallback={<Skeleton className="mb-6 h-24 w-full " />}>
         <ProfileHeading username={username} />
       </Suspense>
       <ProfilView username={username} />
-    </main>
+    </div>
   );
 }

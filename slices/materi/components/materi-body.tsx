@@ -34,7 +34,11 @@ export function MateriBody({
   return (
     <div className={"space-y-6" + (className ? ` ${className}` : "")}>
       {youtubeVideoId ? <YoutubeEmbed videoId={youtubeVideoId} title={title} /> : null}
-      <MarkdownView content={contentMd} />
+      {/* `reading` is the long-form type layer (globals.css): 17/18px, 1.75
+          leading and a 68ch measure. NOT applied to a discussion post, where
+          14px in a narrow column is right — this is the surface people read
+          for ten minutes. */}
+      <MarkdownView content={contentMd} className="reading" />
       <LessonLinks links={links} heading={copy.linksHeading} />
     </div>
   );

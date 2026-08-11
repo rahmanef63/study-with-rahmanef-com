@@ -129,7 +129,14 @@
    It has no lowercase rhythm and every glyph is the same width, so the sizes
    below are deliberately SMALLER than a normal display scale would be — a
    32px Press Start line is already the width of a 56px sans one.
-   Component chrome (CardTitle h3) stays body-font on purpose. */
+   Component chrome (CardTitle h3) stays body-font on purpose.
+
+   CONTENT TITLES OPT OUT, via `.title-content`. A materi called "Enam bagian
+   prompt yang bekerja" set in the marquee face runs to two uppercase lines on a
+   phone and is the first thing a reader meets — the same argument that already
+   moved course-card titles onto the body face. The marquee names the PRODUCT
+   (a section, a page, the brand); the body face names the CONTENT, because
+   content is there to be read, not to be branded at. */
 @layer base {
   h1,
   h2 {
@@ -621,4 +628,110 @@ body {
       opacity: 0.35;
     }
   }
+}
+
+/* ── THE READING SURFACE ───────────────────────────────────────────────────
+   Long-form prose: a materi body, a skill's explanation, a lesson.
+
+   UNLAYERED, and it has to be. The markdown slice sets `text-sm`, `my-2` and
+   `leading-relaxed` directly on its own <p> and <li>, which is right for a
+   discussion post and wrong for an article. Those are Tailwind utilities in the
+   `utilities` layer, so a rule of mine inside @layer components would lose to
+   them no matter how specific. Unlayered CSS beats every layer — the same trap
+   the `* { border-color }` note documents, used deliberately this time.
+   The alternative was forking MdNodeView, which would fork the post body too.
+
+   WHAT WAS WRONG. 14px text, 8px between paragraphs, in a 768px column: about
+   95 characters per line, when comfortable reading is 60–75. Three settings
+   each defensible alone, together the "kurang enak dibaca" the owner reported
+   after we shipped 128 materi into it. */
+.reading {
+  /* 68ch at this size lands near 640px — the measure, not the container, is
+     what decides where the eye loses the next line. Tables and code blocks are
+     allowed to exceed it below; they scroll rather than wrap. */
+  max-width: 68ch;
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  letter-spacing: 0.003em;
+}
+@media (min-width: 48rem) {
+  .reading {
+    font-size: 1.125rem;
+  }
+}
+.reading p,
+.reading li {
+  font-size: inherit;
+  line-height: inherit;
+}
+.reading p {
+  /* Paragraph rhythm: a full line of air, so a block reads as a block. */
+  margin-block: 0 1.15em;
+}
+.reading > :last-child {
+  margin-bottom: 0;
+}
+.reading li {
+  margin-block: 0.35em;
+}
+.reading ol,
+.reading ul {
+  margin-block: 0 1.15em;
+}
+/* Space ABOVE a heading, not below it: a heading belongs to what follows. */
+.reading h2,
+.reading h3,
+.reading h4 {
+  margin-block: 1.9em 0.55em;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+.reading h2 {
+  font-size: 1.35em;
+}
+.reading h3 {
+  font-size: 1.15em;
+}
+.reading h4 {
+  font-size: 1em;
+}
+.reading > :first-child {
+  margin-top: 0;
+}
+/* Links inside prose must be findable without colour alone (WCAG 1.4.1). */
+.reading a {
+  text-decoration: underline;
+  text-decoration-color: var(--border);
+  text-underline-offset: 0.2em;
+}
+.reading a:hover {
+  text-decoration-color: var(--primary);
+}
+.reading blockquote {
+  font-size: inherit;
+  margin-block: 1.4em;
+}
+.reading pre {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  margin-block: 1.4em;
+  /* Code and tables are the two things allowed out of the measure. */
+  max-width: none;
+}
+.reading table {
+  font-size: 0.9375rem;
+}
+.reading hr {
+  margin-block: 2.2em;
+}
+
+/* Content titles: a materi, a course, a post. Body face, real sentence case.
+   UNLAYERED so it beats the @layer base h1/h2 rules above without !important
+   and without every call site having to remember four utilities. */
+.title-content {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  line-height: 1.25;
+  text-transform: none;
 }

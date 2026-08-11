@@ -30,14 +30,22 @@
 //                     to this page is not navigation.
 //   /                 a redirect() to the flagship community. It renders
 //                     nothing; there is nothing to wrap.
-//   /u/<username>     a PUBLIC profile, linked from posts and shared outward —
-//                     same argument as the certificate. (Also not this agent's
-//                     file.)
 //   /admin, /offline  platform console and the service-worker fallback. Neither
 //                     is a learner surface.
 //
+// MOVED IN 2026-08-11: /u/<username>. It was on the list above, argued as "a
+// public profile, same as the certificate" — and the owner reported the
+// consequence: "tidak ada navtoolbar". The argument was wrong. A certificate is
+// ONE fact someone opens from WhatsApp and closes; a profile is a person, with
+// their badges and their communities, and the natural next move is to look at
+// one of them. Bare, the page was a dead end with no way anywhere. It lives in
+// this group rather than under its own layout so it shares the single rail
+// mount (see app/(akun)/layout.tsx for why that matters).
+//
 // The test: would a person who has never signed in be confused, or misled,
-// by a member's sidebar around this page? If yes, it stays bare.
+// by a member's sidebar around this page? If yes, it stays bare. A dead end is
+// its own kind of misleading, so "no chrome" is not automatically the safe
+// answer — ask where the reader would go next, and whether they can.
 // ─────────────────────────────────────────────────────────────────────────────
 import { AppShell } from "@/components/shell";
 import { AccountNav } from "./account-nav";

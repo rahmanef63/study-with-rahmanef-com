@@ -29,7 +29,11 @@ export function GabungDulu({
     // The action is `outline`: the sticky nav bar already carries the gold Join
     // on every phone page, and two coin-gold controls 150px apart meant neither
     // was the primary one.
-    <div className="flex min-h-[40vh] flex-col items-center justify-center gap-4 px-6 text-center">
+    // The height came down from 40vh (337px of nothing on an 844px phone, with
+    // the page's own header already above it) to a box that is merely roomy.
+    // Still centred and still unboxed — the comment above is right about what a
+    // gate should look like; it was only wrong about how much air it needs.
+    <div className="flex flex-col items-center justify-center gap-4 px-6 py-14 text-center">
       <p className="max-w-xs text-pretty text-sm text-muted-foreground">{description}</p>
       <JoinButton
         tenantId={tenantId}

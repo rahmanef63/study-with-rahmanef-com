@@ -51,23 +51,23 @@ export function PublicProfileCard({
 
   return (
     <div className={cn("flex w-full flex-col gap-10 @sm:gap-12", className)}>
+      {/* NAME AND HANDLE ARE NOT REPEATED HERE. The route's server-rendered
+          header already carries them, and it must: it owns the page's one <h1>
+          and it is what a crawler and a link preview read. Printing them again
+          a few pixels below put the same person's name on screen twice — once
+          in the marquee face and once in the card — which is what the owner saw
+          when this page moved into the shell. The AVATAR stays: it is the one
+          identity element the header does not have. */}
       <Hero
         eyebrow="Profil publik"
         title={
-          <span className="flex flex-col gap-3 @sm:flex-row @sm:items-center @sm:gap-5">
-            {/* decorative: the visible name text right beside it already names the heading */}
-            <span aria-hidden="true" className="shrink-0">
-              <ProfileAvatar
-                name={profile.displayName}
-                avatarUrl={profile.avatarUrl}
-                size={96}
-                className="shadow-sm"
-              />
-            </span>
-            <span className="flex min-w-0 flex-col gap-1">
-              <span className="break-words leading-tight">{profile.displayName}</span>
-              <span className="text-sm font-normal text-muted-foreground">@{profile.username}</span>
-            </span>
+          <span aria-hidden="true" className="block shrink-0">
+            <ProfileAvatar
+              name={profile.displayName}
+              avatarUrl={profile.avatarUrl}
+              size={96}
+              className="shadow-sm"
+            />
           </span>
         }
       >

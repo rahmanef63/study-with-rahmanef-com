@@ -33,7 +33,7 @@ import type { Id } from "@convex/_generated/dataModel";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { isCommunityTabActive } from "@/components/community/tab-active";
 import { dockTabs, type TenantTabSignal } from "@/lib/community";
-import { DockBar, DOCK_CELL_CLASS } from "./dock-bar";
+import { DockBar, DOCK_CELL_CLASS, dockIconBox } from "./dock-bar";
 import { iconFor } from "./nav-model";
 import { ShellNav } from "./shell-nav";
 import { useCloseAboveMd } from "./use-close-above-md";
@@ -79,9 +79,18 @@ export function ShellDock({
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger
             aria-label="Buka navigasi lengkap"
+            // BLUR FIRST — lifted from ../CareerPack's BottomNav, which
+            // documents the reason: the trigger keeps focus while Radix marks
+            // the bar behind the sheet `aria-hidden`, and the browser then
+            // refuses with a "descendant retained focus" warning. Radix moves
+            // focus into the panel and restores it on close either way, so
+            // dropping it here costs nothing.
+            onClick={(e) => e.currentTarget.blur()}
             className={`${DOCK_CELL_CLASS} text-muted-foreground hover:text-foreground`}
           >
-            <Menu className="size-5 shrink-0" aria-hidden />
+            <span className={dockIconBox(false)}>
+              <Menu className="size-5" aria-hidden />
+            </span>
             <span>Menu</span>
           </SheetTrigger>
           <SheetContent

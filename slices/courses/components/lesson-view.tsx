@@ -81,7 +81,7 @@ export function LessonView({
       {/* Reading column — comfortable measure for prose (UI-UX-PRD §1.1). */}
       <div className="mx-auto w-full max-w-2xl space-y-6">
         <section aria-label={copy.material}>
-          <MarkdownView content={lesson.contentMd} />
+          <MarkdownView content={lesson.contentMd} className="reading" />
         </section>
 
         <LessonLinks links={lesson.links} heading={copy.resources} />
