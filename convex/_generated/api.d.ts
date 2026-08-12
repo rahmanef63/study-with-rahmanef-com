@@ -139,6 +139,7 @@ import type * as features_tenants_mutations from "../features/tenants/mutations.
 import type * as features_tenants_queries from "../features/tenants/queries.js";
 import type * as features_tenants_requestHelpers from "../features/tenants/requestHelpers.js";
 import type * as features_tenants_requests from "../features/tenants/requests.js";
+import type * as features_tenants_setupStatus from "../features/tenants/setupStatus.js";
 import type * as http from "../http.js";
 import type * as seed from "../seed.js";
 import type * as seedAiKerja from "../seedAiKerja.js";
@@ -284,6 +285,7 @@ declare const fullApi: ApiFromModules<{
   "features/tenants/queries": typeof features_tenants_queries;
   "features/tenants/requestHelpers": typeof features_tenants_requestHelpers;
   "features/tenants/requests": typeof features_tenants_requests;
+  "features/tenants/setupStatus": typeof features_tenants_setupStatus;
   http: typeof http;
   seed: typeof seed;
   seedAiKerja: typeof seedAiKerja;
