@@ -28,6 +28,17 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-08-12",
+    version: "v3.7",
+    title: "Halaman depan",
+    tags: ["Baru", "Tampilan"],
+    points: [
+      "Alamat utama situs sekarang punya halaman depan sungguhan. Sebelumnya ia langsung melempar ke komunitas — praktis, tapi orang yang datang dari hasil pencarian atau tautan yang dibagikan mendarat di tengah-tengah tanpa tahu tempat apa ini.",
+      "Isinya: apa platform ini, berapa kelas dan anggotanya (angka nyata, bukan tulisan tangan), tiga cara mulai, dan daftar kelas yang sedang jalan.",
+      "Buat kamu yang sudah anggota tidak ada yang hilang — tombol pertama langsung masuk ke komunitas, dan menunya tetap ada di setiap layar.",
+    ],
+  },
+  {
+    date: "2026-08-12",
     version: "v3.6",
     title: "Pilih foto profil tanpa perlu tahu alamatnya",
     tags: ["Baru"],

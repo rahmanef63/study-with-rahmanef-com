@@ -47,7 +47,6 @@ test("every route is inside the shelled group, or explicitly and legibly bare", 
   const unaccounted = routes("app")
     .filter((r) => !shelled.has(r))
     .filter((r) => !community.has(r) && !r.startsWith("/k/"))
-    .filter((r) => r !== "/") // a redirect() into the flagship; renders nothing
     .filter((r) => !BARE.has(r));
 
   expect(unaccounted, `unshelled routes — move them into app/(shell) or add them to BARE with a reason`).toEqual([]);
