@@ -14,6 +14,7 @@ import {
   USERNAME_MAX,
   usernameCandidates,
 } from "./username";
+import { isBundledAvatar } from "../../../lib/avatars";
 import { AVATAR_URL_MAX, BIO_MAX, DISPLAY_NAME_MAX } from "./types";
 
 async function usernameTaken(
@@ -135,7 +136,15 @@ export const updateProfile = mutation({
     }
     if (args.avatarUrl !== undefined) {
       const avatarUrl = args.avatarUrl.trim();
-      if (avatarUrl.length > 0) {
+      // Two shapes are legal, and only two: one of OUR bundled avatars, stored
+      // as a relative path, or an external https URL the member typed. The
+      // bundled branch exists because the picker in Pengaturan cannot store an
+      // absolute URL without baking this deployment's origin into every row —
+      // local dev would write localhost and break on deploy. `isBundledAvatar`
+      // is an allow-list rather than a `/profiles/*` pattern: this value is
+      // rendered as an image on a public profile, so the reachable set should
+      // be what we ship, not whatever happens to sit in that folder.
+      if (avatarUrl.length > 0 && !isBundledAvatar(avatarUrl)) {
         if (!avatarUrl.startsWith("https://") || avatarUrl.length > AVATAR_URL_MAX) {
           fail("URL avatar harus https:// dan tidak terlalu panjang");
         }

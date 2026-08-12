@@ -2,6 +2,7 @@
 // implementation). This is the contract consumers rely on; covered by
 // __tests__/barrel.test.ts.
 
+export { AvatarPicker } from "./components/avatar-picker";
 export {
   ProfileSettingsForm,
   type ProfileSettingsFormProps,

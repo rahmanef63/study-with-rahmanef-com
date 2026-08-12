@@ -28,6 +28,17 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-08-12",
+    version: "v3.6",
+    title: "Pilih foto profil tanpa perlu tahu alamatnya",
+    tags: ["Baru"],
+    points: [
+      "Di Pengaturan sekarang ada pilihan foto profil siap pakai — tinggal ketuk. Sebelumnya kolomnya cuma kotak teks, jadi enam gambar yang sudah kami sediakan praktis tidak bisa ditemukan siapa pun.",
+      "Masih ada pilihan “Tanpa foto” yang memakai inisial namamu, dan kolom alamat gambar tetap ada kalau kamu mau memakai fotomu sendiri.",
+      "Bisa dijalankan dengan keyboard: satu kali Tab masuk ke deretannya, lalu panah kiri-kanan untuk memilih.",
+    ],
+  },
+  {
+    date: "2026-08-12",
     version: "v3.5",
     title: "Ikon, ilustrasi, dan gambar aplikasi yang asli",
     tags: ["Tampilan", "Perbaikan"],

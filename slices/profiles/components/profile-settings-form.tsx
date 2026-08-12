@@ -18,7 +18,7 @@ import { Label } from "@/components/ui/label";
 import { SectionHeader } from "@/components/mockup-kit";
 import { DEFAULT_PROFILE_LABELS } from "../config/labels";
 import type { ProfileFormValues, ProfileLabels, UsernameCheck } from "../types";
-import { ProfileAvatar } from "./profile-avatar";
+import { AvatarPicker } from "./avatar-picker";
 import { Textarea } from "./textarea";
 
 export type ProfileSettingsFormProps = {
@@ -130,23 +130,25 @@ export function ProfileSettingsForm({
             </div>
             <div className="flex flex-col gap-2">
               <Label htmlFor="profil-avatar-url">{copy.avatarUrlLabel}</Label>
-              <div className="flex items-start gap-3">
-                <ProfileAvatar
-                  name={values.displayName}
-                  avatarUrl={values.avatarUrl || undefined}
-                  size={64}
-                  className="mt-0.5"
+              {/* The picker comes FIRST and the URL field second. Six shipped
+                  avatars were unreachable while the only control was a text box
+                  — you had to know the path to type it. Most people will never
+                  open the field below; it stays for anyone bringing their own
+                  image, which the picker cannot represent. */}
+              <AvatarPicker
+                value={values.avatarUrl}
+                onChange={(v) => setValues((prev) => ({ ...prev, avatarUrl: v }))}
+                name={values.displayName}
+              />
+              <div className="flex min-w-0 flex-1 flex-col gap-2">
+                <Input
+                  id="profil-avatar-url"
+                  value={values.avatarUrl}
+                  onChange={set("avatarUrl")}
+                  inputMode="url"
+                  placeholder="https://"
                 />
-                <div className="flex min-w-0 flex-1 flex-col gap-2">
-                  <Input
-                    id="profil-avatar-url"
-                    value={values.avatarUrl}
-                    onChange={set("avatarUrl")}
-                    inputMode="url"
-                    placeholder="https://"
-                  />
-                  <p className="text-sm text-muted-foreground">{copy.avatarUrlHelp}</p>
-                </div>
+                <p className="text-sm text-muted-foreground">{copy.avatarUrlHelp}</p>
               </div>
             </div>
           </section>

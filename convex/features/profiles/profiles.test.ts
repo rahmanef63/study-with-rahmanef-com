@@ -123,6 +123,40 @@ describe("updateProfile", () => {
     return { t, authed };
   }
 
+  // The picker in Pengaturan stores a RELATIVE path, which the https-only rule
+  // used to reject. Widening a validator is exactly where a hole gets in
+  // quietly, so the allow-list is pinned from both sides here.
+  test("accepts a bundled avatar path, and only the ones we ship", async () => {
+    const { authed } = await setup();
+    const saved = await authed.mutation(api.features.profiles.mutations.updateProfile, {
+      avatarUrl: "/profiles/avatar-berhijab-1.webp",
+    });
+    expect(saved.avatarUrl).toBe("/profiles/avatar-berhijab-1.webp");
+
+    for (const rejected of [
+      "/profiles/avatar-tidak-ada.webp", // right folder, not shipped
+      "/profiles/../../etc/passwd", // traversal
+      "/sw.js", // same origin, not an avatar
+      "http://example.com/a.png", // plain http
+      "//evil.example.com/a.png", // protocol-relative
+    ]) {
+      await expectCode(
+        authed.mutation(api.features.profiles.mutations.updateProfile, { avatarUrl: rejected }),
+        "VALIDATION_FAILED"
+      );
+    }
+
+    // The external route still works, and clearing still clears.
+    const external = await authed.mutation(api.features.profiles.mutations.updateProfile, {
+      avatarUrl: "https://lh3.googleusercontent.com/a/foto.jpg",
+    });
+    expect(external.avatarUrl).toBe("https://lh3.googleusercontent.com/a/foto.jpg");
+    const cleared = await authed.mutation(api.features.profiles.mutations.updateProfile, {
+      avatarUrl: "",
+    });
+    expect(cleared.avatarUrl).toBeUndefined();
+  });
+
   test("rejects before ensureProfile has run", async () => {
     const t = makeT();
     const userId = await insertUser(t, { email: "x@y.com" });
