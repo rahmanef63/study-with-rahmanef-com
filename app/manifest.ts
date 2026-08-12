@@ -31,13 +31,31 @@ export default function manifest(): MetadataRoute.Manifest {
     background_color: "#090f1c",
     theme_color: "#090f1c",
     prefer_related_applications: false,
-    // Generated + byte-verified by scripts/generateIcons.mjs (`npm run
-    // pwa:icons`) and committed, so the Docker build never rasterises anything.
-    // 192 + 512 + maskable + apple is the whole useful ladder: both platforms
-    // downscale from the largest icon they can use.
+    // Real artwork from the asset pack, committed, so the Docker build never
+    // rasterises anything. Byte-verified by `npm run pwa:verify` — which no
+    // longer GENERATES these (it used to, and would now overwrite the art with
+    // the old placeholder mark); it reads this file, resolves every src below
+    // against disk, and asserts the IHDR matches the declared `sizes`.
+    //
+    // 192 + 512 + maskable + apple is the whole useful ladder for INSTALL: both
+    // platforms downscale from the largest icon they can use. public/icons also
+    // holds 16/32/48 and they are deliberately NOT listed here — those are
+    // browser-tab favicons, declared as <link rel="icon"> in app/layout.tsx.
+    // Chrome ignores sub-192 manifest icons for installability, so adding them
+    // would only pad the manifest and give a launcher a chance to pick a 16px
+    // tile.
     icons: [
       { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
       { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      // "maskable" ALONE, never "any maskable". A launcher that reads both
+      // purposes off one file is free to use the safe-zone art unmasked, and
+      // this file is padded for the mask — the wordmark sits at r=159 of 256,
+      // which reads as a small logo floating in a big field when it is not
+      // cropped. The dedicated 512 above is the unmasked one.
+      // It is also a genuinely different image from that 512, not a copy: a
+      // full-bleed duplicate shipped here once and Android cropped straight
+      // through the lettering. `npm run pwa:verify` now fails if the two files
+      // ever go byte-identical again.
       {
         src: "/icons/icon-maskable-512.png",
         sizes: "512x512",

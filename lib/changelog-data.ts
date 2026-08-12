@@ -28,6 +28,19 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-08-12",
+    version: "v3.5",
+    title: "Ikon, ilustrasi, dan gambar aplikasi yang asli",
+    tags: ["Tampilan", "Perbaikan"],
+    points: [
+      "Ikon aplikasi, favicon, dan ikon layar utama sekarang memakai artwork asli, bukan gambar sementara yang dibuat program.",
+      "Ikon untuk Android dibuat ulang dengan ruang aman di tepinya. Versi sebelumnya persis sama dengan ikon biasa, jadi Android akan memotongnya sampai masuk ke tulisannya.",
+      "Halaman 404, halaman offline, dan tampilan “belum ada isinya” punya ilustrasinya sendiri. Ilustrasi halaman offline ikut disimpan supaya tetap muncul saat kamu benar-benar tidak punya koneksi.",
+      "Semua gambar dipadatkan: total berkas gambar turun dari 9 MB jadi 2,6 MB tanpa ada yang terlihat pecah — halaman jadi lebih cepat terbuka, terutama di kuota tipis.",
+      "Halaman Changelog dan Kalender sebelumnya tidak punya gambar pratinjau saat dibagikan. Sekarang punya.",
+    ],
+  },
+  {
+    date: "2026-08-12",
     version: "v3.4",
     title: "Menu sekarang ada di semua halaman",
     tags: ["Perbaikan"],

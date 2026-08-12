@@ -22,8 +22,19 @@
 // BUMP `VERSION` ON EVERY RELEASE THAT CHANGES A PRECACHED FILE. Everything in
 // PRECACHE is an unhashed URL, so nothing else invalidates them. The activate
 // handler deletes every cache that isn't the current one.
-const VERSION = "v1";
+// v2: all four precached icons were replaced by the SWR asset pack (the
+// procedural book mark is gone). Same URLs, different bytes — without this
+// bump an installed user keeps serving the old art from the v1 cache forever.
+// v3: /offline now renders an <img>. A bump is REQUIRED, not hygiene — the
+// install handler is the only thing that ever fills the precache, and it runs
+// once per worker version. Without a bump, every already-installed user keeps
+// the v2 cache, never fetches the new URL, and gets the broken-image icon on
+// the exact screen that exists to work offline.
+const VERSION = "v3";
 const CACHE = `belajar-shell-${VERSION}`;
+
+/** The only asset /offline references. Named because two lists need it. */
+const OFFLINE_IMAGE = "/ui/offline.webp";
 
 // "/" is deliberately NOT precached. Navigations never read from the cache
 // (see below), so a precached home page would be bytes that go stale and are
@@ -34,6 +45,10 @@ const PRECACHE = [
   // see below. Precaching the HTML alone gave an unstyled Game Paused page to
   // anyone who installed from the manifest and went offline before their first
   // real navigation (the CSS otherwise only lands via the opt-in SWR path).
+
+  // The skyline strip /offline renders. Precached for the obvious reason and
+  // ALSO matched by CACHEABLE below for the non-obvious one — see there.
+  OFFLINE_IMAGE,
   "/manifest.webmanifest",
   "/icons/icon-192.png",
   "/icons/icon-512.png",
@@ -41,11 +56,36 @@ const PRECACHE = [
   "/icons/apple-touch-icon-180.png",
 ];
 
-/** Content-addressed or immutable — the only things safe to serve from cache first. */
+/** Content-addressed or immutable — the only things safe to serve from cache first.
+ *
+ *  OFFLINE_IMAGE is the one non-immutable entry, and PRECACHING IT IS NOT
+ *  ENOUGH ON ITS OWN — that is why it is also here. A path that misses this
+ *  predicate falls out of the fetch handler with no respondWith(), handing the
+ *  request back to the browser; cached bytes the handler never consults cannot
+ *  be served.
+ *
+ *  MEASURED, because the obvious test lies. Install the worker without visiting
+ *  /offline, go offline, force a 404: the image still renders even with this
+ *  line removed. The HTTP cache is covering it — next.config.mjs puts
+ *  `max-age=604800` on /ui, and the precache's own cache.add() fetch is what
+ *  warms it. Clear the HTTP cache first (a 7-day expiry, an eviction, or that
+ *  header ever being reverted to Next's `max-age=0, must-revalidate` default)
+ *  and the two diverge cleanly: with this line naturalWidth is 1200, without it
+ *  naturalWidth is 0 and /offline paints the broken-image icon. So the header
+ *  buys a week; this line is what makes it durable and independent of a config
+ *  file this worker does not control.
+ *
+ *  Scoped to this exact file rather than all of /ui/: the sibling asset pass
+ *  left the /social /ui /web /learning /profiles question open on the grounds
+ *  that those images "only appear on pages a network is needed to render
+ *  anyway". True of every one of them except this one — /offline is by
+ *  definition the page rendered with no network — so the exception is exactly
+ *  one file wide. The rest stay plain network until someone has a reason. */
 const CACHEABLE = (pathname) =>
   pathname.startsWith("/_next/static/") ||
   pathname.startsWith("/icons/") ||
-  pathname.startsWith("/screenshots/");
+  pathname.startsWith("/screenshots/") ||
+  pathname === OFFLINE_IMAGE;
 
 /** Never touched, at any cost: realtime data, per-request images, auth. */
 const NEVER = (pathname) =>

@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button";
 //    navigation for free and works even if the bundle never downloads.
 //  - force-static so it is a prerendered HTML file the worker can cache, not a
 //    per-request render.
+//  - ANY asset this page references must be in the worker's PRECACHE **and**
+//    servable by its fetch handler. See the <img> at the bottom.
 export const dynamic = "force-static";
 
 export const metadata: Metadata = {
@@ -53,6 +55,31 @@ export default function OfflinePage() {
       <p className="text-xs text-muted-foreground">
         <span aria-hidden="true">▸ </span>Insert coin to continue
       </p>
+
+      {/* The one image on the one screen whose whole job is to work with no
+          network. Two things had to be true before it could be added, and both
+          are done in public/sw.js (VERSION bumped to v3 so installed users
+          re-run install):
+            1. "/ui/offline.webp" is in PRECACHE — fetched and stored at install
+               time, while there still is a network.
+            2. CACHEABLE() matches it. Precaching ALONE is not enough: the fetch
+               handler `return`s without responding for anything outside
+               CACHEABLE, so cached bytes it never consults cannot be served.
+               Verified by removing that one line and clearing the HTTP cache —
+               naturalWidth drops from 1200 to 0 and this page paints the
+               broken-image icon. Full measurement in public/sw.js.
+          Cropped and alt="" for the same reasons as app/not-found.tsx — the top
+          two thirds of the source are baked-in raster text that would contradict
+          this page ("Kamu sedang offline" vs the copy above) under a garbled
+          wordmark. Only the clean skyline band renders. */}
+      <img
+        src="/ui/offline.webp"
+        alt=""
+        width={1200}
+        height={240}
+        decoding="async"
+        className="pixelated pixel-frame aspect-[5/1] w-full border-border object-cover object-bottom"
+      />
     </main>
   );
 }

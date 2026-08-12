@@ -5,9 +5,9 @@ A platform and community for learning applied AI, in Bahasa Indonesia — free, 
 > A Skool.com-style tabbed community app on plain Next.js routes: Kelas · Diskusi · Anggota · Tentang. The windowed OS desktop that used to render every path was deleted on 2026-08-09 (see DECISIONS.md addendum); the Convex backend is unchanged.
 
 **Agents: read [AGENTS.md](AGENTS.md) first** (binding contract), then claim your assignment in [docs/STATUS.md](docs/STATUS.md).
-Docs: [DECISIONS](DECISIONS.md) · [PRD](docs/PRD.md) · [DATA-MODEL](docs/DATA-MODEL.md) · [SLICES](docs/SLICES.md) · [AGENT-PROMPTS](docs/AGENT-PROMPTS.md)
+Docs: [DECISIONS](DECISIONS.md) · [PRD](docs/PRD.md) · [DATA-MODEL](docs/DATA-MODEL.md) · [SLICES](docs/SLICES.md) · [AGENT-PROMPTS](docs/AGENT-PROMPTS.md) · [ASSETS](docs/ASSETS.md)
 
-Scaffolded with [`rahman-resources`](https://www.npmjs.com/package/rahman-resources) — Next 16 + React 19 + Convex (self-hosted) + Tailwind 4 + shadcn/ui.
+Scaffolded with [`rahman-resources`](https://www.npmjs.com/package/rahman-resources) — Next 16 + React 19 + Convex Cloud + Tailwind 4 + shadcn/ui.
 
 ## Architecture
 
@@ -99,6 +99,31 @@ full Cloud-backed app, or leave it unset to ship the static scaffold first.
 > typecheck/build runs without codegen — see `.gitignore`. (Vercel + Convex Cloud
 > needs no commit; `build:auto` codegens during deploy.)
 
+## Brand assets
+
+The in-app mark is **code, not a file**: `components/brand/logo.tsx` (`Logo` / `LogoMark`) is a
+procedural SVG drawn with `currentColor` — ~1 KB, crisp from 16 px to 512 px, re-tints with the
+theme. `app/icon.svg` is the favicon of record. **Never import a brand PNG into a component.**
+
+The PNGs below are for **outside** the app — README, GitHub, Discord, decks, press. They are baked
+raster on a `#071536` field (not `--background` `#090f1c`), so they show a visible box if dropped on
+a page surface, and they cannot follow the theme.
+
+<img src="public/brand/wordmark-horizontal.png" alt="STUDY WITH RAHMAN" width="360">
+
+| File | Dim | Use |
+|---|---|---|
+| `public/brand/wordmark-horizontal.png` | 1200×400 | Default lockup — README headers, slides, sponsor listings |
+| `public/brand/wordmark-stacked.png` | 800×1200 | Portrait lockup — stories, posters |
+| `public/brand/wordmark-compact.png` | 800×400 | Tight horizontal lockup — **cropped in the current export ("UDY WITH RAHM"), re-export before use** |
+| `public/brand/wordmark-light.png` | 1200×400 | For light backgrounds — **unusable as shipped: glyphs `#f7f7f7` on `#f6f7fb`, white-on-white** |
+
+Social artwork (`public/social/*`) is uploaded into other products' settings, not served by the site
+— the GitHub social preview is a **repo setting**, the Discord banner is a **Discord server
+setting**. Which files are actually wired, which are not, and why, is the table in
+**[docs/ASSETS.md](docs/ASSETS.md)** — including the measured reason the root OG card stays
+generated (`app/opengraph-image.tsx` + `lib/og.tsx`) instead of serving the static `og-default.png`.
+
 ## Hard rules
 
 - **NO Clerk.** Auth = `@convex-dev/auth`.
@@ -112,8 +137,8 @@ full Cloud-backed app, or leave it unset to ship the static scaffold first.
 | Framework | Next.js 16 (App Router, real routes; cacheComponents OFF) |
 | UI shell | `app/k/[slug]/layout.tsx` (~140 LOC: header + tab strip) |
 | UI | React 19 + Tailwind 4 + shadcn |
-| Design | bespoke "Editorial Warmth" (Fraunces + Hanken, terracotta oklch tokens) |
-| Backend | Convex — **self-hosted** live (Cloud is the alt path) |
+| Design | bespoke "Arcade Cabinet" — ONE dark theme, `--radius: 0`, hard offset shadows, Press Start 2P as a DISPLAY-only face (`app/globals.css`). Note `docs/design/BRAND.md` still documents the retired "Editorial Warmth" palette and needs a rewrite by whoever owns the tokens. |
+| Backend | Convex **Cloud** `rare-toucan-552` (self-hosted retired 2026-07-10) |
 | Auth | `@convex-dev/auth` — **Google OAuth only** (no password option; see DECISIONS #15) |
 
 ## Related projects

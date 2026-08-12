@@ -92,18 +92,54 @@ const nextConfig = {
         ],
       },
       {
-        // Committed build output (scripts/generateIcons.mjs,
-        // generateScreenshots.mjs). NOT `immutable`: the filenames carry the
-        // SIZE, not a content hash, so regenerating icon-512.png reuses the URL
-        // — which is exactly what happened when the brand mark's page gutters
-        // were fixed. `immutable` would have pinned the old art in every
-        // returning browser for a year with no way to bust it. A week is long
-        // enough for assets that change about once a quarter.
+        // Committed art. NOT `immutable`: the filenames carry the SIZE, not a
+        // content hash, so replacing icon-512.png reuses the URL. `immutable`
+        // would pin the old art in every returning browser for a year with no
+        // way to bust it, and a week is long enough for assets that change
+        // about once a quarter.
+        //
+        // RE-CHECKED against the asset-pack upload, and the reasoning did not
+        // just survive — that upload is the exact event it was written for.
+        // Every one of these four URLs kept its name and changed its bytes
+        // wholesale (the procedural book-and-spark mark was replaced by real
+        // artwork). Under `immutable` a returning installed user would still be
+        // looking at the old placeholder on their home screen in 2027. Under a
+        // week they roll over on their own. Note the HTTP cache is only half of
+        // it: these same four URLs are precached by public/sw.js, whose cache
+        // is keyed on VERSION and does NOT expire — that file was bumped to v2
+        // for this upload, and it has to be bumped again next time. A stale
+        // icon after an art change means someone forgot the VERSION, not this
+        // header.
         source: "/icons/:file*",
         headers: [{ key: "Cache-Control", value: "public, max-age=604800" }],
       },
       {
         source: "/screenshots/:file*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=604800" }],
+      },
+      {
+        // The rest of the asset pack: link-unfurl cards (/social), the external
+        // brand wordmarks (/brand), and the art our own <img> tags render
+        // (/ui, /web, /learning, /profiles). Next serves everything under
+        // public/ as `max-age=0, must-revalidate` by default, so before this
+        // rule every one of these images cost a conditional request on every
+        // navigation that mounted it — for files that are hand-committed and
+        // change about never.
+        //
+        // Same week, and same reason it is not `immutable`: none of these
+        // filenames carry a content hash either, so `hero.webp` has to stay
+        // replaceable in place. Keeping the number identical to /icons is
+        // deliberate — one asset-pack refresh should age out of every browser
+        // on one clock, not several.
+        //
+        // Separate from the SW question: these paths are NOT in the CACHEABLE
+        // allowlist in public/sw.js, so nothing here is served from the service
+        // worker cache. That was left alone on purpose. An HTTP max-age expires
+        // by itself; an SW cache entry only leaves when VERSION is bumped, so
+        // opting 2 MB of art into it buys offline reach at the cost of one more
+        // thing that goes stale silently. Not worth it for images that only
+        // appear on pages a network is needed to render anyway.
+        source: "/:dir(social|brand|ui|web|learning|profiles)/:file*",
         headers: [{ key: "Cache-Control", value: "public, max-age=604800" }],
       },
     ];

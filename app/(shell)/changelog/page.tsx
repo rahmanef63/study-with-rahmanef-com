@@ -18,7 +18,10 @@ export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
   alternates: { canonical: "/changelog" },
-  openGraph: { type: "website", title: TITLE, description: DESCRIPTION, url: "/changelog" },
+  // NO `openGraph` key. Declaring one WITHOUT `images` suppresses the inherited
+  // file-convention card, so this page unfurled as a bare link — the same trap
+  // /diskusi and /komunitas were fixed for. Next still fills og:title from the
+  // title above.
 };
 
 function fmtDate(iso: string): string {

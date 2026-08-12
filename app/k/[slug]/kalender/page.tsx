@@ -63,12 +63,10 @@ export async function generateMetadata({
     title: "Kalender",
     description,
     alternates: { canonical: kalenderHref(slug) },
-    openGraph: {
-      type: "website",
-      title,
-      description,
-      url: absoluteUrl(kalenderHref(slug)),
-    },
+    // NO `openGraph` key. Declaring one WITHOUT `images` suppresses the inherited
+    // file-convention card, so this page unfurled as a bare link — the same trap
+    // /diskusi and /changelog were fixed for. Next still fills og:title from the
+    // title above.
     twitter: { card: "summary_large_image", title, description },
   };
 }

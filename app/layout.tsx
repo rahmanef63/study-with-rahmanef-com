@@ -9,20 +9,14 @@ import "./globals.css";
 
 // ONE downloaded face, and it is the marquee only.
 //
-// Pixelify Sans used to be the BODY face on the argument that it "keeps real
-// lowercase and word shapes, so lesson prose stays legible". The owner read the
-// site and reported the opposite: "fontnya agak sulit dibaca". They are right,
-// and the argument was wrong in a specific way — a pixel face costs legibility
-// on every glyph, and body text is where the platform spends nearly all of its
-// glyphs. 128 materi of Bahasa-Indonesia prose is the product; the arcade
-// styling is the wrapper. When the wrapper starts taxing the product, the
-// wrapper loses.
-//
-// The identity is unharmed: Press Start 2P still carries every heading, the
-// brand, the eyebrows and the chrome, which is where a display face belongs.
-// Body text now uses the platform UI stack, which is hinted for the reader's
-// own screen, renders instantly with no swap, and downloads NOTHING — so this
-// change makes the site faster as well as readable.
+// Pixelify Sans used to be the BODY face, on the argument that it kept enough
+// word shape for prose. The owner read the site and said "fontnya agak sulit
+// dibaca", and they were right: a pixel face costs legibility on every glyph,
+// and 128 materi of Bahasa-Indonesia prose is where nearly all the glyphs are.
+// The arcade styling is the wrapper; when the wrapper taxes the product, the
+// wrapper loses. Identity is unharmed — Press Start 2P still carries every
+// heading, the brand and the chrome. Body text uses the platform UI stack:
+// hinted for the reader's own screen, no swap, and downloads NOTHING.
 const display = Press_Start_2P({
   subsets: ["latin"],
   weight: "400",
@@ -80,16 +74,12 @@ export const metadata: Metadata = {
     title: "Belajar",
     statusBarStyle: "black-translucent",
   },
-  // Declared explicitly rather than left to the app/icon.svg file convention:
-  // once any `icons` field is set it replaces the auto-detected set, and iOS
-  // needs a real PNG (it will not use an SVG for a home-screen icon).
-  // No app/apple-icon.tsx — that would rasterise the same art again through
-  // next/og at request time to produce a file scripts/generateIcons.mjs has
-  // already emitted, byte-verified and committed.
-  // NOTE: `icons` and `manifest` are deliberately NOT declared here — they are
-  // rendered as plain JSX below so React hoists them into <head> at SSR time.
-  // See the comment at that call site; putting them in Metadata broke install
-  // on every /k route.
+  // `icons` and `manifest` are deliberately NOT declared here. They are plain
+  // JSX in the body below, because React hoists a <link> into <head> at SSR and
+  // the Metadata API does not on async-metadata routes — declaring them here
+  // broke install on every /k route. Read the comment at that call site first.
+  // No app/apple-icon.tsx either: it would rasterise art per request to make
+  // /icons/apple-touch-icon-180.png, which is committed artwork already.
   openGraph: {
     type: "website",
     locale: "id_ID",
@@ -136,29 +126,40 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="scanlines font-sans" style={SAFE_AREA}>
         {/* React hoists resource links to <head>. */}
         {CONVEX_ORIGIN && <link rel="preconnect" href={CONVEX_ORIGIN} />}
-        {/* THE INSTALL-CRITICAL LINKS, rendered as JSX rather than declared in
-            `metadata`. React hoists a bare <link> into <head> during SSR; the
-            Metadata API does not, when any level of the route's metadata is
-            async.
+        {/* THE INSTALL-CRITICAL LINKS. DO NOT MOVE THESE INTO `metadata`.
+            React hoists a bare <link> into <head> during SSR. The Metadata API
+            does NOT, when any level of the route's metadata is async — and
             /k/[slug] has an async generateMetadata (it awaits the tenant from
-            Convex), so Next flushed the shell without metadata and streamed
-            <title>, the icons AND <link rel="manifest"> into <body> instead —
-            measured: </head> closed at byte 2110, the manifest link sat at
-            37243. Chrome only honours rel="manifest" inside <head>, so the
-            entire PWA was inert on every route a learner actually uses: no
-            install prompt, no app icon. iOS reads apple-touch-icon at parse
-            time too, so "Add to Home Screen" had no icon either.
-            Static-metadata routes (/changelog, /komunitas, /pengaturan) were
-            fine, which is exactly why probing those said the PWA worked. */}
-        {/* Yes, this duplicates the tag Next auto-injects for app/manifest.ts.
-            Harmless — identical href, and a browser takes the first in document
-            order, which is now always this one. Suppressing Next's copy would
-            mean giving up the typed MetadataRoute and serving the manifest as a
-            static public/ file, which is a worse trade than one repeated link. */}
+            Convex), so Next flushed the shell first and streamed the icons and
+            <link rel="manifest"> into <body>. Chrome only honours rel=manifest
+            inside <head>, so the PWA was inert on every route a learner
+            actually uses; iOS reads apple-touch-icon at parse time, so "Add to
+            Home Screen" had no icon either. Static-metadata routes were fine,
+            which is why probing /changelog said the PWA worked.
+            STILL TRUE IN NEXT 16.2.10, re-measured on the standalone server:
+            on /k/belajar-ai, Next's own manifest link lands at byte 24312 while
+            </head> closes at 2734 — and the JSX copy below sits at 2002, safely
+            inside. On /komunitas and /changelog there is no stray copy at all.
+            That asymmetry IS the bug, and this block is what neutralises it.
+            The duplicate tag on async routes is harmless: identical href, and
+            ours comes first in document order. Suppressing Next's copy would
+            mean giving up the typed MetadataRoute — a worse trade. */}
         <link rel="manifest" href="/manifest.webmanifest" />
+        {/* Vector first: a browser that reads `type` takes the 1.4 KB SVG and
+            stops. The rest is the fallback ladder for UAs that ignore rel=icon
+            SVGs (Safari). 16/32/48 are real exports from the asset pack — they
+            used to be downscaled from the 192, which resamples flat pixel art
+            off its own lattice and blurs it. Ascending, so 512 is last and a UA
+            that takes the final entry instead of reading `sizes` gets the
+            largest rather than the smallest. */}
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/icons/icon-16.png" sizes="16x16" type="image/png" />
+        <link rel="icon" href="/icons/icon-32.png" sizes="32x32" type="image/png" />
+        <link rel="icon" href="/icons/icon-48.png" sizes="48x48" type="image/png" />
         <link rel="icon" href="/icons/icon-192.png" sizes="192x192" type="image/png" />
         <link rel="icon" href="/icons/icon-512.png" sizes="512x512" type="image/png" />
+        {/* Separate rel, and not optional: iOS will not fall back to a manifest
+            icon for "Add to Home Screen". */}
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon-180.png" sizes="180x180" />
         {/* VersionWatcher owns the ONE "muat ulang" prompt; the registrar below
             deliberately stays silent. See components/pwa/service-worker.tsx. */}
@@ -170,27 +171,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             suspended EVERY route to a full-screen splash. Pages own their own
             boundaries around the specific reads that are dynamic. */}
         {/* NO <ViewTransition> HERE, AND THAT IS THE FIX FOR "terbuka 2 kali".
-            It used to wrap {children}, which put every router update inside
-            document.startViewTransition(). React animates EVERY transition
-            update inside such a boundary — a Suspense reveal included — and
-            every page under /k has 3–4 Suspense boundaries, so one tap produced
-            two or three consecutive whole-app entrances. Measured on a
-            throttled 390px phone: 1.2s of continuous sliding across three
-            transitions, the middle one animating a frame in which the DOM had
-            not changed at all.
-            It cannot be fixed in CSS: `transition.types` is empty here (Next 16
-            tags neither the router push nor the Suspense reveal), so no
-            selector can single out the extra runs. Naming the chrome only fixed
-            the SECOND, smaller defect — the sticky bar being painted twice
-            mid-slide — while leaving the content pane re-entering 2–3x.
-            The route animations and the reserved chrome names are gone from
-            app/globals.css with it. A dashboard whose rail stays put has no
-            business sliding its content pane in from the right anyway; if
-            motion is wanted back it has to be a bounded CSS animation on the
-            content pane, not a document-level view transition.
+            Wrapping {children} put every router update inside
+            document.startViewTransition(), and React animates EVERY transition
+            update in that boundary — Suspense reveals included — so one tap
+            replayed the whole-app entrance 2–3x. Full measurement and why CSS
+            cannot scope it: the `experimental` block in next.config.mjs.
             Orphaned by this change and safe to delete:
-            components/ui/view-transition.tsx, components/ui/route-direction.tsx
-            and `experimental.viewTransition` in next.config.mjs. */}
+            components/ui/view-transition.tsx, components/ui/route-direction.tsx. */}
         <ConvexClientProvider>{children}</ConvexClientProvider>
         {/* The 3.5rem of lift removed here cleared <CommunityBottomNav/>, the
             fixed 56px bar this rebuild deleted. Nothing is bottom-anchored any

@@ -18,9 +18,9 @@
     "e2e": "playwright test",
     "e2e:staging": "playwright test",
     "e2e:prod": "playwright test",
-    "pwa:icons": "node scripts/generateIcons.mjs",
     "pwa:screenshots": "node scripts/generateScreenshots.mjs",
-    "setup:check": "node scripts/setup-check.mjs"
+    "setup:check": "node scripts/setup-check.mjs",
+    "pwa:verify": "node scripts/verifyInstallSurface.mjs"
   },
   "dependencies": {
     "@auth/core": "^0.37.4",
