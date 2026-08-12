@@ -137,9 +137,11 @@ reads "UDY WITH RAHM". (`wordmark-horizontal.png` is fine: content x∈[38, 1162
 baked in as pixels, on a cream field. It cannot sit behind `CertificateCard` — the card renders that
 same information as real text.
 
-**Likeness.** `profiles/avatar-pria-2.webp` and `profiles/avatar-badge.webp` appear to depict a
-recognisable public figure. That is an owner decision (rights/likeness) before they ship as
-selectable avatars, not an engineering one.
+**Likeness — RESOLVED 2026-08-12, owner.** `profiles/avatar-pria-2.webp` and
+`profiles/avatar-badge.webp` are pixel-art illustrations inspired by a public figure. The owner
+confirms the reference is not IP-encumbered and that the source photograph was released for use.
+Cleared to ship. Recorded here so it is raised once and not re-litigated by the next reader —
+which is the only reason this paragraph still exists.
 
 ---
 
@@ -163,11 +165,11 @@ the composition whole. Where a file has a clean text-free band, that route is op
 | `/learning/course-cover-template.webp` | 1280×720 | 70 252 | Course cards call `slices/courses/lib/cover-art.ts`, which derives a *different* cover per course from a slug hash — six courses, six covers, ~1.6 KB gzip total, and course #7 gets art with no upload. One shared template would make every course look identical; that is a regression, not a swap. **This file has no home in the product.** Its only defensible use is as a docs/press illustration of what a course card looks like — and it carries the ghosting defect, so fix that first. |
 | `/learning/certificate-bg.webp` | 2560×1440 | 22 346 | `slices/profiles/components/certificate-card.tsx` builds the certificate from theme tokens. See §5 — this file is a mock-up with text baked in, not a background. Usable as a docs illustration only. |
 | `/profiles/avatar-default.png` | 512² | 2 627 | `ProfileAvatar` falls back to **initials** (`"Rahman Ef" → "RE"`) when `avatarUrl` is empty — no network request, always personal. A shared default image would make every avatar-less member look like the same person. |
-| `/profiles/avatar-pria-1.webp` | 512² | 4 806 | `profiles.avatarUrl` is a free-text URL field in Pengaturan; there is no avatar *picker*. A member can paste `/profiles/avatar-pria-1.webp` today and it works. Building a picker is a product decision (and see the likeness note in §5 for two of these files). |
-| `/profiles/avatar-pria-2.webp` | 512² | 11 638 | same — **likeness check first** |
+| `/profiles/avatar-pria-1.webp` | 512² | 4 806 | `profiles.avatarUrl` is a free-text URL field in Pengaturan; there is no avatar *picker*. A member can paste `/profiles/avatar-pria-1.webp` today and it works. Building a picker is a product decision. |
+| `/profiles/avatar-pria-2.webp` | 512² | 11 638 | same |
 | `/profiles/avatar-wanita-1.webp` | 512² | 15 996 | same |
 | `/profiles/avatar-berhijab-1.webp` | 512² | 17 352 | same |
-| `/profiles/avatar-badge.webp` | 512² | 19 154 | same — **likeness check first** |
+| `/profiles/avatar-badge.webp` | 512² | 19 154 | same |
 
 ---
 
@@ -177,7 +179,7 @@ the composition whole. Where a file has a clean text-free band, that route is op
 2. Upload `social/discord-banner.png` in Discord server settings (check the crop).
 3. ~~Paste `/social/community-banner.png` into Kelola → cover editor~~ — TESTED AND REJECTED, see §2. Re-export it (§4) and it becomes a one-field change.
 4. Re-export the eight ghosted files, `wordmark-light`, and `wordmark-compact` (§5).
-5. Decide the likeness question on two avatars (§5).
+5. ~~Decide the likeness question on two avatars~~ — cleared by the owner 2026-08-12 (§5).
 6. ~~Delete the `openGraph` keys on `/changelog` and `/kalender`~~ — done 2026-08-12.
 
 ## 8. Where the pristine originals live
