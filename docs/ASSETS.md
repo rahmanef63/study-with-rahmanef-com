@@ -44,7 +44,7 @@ settings screen. Nothing to build; someone has to upload them.
 |---|---|---|---|
 | `/social/github-preview.png` | 1280×640 | 251 974 | **GitHub repo → Settings → General → Social preview.** This is a repository *setting*, not a file the site serves — GitHub stores its own copy. 1280×640 is exactly GitHub's recommended size. Once uploaded, nothing references the file here; keeping it in the repo is only so the source is versioned. |
 | `/social/discord-banner.png` | 1920×480 | 437 197 | **Discord → Server Settings → Overview → banner.** Uploaded in Discord, never fetched from us. Its 4:1 crop is wider than Discord's banner slot, so expect a centre crop — check the upload preview before saving. |
-| `/social/community-banner.png` | 1920×640 | 524 171 | The only one of these with a slot **inside** the product, and it needs no code: it is a valid tenant cover. Paste `/social/community-banner.png` into Kelola → cover editor (`tenants.coverImageUrl`) and it renders on `/k/<slug>/tentang` and in `TenantProfileCard`. It does **not** become the community's social card — `app/k/[slug]/opengraph-image.tsx` deliberately wins over the cover, because that card carries the live member/course counts. |
+| `/social/community-banner.png` | 1920×640 | 524 171 | **Correctly shaped for a tenant cover and NOT usable as one — see §5.** This row previously recommended pasting it into Kelola → cover editor; that advice was written from the inventory, not from the image. Rendered at the slot's real 3.56:1 the ghosted second wordmark dominates the frame. Cropping to the clean left 42% does not rescue it: the ghost still intrudes at the right edge and the tagline cuts mid-word. Two other candidates were tested and rejected too — `web/hero.webp` is clean but 16:9, and its three-line lockup (rows 162–695 of 1080) cannot survive a 540px band at any anchor. **There is no usable community cover in this pack until the ghosted files are re-exported.** The procedural `CourseCover` stays, which is on-brand and costs nothing. It does **not** become the community's social card — `app/k/[slug]/opengraph-image.tsx` deliberately wins over the cover, because that card carries the live member/course counts. |
 | `/social/share-card.png` | 1200×630 | 235 871 | No slot. The product's share path is `<TombolBagikan>` → `navigator.share`/clipboard with a URL; the receiving app then unfurls the page's own OG card. This file can only be attached by hand to a manual post. **Re-export before using it** — see §5. |
 | `/social/og-default.png` | 1200×630 | 318 619 | Evaluated as the site-wide OG card and rejected. See §4. |
 | `/brand/wordmark-horizontal.png` | 1200×400 | 5 344 | README badges, slide decks, press, sponsor listings, anywhere outside the app. See §3. |
@@ -175,7 +175,7 @@ the composition whole. Where a file has a clean text-free band, that route is op
 
 1. Upload `social/github-preview.png` to the repo's social-preview setting.
 2. Upload `social/discord-banner.png` in Discord server settings (check the crop).
-3. Optionally paste `/social/community-banner.png` into Kelola → cover editor. No code change.
+3. ~~Paste `/social/community-banner.png` into Kelola → cover editor~~ — TESTED AND REJECTED, see §2. Re-export it (§4) and it becomes a one-field change.
 4. Re-export the eight ghosted files, `wordmark-light`, and `wordmark-compact` (§5).
 5. Decide the likeness question on two avatars (§5).
 6. ~~Delete the `openGraph` keys on `/changelog` and `/kalender`~~ — done 2026-08-12.
