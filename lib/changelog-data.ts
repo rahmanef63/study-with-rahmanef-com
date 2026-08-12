@@ -27,6 +27,16 @@ export type ChangelogEntry = {
 // NEWEST FIRST. Prepend here on every update.
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-08-12",
+    version: "v3.4",
+    title: "Menu sekarang ada di semua halaman",
+    tags: ["Perbaikan"],
+    points: [
+      "Enam halaman ternyata masih tanpa menu sama sekali: Peta belajar, Roadmap, halaman masuk, sertifikat, dan dua halaman admin. Kalau kamu mendarat di salah satunya dari tautan yang dibagikan, tidak ada satu pun jalan ke bagian lain situs. Sekarang semuanya punya menu yang sama.",
+      "Halaman offline sengaja tetap polos — halaman itu muncul justru saat tidak ada koneksi, dan menunya butuh koneksi untuk tahu kamu siapa.",
+    ],
+  },
+  {
     date: "2026-08-11",
     version: "v3.3",
     title: "Satu menu untuk seluruh aplikasi",

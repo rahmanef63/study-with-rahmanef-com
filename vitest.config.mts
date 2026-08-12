@@ -33,6 +33,8 @@ export default defineConfig({
       // components/editor holds the block-editor adapter seam; its pure halves
       // (block transforms, lesson→Page mapping) are unit-tested there.
       "components/**/*.test.ts",
+      // Route-tree guards live beside the routes they check.
+      "app/**/*.test.ts",
     ],
     // Vendored appshell ships its own upstream tests; its window-geometry suites
     // assume a DOM viewport, but this repo runs vitest under edge-runtime (for

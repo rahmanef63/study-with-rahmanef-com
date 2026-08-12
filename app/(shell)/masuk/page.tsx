@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MasukCard } from "../_components/masuk-card";
+import { MasukCard } from "@/app/_components/masuk-card";
 
 // Sign-in. `?next=` carries where the visitor was headed (invite links, the
 // JoinButton's loginHref, any member-gated redirect) so the OAuth callback
