@@ -14,7 +14,8 @@ export { AppShell, ShellRailSkeleton, SHELL_GUTTER } from "./app-shell";
 export { DockBar, DOCK_CELL_CLASS, dockIconBox, type DockCell } from "./dock-bar";
 export { ShellDock } from "./shell-dock";
 export { ShellNav, type ShellNavProps } from "./shell-nav";
-export { ShellAccountNav } from "./shell-account-nav";
+export { SidebarSwitcher } from "./sidebar-switcher";
+export { SidebarUser } from "./sidebar-user";
 export { ShellTopBar, ShellTopBarSkeleton } from "./shell-top-bar";
 export { useCloseAboveMd } from "./use-close-above-md";
 export { ShellAction, type ShellActionVariant } from "./shell-action";
@@ -23,7 +24,6 @@ export { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "./sidebar-menu"
 export {
   ACCOUNT_LINKS,
   ICON_KEYS,
-  KOMUNITAS_LINK,
   communityToolLinks,
   iconFor,
   isPathActive,

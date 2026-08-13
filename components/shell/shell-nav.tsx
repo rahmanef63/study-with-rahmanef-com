@@ -12,19 +12,16 @@
 // whose `href` members are functions and cannot cross the boundary.
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronLeft } from "lucide-react";
 import type { Id } from "@convex/_generated/dataModel";
 import { isCommunityTabActive } from "@/components/community/tab-active";
 import { visibleCommunityTabs, type TenantTabSignal } from "@/lib/community";
 import { cn } from "@/lib/utils";
 import { SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader } from "./sidebar";
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "./sidebar-menu";
-import { ShellAccountNav } from "./shell-account-nav";
+import { SidebarSwitcher } from "./sidebar-switcher";
+import { SidebarUser } from "./sidebar-user";
 import { ShellAction } from "./shell-action";
-import { communityToolLinks, iconFor, isPathActive, KOMUNITAS_LINK,
-  EXPLORE_LINKS,
-  type ShellLink,
-} from "./nav-model";
+import { communityToolLinks, EXPLORE_LINKS, iconFor, isPathActive, type ShellLink } from "./nav-model";
 
 /** The community this rail is inside, when it is inside one. */
 export type ShellCommunity = {
@@ -61,41 +58,32 @@ export function ShellNav({ community, onNavigate, className }: ShellNavProps) {
              to the flagship. One block, two fillings — this used to be two
              components with two headers, which is what made the app look like
              it had two different sidebars depending on the page. ── */}
+      {/* ── Where you are, and the way to somewhere else, in ONE row.
+             This used to be four stacked things — a "‹ Komunitas lain" link, the
+             name, the member count, then the action — 177px of chrome before the
+             first destination, a fifth of a 900px viewport. The switcher folds
+             the first three together and gives the directory a real affordance
+             instead of a back-link that only pointed one way. ── */}
       <SidebarHeader>
-        {community === undefined ? (
-          <Link
-            href="/"
-            onClick={onNavigate}
-            className="pixel-press -ml-1 inline-flex min-h-11 items-center px-1 font-display text-marquee uppercase hover:text-primary"
-          >
-            Belajar
-          </Link>
-        ) : (
-          <>
-            <Link
-              href={KOMUNITAS_LINK.href}
-              onClick={onNavigate}
-              className="pixel-press -ml-1 inline-flex min-h-11 items-center gap-1 pr-2 text-caption text-muted-foreground hover:text-foreground md:min-h-8"
-            >
-              <ChevronLeft className="size-3.5 shrink-0" aria-hidden />
-              {KOMUNITAS_LINK.label}
-            </Link>
-            {/* Not an <h1>: the page's heading is server-rendered in the content
-                column. line-clamp-2 because Press Start 2P is ~2x the advance
-                width of the body face. */}
-            <p className="line-clamp-2 font-display text-marquee uppercase [overflow-wrap:anywhere]">
-              {community.name}
-            </p>
-            {community.memberLabel ? (
-              <p className="text-caption text-muted-foreground">{community.memberLabel}</p>
-            ) : null}
-            <ShellAction
-              tenantId={community.tenantId}
-              slug={community.slug}
-              variant="rail"
-              onNavigate={onNavigate}
-            />
-          </>
+        <SidebarSwitcher
+          current={
+            community === undefined
+              ? undefined
+              : {
+                  slug: community.slug,
+                  name: community.name,
+                  memberLabel: community.memberLabel,
+                }
+          }
+          onNavigate={onNavigate}
+        />
+        {community === undefined ? null : (
+          <ShellAction
+            tenantId={community.tenantId}
+            slug={community.slug}
+            variant="rail"
+            onNavigate={onNavigate}
+          />
         )}
       </SidebarHeader>
 
@@ -136,15 +124,21 @@ export function ShellNav({ community, onNavigate, className }: ShellNavProps) {
           </SidebarGroup>
         )}
 
-        {/* Reachable from EVERYWHERE, which is the point of one rail: the
-            roadmap and the assessment used to exist only inside a community,
-            so a reader on /pengaturan could not get to them at all. */}
-          <SidebarGroup label="Jelajah" heading={community === undefined ? undefined : "Jelajah"}>
+          {/* THE STATIC HALF, and the rule above it is the whole point of the
+              split. The group above changes shape with the tab signal — a
+              community with no published skill has no Skills row — so the rail
+              a reader sees is different in every community. These three never
+              move, in or out of one, which makes them the part you can aim at
+              from muscle memory.
+
+              "Komunitas" belongs HERE and used to exist only as a back-link in
+              the header, which meant the directory was reachable from the rail
+              on the account pages and NOT from inside a community. Roadmap and
+              Peta belajar had the opposite bug once: they lived only inside a
+              community, so /pengaturan could not reach them at all. */}
+          <SidebarGroup label="Jelajah" heading="Jelajah">
             <SidebarMenu>
-          {(community === undefined
-            ? [{ ...KOMUNITAS_LINK, label: "Komunitas" }, ...EXPLORE_LINKS]
-            : EXPLORE_LINKS
-          ).map((link) => (
+              {EXPLORE_LINKS.map((link) => (
               <SidebarMenuItem key={link.key}>
                 <SidebarMenuButton
                   href={link.href}
@@ -160,7 +154,7 @@ export function ShellNav({ community, onNavigate, className }: ShellNavProps) {
         </SidebarContent>
 
         <SidebarFooter>
-          <ShellAccountNav onNavigate={onNavigate} />
+          <SidebarUser onNavigate={onNavigate} />
         </SidebarFooter>
       </nav>
     </div>

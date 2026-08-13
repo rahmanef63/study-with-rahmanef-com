@@ -28,6 +28,18 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-08-14",
+    version: "v4.2",
+    title: "Ganti komunitas dari menu, dan menu akun sendiri",
+    tags: ["Baru", "Tampilan"],
+    points: [
+      "Nama komunitas di atas menu samping sekarang bisa diklik: isinya daftar komunitas lain, lengkap dengan gambarnya, plus jalan ke direktori. Sebelumnya di situ cuma ada tautan “‹ Komunitas lain” yang searah.",
+      "Bagian bawah menu jadi satu baris berisi foto dan namamu. Diklik, keluar menu berisi Profil, Notifikasi, Pengaturan, Changelog, dan Keluar. Sebelumnya empat baris terpasang permanen, dan “Keluar” cuma ada di dalam Pengaturan.",
+      "Komunitas, Roadmap, dan Peta belajar sekarang selalu muncul di kelompok “Jelajah” — di dalam komunitas mana pun, atau di luar semuanya. Sebelumnya “Komunitas” hilang begitu kamu masuk ke salah satu komunitas, justru saat kamu paling mungkin mencarinya.",
+      "Daftar komunitas hanya diambil saat menunya dibuka, jadi tidak ada beban tambahan di halaman yang menunya tidak disentuh.",
+    ],
+  },
+  {
+    date: "2026-08-14",
     version: "v4.1",
     title: "Bagian Akun tidak lagi ikut tergulir",
     tags: ["Perbaikan"],

@@ -8,7 +8,8 @@
 // tab strip used. Re-declaring those rows here would freeze them into a static
 // list and quietly regress that. All this file adds is the ICON per tab key and
 // the two sections the tab SSOT does not own (community tools, account).
-import { Bell, BookOpen, CalendarDays, Circle, Compass, Info, Library, Map, MessagesSquare, ScrollText, Search, Settings, SlidersHorizontal, Trophy, UserRound, Users, Wand2, type LucideIcon } from "lucide-react";
+import { Bell, BookOpen, CalendarDays, Circle, Compass, Info, Library, LayoutGrid,
+  Map, MessagesSquare, ScrollText, Search, Settings, SlidersHorizontal, Trophy, UserRound, Users, Wand2, type LucideIcon } from "lucide-react";
 import { communityHref } from "@/lib/community";
 
 /** One rail row. `icon` is a component, so this module is client-only — it is
@@ -75,6 +76,13 @@ export const GLOBAL_DOCK_LINKS: ShellLink[] = [
 ];
 
 export const EXPLORE_LINKS: ShellLink[] = [
+  // ALWAYS THREE, community or not. "Komunitas" used to exist only as a
+  // "‹ Komunitas lain" back-link in the header, which meant the directory was
+  // reachable from the rail on the account pages and NOT from inside a
+  // community — the one place you would look for it. The header now carries a
+  // switcher instead, and this group is the static half of the nav: it does not
+  // change shape when the dynamic half above it does.
+  { key: "komunitas", label: "Komunitas", href: "/komunitas", icon: LayoutGrid, exact: true },
   { key: "roadmap", label: "Roadmap", href: "/roadmap", icon: Map, exact: true },
   { key: "peta", label: "Peta belajar", href: "/mulai", icon: Compass, exact: true },
 ];
@@ -88,15 +96,6 @@ export function kelolaLink(slug: string): ShellLink {
     icon: SlidersHorizontal,
   };
 }
-
-/** Leaving this community entirely. Sits at the top of the rail, above the name. */
-export const KOMUNITAS_LINK: ShellLink = {
-  key: "komunitas",
-  label: "Komunitas lain",
-  href: "/komunitas",
-  icon: Compass,
-  exact: true,
-};
 
 /**
  * The account section, for a signed-in reader. Two of these three had NO entry

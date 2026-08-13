@@ -11,8 +11,8 @@ import { COMMUNITY_TABS, visibleCommunityTabs, type TenantTabSignal } from "@/li
 import { isCommunityTabActive } from "@/components/community/tab-active";
 import {
   ACCOUNT_LINKS,
+  EXPLORE_LINKS,
   ICON_KEYS,
-  KOMUNITAS_LINK,
   communityToolLinks,
   iconFor,
   isPathActive,
@@ -58,8 +58,7 @@ describe("destinations are data-driven, not a static list", () => {
 
   test("every rail href is an absolute in-app path", () => {
     const all = [
-      KOMUNITAS_LINK,
-      kelolaLink(SLUG),
+          kelolaLink(SLUG),
       profileLink("abdurrahman-fakhrul"),
       ...communityToolLinks(SLUG),
       ...ACCOUNT_LINKS,
