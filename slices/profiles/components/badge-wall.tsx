@@ -5,7 +5,7 @@
 // Container-first: two columns on the narrowest window, layering up with @sm/@lg.
 import Link from "next/link";
 import { Award, CalendarCheck, Users } from "lucide-react";
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
+import { Empty, EmptyArt, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { SectionHeader, StatTile, Badge as CountBadge } from "@/components/mockup-kit";
 import { cn } from "@/lib/utils";
 import { DEFAULT_PUBLIC_PROFILE_LABELS } from "../config/public-labels";
@@ -56,9 +56,7 @@ export function BadgeWall({ badges, certificateHref, labels, className }: BadgeW
         // (config/public-labels.ts stays the SSOT for the description below).
         <Empty className="border border-dashed border-border bg-muted/40">
           <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <Award aria-hidden="true" />
-            </EmptyMedia>
+            <EmptyArt src="/learning/badge/achievement.webp" />
             <EmptyTitle>Kumpulkan badge pertamamu</EmptyTitle>
             <EmptyDescription>{copy.badgesEmpty}</EmptyDescription>
           </EmptyHeader>

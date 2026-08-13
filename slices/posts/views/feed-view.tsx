@@ -11,7 +11,14 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
+import {
+  Empty,
+  EmptyArt,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMyMembership } from "@/features/tenants";
 import type { Id } from "@convex/_generated/dataModel";
@@ -128,6 +135,7 @@ export function FeedView({
       ) : posts.length === 0 ? (
         <Empty className="border-2">
           <EmptyHeader>
+            <EmptyArt src="/ui/empty/diskusi.webp" />
             {/* text-xs: Press Start 2P is full-width, so EmptyTitle's default
                 text-lg would overflow a phone at this string length. */}
             <EmptyTitle className="font-display text-xs uppercase">

@@ -10,12 +10,11 @@
 // be here, and who puts it there. The second answer is role-aware — a member
 // gets told who to expect it from, an instructor gets the door.
 import Link from "next/link";
-import { Wand2 } from "lucide-react";
 import {
   Empty,
   EmptyDescription,
   EmptyHeader,
-  EmptyMedia,
+  EmptyArt,
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Button } from "@/components/ui/button";
@@ -28,16 +27,21 @@ export type SkillsEmptyProps = {
    *  boundary, so the href arrives as a string like every other one here. */
   kelolaHref: string;
   copy?: MateriCopyOverride;
+  /** Overridable by the host; the default is the sprite this app ships. */
+  art?: string;
 };
 
-export function SkillsEmpty({ canManage, kelolaHref, copy: copyOverride }: SkillsEmptyProps) {
+export function SkillsEmpty({
+  canManage,
+  kelolaHref,
+  copy: copyOverride,
+  art = "/ui/empty/generic.webp",
+}: SkillsEmptyProps) {
   const copy = mergeMateriCopy(copyOverride);
   return (
     <Empty className="gap-4 border-2 border-dashed p-5 md:p-8">
       <EmptyHeader className="gap-2">
-        <EmptyMedia variant="icon">
-          <Wand2 className="size-5" aria-hidden />
-        </EmptyMedia>
+        <EmptyArt src={art} />
         <EmptyTitle className="font-display text-xs uppercase leading-relaxed">
           {copy.emptySkillsTitle}
         </EmptyTitle>

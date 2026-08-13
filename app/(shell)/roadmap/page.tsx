@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ART_SIZE } from "@/lib/art";
 import { ArrowRight, Check, ExternalLink } from "lucide-react";
 import { PATHS } from "@/lib/peta";
 import { communityHref } from "@/lib/community";
@@ -61,24 +62,53 @@ export default async function RoadmapPage() {
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-8 pb-[calc(var(--safe-b)+3rem)] md:px-6">
-      <p className="eyebrow">Peta</p>
-      <h1 className="mt-2 text-balance font-display text-lg leading-snug @sm:text-xl">{TITLE}</h1>
-      <p className="mt-4 text-pretty text-body text-muted-foreground">{DESCRIPTION}</p>
+      {/* THE TRAIL, DESKTOP ONLY — and `hidden` is doing real work, not styling.
+          This page's whole job is to get someone reading the eight paths below;
+          a 720px-tall illustration above them would eat a 390px phone's entire
+          first screen, the same measurement that capped the landing hero to
+          h-44. From `md` there is a column going spare, so it costs nothing.
 
-      <Link
-        href="/mulai"
-        className="pixel-press mt-6 inline-flex min-h-11 items-center gap-2 border-2 border-primary bg-primary px-4 text-title font-medium text-primary-foreground shadow-[3px_3px_0_0_var(--pixel-shadow)]"
-      >
-        Belum yakin? Jawab beberapa kartu
-        <ArrowRight className="size-4" aria-hidden />
-      </Link>
+          It is also the ONE asset in the cover pack with a home. The other ten
+          bake an ENGLISH title into the pixels; this one's five station labels
+          are already Bahasa — 1. DASAR through 5. MAHIR — and already say what
+          the page says. Cropped from x=0.50 of the archived original, measured:
+          the title's tallest glyph stroke ends at column 829 of 1672 (0.496).
+          See docs/ASSETS.md §9.4. */}
+      <div className="md:grid md:grid-cols-[1fr_minmax(0,15rem)] md:items-start md:gap-8">
+        <div className="min-w-0">
+          <p className="eyebrow">Peta</p>
+          <h1 className="mt-2 text-balance font-display text-lg leading-snug @sm:text-xl">{TITLE}</h1>
+          <p className="mt-4 text-pretty text-body text-muted-foreground">{DESCRIPTION}</p>
+
+          <Link
+            href="/mulai"
+            className="pixel-press mt-6 inline-flex min-h-11 items-center gap-2 border-2 border-primary bg-primary px-4 text-title font-medium text-primary-foreground shadow-[3px_3px_0_0_var(--pixel-shadow)]"
+          >
+            Belum yakin? Jawab beberapa kartu
+            <ArrowRight className="size-4" aria-hidden />
+          </Link>
+        </div>
+
+        {/* eslint-disable-next-line @next/next/no-img-element -- committed static asset. */}
+        <img
+          src="/learning/cover/roadmap-trail.webp"
+          alt=""
+          width={640}
+          height={720}
+          loading="lazy"
+          decoding="async"
+          className="pixelated hidden w-full border-2 border-border object-cover object-right md:block"
+        />
+      </div>
 
       <ol className="mt-10 space-y-8">
         {PATHS.map((path, i) => {
           const community = index.community.get(path.communitySlug);
           return (
             <li key={path.id} className="border-2 border-border bg-card p-4 md:p-5">
-              <div className="flex items-baseline gap-3">
+{/* eslint-disable-next-line @next/next/no-img-element -- committed static asset. */}
+              <img src={path.art} alt="" width={ART_SIZE.card} height={ART_SIZE.card} loading="lazy" decoding="async" className="pixelated size-14 object-contain" />
+              <div className="mt-3 flex items-baseline gap-3">
                 <span aria-hidden className="font-display text-caption text-primary">
                   {String(i + 1).padStart(2, "0")}
                 </span>

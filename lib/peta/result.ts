@@ -29,6 +29,8 @@ export type PathId =
 export type RankedPath = {
   id: PathId;
   title: string;
+  /** Mirrors `PathPlan.art` so the slice renders a field, never a literal. */
+  art: string;
   summary: string;
   communitySlug: string;
   /** Teaching order, not catalogue order. */

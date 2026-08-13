@@ -8,6 +8,7 @@
 // bounces after reading one card should still leave with something they can do
 // without an account; the courses are the follow-through, not the entry fee.
 import Link from "next/link";
+import { ART_SIZE } from "@/lib/art";
 import { communityHref } from "@/lib/community";
 import type { RankedPath } from "@/lib/peta";
 
@@ -24,7 +25,19 @@ export function PathCard({ path, rank }: PathCardProps) {
           Kecocokan {path.score}%
         </span>
       </div>
-      <h3 className="mt-3 text-balance font-display text-marquee">{path.title}</h3>
+      <div className="mt-3 flex items-center gap-3">
+        {/* eslint-disable-next-line @next/next/no-img-element -- committed static asset. */}
+        <img
+          src={path.art}
+          alt=""
+          width={ART_SIZE.tile}
+          height={ART_SIZE.tile}
+          loading="lazy"
+          decoding="async"
+          className="pixelated size-11 shrink-0 object-contain"
+        />
+        <h3 className="min-w-0 text-balance font-display text-marquee">{path.title}</h3>
+      </div>
       <p className="mt-2 text-pretty text-body text-muted-foreground">{path.summary}</p>
       <p className="mt-3 text-pretty text-footnote">{path.reason}</p>
 

@@ -172,7 +172,7 @@ the composition whole. Where a file has a clean text-free band, that route is op
 | ~~`/learning/course-cover-template.webp`~~ | 1280×720 | 70 252 | **DELETED 2026-08-13**, unreferenced; the second drop's `/learning/cover/module-template.webp` is the same idea, parked for the same reason. Original reasoning: | Course cards call `slices/courses/lib/cover-art.ts`, which derives a *different* cover per course from a slug hash — six courses, six covers, ~1.6 KB gzip total, and course #7 gets art with no upload. One shared template would make every course look identical; that is a regression, not a swap. **This file has no home in the product.** Its only defensible use is as a docs/press illustration of what a course card looks like — and it carries the ghosting defect, so fix that first. |
 | `/learning/certificate-bg.webp` | 2560×1440 | 22 346 | `slices/profiles/components/certificate-card.tsx` builds the certificate from theme tokens. See §5 — this file is a mock-up with text baked in, not a background. Usable as a docs illustration only. |
 | `/profiles/avatar-default.png` | 512² | 2 627 | `ProfileAvatar` falls back to **initials** (`"Rahman Ef" → "RE"`) when `avatarUrl` is empty — no network request, always personal. A shared default image would make every avatar-less member look like the same person. |
-| `/profiles/avatar-pria-1.webp` | 512² | 4 806 | `profiles.avatarUrl` is a free-text URL field in Pengaturan; there is no avatar *picker*. A member can paste `/profiles/avatar-pria-1.webp` today and it works. Building a picker is a product decision. |
+| `/profiles/avatar-pria-1.webp` | 512² | 4 806 | **This row is superseded: the picker was built 2026-08-12** (`slices/profiles/components/avatar-picker.tsx`), and all six are now WIRED, offered as a radiogroup in Pengaturan and validated against the `lib/avatars.ts` allow-list. |
 | `/profiles/avatar-pria-2.webp` | 512² | 11 638 | same |
 | `/profiles/avatar-wanita-1.webp` | 512² | 15 996 | same |
 | `/profiles/avatar-berhijab-1.webp` | 512² | 17 352 | same |
@@ -268,10 +268,10 @@ rendering the output on `#090f1c` — no residual box on any of the 16 checked.
 | Path | Surface |
 |---|---|
 | `/web/banner-skyline.webp` | `app/not-found.tsx` · `app/offline/page.tsx` · `sw.js` PRECACHE+CACHEABLE. Replaced `ui/404.webp` and `ui/offline.webp`; both deleted; `VERSION` → `v4`. |
-| `/ui/spot/telescope.webp` | `app/(shell)/page.tsx` — "Tiga cara mulai" card 1 (→ `/mulai`). Was a 20px lucide `Compass`. |
-| `/ui/spot/map.webp` | same section, card 2 (→ `/roadmap`). Was `Map`. |
+| `/ui/empty/discovery.webp` | `app/(shell)/page.tsx` — "Tiga cara mulai" card 1 (→ `/mulai`). Was a 20px lucide `Compass`. **Not `telescope.webp`** — an earlier draft of this row said so and was wrong; telescope and map both keep a gradient sky that survives the flood fill and shows as a box on `bg-card`. |
+| `/ui/spot/roadmap-path.webp` | same section, card 2 (→ `/roadmap`). Was `Map`. |
 | `/ui/empty/diskusi.webp` | same section, card 3 (→ Diskusi). Was `MessagesSquare`. |
-| `/ui/empty/discovery.webp` | `app/(shell)/komunitas/page.tsx` — "Belum ada komunitas aktif". |
+| `/ui/status/waiting.webp` | `app/(shell)/komunitas/page.tsx` — "Belum ada komunitas aktif". An hourglass is what "sedang dikurasi" means. |
 | `/ui/empty/kalender.webp` | `app/k/[slug]/kalender/page.tsx` — "Belum ada sesi terjadwal". |
 | `/learning/badge/trophy.webp` | `app/k/[slug]/peringkat/…/papan-skor.tsx` — "Belum ada skor". |
 
@@ -281,7 +281,7 @@ the refusal comment above it stands as the test the next drop has to pass.
 
 ### 9.4 Parked, and the honest reason
 
-- **`/learning/cover/*` (11 files).** Correctly shaped for the `aspect-[2/1]` cover slot, and each
+- **`/learning/cover/*` (11 files).** 1200×675, i.e. **16:9 — not the `aspect-[2/1]` the cover slot uses**, which an earlier draft of this row got wrong. Each
   bakes an ENGLISH title — "AI BASICS", "DATA ANALYSIS", "MACHINE LEARNING", "WEB DEVELOPMENT" —
   onto a product whose courses are titled in Bahasa, beside the wordmark the rail already carries.
   Two further problems even if that were acceptable: only 4 of the 13 published courses have a
@@ -306,3 +306,95 @@ the refusal comment above it stands as the test the next drop has to pass.
 `~/projects/_assets/study-with-rahmanef-com/raw-2026-08-13-general/` — 86 files, 47 MB, byte for
 byte. Outside the repo for the same reason as §8, and load-bearing for the same one: the parked files
 above need a **re-export**, and you cannot un-bake English text from a compressed copy.
+
+---
+
+## 10. Second pass — 2026-08-14
+
+### 10.1 A third drop landed in `public/temp/` and none of it is new
+
+8 ChatGPT PNGs, 9.5 MB — 3.6× the entire committed `public/` tree. Opened, all eight:
+
+| what | why it is parked |
+|---|---|
+| "Belum ada aktivitas", "Tidak ada hasil" | Finished cards. Better than the last batch — **no drawn button this time** — but the heading, the body copy and the wordmark are still pixels. Cropping to the art leaves an old man at a desk and a man with a magnifier: `/ui/spot/mentor.webp` and `/ui/empty/results.webp`, which this repo already ships de-keyed at a fortieth of the bytes. |
+| "DATA ANALYSIS", "QUIZ / Uji pemahamanmu" | English titles baked in, on a Bahasa product. §9.4. |
+| COMMUNITY CONTRIBUTOR, a certificate seal | English, and a taxonomy no table has. §9.4. |
+| "Install Sekarang", "Update Sekarang" (portrait) | Bahasa — and both **draw a yellow button**. There is also no install prompt to host them: `grep beforeinstallprompt` across `app/ components/ slices/ lib/` returns nothing, and `components/pwa/` holds one file. |
+
+Archived to `~/projects/_assets/study-with-rahmanef-com/raw-2026-08-14-temp/`, deleted from the repo.
+
+**The pattern is now three drops old, so it is worth stating as a rule rather than a finding: what this
+product cannot use is a finished CARD; what it always uses is a text-free CUTOUT.** Every asset wired
+in §9.3 is a subject on transparency. Every asset parked in §9.4 and here is a composition with words
+in it. The generator prompt is the fix, not the pipeline.
+
+### 10.2 PNGs — what went, and the four refusals
+
+Deleted (zero code referrers, all documented defective or superseded): `social/{og-default,
+github-preview,discord-banner,community-banner}.png` (deleted by the owner, staged here),
+`social/share-card.png`, `brand/wordmark-light.png` (white-on-white), `brand/wordmark-compact.png`
+(cropped to "UDY WITH RAHM"), and the whole of `public/temp/`. Their ordinals were removed from
+`scripts/optimize-assets.mjs` so the next drop cannot regenerate them.
+
+Kept: `brand/wordmark-horizontal.png` (a live `<img>` in README.md), `brand/wordmark-stacked.png`.
+
+**Four refusals. These are regressions, not tidiness:**
+
+| PNG | The standard that forces it |
+|---|---|
+| `icons/apple-touch-icon-180.png` | Safari does not accept a WebP `apple-touch-icon`, and `app/layout.tsx` declares no `type` to negotiate with. |
+| `icons/icon-192 / -512 / -maskable-512.png` | `scripts/verifyInstallSurface.mjs` skips any non-`.png` URL, so converting silently disables both the dimension check AND the maskable safe-zone guard — the guard that exists because that exact bug shipped once. All three are also `sw.js` PRECACHE entries, so a rename 404s the precache of every installed user unless `VERSION` is bumped again. Saving: ~4 KB. |
+| `screenshots/{narrow,wide}.png` | Playwright's `page.screenshot()` emits `png` or `jpeg` only, so `scripts/generateScreenshots.mjs` cannot regenerate a WebP — and it reads the PNG IHDR header raw to assert the size, which is meaningless in a RIFF container. |
+| `profiles/avatar-default.png` | **A stored database value.** It is in the `lib/avatars.ts` allow-list, which is compiled into the Convex deployment and enforced by exact match in `updateProfile`. Renaming it dead-images any member who picked "Siluet netral" and makes their next save fail `VALIDATION_FAILED`. *Measured before writing this: 8 prod profiles, 5 on Google URLs and 3 empty, so nobody holds it today — the file survives on the rule, not on luck.* |
+
+### 10.3 The "dynamic config" ask, answered honestly
+
+Asked for: a dynamic file with **font, size and colour** as its knobs. Two of the three already have
+one, and it is not a new file.
+
+- **Font and colour → `app/globals.css`.** The Tailwind v4 `@theme` block holds `--font-sans`,
+  `--font-display`, the whole type scale and every colour. There is no `tailwind.config.*` in this
+  repo and `components.json` pins `"config": ""`, so that block is not one source of truth among
+  several — it is the only one. Restating any of it in TypeScript recreates `slices/theme-presets`,
+  1 154 LOC of runtime colour/radius/font config that was **deleted on 2026-08-09** (DECISIONS #26).
+- **Size → `lib/art.ts`, new.** This one genuinely had no home: illustration box sizes are
+  `<img width>` integers, not type-scale steps, and they were four magic numbers in four files with
+  no stated relationship. `ART_SIZE` now names all four and says what each is for.
+- **Art paths → a field on `lib/peta/paths.ts`, not a registry.** `PATHS` was already the SSOT for
+  the eight learning paths and is imported by *both* surfaces that needed art (`/roadmap` and the
+  `/mulai` result card), so `art: string` on `PathPlan` is the whole config. Every other surface —
+  `/masuk`, `/changelog`, `error.tsx`, each empty state — has exactly one caller, so a shared
+  registry would be an abstraction with one consumer per key; those keep a literal in the file that
+  renders them, as the landing already does.
+
+Never build an art path with a template literal: `app/__tests__/public-assets.test.ts` matches
+quoted paths only, so a computed one is never checked for existence.
+
+### 10.4 Newly wired
+
+`/ui/empty/courses` · `/ui/status/waiting` · `/ui/spot/code-document` · `/ui/empty/statistik` ·
+`/ui/spot/web-design` · `/ui/spot/ai-brain` · `/ui/spot/mobile-rocket` · `/ui/spot/graduation` — one
+per learning path, rendered on `/roadmap` and on the `/mulai` result card.
+
+`/ui/empty/anggota` (`/masuk`) · `/ui/spot/blueprint` (`/changelog`) · `/web/banner-skyline`
+(`app/error.tsx`, reusing the precached 404 strip) · `/ui/empty/search` (search) ·
+`/ui/empty/generic` (Skills) · `/learning/badge/achievement` (badge wall) · `/ui/empty/diskusi`
+(the feed).
+
+`/learning/cover/roadmap-trail.webp` — **the one cover with a home.** Cropped from x=0.50 of the
+archived original (measured: the baked title's tallest glyph stroke ends at column 829 of 1672 =
+0.496), leaving a night-mountain quest trail whose five station labels are already Bahasa. Rendered
+`hidden md:block` beside the `/roadmap` header, so a phone pays nothing for it.
+
+Every sprite was rendered on `#0f1626` — `--card`, which is *lighter* than `--background` — before
+being wired. `telescope`, `map`, `exploration` and `student` all failed that check: their skies are
+gradients, so the border-seeded flood fill stops partway and leaves a visible box. Do the same before
+swapping one.
+
+### 10.5 Still parked, still for one reason
+
+10 of the 11 covers, all 5 medallions, the 6 `social/post-*` cards, `learning/certificate-bg.webp`,
+and `/ui/status/{install,notification,offline,offline-mobile,not-found}.webp` — the last five because
+their surfaces already render `/web/banner-skyline.webp`, and because building a PWA install prompt
+to justify a 14 KB file is a feature, not a wiring job.

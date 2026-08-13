@@ -115,8 +115,6 @@ a page surface, and they cannot follow the theme.
 |---|---|---|
 | `public/brand/wordmark-horizontal.png` | 1200×400 | Default lockup — README headers, slides, sponsor listings |
 | `public/brand/wordmark-stacked.png` | 800×1200 | Portrait lockup — stories, posters |
-| `public/brand/wordmark-compact.png` | 800×400 | Tight horizontal lockup — **cropped in the current export ("UDY WITH RAHM"), re-export before use** |
-| `public/brand/wordmark-light.png` | 1200×400 | For light backgrounds — **unusable as shipped: glyphs `#f7f7f7` on `#f6f7fb`, white-on-white** |
 
 Social artwork (`public/social/*`) is uploaded into other products' settings, not served by the site
 — the GitHub social preview is a **repo setting**, the Discord banner is a **Discord server

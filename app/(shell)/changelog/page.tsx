@@ -74,6 +74,16 @@ export default function ChangelogPage() {
   return (
     <main className="@container mx-auto w-full max-w-3xl px-6 py-12">
       <header className="mb-10 space-y-2">
+        {/* eslint-disable-next-line @next/next/no-img-element -- committed static asset. */}
+        <img
+          src="/ui/spot/blueprint.webp"
+          alt=""
+          width={56}
+          height={56}
+          loading="lazy"
+          decoding="async"
+          className="pixelated mb-1 size-14 object-contain"
+        />
         <span className="eyebrow">Platform</span>
         <h1 className="font-display text-lg @sm:text-xl">{TITLE}</h1>
         <p className="max-w-xl text-pretty text-muted-foreground">{DESCRIPTION}</p>

@@ -22,6 +22,19 @@ export default function GlobalError({
         laporkan lewat Discord komunitas ya.
       </p>
       <Button onClick={reset}>Coba lagi</Button>
+
+      {/* The 404 strip, reused verbatim: same aspect, same file, and that file
+          is the ONE image public/sw.js precaches — so this renders even when
+          the failure that brought you here was the network. */}
+      {/* eslint-disable-next-line @next/next/no-img-element -- precached static asset. */}
+      <img
+        src="/web/banner-skyline.webp"
+        alt=""
+        width={1600}
+        height={244}
+        decoding="async"
+        className="pixelated pixel-frame mt-4 aspect-[5/1] w-full border-border object-cover"
+      />
     </div>
   );
 }

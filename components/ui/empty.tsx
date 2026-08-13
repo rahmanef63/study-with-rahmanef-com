@@ -1,5 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority"
 
+import { ART_SIZE } from "@/lib/art"
 import { cn } from "@/lib/utils"
 
 function Empty({ className, ...props }: React.ComponentProps<"div">) {
@@ -123,15 +124,15 @@ function EmptyMedia({
  * directly above an `<EmptyTitle>` that already says the thing in words. Naming
  * the picture too would make a screen reader announce the same message twice.
  *
- * SIZE IS EXPLICIT AND SQUARE. The sprites are 185-256px on their longest side;
- * rendering one at its natural size would put a 256px picture above a
- * two-line message. 96px is the default because it is the largest that keeps
- * the title, the description and the action inside a 640px fold at 390px —
- * the same budget the landing hero and the 404 strip are cut to.
+ * SIZE IS EXPLICIT AND SQUARE, and comes from `ART_SIZE` in lib/art.ts —
+ * that file is the one place the illustration scale is written down, and it
+ * also records why FONT and COLOUR are deliberately NOT configured in TS.
+ * The sprites are 185-256px on their longest side; rendering one at its
+ * natural size would put a 256px picture above a two-line message.
  */
 function EmptyArt({
   src,
-  size = 96,
+  size = ART_SIZE.media,
   className,
   ...props
 }: Omit<React.ComponentProps<"div">, "children"> & { src: string; size?: number }) {

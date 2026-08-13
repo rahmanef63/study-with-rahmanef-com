@@ -16,6 +16,7 @@ import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
+import { ART_SIZE } from "@/lib/art";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -106,7 +107,7 @@ function PapanKosong({ slug }: { slug: string }) {
   return (
     <Empty className="gap-4 border-2 border-dashed p-5 md:p-8">
       <EmptyHeader className="gap-1.5">
-        <EmptyArt src="/learning/badge/trophy.webp" size={72} className="mb-0" />
+        <EmptyArt src="/learning/badge/trophy.webp" size={ART_SIZE.mediaDense} className="mb-0" />
         <EmptyTitle className="font-display text-xs uppercase leading-relaxed">
           Belum ada skor
         </EmptyTitle>

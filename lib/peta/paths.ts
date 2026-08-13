@@ -40,6 +40,17 @@ export type PlanContext = {
 export type PathPlan = {
   id: PathId;
   title: string;
+  /**
+   * The path's illustration. A LITERAL, never `/ui/spot/${id}.webp`:
+   * app/__tests__/public-assets.test.ts only scans quoted paths, so a
+   * template-built one is never checked for existence.
+   *
+   * Picked for its ALPHA as much as its subject — both consumers render on
+   * `bg-card`, which is lighter than `--background`, so a sprite whose baked
+   * field survived the flood fill shows as a box. Verified on #0f1626 before
+   * being written here; do the same before swapping one.
+   */
+  art: string;
   summary: string;
   communitySlug: string;
   /** Teaching order. */
@@ -50,6 +61,7 @@ export type PathPlan = {
 export const PATHS: readonly PathPlan[] = [
   {
     id: "fondasi",
+    art: "/ui/empty/courses.webp",
     title: "Fondasi dulu",
     summary: "Kosakata dan kebiasaan dasar, supaya sisanya tidak terasa asing.",
     communitySlug: BELAJAR_AI,
@@ -62,6 +74,7 @@ export const PATHS: readonly PathPlan[] = [
   },
   {
     id: "produktivitas-kerja",
+    art: "/ui/status/waiting.webp",
     title: "Potong jam kerja",
     summary: "Pekerjaan yang kamu ulang tiap minggu, diserahkan sebagian ke AI.",
     communitySlug: BELAJAR_AI,
@@ -74,6 +87,7 @@ export const PATHS: readonly PathPlan[] = [
   },
   {
     id: "prompt-andalan",
+    art: "/ui/spot/code-document.webp",
     title: "Prompt yang bisa diandalkan",
     summary: "Dari jawaban untung-untungan jadi hasil yang konsisten tiap kali.",
     communitySlug: BELAJAR_AI,
@@ -86,6 +100,7 @@ export const PATHS: readonly PathPlan[] = [
   },
   {
     id: "olah-data",
+    art: "/ui/empty/statistik.webp",
     title: "Dari spreadsheet ke keputusan",
     summary: "Baca data yang sudah kamu punya, tanpa belajar rumus statistik dulu.",
     communitySlug: BELAJAR_AI,
@@ -98,6 +113,7 @@ export const PATHS: readonly PathPlan[] = [
   },
   {
     id: "bikin-aplikasi",
+    art: "/ui/spot/web-design.webp",
     title: "Bikin yang bisa dibuka orang",
     summary: "Satu aplikasi kecil yang hidup di URL, bukan di folder.",
     communitySlug: BELAJAR_AI,
@@ -110,6 +126,7 @@ export const PATHS: readonly PathPlan[] = [
   },
   {
     id: "multi-agent",
+    art: "/ui/spot/ai-brain.webp",
     title: "Jalankan beberapa agent sekaligus",
     summary: "Satu sesi tidak cukup untuk proyek nyata. Ini cara membaginya.",
     communitySlug: BELAJAR_AI,
@@ -122,6 +139,7 @@ export const PATHS: readonly PathPlan[] = [
   },
   {
     id: "kreator-konten",
+    art: "/ui/spot/mobile-rocket.webp",
     title: "Konten tanpa buntu",
     summary: "Sistem ide dan skrip, supaya kamu berhenti menatap layar kosong.",
     communitySlug: KREATOR,
@@ -134,6 +152,7 @@ export const PATHS: readonly PathPlan[] = [
   },
   {
     id: "karier-digital",
+    art: "/ui/spot/graduation.webp",
     title: "Karier & klien pertama",
     summary: "Bukti kerja dulu, baru lamaran. Bisa dimulai tanpa pengalaman.",
     communitySlug: KARIER,

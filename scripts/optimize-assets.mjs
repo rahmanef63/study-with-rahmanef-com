@@ -49,12 +49,18 @@ const SAFE = 0.8;
  *  eye at 3x on its worst-error block. */
 const PSNR_FLOOR = 40;
 
-/** export ordinal -> [path under public/, mode] */
+/** export ordinal -> [path under public/, mode]
+ *
+ *  SEVEN ORDINALS WERE REMOVED 2026-08-14 and must not come back: 03/04 (the
+ *  cropped and the white-on-white wordmark), 12/13/14/15/23 (og-default,
+ *  github-preview, discord-banner, community-banner, share-card). Every one of
+ *  them shipped the ghosted double-exposure wordmark documented in
+ *  docs/ASSETS.md §5, none had a code referrer, and the owner deleted them. A
+ *  drop may still contain those exports — extra sources are ignored, only a
+ *  PLANNED ordinal with no source throws. */
 const PLAN = {
   "01": ["brand/wordmark-horizontal.png", "png"],
   "02": ["brand/wordmark-stacked.png", "png"],
-  "03": ["brand/wordmark-compact.png", "png"],
-  "04": ["brand/wordmark-light.png", "png"],
   "05": ["icons/icon-16.png", "png"],
   "06": ["icons/icon-32.png", "png"],
   "07": ["icons/icon-48.png", "png"],
@@ -73,7 +79,6 @@ const PLAN = {
   20: ["ui/empty-results.webp", "webp"],
   21: ["ui/empty-notifications.webp", "webp"],
   22: ["learning/course-cover-template.webp", "webp"],
-  23: ["social/share-card.png", "png"],
   24: ["learning/certificate-bg.webp", "webp"],
   25: ["profiles/avatar-pria-1.webp", "webp"],
   26: ["profiles/avatar-pria-2.webp", "webp"],

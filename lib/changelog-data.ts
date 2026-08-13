@@ -27,6 +27,19 @@ export type ChangelogEntry = {
 // NEWEST FIRST. Prepend here on every update.
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-08-14",
+    version: "v3.9",
+    title: "Ilustrasi masuk ke halaman-halaman yang sebelumnya polos",
+    tags: ["Tampilan", "Perbaikan"],
+    points: [
+      "Delapan jalur di halaman Roadmap sekarang punya ilustrasinya masing-masing, dan gambar yang sama ikut muncul di hasil Peta belajar — jadi jalur yang kamu baca di dua tempat itu terlihat sebagai satu hal yang sama.",
+      "Halaman Roadmap juga dapat gambar jalur pendakian bertingkat DASAR sampai MAHIR di sisi kanan. Hanya di layar lebar — di ponsel gambar setinggi itu akan memakan seluruh layar pertama, jadi sengaja tidak ditampilkan.",
+      "Halaman Masuk, Changelog, halaman error, kotak pencarian kosong, Skills, dinding lencana, dan Diskusi yang masih kosong: semuanya sebelumnya cuma ikon kecil atau tidak ada gambar sama sekali.",
+      "Berkas PNG lama yang cacat atau tidak dipakai dibuang (wordmark putih-di-atas-putih, wordmark terpotong, kartu bagikan). Ikon aplikasi tetap PNG — Safari menolak WebP untuk ikon layar utama, dan mengubahnya diam-diam mematikan dua pemeriksaan ikon Android.",
+      "Aset baru yang diunggah ke folder sementara tidak dipakai: isinya kartu jadi yang teksnya sudah tercetak, sebagiannya menggambar ulang ilustrasi yang sudah ada. Yang bisa dipakai aplikasi ini adalah gambar tanpa teks, bukan kartu jadi.",
+    ],
+  },
+  {
     date: "2026-08-13",
     version: "v3.8",
     title: "Ilustrasi buatan sendiri di seluruh aplikasi",

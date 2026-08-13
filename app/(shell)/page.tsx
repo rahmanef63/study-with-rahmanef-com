@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { ART_SIZE } from "@/lib/art";
 import { api } from "@convex/_generated/api";
 import { safeQuery } from "@/lib/convex-server";
 import { DEFAULT_COMMUNITY_SLUG, communityHref } from "@/lib/community";
@@ -158,8 +159,8 @@ export default async function LandingPage() {
               <img
                 src={step.art}
                 alt=""
-                width={56}
-                height={56}
+                width={ART_SIZE.card}
+                height={ART_SIZE.card}
                 loading="lazy"
                 decoding="async"
                 className="pixelated size-14 object-contain"

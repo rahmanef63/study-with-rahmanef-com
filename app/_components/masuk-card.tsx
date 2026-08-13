@@ -41,6 +41,16 @@ export function MasukCard({ next }: { next: string }) {
  return (
     <>
       <header className="space-y-2">
+        {/* eslint-disable-next-line @next/next/no-img-element -- committed static asset. */}
+        <img
+          src="/ui/empty/anggota.webp"
+          alt=""
+          width={56}
+          height={56}
+          loading="lazy"
+          decoding="async"
+          className="pixelated mb-1 size-14 object-contain"
+        />
         <span className="eyebrow">Masuk · Gratis selamanya</span>
         <h1 className="font-display text-lg @sm:text-xl">
           Belajar pakai AI, <em className="italic text-primary">bareng-bareng.</em>

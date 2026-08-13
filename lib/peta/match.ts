@@ -72,6 +72,7 @@ function toRanked(
   return {
     id: plan.id,
     title: plan.title,
+    art: plan.art,
     summary: plan.summary,
     communitySlug: plan.communitySlug,
     courses: plan.courses,
