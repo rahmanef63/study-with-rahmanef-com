@@ -18,7 +18,8 @@ export { ShellAccountNav } from "./shell-account-nav";
 export { ShellTopBar, ShellTopBarSkeleton } from "./shell-top-bar";
 export { useCloseAboveMd } from "./use-close-above-md";
 export { ShellAction, type ShellActionVariant } from "./shell-action";
-export { NavLink, NavSection } from "./nav-link";
+export { SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader } from "./sidebar";
+export { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "./sidebar-menu";
 export {
   ACCOUNT_LINKS,
   ICON_KEYS,

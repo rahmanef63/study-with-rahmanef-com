@@ -17,7 +17,8 @@ import type { Id } from "@convex/_generated/dataModel";
 import { isCommunityTabActive } from "@/components/community/tab-active";
 import { visibleCommunityTabs, type TenantTabSignal } from "@/lib/community";
 import { cn } from "@/lib/utils";
-import { NavLink, NavSection } from "./nav-link";
+import { SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader } from "./sidebar";
+import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "./sidebar-menu";
 import { ShellAccountNav } from "./shell-account-nav";
 import { ShellAction } from "./shell-action";
 import { communityToolLinks, iconFor, isPathActive, KOMUNITAS_LINK,
@@ -60,7 +61,7 @@ export function ShellNav({ community, onNavigate, className }: ShellNavProps) {
              to the flagship. One block, two fillings — this used to be two
              components with two headers, which is what made the app look like
              it had two different sidebars depending on the page. ── */}
-      <div className="shrink-0 space-y-2 border-b-2 px-4 pb-4">
+      <SidebarHeader>
         {community === undefined ? (
           <Link
             href="/"
@@ -96,71 +97,71 @@ export function ShellNav({ community, onNavigate, className }: ShellNavProps) {
             />
           </>
         )}
-      </div>
+      </SidebarHeader>
 
-      {/* ONE <nav>. The groups inside are groups, not landmarks — see NavSection. */}
-      {/* `flex flex-col` exists for one reason: it lets the account group take
-          `mt-auto` and sit on the rail's floor. Without it the rail rendered its
-          last group mid-height with ~210px of dead space underneath — measured
-          at 1280x900, signed out — which reads as an unfinished panel rather
-          than a deliberate one. Account-at-the-bottom is also where a decade of
-          dashboards has taught people to reach for it.
-
-          It still degrades correctly: when the rows DO overflow (a community
-          with every tab, signed in), `mt-auto` simply has nothing to distribute
-          and the group falls back to flowing after the one above it. */}
-      <nav
-        aria-label="Navigasi"
-        className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain py-2 pb-[calc(var(--safe-b)+1rem)]"
-      >
+      {/* ONE <nav>, three regions. The landmark spans Content AND Footer
+          because both hold navigation — splitting them into two <nav>s is what
+          produced the "2 sidebar menu" report. The SCROLLER is Content alone,
+          which is the whole reason for adopting shadcn's split: a footer inside
+          the scroller is a footer that scrolls away, and the account rows are
+          the ones a lost reader reaches for. */}
+      <nav aria-label="Navigasi" className="flex min-h-0 flex-1 flex-col">
+        <SidebarContent>
         {community === undefined ? null : (
-          <NavSection label="Bagian komunitas">
+          <SidebarGroup label="Bagian komunitas">
+            <SidebarMenu>
             {visibleCommunityTabs(community.signal).map((tab) => (
-              <li key={tab.key}>
-                <NavLink
+              <SidebarMenuItem key={tab.key}>
+                <SidebarMenuButton
                   href={tab.href(community.slug)}
                   label={tab.label}
                   icon={iconFor(tab.key)}
-                  active={isCommunityTabActive(tab, community.slug, pathname)}
+                  isActive={isCommunityTabActive(tab, community.slug, pathname)}
                   onNavigate={onNavigate}
                 />
-              </li>
+              </SidebarMenuItem>
             ))}
             {communityToolLinks(community.slug).map((link: ShellLink) => (
-              <li key={link.key}>
-                <NavLink
+              <SidebarMenuItem key={link.key}>
+                <SidebarMenuButton
                   href={link.href}
                   label={link.label}
                   icon={link.icon}
-                  active={isPathActive(link.href, pathname, link.exact)}
+                  isActive={isPathActive(link.href, pathname, link.exact)}
                   onNavigate={onNavigate}
                 />
-              </li>
+              </SidebarMenuItem>
             ))}
-          </NavSection>
+            </SidebarMenu>
+          </SidebarGroup>
         )}
 
         {/* Reachable from EVERYWHERE, which is the point of one rail: the
             roadmap and the assessment used to exist only inside a community,
             so a reader on /pengaturan could not get to them at all. */}
-        <NavSection label="Jelajah" heading={community === undefined ? undefined : "Jelajah"}>
+          <SidebarGroup label="Jelajah" heading={community === undefined ? undefined : "Jelajah"}>
+            <SidebarMenu>
           {(community === undefined
             ? [{ ...KOMUNITAS_LINK, label: "Komunitas" }, ...EXPLORE_LINKS]
             : EXPLORE_LINKS
           ).map((link) => (
-            <li key={link.key}>
-              <NavLink
-                href={link.href}
-                label={link.label}
-                icon={link.icon}
-                active={isPathActive(link.href, pathname, link.exact)}
-                onNavigate={onNavigate}
-              />
-            </li>
-          ))}
-        </NavSection>
+              <SidebarMenuItem key={link.key}>
+                <SidebarMenuButton
+                  href={link.href}
+                  label={link.label}
+                  icon={link.icon}
+                  isActive={isPathActive(link.href, pathname, link.exact)}
+                  onNavigate={onNavigate}
+                />
+              </SidebarMenuItem>
+            ))}
+            </SidebarMenu>
+          </SidebarGroup>
+        </SidebarContent>
 
-        <ShellAccountNav onNavigate={onNavigate} />
+        <SidebarFooter>
+          <ShellAccountNav onNavigate={onNavigate} />
+        </SidebarFooter>
       </nav>
     </div>
   );

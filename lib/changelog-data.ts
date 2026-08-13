@@ -28,6 +28,16 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-08-14",
+    version: "v4.1",
+    title: "Bagian Akun tidak lagi ikut tergulir",
+    tags: ["Perbaikan"],
+    points: [
+      "Menu samping sekarang punya tiga bagian terpisah: identitas komunitas di atas, daftar tujuan di tengah, dan Akun di bawah. Hanya bagian tengah yang bisa digulir.",
+      "Efeknya: sepanjang apa pun daftar tujuannya — komunitas dengan semua tab aktif, dan kamu sudah masuk akun — baris Akun tetap terlihat. Sebelumnya ia ikut tergulir ke luar layar, dan itu justru baris yang dicari orang saat mereka tersesat.",
+    ],
+  },
+  {
+    date: "2026-08-14",
     version: "v4.0",
     title: "Menu samping dirapikan",
     tags: ["Tampilan", "Perbaikan"],

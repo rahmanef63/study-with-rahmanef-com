@@ -23,7 +23,7 @@ import type { Id } from "@convex/_generated/dataModel";
 import { JoinButton, useMyMembership } from "@/features/tenants";
 import { Skeleton } from "@/components/ui/skeleton";
 import { communityHref } from "@/lib/community";
-import { NavLink } from "./nav-link";
+import { SidebarMenuButton } from "./sidebar-menu";
 
 /** `bar` = the phone top bar (exactly one 44px control).
  *  `rail` = the sidebar's community block (full width, or nothing). */
@@ -90,7 +90,7 @@ export function ShellAction({
     return isBar ? (
       <BarIconLink href={kelola.href} label="Kelola komunitas" icon={kelola.icon} />
     ) : (
-      <NavLink
+      <SidebarMenuButton
         href={kelola.href}
         label={kelola.label}
         icon={kelola.icon}

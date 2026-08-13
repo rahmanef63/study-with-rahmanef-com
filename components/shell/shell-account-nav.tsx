@@ -13,16 +13,17 @@ import { useEffect, useState } from "react";
 import { LogIn } from "lucide-react";
 import { useCurrentProfile } from "@/features/profiles";
 import { Skeleton } from "@/components/ui/skeleton";
-import { NavLink, NavSection } from "./nav-link";
+import { SidebarGroup } from "./sidebar";
+import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "./sidebar-menu";
 import { ACCOUNT_LINKS, isPathActive, profileLink } from "./nav-model";
 
 function Rows({ count }: { count: number }) {
   return (
-    <li aria-hidden className="space-y-0.5 px-3 py-1">
+    <SidebarMenuItem aria-hidden className="space-y-0.5 px-3 py-1">
       {Array.from({ length: count }, (_, i) => (
         <Skeleton key={i} className="h-9 w-full" />
       ))}
-    </li>
+    </SidebarMenuItem>
   );
 }
 
@@ -40,34 +41,36 @@ export function ShellAccountNav({ onNavigate }: { onNavigate?: () => void }) {
   const links = profile === null ? ACCOUNT_LINKS : [profileLink(profile.username), ...ACCOUNT_LINKS];
 
   return (
-    <NavSection label="Akun" heading="Akun" className="mt-auto">
+    <SidebarGroup label="Akun" heading="Akun">
+      <SidebarMenu>
       {!mounted || isLoading ? (
         <Rows count={3} />
       ) : isAuthenticated ? (
         links.map((link) => (
-          <li key={link.key}>
-            <NavLink
+          <SidebarMenuItem key={link.key}>
+            <SidebarMenuButton
               href={link.href}
               label={link.label}
               icon={link.icon}
-              active={isPathActive(link.href, pathname, link.exact)}
+              isActive={isPathActive(link.href, pathname, link.exact)}
               onNavigate={onNavigate}
             />
-          </li>
+          </SidebarMenuItem>
         ))
       ) : (
-        <li>
+        <SidebarMenuItem>
           {/* One row, not four: /notifikasi and /pengaturan both bounce a
               signed-out visitor, so listing them would be four taps that all
               land in the same place. */}
-          <NavLink
+          <SidebarMenuButton
             href={`/masuk?next=${encodeURIComponent(pathname)}`}
             label="Masuk"
             icon={LogIn}
             onNavigate={onNavigate}
           />
-        </li>
+        </SidebarMenuItem>
       )}
-    </NavSection>
+      </SidebarMenu>
+    </SidebarGroup>
   );
 }
