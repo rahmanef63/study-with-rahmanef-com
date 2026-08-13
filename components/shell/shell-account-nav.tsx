@@ -40,7 +40,7 @@ export function ShellAccountNav({ onNavigate }: { onNavigate?: () => void }) {
   const links = profile === null ? ACCOUNT_LINKS : [profileLink(profile.username), ...ACCOUNT_LINKS];
 
   return (
-    <NavSection label="Akun" heading="Akun">
+    <NavSection label="Akun" heading="Akun" className="mt-auto">
       {!mounted || isLoading ? (
         <Rows count={3} />
       ) : isAuthenticated ? (

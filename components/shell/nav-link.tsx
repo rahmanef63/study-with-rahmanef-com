@@ -20,8 +20,21 @@ import { cn } from "@/lib/utils";
 // frame around every idle row (which is exactly what nine stacked rows looked
 // like before this comment existed). Same trap `.nav-rule` documents in
 // globals.css; box-shadow simply is not in that cascade.
+// HEIGHT IS BREAKPOINT-SPLIT, and that is a fix for a measured bug rather than
+// a taste call. 44px is the TOUCH target floor this design system holds
+// everywhere — but the only touch rendering of this row is the phone
+// slide-over, which lives BELOW md. The persistent rail at md and up is driven
+// by a pointer, where 36px is comfortable and 44px is padding.
+//
+// What it cost: measured at 1024x760 on /k/belajar-ai, signed OUT, the rail
+// already overflowed — 591px of rows into a 559px scroller. Signing in adds
+// three account rows, so it overflows a 900px viewport too. The first thing
+// scrolled out of reach is the account section, which is the part furthest from
+// where the eye lands. At md:min-h-9 the same 13 rows lose 104px and fit.
+//
+// Precedent, same reasoning: papan-skor.tsx renders `min-h-11 @sm:min-h-9`.
 const ROW =
-  "pixel-press flex min-h-11 w-full items-center gap-3 px-3 text-sm transition-colors";
+  "pixel-press flex min-h-11 w-full items-center gap-3 px-3 text-sm transition-colors md:min-h-9";
 const ROW_ACTIVE =
   "bg-primary/10 font-medium text-primary shadow-[inset_3px_0_0_0_var(--color-primary)]";
 const ROW_IDLE = "text-muted-foreground hover:bg-muted/50 hover:text-foreground";
@@ -70,25 +83,48 @@ export function NavLink({
  * The label survives as the group's accessible name via aria-labelledby, so
  * nothing is lost for a screen reader: the rows still announce which group
  * they belong to, they just no longer fragment the landmark map.
+ *
+ * TWO THINGS CHANGED HERE 2026-08-14, both measured on the rendered rail:
+ *
+ * 1. The caption was `text-muted-foreground/70`. Sampled off the painted
+ *    pixels, its brightest stroke reached 4.13:1 against the sidebar — and at
+ *    `--text-caption` (0.75rem) WCAG AA wants 4.5:1, so the only two labels in
+ *    the rail failed it. The `/70` is gone; the token alone measures 7.29:1,
+ *    and the caption still reads quieter than a row because it is smaller,
+ *    uppercase and tracked out, which is where that hierarchy belongs.
+ *
+ * 2. A GROUP NOW DRAWS ITS OWN BOUNDARY. Before, the community's eight rows had
+ *    no visible caption while Jelajah's two and Akun's one did — the largest
+ *    group was the unlabelled one, so the eye read eight floating rows followed
+ *    by two labelled stubs. A rule above each captioned group makes the
+ *    boundary structural instead of typographic, and it makes the first group
+ *    symmetric with the rest for free: the header block above it already ends
+ *    in `border-b-2`. So every group is preceded by a rule, and the first one's
+ *    heading is simply the community's name, one level up in the hierarchy.
  */
 export function NavSection({
   label,
   heading,
+  className,
   children,
 }: {
   label: string;
   /** Visible caption. Omit and the label becomes an sr-only one. */
   heading?: string;
+  /** Only the account group uses this, to pin itself to the rail's floor. */
+  className?: string;
   children: React.ReactNode;
 }) {
   const id = `nav-group-${label.replace(/\s+/g, "-").toLowerCase()}`;
   return (
-    <div role="group" aria-labelledby={id} className="px-2">
+    // 1px, not the system's usual 2px: this sits UNDER the header's `border-b-2`
+    // in the hierarchy, and four 2px rules in a 256px rail is a ladder.
+    <div role="group" aria-labelledby={id} className={cn("px-2", heading && "mt-2 border-t", className)}>
       <p
         id={id}
         className={
           heading
-            ? "px-3 pt-3 pb-1 text-caption uppercase tracking-wider text-muted-foreground/70"
+            ? "px-3 pt-3 pb-1 text-caption uppercase tracking-wider text-muted-foreground"
             : "sr-only"
         }
       >

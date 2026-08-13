@@ -74,7 +74,7 @@ export function ShellNav({ community, onNavigate, className }: ShellNavProps) {
             <Link
               href={KOMUNITAS_LINK.href}
               onClick={onNavigate}
-              className="pixel-press -ml-1 inline-flex min-h-11 items-center gap-1 pr-2 text-caption text-muted-foreground hover:text-foreground"
+              className="pixel-press -ml-1 inline-flex min-h-11 items-center gap-1 pr-2 text-caption text-muted-foreground hover:text-foreground md:min-h-8"
             >
               <ChevronLeft className="size-3.5 shrink-0" aria-hidden />
               {KOMUNITAS_LINK.label}
@@ -99,9 +99,19 @@ export function ShellNav({ community, onNavigate, className }: ShellNavProps) {
       </div>
 
       {/* ONE <nav>. The groups inside are groups, not landmarks — see NavSection. */}
+      {/* `flex flex-col` exists for one reason: it lets the account group take
+          `mt-auto` and sit on the rail's floor. Without it the rail rendered its
+          last group mid-height with ~210px of dead space underneath — measured
+          at 1280x900, signed out — which reads as an unfinished panel rather
+          than a deliberate one. Account-at-the-bottom is also where a decade of
+          dashboards has taught people to reach for it.
+
+          It still degrades correctly: when the rows DO overflow (a community
+          with every tab, signed in), `mt-auto` simply has nothing to distribute
+          and the group falls back to flowing after the one above it. */}
       <nav
         aria-label="Navigasi"
-        className="min-h-0 flex-1 overflow-y-auto overscroll-contain py-2 pb-[calc(var(--safe-b)+1rem)]"
+        className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain py-2 pb-[calc(var(--safe-b)+1rem)]"
       >
         {community === undefined ? null : (
           <NavSection label="Bagian komunitas">

@@ -28,6 +28,18 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-08-14",
+    version: "v4.0",
+    title: "Menu samping dirapikan",
+    tags: ["Tampilan", "Perbaikan"],
+    points: [
+      "Di laptop, menu sampingnya sebelumnya sudah harus digulir padahal kamu belum masuk akun — dan yang kepotong duluan justru bagian Akun di paling bawah. Barisnya sekarang lebih rapat di layar besar, jadi semuanya muat sekaligus. Di HP tinggi tombolnya tidak berubah, tetap enak disentuh.",
+      "Judul kelompok “JELAJAH” dan “AKUN” tadinya terlalu redup untuk dibaca — di bawah ambang keterbacaan yang wajar. Sekarang dinaikkan.",
+      "Antar kelompok diberi garis pemisah. Sebelumnya kelompok terbesar justru satu-satunya yang tanpa judul, jadi delapan baris terlihat mengambang lalu tiba-tiba ada dua judul kecil di bawahnya.",
+      "Bagian Akun sekarang menempel di dasar menu, bukan menggantung di tengah dengan ruang kosong di bawahnya.",
+    ],
+  },
+  {
+    date: "2026-08-14",
     version: "v3.9",
     title: "Ilustrasi masuk ke halaman-halaman yang sebelumnya polos",
     tags: ["Tampilan", "Perbaikan"],
