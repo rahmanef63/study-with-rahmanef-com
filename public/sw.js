@@ -30,11 +30,16 @@
 // once per worker version. Without a bump, every already-installed user keeps
 // the v2 cache, never fetches the new URL, and gets the broken-image icon on
 // the exact screen that exists to work offline.
-const VERSION = "v3";
+// v4: OFFLINE_IMAGE moved from /ui/offline.webp to /web/banner-skyline.webp and
+// the old file was DELETED. Worse than v3's stale-bytes case — without this
+// bump an installed user's precache points at a URL that now 404s, so the one
+// screen designed to survive a dead network shows a broken image on it.
+const VERSION = "v4";
 const CACHE = `belajar-shell-${VERSION}`;
 
-/** The only asset /offline references. Named because two lists need it. */
-const OFFLINE_IMAGE = "/ui/offline.webp";
+/** The only asset /offline references. Named because two lists need it.
+ *  Shared with app/not-found.tsx, so a 404 hit while offline is already here. */
+const OFFLINE_IMAGE = "/web/banner-skyline.webp";
 
 // "/" is deliberately NOT precached. Navigations never read from the cache
 // (see below), so a precached home page would be bytes that go stale and are
@@ -67,7 +72,7 @@ const PRECACHE = [
  *  MEASURED, because the obvious test lies. Install the worker without visiting
  *  /offline, go offline, force a 404: the image still renders even with this
  *  line removed. The HTTP cache is covering it — next.config.mjs puts
- *  `max-age=604800` on /ui, and the precache's own cache.add() fetch is what
+ *  `max-age=604800` on /web, and the precache's own cache.add() fetch is what
  *  warms it. Clear the HTTP cache first (a 7-day expiry, an eviction, or that
  *  header ever being reverted to Next's `max-age=0, must-revalidate` default)
  *  and the two diverge cleanly: with this line naturalWidth is 1200, without it

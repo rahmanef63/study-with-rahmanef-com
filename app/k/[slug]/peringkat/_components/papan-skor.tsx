@@ -14,7 +14,6 @@
 // spent ~200px before the first rank appeared.
 import Link from "next/link";
 import { useQuery } from "convex/react";
-import { Trophy } from "lucide-react";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
@@ -23,7 +22,7 @@ import {
   EmptyContent,
   EmptyDescription,
   EmptyHeader,
-  EmptyMedia,
+  EmptyArt,
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -107,9 +106,7 @@ function PapanKosong({ slug }: { slug: string }) {
   return (
     <Empty className="gap-4 border-2 border-dashed p-5 md:p-8">
       <EmptyHeader className="gap-1.5">
-        <EmptyMedia variant="icon" className="mb-0 size-9">
-          <Trophy aria-hidden />
-        </EmptyMedia>
+        <EmptyArt src="/learning/badge/trophy.webp" size={72} className="mb-0" />
         <EmptyTitle className="font-display text-xs uppercase leading-relaxed">
           Belum ada skor
         </EmptyTitle>

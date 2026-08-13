@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { cache, Suspense } from "react";
 import Link from "next/link";
-import { CalendarDays } from "lucide-react";
 import { api } from "@convex/_generated/api";
 import { TombolBagikan } from "@/components/tombol-bagikan";
 import { Button } from "@/components/ui/button";
@@ -10,7 +9,7 @@ import {
   EmptyContent,
   EmptyDescription,
   EmptyHeader,
-  EmptyMedia,
+  EmptyArt,
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -77,9 +76,7 @@ function KalenderKosong({ slug }: Params) {
     // a failure — so this reads as a signpost, never as a broken page.
     <Empty className="border-2 border-dashed">
       <EmptyHeader>
-        <EmptyMedia variant="icon">
-          <CalendarDays aria-hidden />
-        </EmptyMedia>
+        <EmptyArt src="/ui/empty/kalender.webp" />
         <EmptyTitle className="font-display text-xs uppercase">Belum ada sesi terjadwal</EmptyTitle>
         <EmptyDescription className="text-pretty">
           Sesi live diumumkan dulu di Discord komunitas, baru muncul di sini. Link undangannya ada

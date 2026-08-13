@@ -27,6 +27,20 @@ export type ChangelogEntry = {
 // NEWEST FIRST. Prepend here on every update.
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-08-13",
+    version: "v3.8",
+    title: "Ilustrasi buatan sendiri di seluruh aplikasi",
+    tags: ["Tampilan", "Perbaikan"],
+    points: [
+      "Ada 91 gambar baru yang diunggah. Ternyata isinya cuma 76 gambar berbeda — sepuluh pasang kembar persis, dan dua di antaranya bertukar nama (berkas bernama “new learner” isinya gambar “problem solver”). Setiap gambar dibuka satu per satu dan diberi nama sesuai isinya, bukan sesuai nama berkasnya.",
+      "Semuanya diubah ke format WebP dan ditata ke map berdasarkan perannya: keadaan kosong, status, ilustrasi umum, lencana, sampul kelas, dan gambar besar. Total 37 MB jadi 1,9 MB — turun 95%, tanpa ada yang terlihat pecah.",
+      "Halaman depan sekarang memakai ilustrasi asli di tiga kartu “Tiga cara mulai”, dan halaman 404, offline, direktori komunitas, kalender, serta papan peringkat punya gambarnya sendiri.",
+      "21 gambar ternyata punya kotak biru tua tercetak di belakangnya — warnanya beda tipis dari latar aplikasi, jadi akan tampak sebagai kotak yang menempel. Latar itu dibersihkan jadi benar-benar transparan.",
+      "Sebagian gambar sengaja belum dipakai: teksnya sudah tercetak jadi piksel, dan beberapa bahkan menggambar tombol kuning palsu yang tidak bisa diklik. Yang seperti itu dipindah jadi bahan unggahan media sosial, bukan tempelan di aplikasi.",
+      "Ditambahkan pemeriksaan otomatis: kalau ada berkas gambar terhapus atau pindah sementara kodenya masih menunjuk ke situ, pemeriksaan gagal. Sebelumnya tidak ada satu pun yang menangkap hal ini — gambar rusak baru ketahuan setelah dibuka orang.",
+    ],
+  },
+  {
     date: "2026-08-12",
     version: "v3.7",
     title: "Halaman depan",

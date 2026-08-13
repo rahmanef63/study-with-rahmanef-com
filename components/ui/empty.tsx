@@ -31,10 +31,23 @@ function EmptyHeader({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
-// THERE IS NO `illustration` VARIANT, ON PURPOSE.
+// THERE IS STILL NO `illustration` VARIANT, AND STILL ON PURPOSE — but the
+// reason below is now about ONE REJECTED PACK, not about images as a class.
 //
-// The asset pack ships public/ui/empty-{courses,results,notifications}.webp and
-// this is the slot they would plug into. All three were opened and measured
+// RESOLVED 2026-08-13. A second art drop landed and it clears every objection
+// recorded here: the sprites under public/ui/{empty,status,spot} carry no baked
+// text at all, and their flat field was flood-filled to real transparency by
+// scripts/normalise-art-pack.mjs, so nothing lands on the page as a
+// wrong-coloured rectangle. They are wired through `EmptyArt` at the bottom of
+// this file, which renders into `variant="default"` — a slot that already
+// centres an unconstrained child, so no variant had to be invented. The
+// argument below still stands and is kept because it is the test any FUTURE
+// drop has to pass: open the file, measure the baked text, check the field
+// colour against the token.
+//
+// The declined pack, for the record:
+//
+// public/ui/empty-{courses,results,notifications}.webp were opened and measured
 // before being declined; they are not illustrations, they are SCREENSHOTS OF AN
 // EMPTY STATE — this component's output, flattened to a raster:
 //
@@ -62,9 +75,10 @@ function EmptyHeader({ className, ...props }: React.ComponentProps<"div">) {
 // `--muted` (#1b2331), so the file would land on the page as a visibly bluer
 // rectangle no token can correct.
 //
-// So: nothing to wire. The three files stay unused rather than being given a
+// So: nothing to wire. The three files stayed unused rather than being given a
 // home they do not fit — inventing an `illustration` variant to host a picture
-// of the very component hosting it is a loop, not a feature.
+// of the very component hosting it is a loop, not a feature. They have since
+// been deleted; the replacements are named above.
 const emptyMediaVariants = cva(
   "mb-2 flex shrink-0 items-center justify-center [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
@@ -92,6 +106,51 @@ function EmptyMedia({
       className={cn(emptyMediaVariants({ variant, className }))}
       {...props}
     />
+  )
+}
+
+/**
+ * The illustrated media slot. `<EmptyArt src={...} />` in place of
+ * `<EmptyMedia variant="icon"><SomeLucideIcon /></EmptyMedia>`.
+ *
+ * A component rather than an `<img>` per call site because the five attributes
+ * that make it correct — `alt=""`, explicit `width`/`height`, lazy decode, and
+ * `pixelated` so the art keeps its hard edges instead of being smoothed by the
+ * browser's downscaler — are the kind that get copied four times and typo'd on
+ * the fifth.
+ *
+ * `alt=""` is not laziness and is not overridable: every one of these sits
+ * directly above an `<EmptyTitle>` that already says the thing in words. Naming
+ * the picture too would make a screen reader announce the same message twice.
+ *
+ * SIZE IS EXPLICIT AND SQUARE. The sprites are 185-256px on their longest side;
+ * rendering one at its natural size would put a 256px picture above a
+ * two-line message. 96px is the default because it is the largest that keeps
+ * the title, the description and the action inside a 640px fold at 390px —
+ * the same budget the landing hero and the 404 strip are cut to.
+ */
+function EmptyArt({
+  src,
+  size = 96,
+  className,
+  ...props
+}: Omit<React.ComponentProps<"div">, "children"> & { src: string; size?: number }) {
+  return (
+    <EmptyMedia className={className} {...props}>
+      {/* eslint-disable-next-line @next/next/no-img-element -- committed static
+          asset at a stable path; next/image would add an optimiser pass to
+          re-encode a file that is already WebP and under 30 KB. */}
+      <img
+        src={src}
+        alt=""
+        width={size}
+        height={size}
+        loading="lazy"
+        decoding="async"
+        className="pixelated object-contain"
+        style={{ width: size, height: size }}
+      />
+    </EmptyMedia>
   )
 }
 
@@ -140,4 +199,5 @@ export {
   EmptyDescription,
   EmptyContent,
   EmptyMedia,
+  EmptyArt,
 }

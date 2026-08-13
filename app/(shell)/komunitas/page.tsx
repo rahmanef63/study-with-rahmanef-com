@@ -8,13 +8,13 @@ import {
   Empty,
   EmptyDescription,
   EmptyHeader,
-  EmptyMedia,
+  EmptyArt,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { Compass } from "lucide-react";
 import { safeQuery } from "@/lib/convex-server";
 import { communityHref } from "@/lib/community";
 import { PetaCallout } from "@/features/peta";
+import { CourseCover } from "@/features/courses";
 import { AjukanKomunitas } from "../../_components/ajukan-komunitas";
 
 // The community directory. `/` redirects to the flagship, so almost nobody
@@ -49,9 +49,7 @@ async function CommunityList() {
  return (
       <Empty className="border">
         <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <Compass aria-hidden />
-          </EmptyMedia>
+          <EmptyArt src="/ui/status/waiting.webp" />
           <EmptyTitle className="font-display">Belum ada komunitas aktif</EmptyTitle>
           <EmptyDescription className="text-pretty">
             Komunitas pertama sedang dikurasi. Cek lagi sebentar lagi 🌱
@@ -67,8 +65,20 @@ async function CommunityList() {
         <li key={tenant._id}>
           <Link
  href={communityHref.home(tenant.slug)}
- className="group flex h-full flex-col gap-1.5 border bg-card px-5 py-4 transition-colors hover:border-primary/40 hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+ className="group flex h-full items-start gap-4 border bg-card px-5 py-4 transition-colors hover:border-primary/40 hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
+            {/* The directory whose job is to sell communities was the one screen
+                rendering them as plain text. CourseCover is reused verbatim —
+                it takes `slug` + optional `src` and already draws procedural
+                slug-derived art when there is no upload, which is every tenant
+                today (0 of 3 have coverImageUrl set). So this is a real tile
+                per community with no asset, no upload flow and no DB write. */}
+            <CourseCover
+              slug={tenant.slug}
+              src={tenant.coverImageUrl}
+              className="size-14 shrink-0 border-2 border-border"
+            />
+            <span className="flex min-w-0 flex-col gap-1.5">
             <span className="flex flex-wrap items-center gap-2">
               <span className="min-w-0 font-display text-base font-medium group-hover:text-primary">
                 {tenant.name}
@@ -81,6 +91,7 @@ async function CommunityList() {
             </span>
             <span className="line-clamp-2 text-sm text-muted-foreground">
               {tenant.description}
+            </span>
             </span>
           </Link>
         </li>

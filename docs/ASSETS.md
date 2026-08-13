@@ -1,15 +1,22 @@
 # ASSETS — what the product actually serves
 
-Inventory of `public/`, taken 2026-08-12 against the normalised asset pack. Written because 30 files
-were uploaded and only some of them are consumed by any code path; the rest are sitting there, and
-the owner deserves to know which is which rather than guessing.
+Inventory of `public/`. Two drops have landed:
 
-**Headline: 9 of the 30 pack assets are wired. 21 are not.** That is not a failure — icons and
-favicons are what an app *can* consume automatically; social banners and brand marks are things a
-human uploads somewhere else. The point of this file is that "unused" and "useless" are different,
-and each row below says which one it is.
+- **2026-08-12 — the install surface.** 30 files: icons, favicons, social cards, brand marks,
+  avatars. Normalised by `scripts/optimize-assets.mjs`. Sections 1-8 below.
+- **2026-08-13 — the illustration pack.** 91 files that are **76 distinct images** (10 exact
+  duplicate pairs, plus five more names colliding on content). Normalised by
+  `scripts/normalise-art-pack.mjs`. Section 9 below, which also records what the second drop
+  replaced and deleted from the first.
 
-Sizes are bytes on disk after `scripts/optimize-assets.mjs`.
+The point of this file is that **"unused" and "useless" are different**, and every row says which
+one it is. Sizes are bytes on disk after normalisation.
+
+`npm test` now enforces the top half of this document: `app/__tests__/public-assets.test.ts` scans
+every source file for quoted `/…​.webp|png|svg` literals and fails if one does not resolve on disk,
+checks `public/sw.js`'s `PRECACHE` list separately, and checks `lib/avatars.ts`. Before it existed
+nothing in the repo caught a broken asset path — `npm run pwa:verify` only reads `app/manifest.ts`,
+`app/layout.tsx` and the `/icons/…` strings inside `sw.js`.
 
 ---
 
@@ -24,8 +31,8 @@ Sizes are bytes on disk after `scripts/optimize-assets.mjs`.
 | `/icons/icon-512.png` | 512² | 137 120 | `app/manifest.ts` · `app/layout.tsx` · `sw.js` precache |
 | `/icons/icon-maskable-512.png` | 512² | 138 357 | `app/manifest.ts` `purpose: "maskable"` · `sw.js` precache |
 | `/icons/apple-touch-icon-180.png` | 180² | 16 146 | `app/manifest.ts` · `app/layout.tsx` `<link rel="apple-touch-icon">` · `sw.js` precache |
-| `/ui/404.webp` | 1200×800 | 26 406 | `app/not-found.tsx` `<img>` — **bottom 30% only** (`aspect-[5/1] object-bottom`), so just the skyline band renders and the baked-in raster text above y=524 is cropped out. |
-| `/ui/offline.webp` | 1200×800 | 27 970 | `app/offline/page.tsx` `<img>`, same 5:1 bottom crop · `public/sw.js` **PRECACHE + CACHEABLE** (both required — see that file). Verified rendering with the network disabled and the HTTP cache cleared: `naturalWidth` 1200. |
+| `/web/banner-skyline.webp` | 1600×244 | 11 516 | **Replaced both `/ui/404.webp` and `/ui/offline.webp` on 2026-08-13, and those two files are deleted.** One file, three references: `app/not-found.tsx`, `app/offline/page.tsx`, and `public/sw.js` **PRECACHE + CACHEABLE** (both required — see that file; `VERSION` bumped to `v4`, which is mandatory because the old precached URL now 404s). Text-free at every row, so the `object-bottom` crop that used to hide baked-in raster type is gone. 6.56:1 against a 5:1 box, so `object-cover` trims the sides of a horizon that repeats. |
+| `/web/hero-scene.webp` | 1040×1080 | 84 494 | `app/(shell)/page.tsx` `<img fetchPriority="high">` — the landing hero. Capped to `h-44` below `md` (measured: full height put the `<h1>` at y=533 and the second CTA below the fold). |
 | `/screenshots/narrow.png` | 412×915 | 41 048 | `app/manifest.ts` `screenshots` (install card). Pre-existing, not from the pack. |
 | `/screenshots/wide.png` | 1280×720 | 89 214 | same |
 | `/icon.svg` (in `app/`) | vector | 1 397 | Route convention + `app/manifest.ts` last icon. Scales; the PNGs above are for browsers that ignore SVG. |
@@ -158,11 +165,11 @@ the composition whole. Where a file has a clean text-free band, that route is op
 
 | Path | Dim | Bytes | The surface, and what it does instead |
 |---|---|---|---|
-| `/ui/empty-courses.webp` | 1200×800 | 4 462 | `components/ui/empty` (`Empty` + `EmptyMedia variant="icon"` + Lucide). Text baked in ("Belum ada kelas"), so the copy could never change per surface. |
-| `/ui/empty-results.webp` | 1200×800 | 4 104 | same |
-| `/ui/empty-notifications.webp` | 1200×800 | 4 182 | same |
-| `/web/hero.webp` | 1920×1080 | 122 068 | **No surface exists.** `/` redirects to `/k/<DEFAULT_COMMUNITY_SLUG>`; there is no marketing landing page with a hero slot. This is the cleanest file in the pack (no ghosting) and the best candidate if a landing page is ever built — or, at 122 KB, as the illustration in a README/press kit today. |
-| `/learning/course-cover-template.webp` | 1280×720 | 70 252 | Course cards call `slices/courses/lib/cover-art.ts`, which derives a *different* cover per course from a slug hash — six courses, six covers, ~1.6 KB gzip total, and course #7 gets art with no upload. One shared template would make every course look identical; that is a regression, not a swap. **This file has no home in the product.** Its only defensible use is as a docs/press illustration of what a course card looks like — and it carries the ghosting defect, so fix that first. |
+| ~~`/ui/empty-courses.webp`~~ | 1200×800 | 4 462 | **DELETED 2026-08-13.** Superseded by `/ui/empty/courses.webp` from the second drop, which is the same subject with no baked text and a real alpha channel. See §9. |
+| ~~`/ui/empty-results.webp`~~ | 1200×800 | 4 104 | **DELETED 2026-08-13** → `/ui/empty/results.webp`. |
+| ~~`/ui/empty-notifications.webp`~~ | 1200×800 | 4 182 | **DELETED 2026-08-13** → `/ui/empty/notifications.webp`. |
+| ~~`/web/hero.webp`~~ | 1920×1080 | 122 068 | **DELETED 2026-08-13.** This row said "no surface exists" and then one was built: `app/(shell)/page.tsx` is a real landing page, and it renders `/web/hero-scene.webp` — the desk-half crop of this file, which drops the baked English prose. The uncropped original is in the 2026-08-12 archive (§8); nothing referenced it. |
+| ~~`/learning/course-cover-template.webp`~~ | 1280×720 | 70 252 | **DELETED 2026-08-13**, unreferenced; the second drop's `/learning/cover/module-template.webp` is the same idea, parked for the same reason. Original reasoning: | Course cards call `slices/courses/lib/cover-art.ts`, which derives a *different* cover per course from a slug hash — six courses, six covers, ~1.6 KB gzip total, and course #7 gets art with no upload. One shared template would make every course look identical; that is a regression, not a swap. **This file has no home in the product.** Its only defensible use is as a docs/press illustration of what a course card looks like — and it carries the ghosting defect, so fix that first. |
 | `/learning/certificate-bg.webp` | 2560×1440 | 22 346 | `slices/profiles/components/certificate-card.tsx` builds the certificate from theme tokens. See §5 — this file is a mock-up with text baked in, not a background. Usable as a docs illustration only. |
 | `/profiles/avatar-default.png` | 512² | 2 627 | `ProfileAvatar` falls back to **initials** (`"Rahman Ef" → "RE"`) when `avatarUrl` is empty — no network request, always personal. A shared default image would make every avatar-less member look like the same person. |
 | `/profiles/avatar-pria-1.webp` | 512² | 4 806 | `profiles.avatarUrl` is a free-text URL field in Pengaturan; there is no avatar *picker*. A member can paste `/profiles/avatar-pria-1.webp` today and it works. Building a picker is a product decision. |
@@ -207,3 +214,95 @@ Moving them to a `docs/press-kit/` was tried and REVERTED. The saving is ~1.7 MB
 the owner already pays for — no running cost, since the zero-cost law is about paid services — while the
 cost is a 404 the day anyone links `/social/og-default.png` expecting it to resolve. A surprise dead
 link beats a megabyte of disk. They stay served; this section is why.
+
+---
+
+## 9. The illustration pack — 2026-08-13
+
+91 PNG files landed in `public/general/`, 47 MB, `snake_case` with `NN_` prefixes. They are **76
+distinct images**: 10 pairs are byte-identical, and the names are not evidence of content —
+`badge_new_learner_alt.png` is byte-identical to `pixel_art_problem_solver_badge.png`, and **the two
+badges those names describe are crossed** (the file called new-learner draws PROBLEM SOLVER). Every
+output name in `scripts/normalise-art-pack.mjs` was assigned by opening the image.
+
+`node scripts/normalise-art-pack.mjs` converts, files by role, and deletes the drop.
+**37 240 788 B → 1 971 600 B, −94.7%.** It refuses to run if the plan and the disk disagree in
+either direction, so a file cannot be silently lost when that table is next edited.
+
+### 9.1 The split that decided everything
+
+| group | count | verdict |
+|---|---|---|
+| numbered sprites `01_`–`32_` | 50 | **USABLE.** No baked text anywhere. |
+| `1672×941` / `1536×1024` scenes | 19 | **Mostly parked** — every one bakes a title and the wordmark; four also bake a yellow CTA BUTTON. |
+| `1254²` badge medallions | 5 | **Parked** — English text, and a taxonomy the schema does not have. |
+| `2746×572` night skyline | 1 | **The best large asset in the drop**, and now the 404 + offline art. |
+
+**The fake-button problem, stated once.** `belum_ada_aktivitas`, `pixel_study_no_results_screen`,
+`pixel_study_progress_dashboard` and `pixel_study_community_invitation` are not illustrations. Each
+is a finished card: wordmark, heading, body copy, **and a drawn yellow button** ("Mulai Belajar →",
+"Ubah Pencarian", "Mulai Kursus", "Jelajahi Komunitas"). Dropped into an `Empty` they would print a
+counterfeit button above the real one and repeat the copy the component already writes as text. That
+is the `empty-*.webp` failure from the first drop, made worse. They are filed under `/social/post-*`
+because a finished Bahasa card with a CTA **is a social post** — a real use, just not this one.
+
+### 9.2 The flood fill, and why it was necessary
+
+21 of the 50 sprites shipped a flat `#010e2e` square instead of an alpha channel. `--background` is
+`#090f1c`, so those would land on the page as a visibly bluer rectangle no token can correct — the
+**exact** defect recorded in the 35-line refusal at the top of `components/ui/empty.tsx`. Shipping
+them unfixed would have repeated a mistake this repo had already written down.
+
+`dekey()` flood-fills from the border inward at a squared-distance tolerance of 28. **Contiguity is
+the safety property**: the artwork reuses the field navy inside itself (the night sky behind a
+telescope, the glass of a magnifier lens), so a global colour replace would punch holes straight
+through it; a fill seeded only from border pixels can reach the field and nothing else.
+
+The tolerance was measured, not guessed. At 28 the six worst cases lose 54–88% of canvas, all field,
+with sparkles, embers and drop shadows intact. At 48 it starts eating art: the campfire loses its
+logs, the chat group loses its base shadow, the book loses the edge of its ribbon. Verified by
+rendering the output on `#090f1c` — no residual box on any of the 16 checked.
+
+### 9.3 Wired
+
+| Path | Surface |
+|---|---|
+| `/web/banner-skyline.webp` | `app/not-found.tsx` · `app/offline/page.tsx` · `sw.js` PRECACHE+CACHEABLE. Replaced `ui/404.webp` and `ui/offline.webp`; both deleted; `VERSION` → `v4`. |
+| `/ui/spot/telescope.webp` | `app/(shell)/page.tsx` — "Tiga cara mulai" card 1 (→ `/mulai`). Was a 20px lucide `Compass`. |
+| `/ui/spot/map.webp` | same section, card 2 (→ `/roadmap`). Was `Map`. |
+| `/ui/empty/diskusi.webp` | same section, card 3 (→ Diskusi). Was `MessagesSquare`. |
+| `/ui/empty/discovery.webp` | `app/(shell)/komunitas/page.tsx` — "Belum ada komunitas aktif". |
+| `/ui/empty/kalender.webp` | `app/k/[slug]/kalender/page.tsx` — "Belum ada sesi terjadwal". |
+| `/learning/badge/trophy.webp` | `app/k/[slug]/peringkat/…/papan-skor.tsx` — "Belum ada skor". |
+
+`EmptyArt` (in `components/ui/empty.tsx`) is the shared seam. It renders into `variant="default"`,
+which already centres an unconstrained child — **no `illustration` variant had to be invented**, and
+the refusal comment above it stands as the test the next drop has to pass.
+
+### 9.4 Parked, and the honest reason
+
+- **`/learning/cover/*` (11 files).** Correctly shaped for the `aspect-[2/1]` cover slot, and each
+  bakes an ENGLISH title — "AI BASICS", "DATA ANALYSIS", "MACHINE LEARNING", "WEB DEVELOPMENT" —
+  onto a product whose courses are titled in Bahasa, beside the wordmark the rail already carries.
+  Two further problems even if that were acceptable: only 4 of the 13 published courses have a
+  matching cover (`machine-learning` matches nothing — there is no ML course), so wiring them
+  leaves a catalogue that is a third raster and two thirds procedural; and a course cover must be an
+  **absolute `https://` URL** (`convex/features/courses/validate.ts` `assertCoverImageUrl`, plus a
+  `type="url"` input in the Kelola form), so a relative path cannot be stored without a validator
+  change and a Convex deploy. The procedural `CourseCover` stays — consistent across all 13, zero
+  bytes, and course #14 gets art with no upload.
+- **`/learning/medal/*` (5 files).** English text, plus they name an achievement taxonomy
+  (explorer / builder / problem solver / new learner / AI enthusiast) that **no table, mutation or
+  seed in this repo has**. A badge here is a completed course — `courseCompletions`, whose schema
+  comment says `// = badge` — keyed by `courseSlug`. Wiring these is a data-model change, not a
+  wiring job. Filenames are corrected against the artwork; do not trust the drop's own names.
+- **`/social/post-*` (5) and `/social/mockup-dashboard.webp`.** See §9.1. `mockup-dashboard` is a
+  picture of a loading skeleton, which no screen can legitimately show.
+- **`/ui/spot/*` and `/ui/empty/*` not listed in §9.3.** Correct, converted and de-keyed, waiting
+  for a surface. Named by role so the next person can grep for one instead of opening 40 files.
+
+### 9.5 Where the originals live
+
+`~/projects/_assets/study-with-rahmanef-com/raw-2026-08-13-general/` — 86 files, 47 MB, byte for
+byte. Outside the repo for the same reason as §8, and load-bearing for the same one: the parked files
+above need a **re-export**, and you cannot un-bake English text from a compressed copy.

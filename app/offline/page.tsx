@@ -57,28 +57,35 @@ export default function OfflinePage() {
       </p>
 
       {/* The one image on the one screen whose whole job is to work with no
-          network. Two things had to be true before it could be added, and both
-          are done in public/sw.js (VERSION bumped to v3 so installed users
-          re-run install):
-            1. "/ui/offline.webp" is in PRECACHE — fetched and stored at install
-               time, while there still is a network.
+          network. Three things have to be true, and all three are done in
+          public/sw.js (VERSION bumped to v4 so installed users re-run install):
+            1. "/web/banner-skyline.webp" is in PRECACHE — fetched and stored at
+               install time, while there still is a network.
             2. CACHEABLE() matches it. Precaching ALONE is not enough: the fetch
                handler `return`s without responding for anything outside
                CACHEABLE, so cached bytes it never consults cannot be served.
                Verified by removing that one line and clearing the HTTP cache —
-               naturalWidth drops from 1200 to 0 and this page paints the
-               broken-image icon. Full measurement in public/sw.js.
-          Cropped and alt="" for the same reasons as app/not-found.tsx — the top
-          two thirds of the source are baked-in raster text that would contradict
+               naturalWidth drops to 0 and this page paints the broken-image
+               icon. Full measurement in public/sw.js.
+            3. VERSION is bumped. The install handler is the only thing that
+               ever fills the precache and it runs once per worker version, so
+               without a bump every already-installed user keeps pointing at the
+               deleted /ui/offline.webp.
+          Was `/ui/offline.webp` rendered through `object-bottom`, because the
+          top two thirds of that file were baked-in raster text contradicting
           this page ("Kamu sedang offline" vs the copy above) under a garbled
-          wordmark. Only the clean skyline band renders. */}
+          wordmark. The replacement is skyline all the way across, so the crop
+          hack is gone. Same file as app/not-found.tsx: one precached URL, and a
+          404 hit while offline is already in the cache. */}
+      {/* eslint-disable-next-line @next/next/no-img-element -- precached static
+          asset; it must resolve to a plain URL the service worker can match. */}
       <img
-        src="/ui/offline.webp"
+        src="/web/banner-skyline.webp"
         alt=""
-        width={1200}
-        height={240}
+        width={1600}
+        height={244}
         decoding="async"
-        className="pixelated pixel-frame aspect-[5/1] w-full border-border object-cover object-bottom"
+        className="pixelated pixel-frame aspect-[5/1] w-full border-border object-cover"
       />
     </main>
   );

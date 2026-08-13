@@ -1,26 +1,29 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-// WHY THIS IMAGE IS CROPPED IN CSS INSTEAD OF RENDERED WHOLE
+// THE SKYLINE STRIP, AND WHY IT NO LONGER NEEDS A CSS CROP
 //
-// `public/ui/404.webp` is a 1200x800 COMPOSITION, not an illustration. Measured
-// on the actual file: the top two thirds carry baked-in raster text — "404",
-// "Halaman tidak ditemukan", "Kembali ke beranda dan lanjut belajar" — over a
-// clipped, double-exposed "…DY WITH RAHM…" wordmark. Dropping that in whole
-// would print this page's own copy a second time as unselectable,
-// untranslatable, unsearchable pixels, under a garbled logo, in a purple that
-// is not in the palette.
+// This used to point at `public/ui/404.webp`, a 1200x800 COMPOSITION whose top
+// two thirds carried baked-in raster text — "404", "Halaman tidak ditemukan",
+// "Kembali ke beranda dan lanjut belajar" — over a clipped, double-exposed
+// "…DY WITH RAHM…" wordmark, in a purple outside the palette. The only usable
+// part was the pixel-art skyline underneath, so the file was rendered through
+// `aspect-[5/1] object-bottom` to show just rows 560-800 and hide the type.
 //
-// The usable art is the pixel-art skyline underneath it. The last row holding
-// text pixels is y=524; from y=540 down, the brightest channel in the whole
-// band is 81 — pure skyline, no type. `object-bottom` on a 1200x800 source
-// inside a 5:1 box shows the bottom 30% (rows 560-800), which is inside that
-// clean band with 20px to spare.
+// `web/banner-skyline.webp` replaces it and is the art that hack was
+// approximating: 1600x244, pure skyline, no type anywhere, 11 KB against the
+// old file's 26. It is 6.56:1 against a 5:1 box, so `object-cover` trims the
+// sides of a horizon that repeats — the crop is now cosmetic instead of
+// load-bearing, and nothing breaks if the box changes shape.
 //
-// It also answers the brief's sizing constraint: a 1200x800 illustration at
-// 390px eats 228px of a 640px fold and pushes the message and the way out
-// below it. As a 5:1 horizon strip it is 68px at 390px wide, it sits AFTER the
-// button, and the words come first at every width.
+// The sizing constraint is unchanged and still the reason this is a strip: a
+// full illustration at 390px eats 228px of a 640px fold and pushes the message
+// and the way out below it. At 5:1 it is 68px, it sits AFTER the button, and
+// the words come first at every width.
+//
+// SHARED WITH /offline ON PURPOSE. Same file, and that page's service worker
+// precaches it — one URL to keep in `public/sw.js` instead of two, and a user
+// who hits a 404 while offline gets it from the cache.
 //
 // alt="" on purpose: the skyline carries nothing the heading does not already
 // say, so naming it would just make a screen reader read decoration.
@@ -35,13 +38,15 @@ export default function NotFound() {
         <Link href="/">Kembali ke beranda</Link>
       </Button>
 
+      {/* eslint-disable-next-line @next/next/no-img-element -- committed static
+          asset; next/image would re-encode an 11 KB WebP for nothing. */}
       <img
-        src="/ui/404.webp"
+        src="/web/banner-skyline.webp"
         alt=""
-        width={1200}
-        height={240}
+        width={1600}
+        height={244}
         decoding="async"
-        className="pixelated pixel-frame mt-4 aspect-[5/1] w-full border-border object-cover object-bottom"
+        className="pixelated pixel-frame mt-4 aspect-[5/1] w-full border-border object-cover"
       />
     </div>
   );
