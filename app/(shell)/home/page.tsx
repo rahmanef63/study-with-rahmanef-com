@@ -20,10 +20,13 @@ import { BerandaView } from "../../_components/beranda-view";
 // anonymous; it simply is not there for a signed-out reader, who gets the cards
 // and nothing that implies a session they do not have.
 //
-// The art is picked for its ALPHA as much as its subject: these sit on
-// `bg-card` (#0f1626), lighter than `--background`, so a sprite whose baked
-// field survived the flood fill shows as a box. All three were checked on that
-// exact colour — see the same note in app/(shell)/page.tsx.
+// THE ART IS AN ICON, NOT A SPRITE, and that is a legibility result rather
+// than a taste one. These cards render their mark at 56px, and rendered at 56px
+// `discovery.webp` is a brown smudge and `anggota.webp` is a dashed speech
+// bubble over a campfire that collapses into noise — the same sprite, at the
+// same failure, that already had to be pulled out of the 44px stat row in
+// 4869291. `EXPLORE_LINKS` has carried a Lucide icon per destination all along
+// for the rail, so the fix deletes a lookup table rather than adding one.
 const TITLE = "Beranda";
 const DESCRIPTION =
   "Ringkasan belajarmu — kelas yang sedang jalan, komunitas yang kamu ikuti, dan ke mana lagi kamu bisa pergi.";
@@ -44,11 +47,10 @@ const BLURB: Record<string, string> = {
   peta: "Jawab beberapa kartu, keluar dengan dua sampai tiga rencana belajar yang cocok denganmu.",
 };
 
-const ART: Record<string, string> = {
-  komunitas: "/ui/empty/anggota.webp",
-  roadmap: "/ui/spot/roadmap-path.webp",
-  peta: "/ui/empty/discovery.webp",
-};
+/** The framed accent tile every card mark sits in. Same idiom as
+ *  slices/peta/components/peta-callout.tsx. */
+const TILE =
+  "grid size-11 shrink-0 place-items-center rounded-[var(--radius)] border border-primary/40 bg-primary/10 text-primary";
 
 export default function BerandaPage() {
   return (
@@ -72,16 +74,9 @@ export default function BerandaPage() {
                 href={link.href}
                 className="group flex h-full flex-col rounded-[var(--radius)] border border-border bg-card p-5 transition-colors hover:border-primary"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element -- committed static asset. */}
-                <img
-                  src={ART[link.key]}
-                  alt=""
-                  width={56}
-                  height={56}
-                  loading="lazy"
-                  decoding="async"
-                  className="pixelated size-14 object-contain"
-                />
+                <span className={TILE}>
+                  <link.icon className="size-5" aria-hidden />
+                </span>
                 <span className="mt-3 text-title font-medium group-hover:text-primary">
                   {link.label}
                 </span>

@@ -12,7 +12,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useConvexAuth, useQuery } from "convex/react";
-import { ArrowRight, LogIn, Trophy } from "lucide-react";
+import { ArrowRight, BookCheck, LogIn, Trophy, Users } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { api } from "@convex/_generated/api";
 import { CourseCover } from "@/features/courses";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -24,25 +25,29 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { ART_SIZE } from "@/lib/art";
 import { communityHref } from "@/lib/community";
 
 const CARD = "rounded-[var(--radius)] border border-border bg-card p-4";
+/** The framed accent tile every mark on this screen sits in. Same idiom as
+ *  app/(shell)/home/page.tsx and slices/peta/components/peta-callout.tsx. */
+const TILE =
+  "grid size-11 shrink-0 place-items-center rounded-[var(--radius)] border border-primary/40 bg-primary/10 text-primary";
 
-/** A number with its own picture. Three of these are the whole stats row. */
-function Stat({ art, value, label }: { art: string; value: string; label: string }) {
+/**
+ * A number with its own mark. Three of these are the whole stats row.
+ *
+ * The mark is a framed Lucide glyph, not a pixel badge. Not because the badges
+ * were illegible — `trophy` and `community` survive 44px, which is exactly why
+ * they were chosen in 4869291 — but because the explore cards directly below on
+ * this same screen now carry framed glyphs, and two icon languages at the same
+ * size on one screen is the thing that reads as unfinished.
+ */
+function Stat({ icon: Icon, value, label }: { icon: LucideIcon; value: string; label: string }) {
   return (
     <div className={`${CARD} flex items-center gap-3`}>
-      {/* eslint-disable-next-line @next/next/no-img-element -- committed static asset. */}
-      <img
-        src={art}
-        alt=""
-        width={ART_SIZE.tile}
-        height={ART_SIZE.tile}
-        loading="lazy"
-        decoding="async"
-        className="pixelated size-11 shrink-0 object-contain"
-      />
+      <span className={TILE}>
+        <Icon className="size-5" aria-hidden />
+      </span>
       <span className="flex min-w-0 flex-col">
         <span className="font-display text-marquee text-primary">{value}</span>
         <span className="truncate text-caption text-muted-foreground">{label}</span>
@@ -55,9 +60,10 @@ function Stat({ art, value, label }: { art: string; value: string; label: string
  * A course, its cover, and how far in you are.
  *
  * The bar is a plain div pair, not a component: it is two elements and one
- * width, and `--radius: 0` means there is no shape to get wrong. `aria-hidden`
- * on it because the percentage is already written in text beside the title —
- * a progressbar role would make a screen reader read the same number twice.
+ * width. It stays square on purpose — at 8px tall a 6px radius is most of the
+ * bar. `aria-hidden` on it because the percentage is already written in text
+ * beside the title, and a progressbar role would make a screen reader read the
+ * same number twice.
  */
 function CourseRow({
   course,
@@ -206,27 +212,9 @@ export function BerandaView() {
   return (
     <div>
       <div className="grid grid-cols-1 gap-3 @sm:grid-cols-3">
-        <Stat
-          art="/ui/empty/courses.webp"
-          value={`${data.materiDone}${plus}`}
-          label="materi selesai"
-        />
-        <Stat
-          art="/learning/badge/trophy.webp"
-          value={`${data.badgeCount}${plus}`}
-          label="kelas tuntas"
-        />
-        {/* The badge hexagon, not the campfire. `anggota.webp` was here and it
-            failed at the size it actually renders: its dashed speech bubble
-            survives the downscale to 44px and the campfire under it collapses
-            into a smudge. Caught in a real browser, not in review — which is
-            the lesson: a sprite that reads at 112px is not a sprite that reads
-            at 44px, so check candidates at the BOX SIZE, not the file size. */}
-        <Stat
-          art="/learning/badge/community.webp"
-          value={String(data.communities.length)}
-          label="komunitas"
-        />
+        <Stat icon={BookCheck} value={`${data.materiDone}${plus}`} label="materi selesai" />
+        <Stat icon={Trophy} value={`${data.badgeCount}${plus}`} label="kelas tuntas" />
+        <Stat icon={Users} value={String(data.communities.length)} label="komunitas" />
       </div>
 
       {data.inProgress.length > 0 ? (

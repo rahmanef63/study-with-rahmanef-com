@@ -28,6 +28,17 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-08-14",
+    version: "v5.2",
+    title: "Sampul kelas digambar ulang, ikon kecil diganti yang terbaca",
+    tags: ["Tampilan"],
+    points: [
+      "Sampul kelas yang digambar otomatis tidak lagi bergaya piksel 16-bit. Sekarang bentuk geometris tipis — lingkaran orbit, kisi, batang, simpul — dengan satu titik emas di tiap sampul. Tetap dibuat dari nama kelasnya, jadi kelas baru tetap dapat sampul sendiri tanpa kamu perlu mengunggah apa pun.",
+      "Ilustrasi piksel TIDAK dihapus. Ia masih memegang gambar besar di halaman depan, halaman 404, halaman offline, dan semua layar kosong — di sana ukurannya 96px ke atas dan ia memang terbaca sebagai ilustrasi.",
+      "Yang diganti adalah yang kecil: gambar 56px di kartu \"Tiga cara mulai\" dan di Beranda. Diperiksa di browser pada ukuran aslinya, dua di antaranya cuma noda coklat dan api unggun yang lumer. Sekarang ikon garis dalam bingkai emas, terbaca di ukuran apa pun.",
+    ],
+  },
+  {
+    date: "2026-08-14",
     version: "v5.1",
     title: "Warna garis tepi akhirnya muncul, dan sudutnya benar-benar membulat",
     tags: ["Perbaikan", "Tampilan"],

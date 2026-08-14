@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { ART_SIZE } from "@/lib/art";
+import { ArrowRight, Compass, Map, MessagesSquare } from "lucide-react";
 import { api } from "@convex/_generated/api";
 import { safeQuery } from "@/lib/convex-server";
 import { DEFAULT_COMMUNITY_SLUG, communityHref } from "@/lib/community";
@@ -33,39 +32,42 @@ export const metadata: Metadata = {
   // card, which is how /diskusi and /komunitas ended up unfurling bare.
 };
 
-// Art instead of a 20px lucide glyph, for the one reason that justifies the
-// extra bytes: these three cards ARE the page's navigation, and a 20px outline
-// icon reads as decoration next to a two-line heading. At 56px the picture is
-// the thing the eye lands on and the heading answers it.
+// A FRAMED ICON, not a sprite. The earlier note here argued that 56px art
+// beats "a 20px lucide glyph that reads as decoration"; the argument was sound
+// and the premise was not, because it was never checked at 56px. Rendered at
+// the size these cards actually use, `discovery.webp` is a brown smudge and
+// `roadmap-path.webp` is a few faint dots — the picture the eye was supposed to
+// land on is not legible enough to land on. In an accent tile a 20px glyph is
+// not decoration: the tile is the mass, the glyph is the subject, and it reads
+// at any size.
 //
-// Three separate 5-8 KB requests rather than one sprite sheet: HTTP/2 makes the
-// per-request cost negligible, and a sheet would mean a CSS offset table to
-// maintain for three images.
-//
-// THE ART HERE IS PICKED FOR ITS ALPHA, NOT ONLY ITS SUBJECT. These sit on
-// `bg-card` (#0f1626), a lighter surface than `--background` (#090f1c), so any
-// residual baked field shows as a box. `telescope` and `exploration` paint a
-// GRADIENT night sky and `map` a painted sky, so the border-seeded flood fill in
-// scripts/normalise-art-pack.mjs stops partway and leaves one — verified by
-// rendering every candidate on the exact card colour. These three come out
-// clean. Check the same way before swapping one.
+// The pixel art is NOT retired wholesale. It still carries the hero below, the
+// 404/offline banner, and every empty state — all of them at 96px or more,
+// where it is an illustration rather than an icon. That is the line: sprites
+// illustrate, Lucide labels.
+
+/** The framed accent tile every card mark sits in. Same idiom as
+ *  slices/peta/components/peta-callout.tsx. */
+const TILE =
+  "grid size-11 shrink-0 place-items-center rounded-[var(--radius)] border border-primary/40 bg-primary/10 text-primary";
+
 const STEPS = [
   {
-    art: "/ui/empty/discovery.webp",
+    icon: Compass,
     title: "Belum tahu mau mulai dari mana?",
     body: "Jawab beberapa kartu tentang pekerjaan, waktu, dan budgetmu. Keluar dengan dua sampai tiga rencana belajar, bukan satu daftar panjang.",
     href: "/mulai",
     cta: "Buka peta belajar",
   },
   {
-    art: "/ui/spot/roadmap-path.webp",
+    icon: Map,
     title: "Sudah tahu arahnya?",
     body: "Roadmap menunjukkan seluruh jalur sekaligus — dari nol sampai menjalankan beberapa agent AI untuk satu proyek.",
     href: "/roadmap",
     cta: "Lihat roadmap",
   },
   {
-    art: "/ui/empty/diskusi.webp",
+    icon: MessagesSquare,
     title: "Belajar sendirian itu berat.",
     body: "Tanya, pamerkan hasil, dan bagikan sumber di Diskusi. Semua materi terbuka begitu kamu gabung — gratis, selamanya.",
     href: communityHref.diskusi(DEFAULT_COMMUNITY_SLUG),
@@ -153,18 +155,9 @@ export default async function LandingPage() {
         <ul className="mt-5 grid gap-3 md:grid-cols-3">
           {STEPS.map((step) => (
             <li key={step.href} className="flex flex-col rounded-[var(--radius)] border border-border bg-card p-5">
-              {/* eslint-disable-next-line @next/next/no-img-element -- committed
-                  static asset under 8 KB; the optimiser would add a pass for
-                  nothing. */}
-              <img
-                src={step.art}
-                alt=""
-                width={ART_SIZE.card}
-                height={ART_SIZE.card}
-                loading="lazy"
-                decoding="async"
-                className="pixelated size-14 object-contain"
-              />
+              <span className={TILE}>
+                <step.icon className="size-5" aria-hidden />
+              </span>
               <h3 className="mt-3 text-balance text-title font-medium">{step.title}</h3>
               <p className="mt-2 flex-1 text-pretty text-footnote text-muted-foreground">
                 {step.body}

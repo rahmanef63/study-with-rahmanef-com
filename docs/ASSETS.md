@@ -268,12 +268,25 @@ rendering the output on `#090f1c` — no residual box on any of the 16 checked.
 | Path | Surface |
 |---|---|
 | `/web/banner-skyline.webp` | `app/not-found.tsx` · `app/offline/page.tsx` · `sw.js` PRECACHE+CACHEABLE. Replaced `ui/404.webp` and `ui/offline.webp`; both deleted; `VERSION` → `v4`. |
-| `/ui/empty/discovery.webp` | `app/(shell)/page.tsx` — "Tiga cara mulai" card 1 (→ `/mulai`). Was a 20px lucide `Compass`. **Not `telescope.webp`** — an earlier draft of this row said so and was wrong; telescope and map both keep a gradient sky that survives the flood fill and shows as a box on `bg-card`. |
-| `/ui/spot/roadmap-path.webp` | same section, card 2 (→ `/roadmap`). Was `Map`. |
-| `/ui/empty/diskusi.webp` | same section, card 3 (→ Diskusi). Was `MessagesSquare`. |
+| `/ui/empty/discovery.webp` | `app/_components/beranda-view.tsx` — "Belum gabung komunitas". **Not `telescope.webp`** — an earlier draft of this row said so and was wrong; telescope and map both keep a gradient sky that survives the flood fill and shows as a box on `bg-card`. |
+| `/ui/empty/diskusi.webp` | `slices/posts/views/feed-view.tsx` — "Belum ada diskusi". |
+| `/ui/empty/anggota.webp` | `app/_components/masuk-card.tsx`. |
+| `/ui/empty/courses.webp` · `/ui/empty/statistik.webp` · `/ui/spot/{ai-brain,code-document,graduation,mobile-rocket,web-design}.webp` | `lib/peta/paths.ts` — one per learning path, rendered on `/roadmap` and in the peta result. Subject-specific, so a generic glyph would lose the distinction. |
 | `/ui/status/waiting.webp` | `app/(shell)/komunitas/page.tsx` — "Belum ada komunitas aktif". An hourglass is what "sedang dikurasi" means. |
 | `/ui/empty/kalender.webp` | `app/k/[slug]/kalender/page.tsx` — "Belum ada sesi terjadwal". |
 | `/learning/badge/trophy.webp` | `app/k/[slug]/peringkat/…/papan-skor.tsx` — "Belum ada skor". |
+
+**Where the sprites stopped.** The "Tiga cara mulai" cards on `/` and the explore cards on `/home`
+used to render `discovery` / `roadmap-path` / `diskusi` / `anggota` at **56px**, and the Beranda stat
+row rendered `courses` / `trophy` / `community` at **44px**. Rendered at those sizes — checked in a
+browser, which is the only way this is ever caught — `discovery` is a brown smudge and `anggota` is a
+dashed speech bubble over a campfire that collapses into noise. They are framed Lucide glyphs now.
+**The line: a sprite illustrates at ≥96px, Lucide labels below that.** Everything in the table above
+is at 96px or more, or is a subject a glyph cannot name.
+
+That leaves `/ui/spot/roadmap-path.webp` and `/learning/badge/community.webp` with no call site.
+Parked rather than deleted — they are legible art, and the next surface that needs a 96px
+illustration should reach for them before commissioning anything.
 
 `EmptyArt` (in `components/ui/empty.tsx`) is the shared seam. It renders into `variant="default"`,
 which already centres an unconstrained child — **no `illustration` variant had to be invented**, and

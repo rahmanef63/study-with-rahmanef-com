@@ -1,178 +1,149 @@
-// courses slice — the six cabinet-art COMPOSITIONS. Each painter fills a
-// 24x12 grid with palette slots (see cover-art.ts PALETTE):
-//   0 sky/base · 1 far haze · 2 mid ink · 3 near ink · 4 accent dim
-//   5 accent · 6 coin highlight · 7 spark (foreground)
-// The hash picks the composition, so six courses are six different SCENES,
-// not six colourways of one image.
-import {
-  COVER_H,
-  COVER_W,
-  clamp,
-  fillColumnDown,
-  fillDisc,
-  fillRect,
-  setCell,
-  type Grid,
-} from "./cover-grid";
+// courses slice — the six cover COMPOSITIONS, drawn as vector geometry on the
+// 96x48 canvas from cover-seed.ts.
+//
+// These replaced six pixel-art scenes (a sunset ridge, a starfield, a circuit
+// board, a skyline, waves, a dungeon) that were right for the arcade skin and
+// wrong for what replaced it: with the chrome on Sora, hairlines and soft
+// corners, nine chunky 16-bit scenes in a grid were the loudest thing left on
+// the page. Same contract as before — the hash picks the composition, so six
+// courses are six different MARKS, not six colourways of one image.
+//
+// EVERY COMPOSITION IS CENTRE-SAFE. course-cover.tsx slices instead of
+// stretching, so a 36px square box shows only x ∈ [24, 72]. Nothing that
+// carries the identity may sit outside that band; the wide box gets the same
+// mark with more air around it, which is the point.
+import { COVER_H, COVER_W, box, circle, n, type Painter } from "./cover-seed";
 
-type Painter = (g: Grid, rand: () => number) => void;
+const CX = COVER_W / 2;
+const CY = COVER_H / 2;
 
-/** Height profile of a mountain range: overlapping triangles, so the ridge is
- *  jagged and readable instead of the plateau a random walk produces. */
-function ridgeLine(rand: () => number, peaks: number, min: number, max: number): number[] {
-  const tops = Array.from({ length: peaks }, () => ({
-    x: Math.floor(rand() * COVER_W),
-    h: min + Math.floor(rand() * (max - min + 1)),
+/** Concentric rings with one lit node on the outer orbit. */
+const orbit: Painter = (rand, ink) => {
+  const rings = 3 + Math.floor(rand() * 2);
+  const step = 5.5 + rand() * 1.5;
+  const layers = Array.from({ length: rings }, (_, i) => ({
+    d: circle(CX, CY, 6.5 + i * step),
+    stroke: ink.a,
+    opacity: 0.5 - i * 0.09,
+    width: 1,
   }));
-  return Array.from({ length: COVER_W }, (_, x) =>
-    tops.reduce((best, p) => Math.max(best, p.h - Math.abs(x - p.x)), 0),
-  );
-}
-
-/** Sunset ridge — slitted retro sun, two ranges, perspective grid floor. */
-const ridge: Painter = (g, rand) => {
-  // Every dial here is randomised, not just the hue: with only six
-  // compositions a six-course grid WILL draw the same one twice, and two
-  // identical ridges in different colours is the failure this art exists to
-  // avoid. Horizon, star sky, sun size, range count and grid pitch all move.
-  const horizon = 6 + Math.floor(rand() * 3);
-  fillRect(g, 0, horizon - 2, COVER_W, 2, 1);
-  if (rand() < 0.5) {
-    for (let i = 0; i < 8; i += 1) {
-      setCell(g, Math.floor(rand() * COVER_W), Math.floor(rand() * (horizon - 2)), 7);
-    }
-  }
-  const sunR = 1 + Math.floor(rand() * 3);
-  const sunX = 3 + Math.floor(rand() * 18);
-  const sunY = clamp(horizon - 3 - sunR, 1, COVER_H - 1);
-  fillDisc(g, sunX, sunY, sunR, 6);
-  for (let k = 1; k <= sunR; k += 2) fillRect(g, sunX - sunR, sunY + k, sunR * 2 + 1, 1, 0);
-  const back = ridgeLine(rand, 2 + Math.floor(rand() * 3), 2, horizon - 1);
-  const front = rand() < 0.75 ? ridgeLine(rand, 1 + Math.floor(rand() * 3), 1, horizon - 2) : null;
-  for (let x = 0; x < COVER_W; x += 1) {
-    if (back[x] > 0) fillRect(g, x, horizon - back[x], 1, back[x], 2);
-    if (front !== null && front[x] > 0) fillRect(g, x, horizon - front[x], 1, front[x], 3);
-  }
-  // Synthwave floor: a DARK plane scored by a glowing grid. (A bright floor
-  // with darker gaps reads as a fence, not a horizon — checked on screen.)
-  fillRect(g, 0, horizon, COVER_W, COVER_H - horizon, 1);
-  const pitch = 3 + Math.floor(rand() * 3);
-  for (let x = Math.floor(rand() * pitch); x < COVER_W; x += pitch) {
-    fillColumnDown(g, x, horizon, 4);
-  }
-  fillRect(g, 0, horizon + 3, COVER_W, 1, 4);
-  fillRect(g, 0, horizon, COVER_W, 1, 5);
+  // The node rides the SECOND ring, not the outermost. The outer ring is
+  // allowed to run off the wide canvas and be cropped — a ring bleeding past
+  // the edge still reads as a ring — but the accent is the identity, and at
+  // rings=4 the outer orbit reaches x=75, outside the centre-safe band.
+  const orbitR = 6.5 + step;
+  const angle = rand() * Math.PI * 2;
+  return [
+    ...layers,
+    { d: circle(CX, CY, 3.2), fill: ink.b, opacity: 0.9 },
+    {
+      d: circle(CX + Math.cos(angle) * orbitR, CY + Math.sin(angle) * orbitR, 2),
+      fill: ink.accent,
+      opacity: 0.95,
+    },
+  ];
 };
 
-/** Deep space — nebula, stars, a crescent-lit planet and one comet. */
-const starfield: Painter = (g, rand) => {
-  const nx = Math.floor(rand() * COVER_W);
-  fillDisc(g, nx, 3 + Math.floor(rand() * 6), 4, 1);
-  fillDisc(g, nx + 2, 4 + Math.floor(rand() * 4), 2, 2);
-  for (let i = 0; i < 26; i += 1) {
-    setCell(g, Math.floor(rand() * COVER_W), Math.floor(rand() * COVER_H), rand() < 0.25 ? 6 : 7);
-  }
-  const cx = 5 + Math.floor(rand() * 15);
-  const cy = 5 + Math.floor(rand() * 3);
-  fillDisc(g, cx, cy, 3, 5);
-  fillDisc(g, cx - 1, cy - 1, 3, 4);
-  const cometX = 2 + Math.floor(rand() * 5);
-  for (let i = 0; i < 3; i += 1) setCell(g, cometX + i, 2 - i + 2, 6);
-  setCell(g, cometX + 3, 1, 7);
+/** A hairline lattice with two cells filled in. */
+const lattice: Painter = (rand, ink) => {
+  const step = rand() < 0.5 ? 8 : 6;
+  let d = "";
+  for (let x = step; x < COVER_W; x += step) d += `M${n(x)} 0V${COVER_H}`;
+  for (let y = step; y < COVER_H; y += step) d += `M0 ${n(y)}H${COVER_W}`;
+  const cell = (i: number) => {
+    const cols = Math.floor(24 / step);
+    const rows = Math.floor(COVER_H / step);
+    const c = Math.floor(rand() * cols) * step + (CX - 24 + i * step);
+    const r = Math.floor(rand() * rows) * step;
+    return box(c, r, step, step);
+  };
+  return [
+    { d, stroke: ink.a, opacity: 0.2, width: 1 },
+    { d: cell(0), fill: ink.b, opacity: 0.55 },
+    { d: cell(1), fill: ink.accent, opacity: 0.85 },
+  ];
 };
 
-/** Circuit board — traces, vias and one chip. Reads as "the machine". */
-const circuit: Painter = (g, rand) => {
-  for (let y = 0; y < COVER_H; y += 1) {
-    for (let x = 0; x < COVER_W; x += 1) if ((x * 5 + y * 3) % 11 === 0) setCell(g, x, y, 2);
-  }
-  for (let i = 0; i < 3; i += 1) {
-    const row = 1 + Math.floor(rand() * (COVER_H - 2));
-    fillRect(g, 0, row, COVER_W, 1, 5);
-    const branch = 2 + Math.floor(rand() * (COVER_W - 4));
-    const dir = rand() < 0.5 ? -1 : 1;
-    for (let k = 1; k <= 3; k += 1) setCell(g, branch, row + k * dir, 5);
-    setCell(g, branch, row + 4 * dir, 6);
-    setCell(g, 0, row, 6);
-    setCell(g, COVER_W - 1, row, 6);
-  }
-  const chipX = 4 + Math.floor(rand() * 12);
-  const chipY = 3 + Math.floor(rand() * 4);
-  fillRect(g, chipX, chipY, 5, 4, 3);
-  fillRect(g, chipX + 1, chipY + 1, 3, 2, 2);
-  for (let k = 0; k < 5; k += 2) {
-    setCell(g, chipX + k, chipY - 1, 6);
-    setCell(g, chipX + k, chipY + 4, 6);
-  }
+/** Nested quarter arcs, like a signal sweeping out from one corner. */
+const sweep: Painter = (rand, ink) => {
+  const arcs = 3 + Math.floor(rand() * 2);
+  const flip = rand() < 0.5 ? 1 : -1;
+  const gap = 4.5 + rand() * 2;
+  const layers = Array.from({ length: arcs }, (_, i) => {
+    const r = 7 + i * gap;
+    const x0 = CX - r * flip;
+    return {
+      d: `M${n(x0)} ${n(CY)}A${n(r)} ${n(r)} 0 0 ${flip > 0 ? 1 : 0} ${n(CX)} ${n(CY - r)}`,
+      stroke: i === arcs - 1 ? ink.b : ink.a,
+      opacity: 0.6 - i * 0.1,
+      width: 1,
+    };
+  });
+  return [...layers, { d: box(CX - 1.5, CY - 1.5, 3, 3), fill: ink.accent, opacity: 0.95 }];
 };
 
-/** Night skyline — DARK towers, lit windows. The "kota" scene. The towers are
- *  silhouettes on purpose: bright towers swallow the windows, and the windows
- *  are the only part of this scene that says "a city at night". */
-const skyline: Painter = (g, rand) => {
-  fillDisc(g, rand() < 0.5 ? 3 : COVER_W - 4, 2, 2, 6);
-  for (let i = 0; i < 10; i += 1) {
-    setCell(g, Math.floor(rand() * COVER_W), Math.floor(rand() * 4), 7);
-  }
-  let x = 0;
-  while (x < COVER_W) {
-    const bw = 2 + Math.floor(rand() * 2);
-    const bh = 3 + Math.floor(rand() * 5);
-    fillRect(g, x, COVER_H - bh, bw, bh, rand() < 0.5 ? 1 : 2);
-    if (rand() < 0.6) fillRect(g, x, COVER_H - bh, bw, 1, 4);
-    for (let wy = COVER_H - bh + 1; wy < COVER_H - 1; wy += 2) {
-      for (let wx = x + 1; wx < x + bw; wx += 2) {
-        if (rand() < 0.65) setCell(g, wx, wy, rand() < 0.3 ? 7 : 6);
-      }
-    }
-    x += bw;
-  }
-  fillRect(g, 0, COVER_H - 1, COVER_W, 1, 5);
+/** An equaliser: upright bars on a shared baseline, one of them lit. */
+const bars: Painter = (rand, ink) => {
+  const count = 5 + Math.floor(rand() * 3);
+  const w = 4;
+  const gap = 2;
+  const span = count * w + (count - 1) * gap;
+  const x0 = CX - span / 2;
+  const base = CY + 15;
+  const lit = Math.floor(rand() * count);
+  return Array.from({ length: count }, (_, i) => {
+    const h = 7 + rand() * 22;
+    return {
+      d: box(x0 + i * (w + gap), base - h, w, h),
+      fill: i === lit ? ink.accent : i % 2 === 0 ? ink.a : ink.b,
+      opacity: i === lit ? 0.95 : 0.35 + (i % 2) * 0.25,
+    };
+  });
 };
 
-/** Ocean bands — stacked sine crests, back to front. The only curved scene. */
-const waves: Painter = (g, rand) => {
-  fillRect(g, 0, 0, COVER_W, 2, 1);
-  fillDisc(g, 3 + Math.floor(rand() * 18), 2, 1, 6);
-  const phase = rand() * 6;
-  const slots = [1, 2, 4, 5];
-  for (let layer = 0; layer < slots.length; layer += 1) {
-    for (let x = 0; x < COVER_W; x += 1) {
-      const wobble = 1.2 * Math.sin((x + phase + layer * 5) / (2.6 + layer * 0.4));
-      const y = clamp(3 + Math.round(layer * 2.2 + wobble), 0, COVER_H - 1);
-      fillColumnDown(g, x, y, slots[layer]);
-      // Foam only on the near bands — a crest on every band is noise.
-      if (layer === 3 || (layer === 2 && x % 2 === 0)) setCell(g, x, y, 6);
-    }
-  }
+/** A short path through connected nodes. */
+const nodes: Painter = (rand, ink) => {
+  const count = 4 + Math.floor(rand() * 3);
+  const pts = Array.from({ length: count }, (_, i) => ({
+    x: CX - 20 + (i * 40) / (count - 1),
+    y: CY - 13 + rand() * 26,
+  }));
+  const edges = pts.map((p, i) => `${i === 0 ? "M" : "L"}${n(p.x)} ${n(p.y)}`).join("");
+  const lit = Math.floor(rand() * count);
+  return [
+    { d: edges, stroke: ink.a, opacity: 0.55, width: 1 },
+    {
+      d: pts.filter((_, i) => i !== lit).map((p) => circle(p.x, p.y, 2.2)).join(""),
+      fill: ink.b,
+      opacity: 0.9,
+    },
+    { d: circle(pts[lit]!.x, pts[lit]!.y, 3), fill: ink.accent, opacity: 0.95 },
+  ];
 };
 
-/** Dungeon map — blocky maze, a coin and a gem. The "quest" scene. */
-const dungeon: Painter = (g, rand) => {
-  for (let y = 1; y < COVER_H - 1; y += 2) {
-    for (let x = 1; x < COVER_W - 1; x += 2) setCell(g, x, y, 1);
-  }
-  fillRect(g, 0, 0, COVER_W, 1, 2);
-  fillRect(g, 0, COVER_H - 1, COVER_W, 1, 2);
-  fillRect(g, 0, 0, 1, COVER_H, 2);
-  fillRect(g, COVER_W - 1, 0, 1, COVER_H, 2);
-  for (let by = 2; by < COVER_H - 2; by += 3) {
-    for (let bx = 2; bx < COVER_W - 2; bx += 3) {
-      if (rand() < 0.45) fillRect(g, bx, by, 2, 2, rand() < 0.5 ? 3 : 4);
-      else if (rand() < 0.4) setCell(g, bx, by, 2);
-    }
-  }
-  for (let x = 2; x < COVER_W - 2; x += 2) setCell(g, x, COVER_H - 2, 5);
-  fillDisc(g, 3 + Math.floor(rand() * 8), 3 + Math.floor(rand() * 5), 1, 6);
-  setCell(g, COVER_W - 4 - Math.floor(rand() * 6), 2 + Math.floor(rand() * 7), 7);
+/** Nested chevrons — direction, without an arrowhead. */
+const chevron: Painter = (rand, ink) => {
+  const count = 3 + Math.floor(rand() * 2);
+  const gap = 5 + rand() * 2;
+  const up = rand() < 0.5;
+  const half = 11;
+  return Array.from({ length: count }, (_, i) => {
+    const x = CX - (count - 1) * gap * 0.5 + i * gap;
+    const tip = up ? CY - half : CY + half;
+    return {
+      d: `M${n(x - half * 0.75)} ${n(up ? CY + half * 0.4 : CY - half * 0.4)}L${n(x)} ${n(tip)}L${n(x + half * 0.75)} ${n(up ? CY + half * 0.4 : CY - half * 0.4)}`,
+      stroke: i === count - 1 ? ink.accent : i % 2 === 0 ? ink.a : ink.b,
+      opacity: i === count - 1 ? 0.9 : 0.5,
+      width: 1,
+    };
+  });
 };
 
-/** Ordered — the hash indexes this list, so the mapping is frozen. */
 export const COVER_PATTERNS: ReadonlyArray<{ name: string; paint: Painter }> = [
-  { name: "ridge", paint: ridge },
-  { name: "starfield", paint: starfield },
-  { name: "circuit", paint: circuit },
-  { name: "skyline", paint: skyline },
-  { name: "waves", paint: waves },
-  { name: "dungeon", paint: dungeon },
+  { name: "orbit", paint: orbit },
+  { name: "lattice", paint: lattice },
+  { name: "sweep", paint: sweep },
+  { name: "bars", paint: bars },
+  { name: "nodes", paint: nodes },
+  { name: "chevron", paint: chevron },
 ];

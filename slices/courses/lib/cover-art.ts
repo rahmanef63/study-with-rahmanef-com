@@ -1,4 +1,4 @@
-// courses slice — procedural cabinet art for a course with no coverImageUrl.
+// courses slice — procedural art for a course with no coverImageUrl.
 //
 // WHY: production courses have no cover, so every card fell back to a grey
 // checkerboard — the store screenshot advertised an unfinished product. This
@@ -7,26 +7,34 @@
 // with zero setup.
 //
 // Colours are CSS custom properties (never hex), so the art re-tints with the
-// theme. Output is a handful of merged <path> strings — never one element per
-// pixel — because six of these render behind a grid on a mid-range Android.
-import { COVER_H, COVER_W, hashSlug, makeGrid, makeRandom } from "./cover-grid";
+// theme. Output is a handful of <path> strings — never one element per pixel —
+// because six of these render behind a grid on a mid-range Android.
+//
+// WAS PIXEL ART, on a 24x12 whole-pixel grid with a greedy rectangle merge to
+// keep the path count down. The skin it belonged to was retired in 3e64bda and
+// the covers were the loudest thing left; the grid, its rasterisers and the
+// merge are all gone with it. The contract did not change: same slug, same art,
+// tokens only, few paths.
+import { COVER_H, COVER_W, hashSlug, makeRandom, type CoverLayer } from "./cover-seed";
 import { COVER_PATTERNS } from "./cover-patterns";
 
-export type CoverLayer = { fill: string; opacity: number; d: string };
+export type { CoverLayer } from "./cover-seed";
+
 export type CoverArt = {
   /** Composition name — useful for debugging and tests, not rendered. */
   pattern: string;
   width: number;
   height: number;
-  /** Full-bleed sky behind every layer. */
+  /** Full-bleed field behind every layer. */
   base: string;
+  /** The wash over the base: one ink fading to nothing across `angle` degrees. */
+  wash: { ink: string; angle: number };
   layers: CoverLayer[];
 };
 
-/** The sprite ramp. --chart-3 is deliberately absent: it holds the same value
- *  as --primary, which every composition reserves as its coin-gold HIGHLIGHT,
- *  so allowing it as a scene ink produced gold-on-gold covers. Four inks x the
- *  three partners each can take = 12 palettes across 6 compositions. */
+/** The scene ramp. --chart-3 is deliberately absent: it holds the same value
+ *  as --primary, which every composition reserves as its single ACCENT, so
+ *  allowing it as a scene ink produced accent-on-accent covers. */
 const INKS = [
   "var(--chart-1)",
   "var(--chart-2)",
@@ -34,46 +42,7 @@ const INKS = [
   "var(--chart-5)",
 ] as const;
 
-/** Slot -> ink + opacity. Index 0 is the base and is drawn as one rect. */
-function palette(inkA: string, inkB: string): ReadonlyArray<[string, number]> {
-  return [
-    ["var(--background)", 1],
-    [inkA, 0.18],
-    [inkA, 0.45],
-    [inkA, 1],
-    [inkB, 0.45],
-    [inkB, 1],
-    ["var(--primary)", 1],
-    ["var(--foreground)", 0.9],
-  ];
-}
-
-/** Greedy rectangle merge: whole-pixel cells collapse into as few boxes as
- *  possible, so a solid sky costs one `M` command instead of 288. */
-function toPath(grid: Uint8Array, slot: number, used: Uint8Array): string {
-  let d = "";
-  for (let y = 0; y < COVER_H; y += 1) {
-    for (let x = 0; x < COVER_W; x += 1) {
-      const i = y * COVER_W + x;
-      if (grid[i] !== slot || used[i] === 1) continue;
-      let w = 1;
-      while (x + w < COVER_W && grid[i + w] === slot && used[i + w] === 0) w += 1;
-      let h = 1;
-      grow: while (y + h < COVER_H) {
-        for (let k = 0; k < w; k += 1) {
-          const j = (y + h) * COVER_W + x + k;
-          if (grid[j] !== slot || used[j] === 1) break grow;
-        }
-        h += 1;
-      }
-      for (let dy = 0; dy < h; dy += 1) {
-        for (let dx = 0; dx < w; dx += 1) used[(y + dy) * COVER_W + x + dx] = 1;
-      }
-      d += `M${x} ${y}h${w}v${h}h-${w}z`;
-    }
-  }
-  return d;
-}
+const WASH_ANGLES = [90, 135, 180, 225] as const;
 
 const cache = new Map<string, CoverArt>();
 
@@ -84,27 +53,24 @@ export function coverArt(slug: string): CoverArt {
 
   const h = hashSlug(slug);
   const a = h % INKS.length;
+  // +1 so the partner is never the same ink: a two-ink composition drawn in one
+  // colour is a one-ink composition with extra steps.
   const b = (a + 1 + ((h >>> 8) % (INKS.length - 1))) % INKS.length;
-  const slots = palette(INKS[a], INKS[b]);
-  const pattern = COVER_PATTERNS[(h >>> 11) % COVER_PATTERNS.length];
-
-  const grid = makeGrid();
-  pattern.paint(grid, makeRandom(h));
-
-  const used = new Uint8Array(COVER_W * COVER_H);
-  const layers: CoverLayer[] = [];
-  for (let slot = 1; slot < slots.length; slot += 1) {
-    const d = toPath(grid, slot, used);
-    if (d !== "") layers.push({ fill: slots[slot][0], opacity: slots[slot][1], d });
-  }
+  const pattern = COVER_PATTERNS[(h >>> 11) % COVER_PATTERNS.length]!;
 
   const art: CoverArt = {
     pattern: pattern.name,
     width: COVER_W,
     height: COVER_H,
-    base: slots[0][0],
-    layers,
+    base: "var(--background)",
+    wash: { ink: INKS[a]!, angle: WASH_ANGLES[(h >>> 17) % WASH_ANGLES.length]! },
+    layers: pattern.paint(makeRandom(h), {
+      a: INKS[a]!,
+      b: INKS[b]!,
+      accent: "var(--primary)",
+    }),
   };
+
   // Bounded so a long-lived server process can't grow this without limit.
   if (cache.size > 96) cache.clear();
   cache.set(slug, art);
