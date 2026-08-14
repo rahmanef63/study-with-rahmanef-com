@@ -36,7 +36,7 @@ import { ACCOUNT_LINKS, profileLink } from "./nav-model";
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "./sidebar-menu";
 
 const TRIGGER =
-  "pixel-press flex min-h-11 w-full items-center gap-2.5 border-2 border-transparent px-2 text-left transition-colors hover:bg-muted/50 md:min-h-10";
+  "pixel-press flex min-h-11 w-full items-center gap-2.5 border border-transparent px-2 text-left transition-colors hover:bg-muted/50 md:min-h-10";
 
 export function SidebarUser({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();

@@ -28,7 +28,7 @@ export function LevelChip({ level, className }: { level: number; className?: str
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center border px-1.5 py-1 font-display text-[0.5rem] uppercase leading-none tracking-wider",
+        "inline-flex shrink-0 items-center border px-1.5 py-1 font-display text-caption uppercase leading-none tracking-wider",
         levelTone(level),
         className
       )}

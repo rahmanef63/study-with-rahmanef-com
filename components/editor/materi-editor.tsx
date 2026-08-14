@@ -47,7 +47,7 @@ export function MateriEditor({ lessonId }: { lessonId: Id<"lessons"> }) {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="flex items-center justify-between gap-3 border-b-2 border-border px-4 py-2">
+      <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-2">
         <span className="font-display text-[10px] uppercase tracking-wide">Editor materi</span>
         <span
           aria-live="polite"

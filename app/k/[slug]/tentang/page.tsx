@@ -51,7 +51,7 @@ async function TentangBody({ slug }: { slug: string }) {
   ]);
   if (tenant === null) {
     return (
-      <p className="border-2 border-dashed bg-muted/30 px-4 py-6 text-center text-sm text-muted-foreground">
+      <p className="border border-dashed bg-muted/30 px-4 py-6 text-center text-sm text-muted-foreground">
         Profil komunitas belum bisa dimuat. Coba muat ulang sebentar lagi.
       </p>
     );
@@ -67,7 +67,7 @@ async function TentangBody({ slug }: { slug: string }) {
       <CourseCover
         slug={tenant.slug}
         src={tenant.coverImageUrl}
-        className="hidden h-40 w-full border-2 border-border @md:block @md:h-56"
+        className="hidden h-40 w-full border border-border @md:block @md:h-56"
       />
 
       <div className="space-y-3">

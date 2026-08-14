@@ -89,7 +89,7 @@ export function SwipeCard({ card, position, total, reducedMotion, onDecide }: Sw
         // must track it exactly — a transition there feels like lag, not polish.
         transition: dragging.current || reducedMotion ? undefined : "transform 140ms steps(4, end)",
       }}
-      className="relative select-none border-2 border-border bg-card p-5 shadow-[4px_4px_0_0_var(--pixel-shadow)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+      className="relative select-none rounded-[var(--radius)] border border-border bg-card p-5 shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
     >
       <div className="flex items-center justify-between gap-2">
         <span className="eyebrow">{TIER_LABEL[card.tier]}</span>
@@ -105,14 +105,14 @@ export function SwipeCard({ card, position, total, reducedMotion, onDecide }: Sw
       <span
         aria-hidden
         style={{ opacity: Math.max(0, lean) }}
-        className="pointer-events-none absolute right-3 top-3 border-2 border-success px-2 py-1 font-display text-caption text-success"
+        className="pointer-events-none absolute right-3 top-3 border border-success px-2 py-1 font-display text-caption text-success"
       >
         TAHU
       </span>
       <span
         aria-hidden
         style={{ opacity: Math.max(0, -lean) }}
-        className="pointer-events-none absolute left-3 top-3 border-2 border-destructive px-2 py-1 font-display text-caption text-destructive-text"
+        className="pointer-events-none absolute left-3 top-3 border border-destructive px-2 py-1 font-display text-caption text-destructive-text"
       >
         BELUM
       </span>

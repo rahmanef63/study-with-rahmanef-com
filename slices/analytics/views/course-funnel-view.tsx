@@ -77,7 +77,7 @@ export function CourseFunnelView({
       {steps.length === 0 || ends.started === 0 ? (
         // Zero readers is not an error and not a chart. Say it plainly — this
         // is the state every course is in on the day view counting ships.
-        <p className="border-2 border-border bg-card px-3 py-4 text-footnote text-muted-foreground">
+        <p className="rounded-[var(--radius)] border border-border bg-card px-3 py-4 text-footnote text-muted-foreground">
           {copy.emptyFunnel}
         </p>
       ) : (
@@ -85,7 +85,7 @@ export function CourseFunnelView({
           {/* THE ANSWER, first. */}
           <div
             className={cn(
-              "space-y-1 border-2 px-3 py-3",
+              "space-y-1 border px-3 py-3",
               worst === null ? "border-border bg-card" : "border-destructive bg-destructive/5"
             )}
           >

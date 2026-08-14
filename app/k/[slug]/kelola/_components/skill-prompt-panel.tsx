@@ -56,7 +56,7 @@ export function SkillPromptPanel({ lessonId }: { lessonId: string }) {
   };
 
   return (
-    <details className="border border-border bg-card" open={stored === ""}>
+    <details className="rounded-[var(--radius)] border border-border bg-card" open={stored === ""}>
       <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 px-4 py-2 text-sm">
         <Badge icon={Sparkles} tone="primary">
           {copy.skillLabel}

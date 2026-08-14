@@ -16,9 +16,9 @@ export type PathCardProps = { path: RankedPath; rank: number };
 
 export function PathCard({ path, rank }: PathCardProps) {
   return (
-    <article className="border-2 border-border bg-card p-5 shadow-[3px_3px_0_0_var(--pixel-shadow)]">
+    <article className="rounded-[var(--radius)] border border-border bg-card p-5 shadow-sm">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center border-2 border-primary bg-primary/10 px-2 py-0.5 font-display text-caption text-primary">
+        <span className="inline-flex items-center border border-primary bg-primary/10 px-2 py-0.5 font-display text-caption text-primary">
           {rank === 1 ? "Paling cocok" : `Pilihan ${rank}`}
         </span>
         <span className="text-caption text-muted-foreground tabular-nums">
@@ -47,7 +47,7 @@ export function PathCard({ path, rank }: PathCardProps) {
           <li key={step} className="flex gap-3">
             <span
               aria-hidden
-              className="grid size-6 shrink-0 place-items-center border-2 border-border font-display text-[0.5rem] text-muted-foreground"
+              className="grid size-6 shrink-0 place-items-center border border-border font-display text-caption text-muted-foreground"
             >
               {i + 1}
             </span>
@@ -64,7 +64,7 @@ export function PathCard({ path, rank }: PathCardProps) {
               <li key={`${course.communitySlug}/${course.courseSlug}`}>
                 <Link
                   href={communityHref.course(course.communitySlug, course.courseSlug)}
-                  className="flex min-h-11 items-center gap-3 border-2 border-border px-3 py-2 text-footnote transition-colors duration-75 [transition-timing-function:steps(2,end)] hover:border-primary hover:text-primary focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
+                  className="flex min-h-11 items-center gap-3 border border-border px-3 py-2 text-footnote transition-colors duration-75 [transition-timing-function:steps(2,end)] hover:border-primary hover:text-primary focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
                 >
                   <span className="min-w-0 flex-1">{course.title}</span>
                   <span aria-hidden className="list-chevron shrink-0" />

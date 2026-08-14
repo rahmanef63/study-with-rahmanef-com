@@ -52,7 +52,7 @@ export function PostCard({
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <span
             className={cn(
-              "eyebrow border px-2 py-0.5 text-[10px]",
+              "eyebrow border px-2 py-0.5",
               postKindTone(post.kind)
             )}
           >

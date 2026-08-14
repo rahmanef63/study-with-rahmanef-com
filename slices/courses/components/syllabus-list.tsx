@@ -74,7 +74,7 @@ export function SyllabusList({
           const isDone = completed.has(lesson._id);
           const row = (
             <span className={ROW}>
-              <span className="w-6 shrink-0 text-right font-display text-[0.65rem] tabular-nums text-muted-foreground">
+              <span className="w-6 shrink-0 text-right font-display text-caption tabular-nums text-muted-foreground">
                 {String(index + 1).padStart(2, "0")}
               </span>
               {isDone ? (

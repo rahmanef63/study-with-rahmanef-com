@@ -43,11 +43,11 @@ export function InsetList({
       {caption ? (
         // Not `.eyebrow`: that utility hardcodes 0.75rem, which in Press Start
         // 2P reads as a heading and would out-shout the names underneath it.
-        <p className="pb-1.5 font-display text-[0.5625rem] uppercase tracking-[0.14em] text-muted-foreground">
+        <p className="pb-1.5 font-display text-caption uppercase tracking-[0.14em] text-muted-foreground">
           {caption}
         </p>
       ) : null}
-      <As className="divide-y divide-border border-2 border-border bg-card shadow-[3px_3px_0_0_var(--pixel-shadow)]">
+      <As className="divide-y divide-border rounded-[var(--radius)] border border-border bg-card shadow-sm">
         {children}
       </As>
       {footer ? (

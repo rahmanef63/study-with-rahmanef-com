@@ -46,7 +46,7 @@ export function GapsBlock({ gaps, communitySlug }: GapsBlockProps) {
         {gaps.map((gap) => {
           const reveal = conceptById(gap.concept)?.reveal;
           return (
-            <li key={gap.concept} className="border-2 border-border bg-card p-4">
+            <li key={gap.concept} className="rounded-[var(--radius)] border border-border bg-card p-4">
               <div className="flex flex-wrap items-baseline gap-2">
                 <h3 className="font-display text-caption uppercase">{gap.title}</h3>
                 <span className="text-caption text-muted-foreground">{TIER_LABEL[gap.tier]}</span>
@@ -66,7 +66,7 @@ export function GapsBlock({ gaps, communitySlug }: GapsBlockProps) {
               ) : (
                 <Link
                   href={communityHref.materiPage(gap.materi.communitySlug, gap.materi.materiSlug)}
-                  className="mt-3 flex min-h-11 items-center gap-3 border-2 border-border px-3 py-2 text-footnote transition-colors duration-75 [transition-timing-function:steps(2,end)] hover:border-primary hover:text-primary focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
+                  className="mt-3 flex min-h-11 items-center gap-3 border border-border px-3 py-2 text-footnote transition-colors duration-75 [transition-timing-function:steps(2,end)] hover:border-primary hover:text-primary focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
                 >
                   <span className="min-w-0 flex-1">{gap.materi.title}</span>
                   <span aria-hidden className="list-chevron shrink-0" />

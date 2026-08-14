@@ -42,7 +42,7 @@ export function Hero({
         "relative",
         gradient
           // Arcade marquee: hard frame + offset, never a soft gradient panel.
-          ? "border-2 border-border bg-card px-5 py-8 shadow-[4px_4px_0_0_var(--pixel-shadow)] @md:px-8 @md:py-10"
+          ? "rounded-[var(--radius)] border border-border bg-card px-5 py-8 shadow-md @md:px-8 @md:py-10"
           : "py-1",
         centered && "text-center",
         className,
@@ -89,7 +89,7 @@ export function SectionHeader({
         {As === "h2" ? (
           <h2 className="text-sm @md:text-base [overflow-wrap:anywhere]">{title}</h2>
         ) : (
-          <h3 className="font-display text-xs font-medium tracking-tight [overflow-wrap:anywhere]">{title}</h3>
+          <h3 className="font-display font-medium tracking-tight [overflow-wrap:anywhere]">{title}</h3>
         )}
       </div>
       {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
@@ -120,7 +120,7 @@ export function CommandSearch({
         onSubmit?.();
       }}
       className={cn(
-        "flex items-center gap-2.5 border-2 border-border bg-card px-4 py-3 text-sm transition-colors focus-within:border-primary",
+        "flex items-center gap-2.5 rounded-[var(--radius)] border border-border bg-card px-4 py-3 text-sm transition-colors focus-within:border-primary",
         className,
       )}
     >
@@ -157,7 +157,7 @@ export function QuickActionRow({ items, className }: { items: QuickAction[]; cla
           onClick={it.onClick}
           className="group flex w-[74px] shrink-0 flex-col items-center gap-1.5 focus-visible:outline-none"
         >
-          <span className="relative grid size-14 place-items-center border-2 border-border bg-card text-muted-foreground transition-colors group-hover:border-primary group-hover:text-primary group-focus-visible:ring-2 group-focus-visible:ring-ring">
+          <span className="relative grid size-14 place-items-center rounded-[var(--radius)] border border-border bg-card text-muted-foreground transition-colors group-hover:border-primary group-hover:text-primary group-focus-visible:ring-2 group-focus-visible:ring-ring">
             {it.icon}
             {it.badge ? (
               <span className="absolute -right-1 -top-1 bg-primary px-1.5 py-0.5 text-[8px] font-bold uppercase leading-none text-primary-foreground">
@@ -183,7 +183,7 @@ export function ViewToggle({
   onChange: (v: "list" | "grid") => void;
 }) {
   return (
-    <div className="inline-flex items-center border-2 border-border p-0.5">
+    <div className="inline-flex items-center border border-border p-0.5">
       {(["list", "grid"] as const).map((v) => (
         <button
           key={v}
@@ -223,7 +223,7 @@ export function FilterChip({
       className={cn(
         // min-h-11 on a phone: a 36px chip is under the 44px floor and these are the
         // primary filter on the most-tapped page in the app.
-        "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap border-2 px-3.5 py-1.5 text-[13px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring min-h-11 @sm:min-h-9",
+        "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap border px-3.5 py-1.5 text-[13px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring min-h-11 @sm:min-h-9",
         active
           ? "border-primary/40 bg-primary/10 text-primary"
           : "border-border text-muted-foreground hover:text-foreground",
@@ -252,7 +252,7 @@ export function StatTile({
   const inner = (
     <>
       {icon ? (
-        <span className="grid size-10 shrink-0 place-items-center border-2 border-primary/40 bg-primary/10 text-primary">
+        <span className="grid size-10 shrink-0 place-items-center border border-primary/40 bg-primary/10 text-primary">
           {icon}
         </span>
       ) : null}
@@ -265,7 +265,7 @@ export function StatTile({
     </>
   );
   const base =
-    "flex items-center gap-3.5 border-2 border-border bg-card p-4 text-left shadow-[3px_3px_0_0_var(--pixel-shadow)]";
+    "flex items-center gap-3.5 rounded-[var(--radius)] border border-border bg-card p-4 text-left shadow-sm";
   return onClick ? (
     <button
       type="button"

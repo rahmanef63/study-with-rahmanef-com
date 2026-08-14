@@ -31,7 +31,7 @@ export type AvatarPickerProps = {
 };
 
 const CELL =
-  "relative grid size-16 place-items-center border-2 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
+  "relative grid size-16 place-items-center border transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
 
 export function AvatarPicker({ value, onChange, name, className }: AvatarPickerProps) {
   const options = [{ path: "", label: "Tanpa foto — pakai inisial" }, ...BUNDLED_AVATARS];
@@ -77,7 +77,7 @@ export function AvatarPicker({ value, onChange, name, className }: AvatarPickerP
             className={cn(
               CELL,
               selected
-                ? "border-primary shadow-[3px_3px_0_0_var(--pixel-shadow)]"
+                ? "border-primary shadow-sm"
                 : "border-border hover:border-primary"
             )}
           >
@@ -93,7 +93,7 @@ export function AvatarPicker({ value, onChange, name, className }: AvatarPickerP
             {selected ? (
               <span
                 aria-hidden
-                className="absolute -right-1.5 -top-1.5 grid size-5 place-items-center border-2 border-primary bg-primary text-primary-foreground"
+                className="absolute -right-1.5 -top-1.5 grid size-5 place-items-center border border-primary bg-primary text-primary-foreground"
               >
                 <Check className="size-3" />
               </span>

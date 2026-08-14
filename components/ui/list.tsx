@@ -85,7 +85,7 @@ function List({
         // Phone: two rules, no side frame — the list belongs to the screen.
         "border-y-2",
         // Tablet+: a real group, framed like every other arcade surface.
-        "sm:border-2 sm:shadow-[3px_3px_0_0_var(--pixel-shadow)]",
+        "sm:border sm:shadow-sm",
         className
       )}
       {...props}

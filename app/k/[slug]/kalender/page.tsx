@@ -74,10 +74,10 @@ function KalenderKosong({ slug }: Params) {
   return (
     // No upcoming session is the NORMAL resting state of a small community, not
     // a failure — so this reads as a signpost, never as a broken page.
-    <Empty className="border-2 border-dashed">
+    <Empty className="border border-dashed">
       <EmptyHeader>
         <EmptyArt src="/ui/empty/kalender.webp" />
-        <EmptyTitle className="font-display text-xs uppercase">Belum ada sesi terjadwal</EmptyTitle>
+        <EmptyTitle className="font-display">Belum ada sesi terjadwal</EmptyTitle>
         <EmptyDescription className="text-pretty">
           Sesi live diumumkan dulu di Discord komunitas, baru muncul di sini. Link undangannya ada
           di halaman Tentang.
@@ -96,9 +96,9 @@ async function IsiKalender({ slug }: Params) {
   const data = await muatKalender(slug);
   if (data === null) {
     return (
-      <Empty className="border-2 border-dashed">
+      <Empty className="border border-dashed">
         <EmptyHeader>
-          <EmptyTitle className="font-display text-xs uppercase">
+          <EmptyTitle className="font-display">
             Kalender belum bisa dimuat
           </EmptyTitle>
           <EmptyDescription className="text-pretty">

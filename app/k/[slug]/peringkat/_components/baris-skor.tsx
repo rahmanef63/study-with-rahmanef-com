@@ -33,7 +33,7 @@ export function BarisSkor({ entry, isMe }: { entry: LeaderboardEntry; isMe: bool
         <span
           aria-hidden
           className={cn(
-            "w-6 shrink-0 font-display text-[0.625rem] tabular-nums",
+            "w-6 shrink-0 font-display text-caption tabular-nums",
             juara ? "marquee-text" : "text-muted-foreground"
           )}
         >
@@ -53,7 +53,7 @@ export function BarisSkor({ entry, isMe }: { entry: LeaderboardEntry; isMe: bool
             {/* Not `.eyebrow`: it hardcodes 0.75rem, and a Press Start "KAMU"
                 that size shouts louder than the player's own name. */}
             {isMe ? (
-              <span className="shrink-0 font-display text-[0.5rem] uppercase tracking-wider text-accent">
+              <span className="shrink-0 font-display text-caption uppercase tracking-wider text-accent">
                 kamu
               </span>
             ) : null}
@@ -67,7 +67,7 @@ export function BarisSkor({ entry, isMe }: { entry: LeaderboardEntry; isMe: bool
         <span aria-hidden className="shrink-0 text-right">
           <span
             className={cn(
-              "block font-display text-[0.625rem] tabular-nums",
+              "block font-display text-caption tabular-nums",
               juara ? "text-primary" : "text-foreground"
             )}
           >

@@ -94,14 +94,14 @@ export default async function LandingPage() {
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
               href={communityHref.home(DEFAULT_COMMUNITY_SLUG)}
-              className="pixel-press inline-flex min-h-11 items-center gap-2 border-2 border-primary bg-primary px-5 text-title font-medium text-primary-foreground shadow-[3px_3px_0_0_var(--pixel-shadow)]"
+              className="pixel-press inline-flex min-h-11 items-center gap-2 border border-primary bg-primary px-5 text-title font-medium text-primary-foreground shadow-sm"
             >
               Masuk ke komunitas
               <ArrowRight className="size-4" aria-hidden />
             </Link>
             <Link
               href="/mulai"
-              className="pixel-press inline-flex min-h-11 items-center border-2 border-border px-5 text-title font-medium hover:border-primary hover:text-primary"
+              className="pixel-press inline-flex min-h-11 items-center border border-border px-5 text-title font-medium hover:border-primary hover:text-primary"
             >
               Belum tahu mulai dari mana?
             </Link>
@@ -144,15 +144,15 @@ export default async function LandingPage() {
           // to 176px below md so the headline lands near y=300 and both buttons
           // clear the fold, while the scene still sets the tone. Full square
           // from md, where there is a column to spare.
-          className="order-first h-44 w-full border-2 border-border object-cover object-center md:order-none md:h-auto"
+          className="order-first h-44 w-full border border-border object-cover object-center md:order-none md:h-auto"
         />
       </section>
 
-      <section className="border-t-2 py-8 md:py-10">
+      <section className="border-t py-8 md:py-10">
         <h2 className="eyebrow">Tiga cara mulai</h2>
         <ul className="mt-5 grid gap-3 md:grid-cols-3">
           {STEPS.map((step) => (
-            <li key={step.href} className="flex flex-col border-2 border-border bg-card p-5">
+            <li key={step.href} className="flex flex-col rounded-[var(--radius)] border border-border bg-card p-5">
               {/* eslint-disable-next-line @next/next/no-img-element -- committed
                   static asset under 8 KB; the optimiser would add a pass for
                   nothing. */}
@@ -185,7 +185,7 @@ export default async function LandingPage() {
           Convex round trip to paint. */}
       <Suspense
         fallback={
-          <div className="border-t-2 py-8 md:py-10">
+          <div className="border-t py-8 md:py-10">
             <Skeleton className="h-4 w-40" />
             <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3">
               {Array.from({ length: 6 }, (_, i) => (

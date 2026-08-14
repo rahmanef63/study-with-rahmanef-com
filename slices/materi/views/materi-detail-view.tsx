@@ -90,7 +90,7 @@ function MateriContent({
             {materi.title}
           </h1>
           {materi.status === "draft" ? (
-            <span className="inline-block border-2 border-primary/50 bg-primary/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-primary">
+            <span className="inline-block border border-primary/50 bg-primary/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-primary">
               {copy.draftBadge}
             </span>
           ) : null}
@@ -163,7 +163,7 @@ export function MateriDetailView({
     <MateriErrorBoundary
       resetKey={lessonSlug}
       fallback={
-        <div className="space-y-2 border-2 border-dashed px-4 py-8 text-center">
+        <div className="space-y-2 border border-dashed px-4 py-8 text-center">
           <p className="text-sm">{isSkill ? copy.skillNotFoundTitle : copy.notFoundTitle}</p>
           <p className="text-pretty text-xs text-muted-foreground">
             {isSkill ? copy.skillNotFoundBody : copy.notFoundBody}

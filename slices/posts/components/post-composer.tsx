@@ -58,7 +58,7 @@ export function PostComposer({ onSubmit, submitting, canAnnounce, copy: copyOver
 
   return (
     <form
-      className="space-y-4 border-2 border-border bg-card p-4 shadow-[3px_3px_0_0_var(--pixel-shadow)]"
+      className="space-y-4 rounded-[var(--radius)] border border-border bg-card p-4 shadow-sm"
       onSubmit={async (e) => {
         e.preventDefault();
         if (!canSubmit) return;
@@ -78,12 +78,12 @@ export function PostComposer({ onSubmit, submitting, canAnnounce, copy: copyOver
       }}
     >
       <div className="space-y-1">
-        <h3 className="font-display text-xs uppercase tracking-wide">{copy.composerTitle}</h3>
+        <h3 className="font-display tracking-wide">{copy.composerTitle}</h3>
         <p className="text-xs text-muted-foreground">{copy.composerHint}</p>
       </div>
 
       <div className={FIELD}>
-        <span className="eyebrow text-[10px]">{copy.fieldKind}</span>
+        <span className="eyebrow">{copy.fieldKind}</span>
         <div className="flex flex-wrap gap-2">
           {kinds.map((k) => (
             <button
@@ -93,8 +93,8 @@ export function PostComposer({ onSubmit, submitting, canAnnounce, copy: copyOver
               onClick={() => setKind(k)}
               className={
                 kind === k
-                  ? "pixel-press border-2 border-primary bg-primary px-3 py-1 text-xs uppercase tracking-wide text-primary-foreground"
-                  : "pixel-press border-2 border-border px-3 py-1 text-xs uppercase tracking-wide text-muted-foreground hover:text-foreground"
+                  ? "pixel-press border border-primary bg-primary px-3 py-1 text-xs uppercase tracking-wide text-primary-foreground"
+                  : "pixel-press border border-border px-3 py-1 text-xs uppercase tracking-wide text-muted-foreground hover:text-foreground"
               }
             >
               {postKindLabel(k, copy)}

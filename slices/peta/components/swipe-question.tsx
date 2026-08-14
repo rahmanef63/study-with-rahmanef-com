@@ -19,7 +19,7 @@ export type SwipeQuestionProps = {
   onDecide: (id: ConceptId, knows: boolean) => void;
 };
 
-const VERDICT = "flex min-h-14 flex-1 items-center justify-center gap-2 border-2 px-4 text-title font-medium uppercase tracking-wide transition-colors duration-75 [transition-timing-function:steps(2,end)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
+const VERDICT = "flex min-h-14 flex-1 items-center justify-center gap-2 border px-4 text-title font-medium uppercase tracking-wide transition-colors duration-75 [transition-timing-function:steps(2,end)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
 
 export function SwipeQuestion({ question, swipe, onDecide }: SwipeQuestionProps) {
   const reducedMotion = useReducedMotion();
@@ -55,7 +55,7 @@ export function SwipeQuestion({ question, swipe, onDecide }: SwipeQuestionProps)
           {next !== undefined ? (
             <div
               aria-hidden
-              className="pointer-events-none absolute inset-x-2 top-2 h-full border-2 border-border/60 bg-card/50"
+              className="pointer-events-none absolute inset-x-2 top-2 h-full border border-border/60 bg-card/50"
             />
           ) : null}
           <SwipeCard

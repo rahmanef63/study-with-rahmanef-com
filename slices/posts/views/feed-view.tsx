@@ -133,12 +133,12 @@ export function FeedView({
           <Skeleton className="h-40 w-full" />
         </div>
       ) : posts.length === 0 ? (
-        <Empty className="border-2">
+        <Empty className="border">
           <EmptyHeader>
             <EmptyArt src="/ui/empty/diskusi.webp" />
             {/* text-xs: Press Start 2P is full-width, so EmptyTitle's default
                 text-lg would overflow a phone at this string length. */}
-            <EmptyTitle className="font-display text-xs uppercase">
+            <EmptyTitle className="font-display">
               {kind === null ? copy.emptyTitle : copy.emptyFilteredTitle}
             </EmptyTitle>
             <EmptyDescription className="text-pretty">
@@ -176,7 +176,7 @@ export function FeedView({
       {posts.length > 0 && status !== "LoadingFirstPage" ? (
         <div className="flex justify-center pt-2">
           {status === "Exhausted" ? (
-            <p className="eyebrow text-[10px]">{copy.exhausted}</p>
+            <p className="eyebrow">{copy.exhausted}</p>
           ) : (
             <Button
               variant="outline"

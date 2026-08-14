@@ -14,7 +14,7 @@ const LEVEL_TONE: Record<PetaResult["level"], string> = {
 
 export function LevelBlock({ result }: { result: PetaResult }) {
   return (
-    <header className="border-2 border-border bg-card p-5 shadow-[4px_4px_0_0_var(--pixel-shadow)]">
+    <header className="rounded-[var(--radius)] border border-border bg-card p-5 shadow-md">
       <span className="eyebrow">Peta belajar kamu</span>
       {/* h2, not h1: the page's one h1 is server-rendered in app/mulai/page.tsx
           so a crawler gets it whether or not the client island has hydrated.
@@ -25,7 +25,7 @@ export function LevelBlock({ result }: { result: PetaResult }) {
       </h2>
       <p className="mt-4 flex flex-wrap items-center gap-2">
         <span
-          className={`inline-flex items-center border-2 px-2.5 py-1 font-display text-caption uppercase ${LEVEL_TONE[result.level]}`}
+          className={`inline-flex items-center border px-2.5 py-1 font-display text-caption uppercase ${LEVEL_TONE[result.level]}`}
         >
           {result.levelLabel}
         </span>

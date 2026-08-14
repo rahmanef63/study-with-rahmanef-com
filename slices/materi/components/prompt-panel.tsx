@@ -50,12 +50,12 @@ export function PromptPanel({ promptText, copy: copyOverride, className }: Promp
     <section
       aria-label={copy.promptHeading}
       className={
-        "border-2 border-border bg-card shadow-[3px_3px_0_0_var(--pixel-shadow)]" +
+        "rounded-[var(--radius)] border border-border bg-card shadow-sm" +
         (className ? ` ${className}` : "")
       }
     >
-      <div className="flex items-center justify-between gap-3 border-b-2 border-border px-3.5 py-2 md:px-4">
-        <p className="font-display text-[0.5625rem] uppercase tracking-[0.14em] text-muted-foreground">
+      <div className="flex items-center justify-between gap-3 border-b border-border px-3.5 py-2 md:px-4">
+        <p className="font-display text-caption uppercase tracking-[0.14em] text-muted-foreground">
           {copy.promptHeading}
         </p>
         {text === "" ? null : (

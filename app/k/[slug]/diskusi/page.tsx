@@ -60,9 +60,9 @@ async function DiskusiBody({
   // unreachable — say so instead of rendering an empty page.
   if (tenant === null) {
     return (
-      <Empty className="gap-4 border-2 p-5 md:p-8">
+      <Empty className="gap-4 border p-5 md:p-8">
         <EmptyHeader className="gap-1.5">
-          <EmptyTitle className="font-display text-xs uppercase leading-relaxed">
+          <EmptyTitle className="font-display">
             Diskusi belum bisa dimuat
           </EmptyTitle>
           <EmptyDescription className="text-pretty">

@@ -83,8 +83,11 @@ export function ogCard({
                 lineHeight: 1.14,
                 letterSpacing: -0.5,
                 color: GOLD,
-                // Hard offset, the pixel-shadow language of the UI.
-                textShadow: `4px 4px 0 ${BLACK}`,
+                // No text shadow. This was `4px 4px 0` — the hard offset the UI
+                // used everywhere until 2026-08-14. A PNG cannot read a CSS
+                // var, so this file is the one place the palette and the depth
+                // language have to be re-typed by hand when they change; the
+                // contract at the top of this file says exactly that.
               }}
             >
               {title}

@@ -45,7 +45,7 @@ export function CourseCard({ course, href, progress, className }: CourseCardProp
         <CourseCover
           slug={course.slug}
           src={course.coverImageUrl}
-          className="aspect-[2/1] w-full border-b-2 border-border @sm:aspect-auto @sm:h-28"
+          className="aspect-[2/1] w-full border-b border-border @sm:aspect-auto @sm:h-28"
         />
         <div className="flex flex-col gap-1.5 p-2.5 @sm:gap-2 @sm:p-5">
           {/* BODY face and THREE lines on a phone; display face and two from
@@ -56,7 +56,7 @@ export function CourseCard({ course, href, progress, className }: CourseCardProp
               card, it is a worse one. The third line costs 16px and six cards
               still clear the fold; the arcade voice keeps the cover badge, the
               eyebrow and every heading. */}
-          <CardTitle className="line-clamp-3 text-sm font-medium leading-snug @sm:line-clamp-2 @sm:font-display @sm:text-xs @sm:font-normal @sm:leading-snug">
+          <CardTitle className="line-clamp-2 text-title font-medium leading-snug">
             {course.title}
           </CardTitle>
           {/* The wrapper carries the hide/show; the clamp stays on the text.

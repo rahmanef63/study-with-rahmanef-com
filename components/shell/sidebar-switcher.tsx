@@ -38,7 +38,7 @@ export type SidebarSwitcherProps = {
 };
 
 const TRIGGER =
-  "pixel-press flex min-h-11 w-full items-center gap-2.5 border-2 border-transparent px-2 text-left transition-colors hover:bg-muted/50 md:min-h-10";
+  "pixel-press flex min-h-11 w-full items-center gap-2.5 border border-transparent px-2 text-left transition-colors hover:bg-muted/50 md:min-h-10";
 
 export function SidebarSwitcher({ current, onNavigate }: SidebarSwitcherProps) {
   const [open, setOpen] = useState(false);
@@ -50,9 +50,9 @@ export function SidebarSwitcher({ current, onNavigate }: SidebarSwitcherProps) {
         {/* The same procedural art the directory and the course cards use, so a
             community looks like itself in all three places without an upload. */}
         {current ? (
-          <CourseCover slug={current.slug} className="size-9 shrink-0 border-2 border-border" />
+          <CourseCover slug={current.slug} className="size-9 shrink-0 border border-border" />
         ) : (
-          <span className="grid size-9 shrink-0 place-items-center border-2 border-border text-primary">
+          <span className="grid size-9 shrink-0 place-items-center border border-border text-primary">
             <LayoutGrid className="size-4" aria-hidden />
           </span>
         )}

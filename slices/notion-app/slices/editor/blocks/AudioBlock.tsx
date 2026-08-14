@@ -24,7 +24,7 @@ export function AudioBlock({ block, onUpdate }: Props) {
   }
 
   return (
-    <div className="group/audio rounded-md border border-border bg-card p-2">
+    <div className="group/audio rounded-md rounded-[var(--radius)] border border-border bg-card p-2">
       <audio
         controls
         src={block.url}

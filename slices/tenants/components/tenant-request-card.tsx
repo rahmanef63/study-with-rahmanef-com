@@ -35,7 +35,7 @@ export function TenantRequestCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-display text-xs">{request.name}</CardTitle>
+        <CardTitle className="font-display">{request.name}</CardTitle>
         <CardDescription className="break-words">{meta}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">

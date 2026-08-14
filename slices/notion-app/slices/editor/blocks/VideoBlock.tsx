@@ -24,7 +24,7 @@ export function VideoBlock({ block, onUpdate }: Props) {
   }
 
   return (
-    <div className="group/video rounded-md border border-border bg-card p-2">
+    <div className="group/video rounded-md rounded-[var(--radius)] border border-border bg-card p-2">
       <video
         controls
         src={block.url}

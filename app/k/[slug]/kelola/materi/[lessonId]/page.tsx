@@ -35,7 +35,7 @@ export default async function EditMateriPage({ params }: { params: Promise<Param
       <div className="mb-4">
         <SkillPromptPanel lessonId={lessonId} />
       </div>
-      <div className="min-h-0 flex-1 border-2 border-border bg-card shadow-sm">
+      <div className="min-h-0 flex-1 rounded-[var(--radius)] border border-border bg-card shadow-sm">
         {/* A malformed id is rejected by the Convex validator, which surfaces
             as the route error boundary — same as every other id-in-URL route. */}
         <MateriEditorLoader lessonId={lessonId} />

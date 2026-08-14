@@ -73,7 +73,7 @@ export function PetaProgress({
           provisional
             ? `Pertanyaan ${position}, ${pct} persen`
             : `Pertanyaan ${position} dari ${total}, ${pct} persen`}
-        className="h-2 w-full border-2 border-border bg-muted"
+        className="h-2 w-full border border-border bg-muted"
       >
         {/* steps(), not ease: a cabinet meter ticks. `motion-reduce` turns even
             that off — the width still changes, it just stops animating. */}

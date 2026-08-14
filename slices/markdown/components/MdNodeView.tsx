@@ -78,10 +78,10 @@ export function MdNodeView({ node }: { node: MdNode }): React.ReactNode {
     case "paragraph":
       return <p className="my-2 text-sm leading-relaxed">{renderInline(node.text)}</p>;
     case "quote":
-      return <blockquote className="my-3 border-l-2 border-border pl-4 text-sm italic text-muted-foreground">{renderInline(node.text)}</blockquote>;
+      return <blockquote className="my-3 border-l border-border pl-4 text-sm italic text-muted-foreground">{renderInline(node.text)}</blockquote>;
     case "callout":
       return (
-        <div className={cn("my-3 rounded-md border-l-2 px-4 py-3 text-sm", CALLOUT_STYLE[node.kind] ?? CALLOUT_STYLE.default)}>
+        <div className={cn("my-3 rounded-md border-l px-4 py-3 text-sm", CALLOUT_STYLE[node.kind] ?? CALLOUT_STYLE.default)}>
           <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">{node.kind}</span>
           {renderInline(node.text)}
         </div>

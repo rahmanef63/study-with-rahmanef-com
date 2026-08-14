@@ -98,7 +98,7 @@ export function AnggotaRoster({
         <CommandSearch value={query} onChange={setQuery} placeholder="Cari anggota…" />
       ) : null}
       {visible && visible.length === 0 ? (
-        <p className="border-2 border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
+        <p className="border border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
           Tidak ada anggota yang cocok dengan “{query}”.
         </p>
       ) : (

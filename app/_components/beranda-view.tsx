@@ -27,7 +27,7 @@ import {
 import { ART_SIZE } from "@/lib/art";
 import { communityHref } from "@/lib/community";
 
-const CARD = "border-2 border-border bg-card p-4";
+const CARD = "rounded-[var(--radius)] border border-border bg-card p-4";
 
 /** A number with its own picture. Three of these are the whole stats row. */
 function Stat({ art, value, label }: { art: string; value: string; label: string }) {
@@ -80,7 +80,7 @@ function CourseRow({
         href={communityHref.course(course.communitySlug, course.slug)}
         className={`${CARD} group flex items-start gap-3 transition-colors hover:border-primary`}
       >
-        <CourseCover slug={course.slug} className="size-14 shrink-0 border-2 border-border" />
+        <CourseCover slug={course.slug} className="size-14 shrink-0 border border-border" />
         <span className="flex min-w-0 flex-1 flex-col gap-1">
           <span className="line-clamp-2 text-title font-medium leading-snug group-hover:text-primary">
             {course.title}
@@ -147,10 +147,10 @@ export function BerandaView() {
 
   if (mounted && !isLoading && !isAuthenticated) {
     return (
-      <Empty className="border-2 border-dashed">
+      <Empty className="border border-dashed">
         <EmptyHeader>
           <EmptyArt src="/ui/empty/statistik.webp" />
-          <EmptyTitle className="font-display text-xs uppercase leading-relaxed">
+          <EmptyTitle className="font-display">
             Masuk untuk lihat ringkasanmu
           </EmptyTitle>
           <EmptyDescription className="text-pretty">
@@ -160,7 +160,7 @@ export function BerandaView() {
         <EmptyContent>
           <Link
             href="/masuk?next=%2Fhome"
-            className="pixel-press inline-flex min-h-11 items-center gap-2 border-2 border-primary bg-primary px-5 text-title font-medium text-primary-foreground shadow-[3px_3px_0_0_var(--pixel-shadow)]"
+            className="pixel-press inline-flex min-h-11 items-center gap-2 border border-primary bg-primary px-5 text-title font-medium text-primary-foreground shadow-sm"
           >
             <LogIn className="size-4" aria-hidden />
             Masuk
@@ -189,10 +189,10 @@ export function BerandaView() {
 
   if (data.communities.length === 0) {
     return (
-      <Empty className="border-2 border-dashed">
+      <Empty className="border border-dashed">
         <EmptyHeader>
           <EmptyArt src="/ui/empty/discovery.webp" />
-          <EmptyTitle className="font-display text-xs uppercase leading-relaxed">
+          <EmptyTitle className="font-display">
             Belum gabung komunitas
           </EmptyTitle>
           <EmptyDescription className="text-pretty">
@@ -268,7 +268,7 @@ export function BerandaView() {
                 href={communityHref.home(t.slug)}
                 className={`${CARD} group flex items-center gap-3 transition-colors hover:border-primary`}
               >
-                <CourseCover slug={t.slug} className="size-11 shrink-0 border-2 border-border" />
+                <CourseCover slug={t.slug} className="size-11 shrink-0 border border-border" />
                 <span className="flex min-w-0 flex-1 flex-col">
                   <span className="truncate text-title font-medium group-hover:text-primary">
                     {t.name}

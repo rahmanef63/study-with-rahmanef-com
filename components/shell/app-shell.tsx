@@ -46,7 +46,7 @@ export function AppShell({
       {/* self-start + h-dvh is what makes `sticky` work on a grid item: a
           stretched item is already as tall as the row and has nothing to stick
           within. pl picks up the landscape notch inset. */}
-      <aside className="sticky top-0 hidden h-dvh flex-col self-start overflow-hidden border-r-2 bg-sidebar pt-[var(--safe-t)] pl-[var(--safe-l)] md:flex">
+      <aside className="sticky top-0 hidden h-dvh flex-col self-start overflow-hidden border-r bg-sidebar pt-[var(--safe-t)] pl-[var(--safe-l)] md:flex">
         {rail}
       </aside>
       <div className="flex min-w-0 flex-col pl-[var(--safe-l)] pr-[var(--safe-r)] md:pl-0">

@@ -28,6 +28,20 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-08-14",
+    version: "v5.0",
+    title: "Tampilan baru — arcade 80-an diganti yang lebih bersih",
+    tags: ["Tampilan"],
+    points: [
+      "Hurufnya diganti. Press Start 2P (huruf gaya game 8-bit) selebar dua kali huruf biasa, jadi judul terus terpotong dan tiap heading di materi membungkus dua sampai lima baris. Sekarang pakai Sora, dan judul kelas muat penuh untuk pertama kalinya.",
+      "Judul juga tidak lagi HURUF BESAR SEMUA. Ada 267 heading di seluruh materi yang selama ini tampil begitu.",
+      "Garis-garis CRT yang menutupi seluruh layar dihapus. Itu satu kata di kode, tapi ia menimpa setiap piksel di setiap halaman.",
+      "Bayangan kotak keras diganti bayangan lembut, garis bingkai dari 2px jadi 1px, dan sudutnya sedikit dibulatkan.",
+      "Tombol tidak lagi meloncat dua piksel saat ditekan — sekarang menekan halus.",
+      "Ilustrasi dan sampul kelas masih gaya piksel dan sengaja belum disentuh. Itu keputusan berikutnya, setelah tampilan barunya dilihat dulu.",
+    ],
+  },
+  {
+    date: "2026-08-14",
     version: "v4.4",
     title: "Ikon “komunitas” di Beranda diganti",
     tags: ["Perbaikan"],

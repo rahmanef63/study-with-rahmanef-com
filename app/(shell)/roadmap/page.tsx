@@ -82,7 +82,7 @@ export default async function RoadmapPage() {
 
           <Link
             href="/mulai"
-            className="pixel-press mt-6 inline-flex min-h-11 items-center gap-2 border-2 border-primary bg-primary px-4 text-title font-medium text-primary-foreground shadow-[3px_3px_0_0_var(--pixel-shadow)]"
+            className="pixel-press mt-6 inline-flex min-h-11 items-center gap-2 border border-primary bg-primary px-4 text-title font-medium text-primary-foreground shadow-sm"
           >
             Belum yakin? Jawab beberapa kartu
             <ArrowRight className="size-4" aria-hidden />
@@ -97,7 +97,7 @@ export default async function RoadmapPage() {
           height={720}
           loading="lazy"
           decoding="async"
-          className="pixelated hidden w-full border-2 border-border object-cover object-right md:block"
+          className="pixelated hidden w-full border border-border object-cover object-right md:block"
         />
       </div>
 
@@ -105,7 +105,7 @@ export default async function RoadmapPage() {
         {PATHS.map((path, i) => {
           const community = index.community.get(path.communitySlug);
           return (
-            <li key={path.id} className="border-2 border-border bg-card p-4 md:p-5">
+            <li key={path.id} className="rounded-[var(--radius)] border border-border bg-card p-4 md:p-5">
 {/* eslint-disable-next-line @next/next/no-img-element -- committed static asset. */}
               <img src={path.art} alt="" width={ART_SIZE.card} height={ART_SIZE.card} loading="lazy" decoding="async" className="pixelated size-14 object-contain" />
               <div className="mt-3 flex items-baseline gap-3">
@@ -126,7 +126,7 @@ export default async function RoadmapPage() {
                     <li key={course.courseSlug} className="flex gap-3">
                       {/* The rail: a node and the line to the next one. */}
                       <div className="flex flex-col items-center" aria-hidden>
-                        <span className="mt-1 size-3 shrink-0 border-2 border-primary bg-background" />
+                        <span className="mt-1 size-3 shrink-0 border border-primary bg-background" />
                         {last ? null : <span className="w-0.5 flex-1 bg-border" />}
                       </div>
                       <div className={last ? "pb-0" : "pb-4"}>

@@ -110,7 +110,7 @@ export function SkillsLibraryView({
         ) : search.hits === undefined ? (
           <MateriListSkeleton label={SKELETON_LABEL} />
         ) : search.hits.length === 0 ? (
-          <p className="border-2 border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
+          <p className="border border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
             {copy.emptySkillsSearch(query.trim())}
           </p>
         ) : (
@@ -150,7 +150,7 @@ export function SkillsLibraryView({
           // A tag with no skills is not an empty library — the shared tag
           // cloud counts materi too, so this is the expected miss, and the
           // long "what is a skill" explanation would be noise on top of it.
-          <p className="border-2 border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
+          <p className="border border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
             {copy.emptySkillsTag}
           </p>
         ) : (

@@ -32,7 +32,7 @@ export function TagRow({ tags, tagHref, copy: copyOverride, className }: TagRowP
           href={tagHref(tag)}
           // Hard 2px frame + offset shadow, radius 0 — the cabinet language.
           // Body face, not font-display: Press Start 2P truncates at this size.
-          className="border-2 border-border px-2 py-0.5 text-xs text-muted-foreground shadow-[2px_2px_0_0_var(--pixel-shadow)] transition-colors hover:border-primary hover:text-primary"
+          className="border border-border px-2 py-0.5 text-xs text-muted-foreground shadow-xs transition-colors hover:border-primary hover:text-primary"
         >
           {tag}
         </Link>

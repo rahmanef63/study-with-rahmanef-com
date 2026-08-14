@@ -57,7 +57,7 @@ export function RowPropertiesPanel({
     // Database is loading or has been deleted. Render a skeleton so the page
     // doesn't appear missing its preview header — the row body renders below.
     return (
-      <div className="mb-6 rounded-lg border border-border bg-card overflow-hidden">
+      <div className="mb-6 rounded-lg rounded-[var(--radius)] border border-border bg-card overflow-hidden">
         <Skeleton className="h-8 rounded-none border-b border-border/40 bg-muted/30" />
         <Skeleton className="h-8 rounded-none border-b border-border/40 bg-muted/20" />
         <Skeleton className="h-8 rounded-none border-b border-border/40 bg-muted/10" />
@@ -102,7 +102,7 @@ export function RowPropertiesPanel({
         <span className="text-foreground">{page.title || "Untitled"}</span>
       </div>
 
-      <div className="rounded-lg border border-border bg-card overflow-hidden">
+      <div className="rounded-lg rounded-[var(--radius)] border border-border bg-card overflow-hidden">
         {visibleProps.length === 0 && (
           <div className="px-3 py-4 text-xs text-muted-foreground text-center">
             No properties. Add one below.

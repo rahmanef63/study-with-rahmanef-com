@@ -22,11 +22,11 @@ export function PetaCallout({ variant = "full", className }: PetaCalloutProps) {
   return (
     <Link
       href={PETA_HREF}
-      className={`group flex min-h-14 items-center gap-4 border-2 border-primary/50 bg-primary/5 px-4 py-4 transition-colors duration-75 [transition-timing-function:steps(2,end)] hover:border-primary hover:bg-primary/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${className ?? ""}`}
+      className={`group flex min-h-14 items-center gap-4 border border-primary/50 bg-primary/5 px-4 py-4 transition-colors duration-75 [transition-timing-function:steps(2,end)] hover:border-primary hover:bg-primary/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${className ?? ""}`}
     >
       <span
         aria-hidden
-        className="grid size-10 shrink-0 place-items-center border-2 border-primary/60 text-primary"
+        className="grid size-10 shrink-0 place-items-center border border-primary/60 text-primary"
       >
         <Compass className="size-5" />
       </span>

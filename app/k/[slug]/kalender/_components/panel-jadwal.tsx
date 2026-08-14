@@ -86,7 +86,7 @@ export function PanelJadwal({ tenantId }: { tenantId: Id<"tenants"> }) {
       <CardContent className="space-y-4">
         <div className="space-y-1">
           <span className="eyebrow">Khusus pengajar</span>
-          <h3 className="font-display text-xs uppercase">Jadwalkan sesi baru</h3>
+          <h3 className="font-display">Jadwalkan sesi baru</h3>
         </div>
         <FormAcara
           mode="buat"

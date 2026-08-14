@@ -21,7 +21,7 @@ export function ShellTopBar({ community, title }: { community?: ShellCommunity; 
     <header
       // z-30: above content, under the sheet (50) and the CRT overlay (9999).
       // Opaque bg-card and a hard 2px rule — no blur, no floating pill.
-      className="sticky top-0 z-30 border-b-2 bg-card pt-[var(--safe-t)] md:hidden"
+      className="sticky top-0 z-30 border-b bg-card pt-[var(--safe-t)] md:hidden"
     >
       <div
         className="mx-auto flex w-full max-w-5xl items-center gap-3 px-4"
@@ -47,7 +47,7 @@ export function ShellTopBarSkeleton() {
   return (
     <div
       aria-hidden
-      className="sticky top-0 z-30 border-b-2 bg-card pt-[var(--safe-t)] md:hidden"
+      className="sticky top-0 z-30 border-b bg-card pt-[var(--safe-t)] md:hidden"
       style={{ minHeight: BAR_H }}
     />
   );

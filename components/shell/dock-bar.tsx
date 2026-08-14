@@ -36,12 +36,12 @@ export const DOCK_CELL_CLASS =
 /** The icon box. Square, because --radius is 0 — CareerPack's rounded-xl is
  *  their language, the filled-box IDEA is what transfers. */
 export const DOCK_ICON_BOX =
-  "grid size-9 shrink-0 place-items-center border-2 transition-colors";
+  "grid size-9 shrink-0 place-items-center border transition-colors";
 
 export const dockIconBox = (active: boolean) =>
   `${DOCK_ICON_BOX} ${
     active
-      ? "border-primary bg-primary text-primary-foreground shadow-[2px_2px_0_0_var(--pixel-shadow)]"
+      ? "border-primary bg-primary text-primary-foreground shadow-xs"
       : "border-transparent"
   }`;
 
@@ -69,7 +69,7 @@ export function DockBar({
         // z-30 matches the top bar: above content, below the sheet (50) and the
         // CRT overlay. Opaque, hard 2px rule, no floating pill — the same edge
         // language as everything else in the cabinet.
-        className="fixed inset-x-0 bottom-0 z-30 border-t-2 bg-card pb-[var(--safe-b)] pl-[var(--safe-l)] pr-[var(--safe-r)] md:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 border-t bg-card pb-[var(--safe-b)] pl-[var(--safe-l)] pr-[var(--safe-r)] md:hidden"
       >
         <div className="mx-auto flex w-full max-w-5xl items-stretch">
           {cells.map((cell) => (

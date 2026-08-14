@@ -36,9 +36,9 @@ export function ChoiceQuestion({ question, value, onPick }: ChoiceQuestionProps)
                 type="button"
                 onClick={() => onPick(option.value)}
                 aria-current={active ? "true" : undefined}
-                className={`flex min-h-14 w-full items-center gap-3 border-2 px-4 py-3 text-left transition-colors duration-75 [transition-timing-function:steps(2,end)] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring ${
+                className={`flex min-h-14 w-full items-center gap-3 border px-4 py-3 text-left transition-colors duration-75 [transition-timing-function:steps(2,end)] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring ${
                   active
-                    ? "border-primary bg-primary/10 text-primary shadow-[3px_3px_0_0_var(--pixel-shadow)]"
+                    ? "border-primary bg-primary/10 text-primary shadow-sm"
                     : "border-border bg-card hover:border-primary hover:text-primary"
                 }`}
               >

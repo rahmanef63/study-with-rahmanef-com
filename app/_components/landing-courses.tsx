@@ -25,7 +25,7 @@ export async function LandingCourses() {
   if (courses.length === 0) return null;
 
   return (
-    <section className="border-t-2 py-8 md:py-10">
+    <section className="border-t py-8 md:py-10">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <h2 className="eyebrow">Kelas yang sudah jalan</h2>
         <Link
@@ -44,14 +44,14 @@ export async function LandingCourses() {
           <li key={course._id}>
             <Link
               href={communityHref.course(DEFAULT_COMMUNITY_SLUG, course.slug)}
-              className="group flex h-full flex-col border-2 border-border bg-card transition-colors hover:border-primary"
+              className="group flex h-full flex-col rounded-[var(--radius)] border border-border bg-card transition-colors hover:border-primary"
             >
               {/* The procedural cover: a different one per course, derived from
                   the slug, so course seven gets art with no upload. */}
               <CourseCover
                 slug={course.slug}
                 src={course.coverImageUrl}
-                className="aspect-[2/1] w-full border-b-2 border-border"
+                className="aspect-[2/1] w-full border-b border-border"
               />
               <span className="line-clamp-3 p-3 text-title font-medium leading-snug group-hover:text-primary">
                 {course.title}

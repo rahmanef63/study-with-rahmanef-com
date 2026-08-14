@@ -43,7 +43,7 @@ export function MembersOnlyNote({
   return (
     <p
       className={cn(
-        "flex items-start gap-2 border-2 border-border bg-muted/40 px-3 py-2 text-footnote text-muted-foreground",
+        "flex items-start gap-2 border border-border bg-muted/40 px-3 py-2 text-footnote text-muted-foreground",
         className
       )}
     >

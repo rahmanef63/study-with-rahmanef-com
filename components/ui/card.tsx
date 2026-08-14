@@ -3,12 +3,12 @@ import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
 
-const cardVariants = cva("group/card flex flex-col text-card-foreground", {
+const cardVariants = cva("rounded-[var(--radius)] group/card flex flex-col text-card-foreground", {
   variants: {
     variant: {
       // Arcade: a hard 2px frame and an offset block instead of a rounded card
       // with a blur. --radius is 0 so `rounded-*` would be a no-op anyway.
-      default: "gap-6 border-2 bg-card py-6 shadow-[3px_3px_0_0_var(--pixel-shadow)]",
+      default: "gap-6 border bg-card py-6 shadow-sm",
       // NO FRAME. For the case this repo gets wrong constantly: a LIST of
       // things. N framed cards stacked vertically is N frames and N shadows
       // saying nothing, which is the "semua isinya kotak berbingkai" complaint
@@ -20,7 +20,7 @@ const cardVariants = cva("group/card flex flex-col text-card-foreground", {
       // full-bleed rule the grouped list uses, for a card that is the whole
       // width of the screen rather than an object sitting on it.
       bleed:
-        "list-bleed gap-6 border-y-2 bg-card py-6 sm:border-2 sm:shadow-[3px_3px_0_0_var(--pixel-shadow)]",
+        "list-bleed gap-6 border-y-2 bg-card py-6 sm:border sm:shadow-sm",
     },
   },
   defaultVariants: { variant: "default" },

@@ -44,7 +44,7 @@ export function MateriPageHeader({
   return (
     <header className="space-y-4">
       <div className="flex flex-wrap items-center gap-2 text-xs">
-        <span className="eyebrow border px-2 py-0.5 text-[10px]">
+        <span className="eyebrow border px-2 py-0.5">
           {kind === "skill" ? copy.skillBadge : copy.libraryTitle}
         </span>
         {materi.hasVideo ? (

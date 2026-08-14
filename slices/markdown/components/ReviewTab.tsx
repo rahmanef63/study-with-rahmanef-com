@@ -71,7 +71,7 @@ function ReviewNode({ node, anchored, composing, onCompose, onSubmit, onResolve 
         <MessageSquarePlus className="size-3.5" />
       </Button>
       {(anchored.length > 0 || composing) && (
-        <div className="mb-2 ml-4 border-l-2 border-amber-500/40 pl-3">
+        <div className="mb-2 ml-4 border-l border-amber-500/40 pl-3">
           <CommentList items={anchored} onResolve={onResolve} />
           {composing && <Composer autoFocus onSubmit={onSubmit} placeholder="Add a comment…" />}
         </div>

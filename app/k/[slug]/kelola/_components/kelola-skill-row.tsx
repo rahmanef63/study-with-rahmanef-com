@@ -40,7 +40,7 @@ export function KelolaSkillRow({
 }) {
   const isDraft = status === "draft";
   return (
-    <div className="space-y-3 border border-border bg-card p-4">
+    <div className="space-y-3 rounded-[var(--radius)] border border-border bg-card p-4">
       <div className="flex flex-wrap items-center gap-2">
         <span className="inline-flex items-center gap-1.5 border border-primary/40 bg-primary/10 px-2 py-0.5 text-[0.65rem] uppercase tracking-wide text-primary">
           <Sparkles className="size-3" aria-hidden /> {copy.skillLabel}

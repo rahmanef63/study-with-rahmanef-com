@@ -63,14 +63,14 @@ export default function BerandaPage() {
         <BerandaView />
       </div>
 
-      <section className="mt-10 border-t-2 pt-8">
+      <section className="mt-10 border-t pt-8">
         <h2 className="eyebrow">Jelajah</h2>
         <ul className="mt-3 grid gap-3 @2xl:grid-cols-3">
           {EXPLORE_LINKS.map((link) => (
             <li key={link.key}>
               <Link
                 href={link.href}
-                className="group flex h-full flex-col border-2 border-border bg-card p-5 transition-colors hover:border-primary"
+                className="group flex h-full flex-col rounded-[var(--radius)] border border-border bg-card p-5 transition-colors hover:border-primary"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element -- committed static asset. */}
                 <img

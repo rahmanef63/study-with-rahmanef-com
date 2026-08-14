@@ -36,7 +36,7 @@ export function PulseMateriList({
       {materi.length === 0 ? (
         <p className="text-footnote text-muted-foreground">{copy.emptyPulseMateri}</p>
       ) : (
-        <ol className="border-2 border-border bg-card">
+        <ol className="rounded-[var(--radius)] border border-border bg-card">
           {materi.map((row, index) => {
             const href = row.slug !== null && hrefFor !== undefined ? hrefFor(row.slug) : null;
             const label = (

@@ -27,7 +27,7 @@ function Group({
   if (items.length === 0) return null;
   return (
     <section
-      className={`border-2 p-4 ${tone === "save" ? "border-success/60 bg-success/5" : "border-border bg-card"}`}
+      className={`border p-4 ${tone === "save" ? "border-success/60 bg-success/5" : "border-border bg-card"}`}
     >
       <h4 className="flex items-center gap-2 font-display text-caption uppercase">
         <span aria-hidden className={tone === "save" ? "text-success" : "text-muted-foreground"}>

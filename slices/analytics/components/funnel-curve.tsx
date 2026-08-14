@@ -46,7 +46,7 @@ export function FunnelCurve({ steps, label }: FunnelCurveProps) {
   }));
 
   return (
-    <div role="img" aria-label={label} className="border-2 border-border bg-card p-2">
+    <div role="img" aria-label={label} className="rounded-[var(--radius)] border border-border bg-card p-2">
       {/* Short on a phone (390px) and only a little taller from sm up: the
           curve is a glance, and every pixel it takes is a pixel of the list
           that holds the actual answer. */}

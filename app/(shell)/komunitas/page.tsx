@@ -76,7 +76,7 @@ async function CommunityList() {
             <CourseCover
               slug={tenant.slug}
               src={tenant.coverImageUrl}
-              className="size-14 shrink-0 border-2 border-border"
+              className="size-14 shrink-0 border border-border"
             />
             <span className="flex min-w-0 flex-col gap-1.5">
             <span className="flex flex-wrap items-center gap-2">

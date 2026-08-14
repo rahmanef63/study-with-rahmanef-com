@@ -24,21 +24,32 @@
   --font-sans:
     ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
     Arial, "Noto Sans", sans-serif;
-  --font-display: var(--font-display), var(--font-sans), monospace;
+  /* next/font sets `--font-display-face` on <html>; this line was
+     `var(--font-display), …` — circular, so the @theme value never applied and
+     only next/font's own unlayered class was doing the work. */
+  --font-display: var(--font-display-face), ui-sans-serif, system-ui, sans-serif;
   /* Kept so `font-serif` call sites don't fall back to Times. */
-  --font-serif: var(--font-display), var(--font-sans), monospace;
+  --font-serif: var(--font-display);
 
-  /* Hard offset shadows instead of blurs — the single highest-leverage token in
-     the whole redesign: every shadcn Card/Button/Popover instantly reads as a
-     pixel sticker with zero component edits. */
-  --shadow-2xs: 2px 2px 0 0 var(--pixel-shadow);
-  --shadow-xs: 2px 2px 0 0 var(--pixel-shadow);
-  --shadow-sm: 3px 3px 0 0 var(--pixel-shadow);
-  --shadow: 3px 3px 0 0 var(--pixel-shadow);
-  --shadow-md: 4px 4px 0 0 var(--pixel-shadow);
-  --shadow-lg: 6px 6px 0 0 var(--pixel-shadow);
-  --shadow-xl: 8px 8px 0 0 var(--pixel-shadow);
-  --shadow-2xl: 10px 10px 0 0 var(--pixel-shadow);
+  /* THE HIGHEST-LEVERAGE EIGHT LINES IN THE REPO — measured: ~34 surfaces
+     change from here with zero component edits, including ten vendored
+     primitives nobody has ever touched (dialog/alert-dialog/sheet shadow-lg,
+     popover/dropdown shadow-md, input/textarea/checkbox shadow-xs, tabs
+     shadow-sm).
+
+     These were `Npx Npx 0 0` — a hard offset with no blur, the pixel-sticker
+     look. Now they are ordinary depth: small blur, negative spread, pure black
+     at low alpha. Deliberately NOT a glow — a coloured halo is its own kind of
+     costume, and the brief was a clean surface, not a neon one. Depth here
+     comes from blur and from the surface tint, nothing else. */
+  --shadow-2xs: 0 1px 2px 0 oklch(0 0 0 / 0.24);
+  --shadow-xs: 0 1px 2px 0 oklch(0 0 0 / 0.3);
+  --shadow-sm: 0 1px 3px -1px oklch(0 0 0 / 0.36);
+  --shadow: 0 2px 6px -2px oklch(0 0 0 / 0.4);
+  --shadow-md: 0 4px 12px -3px oklch(0 0 0 / 0.44);
+  --shadow-lg: 0 10px 28px -8px oklch(0 0 0 / 0.52);
+  --shadow-xl: 0 18px 44px -12px oklch(0 0 0 / 0.6);
+  --shadow-2xl: 0 28px 68px -18px oklch(0 0 0 / 0.66);
 
   /* ── THE TYPE SCALE ───────────────────────────────────────────────────────
      ONE ramp for the whole app. Two rules, and they are not negotiable:
@@ -138,30 +149,26 @@
    (a section, a page, the brand); the body face names the CONTENT, because
    content is there to be read, not to be branded at. */
 @layer base {
+  /* NO MORE UPPERCASE, AND NO MORE CLAMP, and both deletions are the same
+     fact: this rule leaks the display face into every rendered `#` and `##`,
+     which is 267 headings across the seeded curriculum. Press Start 2P is
+     ~2x the advance width of a normal face, so 240 of those 267 (89.9%) wrapped
+     to two or more lines and eleven wrapped to four or five — the clamp existed
+     only to stop the overflow that the face itself caused. A geometric sans
+     needs neither, and an article heading in SENTENCE CASE is a heading rather
+     than a marquee.
+
+     `.eyebrow` keeps its uppercase: a 12px tracked micro-label is a label, and
+     that is the one place the treatment still earns its keep. */
   h1,
   h2 {
     font-family: var(--font-display);
-    font-weight: 400;
-    letter-spacing: 0.02em;
-    line-height: 1.35;
-    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
   }
   h1 {
     text-wrap: balance;
-    /* Press Start 2P at the tailwind text-3xl/4xl call sites would overflow a
-       phone, so cap the rendered size and let the utility set the ceiling. */
-    font-size: clamp(1rem, 3.2vw, 1.5rem);
-  }
-  h2 {
-    font-size: clamp(0.875rem, 2.4vw, 1.125rem);
-  }
-  /* Pixel fonts are hinted for whole pixels — subpixel smoothing muddies them
-     and any fractional scale blurs the grid. */
-  h1,
-  h2,
-  .font-display {
-    -webkit-font-smoothing: none;
-    font-smooth: never;
   }
   /* Long-form Indonesian prose in a pixel face needs air to stay readable.
      Same number as --text-body--line-height; the token is the source of truth
@@ -284,73 +291,22 @@
   }
 }
 
-/* Paper grain — a tactile noise layer that kills the flat "AI slop" look.
-   Add `.grain` to a positioned container; the noise sits behind its content
-   via an isolated stacking context. Very low opacity so it reads as texture,
-   not pattern. */
-.grain {
-  position: relative;
-  isolation: isolate;
-}
-.grain::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  /* CRT scanlines: a 3px repeating gradient. Kept faint — at full strength it
-     halves the contrast of a pixel font, which is the one thing this design
-     cannot afford. */
-  background-image: repeating-linear-gradient(
-    to bottom,
-    color-mix(in oklab, var(--pixel-shadow) 55%, transparent) 0px,
-    color-mix(in oklab, var(--pixel-shadow) 55%, transparent) 1px,
-    transparent 1px,
-    transparent 3px
-  );
-  opacity: 0.35;
-}
+/* ── TEXTURE AND SCROLL REVEAL — BOTH DELETED 2026-08-14 ───────────────────
+   Three things lived here and none of them survives a clean surface:
 
-/* Body-level CRT overlay. `fixed` (not absolute) so it covers the viewport on a
-   scrolled page, and z-index sits ABOVE the background but below content. */
-.scanlines::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  pointer-events: none;
-  background-image: repeating-linear-gradient(
-    to bottom,
-    color-mix(in oklab, var(--pixel-shadow) 60%, transparent) 0px,
-    color-mix(in oklab, var(--pixel-shadow) 60%, transparent) 1px,
-    transparent 1px,
-    transparent 3px
-  );
-  opacity: 0.28;
-}
+   `.scanlines::after` — `position: fixed; inset: 0; z-index: 9999`, a CRT
+   line pattern at 28% opacity over every pixel of every page, switched on by
+   one word in <body className>. Measured as the loudest dated signal in the
+   product per line of CSS.
 
-/* Calm scroll reveal — CSS scroll-driven, no JS. Guarded by reduced-motion
-   AND @supports so unsupported browsers just show content. */
-@media (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: view()) {
-    .reveal-on-scroll {
-      animation: reveal-fade steps(3, end) both;
-      animation-timeline: view();
-      animation-range: entry 0% cover 24%;
-    }
-    /* Stepped, not eased: sprites pop into existence, they do not ease in. */
-    @keyframes reveal-fade {
-      from {
-        opacity: 0;
-        transform: translateY(8px);
-      }
-      to {
-        opacity: 1;
-        transform: none;
-      }
-    }
-  }
-}
+   `.grain` / `.grain::after` — a noise layer, ZERO call sites, never rendered
+   once. `.reveal-on-scroll` — a scroll-driven `steps(3, end)` pop, also ZERO
+   call sites, and its own comment said the quiet part: "sprites pop into
+   existence, they do not ease in". Neither was reachable; both are gone.
+
+   If motion comes back it belongs on the content pane, bounded, behind the
+   reduced-motion guard — see the route-transition record directly below for
+   why it must never sit on the document. */
 
 /* ── ROUTE TRANSITIONS — DELETED 2026-08-11 ─────────────────────────────────
    There is no document-level view transition any more, so there are no
@@ -438,8 +394,6 @@
   --radius: 0rem;
   --radius-win: 0rem;
 
-  /* The offset colour behind every hard shadow (see @theme --shadow-*). */
-  --pixel-shadow: oklch(0.09 0.02 264);
 }
 
 /* Identical on purpose — see the block above. */
@@ -504,8 +458,6 @@
   --radius: 0rem;
   --radius-win: 0rem;
 
-  /* The offset colour behind every hard shadow (see @theme --shadow-*). */
-  --pixel-shadow: oklch(0.09 0.02 264);
 }
 
 @theme inline {
@@ -574,8 +526,6 @@ body {
   letter-spacing: var(--text-body--letter-spacing);
   /* No antialiasing: a pixel face is hinted to whole pixels and smoothing
      turns its edges to grey mush. */
-  -webkit-font-smoothing: none;
-  font-smooth: never;
   /* Kill double-tap-to-zoom + the 300ms tap delay so the standalone PWA feels
      native, while KEEPING pinch-zoom (WCAG 1.4.4). Gesture children set their
      own stricter touch-action (none / pan-y) per-element and still win locally. */
@@ -583,30 +533,38 @@ body {
   overscroll-behavior: none;
 }
 
-/* ── Arcade utilities ───────────────────────────────────────────────────────
+/* ── Surface utilities ──────────────────────────────────────────────────────
    Used by the shared primitives; kept here so a component never hardcodes the
-   look. */
+   look. The `pixel-` names are HISTORICAL: this was an arcade-cabinet system
+   until 2026-08-14 and renaming them is fifteen edits that change nothing. */
 @layer utilities {
-  /* The signature frame: hard border + hard offset. */
+  /* The frame. Was `border-width: 2px` + a 4px hard offset. */
   .pixel-frame {
-    border-width: 2px;
-    box-shadow: 4px 4px 0 0 var(--pixel-shadow);
+    border-width: 1px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
   }
-  /* Press-down on click — the whole point of an arcade button. */
+  /* THE APP'S ENTIRE CLICK FEEL — this is the first token of the cva base in
+     components/ui/button.tsx, so it is on every Button variant and size.
+     It used to `steps(2, end)` a 2px translate: snap the control two pixels
+     down the grid, like a cabinet key. Now it settles. */
   .pixel-press {
-    transition: transform 80ms steps(2, end), box-shadow 80ms steps(2, end);
+    transition:
+      transform 140ms cubic-bezier(0.2, 0, 0, 1),
+      box-shadow 140ms cubic-bezier(0.2, 0, 0, 1),
+      background-color 140ms cubic-bezier(0.2, 0, 0, 1);
   }
   .pixel-press:active {
-    transform: translate(2px, 2px);
-    box-shadow: 1px 1px 0 0 var(--pixel-shadow);
+    transform: scale(0.985);
+    box-shadow: var(--shadow-2xs);
   }
-  /* Coin-gold marquee text with a hard drop shadow, for scores and titles. */
+  /* Was coin-gold with a hard 2px drop shadow. A shadow behind type is a
+     sticker effect; the weight and the colour carry it now. */
   .marquee-text {
     font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.01em;
     color: var(--primary);
-    text-shadow: 2px 2px 0 var(--pixel-shadow);
-  }
-  @media (prefers-reduced-motion: reduce) {
   }
 
   /* Slow blink for "INSERT COIN"-style prompts. Static under reduced-motion. */

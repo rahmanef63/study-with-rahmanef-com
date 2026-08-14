@@ -38,7 +38,7 @@ export function SortControl({
       aria-label={copy.sortLabel}
       // shrink-0: it shares a row with the count caption, and a squashed
       // "Terbaru" is worse than a wrapped caption.
-      className={"inline-flex shrink-0 items-center border-2 border-border" + (className ? ` ${className}` : "")}
+      className={"inline-flex shrink-0 items-center border border-border" + (className ? ` ${className}` : "")}
     >
       {options.map((option) => {
         const active = option.value === value;

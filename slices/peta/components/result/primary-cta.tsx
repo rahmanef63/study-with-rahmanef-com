@@ -38,7 +38,7 @@ export function PrimaryCta({ tenantId, communitySlug, courseSlug, courseTitle }:
   return (
     <Link
       href={href}
-      className="flex min-h-14 w-full items-center gap-3 border-2 border-primary bg-primary px-5 py-3 text-primary-foreground shadow-[4px_4px_0_0_var(--pixel-shadow)] transition-colors duration-75 [transition-timing-function:steps(2,end)] hover:bg-primary/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+      className="flex min-h-14 w-full items-center gap-3 border border-primary bg-primary px-5 py-3 text-primary-foreground shadow-md transition-colors duration-75 [transition-timing-function:steps(2,end)] hover:bg-primary/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
     >
       <span className="min-w-0 flex-1">
         <span className="block font-display text-caption uppercase">Mulai sekarang</span>

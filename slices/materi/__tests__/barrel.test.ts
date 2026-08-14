@@ -219,12 +219,18 @@ describe("barrel runtime contract (alias-free modules)", () => {
   });
 
   test("the inset geometry keeps the design-system invariants", () => {
-    // radius 0 everywhere (never rounded-*), hard offset shadow, 56px rows.
-    expect(INSET_GROUP).not.toMatch(/rounded/);
+    // WAS "radius 0 everywhere (never rounded-*)". That invariant died with the
+    // arcade system on 2026-08-14: --radius is 0.375rem now and a group that
+    // stayed square would be the one square box on the page. What still has to
+    // hold is that the radius comes from the TOKEN — a literal `rounded-lg`
+    // here would pin a value the theme cannot move, and it would also fail the
+    // dead-utility guard in components/ui/design-system.test.ts.
+    expect(INSET_GROUP).toContain("rounded-[var(--radius)]");
+    expect(INSET_GROUP).not.toMatch(/rounded-(?:none|xs|sm|md|lg|xl)\b/);
     expect(INSET_ROW).not.toMatch(/rounded/);
-    expect(INSET_GROUP).toContain("shadow-[3px_3px_0_0_var(--pixel-shadow)]");
+    expect(INSET_GROUP).toContain("shadow-sm");
     expect(INSET_ROW).toContain("min-h-14");
-    // Press Start 2P is display-ONLY, and only at the caption size.
+    // The display face is display-ONLY, and only at the caption size.
     expect(INSET_CAPTION).toContain("font-display");
     expect(INSET_ROW).not.toContain("font-display");
     // Tokens only — a hex literal here would break theming (P1).

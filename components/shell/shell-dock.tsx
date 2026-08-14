@@ -97,7 +97,7 @@ export function ShellDock({ community }: { community?: ShellCommunity }) {
             side="left"
             showCloseButton={false}
             aria-describedby={undefined}
-            className="w-[17.5rem] gap-0 border-r-2 bg-sidebar p-0 sm:max-w-[17.5rem]"
+            className="w-[17.5rem] gap-0 border-r bg-sidebar p-0 sm:max-w-[17.5rem]"
           >
             <SheetTitle className="sr-only">Navigasi</SheetTitle>
             <ShellNav community={community} onNavigate={close}

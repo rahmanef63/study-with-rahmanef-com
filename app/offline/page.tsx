@@ -38,7 +38,7 @@ export default function OfflinePage() {
         </p>
       </div>
 
-      {/* Hard-framed panel, arcade cabinet style: border-2 + hard offset shadow. */}
+      {/* Hard-framed panel, arcade cabinet style: border + hard offset shadow. */}
       <div className="pixel-frame w-full border-border bg-card px-5 py-4 text-left">
         <p className="eyebrow mb-3">Coba ini</p>
         <ul className="space-y-2 text-sm text-muted-foreground">
@@ -48,7 +48,7 @@ export default function OfflinePage() {
         </ul>
       </div>
 
-      <Button asChild size="lg" className="min-h-11 w-full font-display text-[0.7rem]">
+      <Button asChild size="lg" className="min-h-11 w-full font-display text-caption">
         <Link href="/">Coba lagi</Link>
       </Button>
 

@@ -52,7 +52,7 @@ export function TocBlock({ pageId }: BlockRendererProps) {
   }
 
   return (
-    <nav aria-label="Table of contents" className="rounded-md border border-border bg-card px-2 py-2">
+    <nav aria-label="Table of contents" className="rounded-md rounded-[var(--radius)] border border-border bg-card px-2 py-2">
       <div className="mb-1 flex items-center gap-1.5 px-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
         <ListTree className="h-3 w-3" />
         On this page

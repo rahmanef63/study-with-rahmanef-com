@@ -105,10 +105,10 @@ export function PapanSkor({ tenantId, slug }: { tenantId: Id<"tenants">; slug: s
 
 function PapanKosong({ slug }: { slug: string }) {
   return (
-    <Empty className="gap-4 border-2 border-dashed p-5 md:p-8">
+    <Empty className="gap-4 border border-dashed p-5 md:p-8">
       <EmptyHeader className="gap-1.5">
         <EmptyArt src="/learning/badge/trophy.webp" size={ART_SIZE.mediaDense} className="mb-0" />
-        <EmptyTitle className="font-display text-xs uppercase leading-relaxed">
+        <EmptyTitle className="font-display">
           Belum ada skor
         </EmptyTitle>
         <EmptyDescription className="text-pretty">

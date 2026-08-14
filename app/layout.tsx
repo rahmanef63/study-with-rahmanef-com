@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Press_Start_2P } from "next/font/google";
+import { Sora } from "next/font/google";
 import { ConvexClientProvider } from "@/components/convex-provider";
 import { VersionWatcher } from "@/components/version-watcher";
 import { LocalStoragePurge } from "@/components/local-storage-purge";
@@ -17,10 +17,9 @@ import "./globals.css";
 // wrapper loses. Identity is unharmed — Press Start 2P still carries every
 // heading, the brand and the chrome. Body text uses the platform UI stack:
 // hinted for the reader's own screen, no swap, and downloads NOTHING.
-const display = Press_Start_2P({
+const display = Sora({
   subsets: ["latin"],
-  weight: "400",
-  variable: "--font-display",
+  variable: "--font-display-face",
   display: "swap",
 });
 
@@ -120,10 +119,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     // `dark` is permanent: one theme, no switcher (see globals.css).
     <html lang="id" className={`dark ${display.variable}`}>
-      {/* `antialiased` is deliberately OFF: subpixel smoothing muddies a pixel
-          font. The scanline overlay is a fixed pseudo-element on <body> — see
-          .scanlines in globals.css. */}
-      <body className="scanlines font-sans" style={SAFE_AREA}>
+      {/* `antialiased` used to be deliberately OFF — subpixel smoothing muddies
+          a pixel font, and globals.css went further and set
+          `-webkit-font-smoothing: none` on every display element. Both were
+          correct for Press Start 2P and both are actively wrong for a geometric
+          sans, which reads thin and ragged unsmoothed. The `scanlines` class is
+          gone with the overlay it switched on. */}
+      <body className="font-sans antialiased" style={SAFE_AREA}>
         {/* React hoists resource links to <head>. */}
         {CONVEX_ORIGIN && <link rel="preconnect" href={CONVEX_ORIGIN} />}
         {/* THE INSTALL-CRITICAL LINKS. DO NOT MOVE THESE INTO `metadata`.

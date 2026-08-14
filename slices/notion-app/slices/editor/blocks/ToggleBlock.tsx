@@ -87,7 +87,7 @@ export function ToggleContent({
       </div>
       {!collapsed && (
         <div
-          className="ml-5 mt-1 border-l-2 border-border/60 pl-3 space-y-0.5 cursor-text"
+          className="ml-5 mt-1 border-l border-border/60 pl-3 space-y-0.5 cursor-text"
           onClick={(e) => {
             if (e.target !== e.currentTarget) return;
             const last = children[children.length - 1];

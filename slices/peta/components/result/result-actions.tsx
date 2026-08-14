@@ -32,7 +32,7 @@ export function ResultActions({ code, headline, onBack, onReset }: ResultActions
   const url = absoluteUrl(`/mulai?${PETA_CODE_PARAM}=${encodeURIComponent(code)}`);
 
   return (
-    <section className="flex flex-wrap items-center gap-3 border-t-2 border-border pt-5">
+    <section className="flex flex-wrap items-center gap-3 border-t border-border pt-5">
       <TombolBagikan
         url={url}
         title="Peta belajar AI-ku"

@@ -57,7 +57,7 @@ export function CertificateCard({
     <div className={cn("mx-auto flex w-full max-w-2xl flex-col gap-5", className)}>
       <article
         aria-label={copy.heading}
-        className="relative rounded-[var(--radius-win)] border border-border bg-card px-6 py-10 text-center shadow-sm @sm:px-12 @sm:py-14"
+        className="relative rounded-[var(--radius-win)] rounded-[var(--radius)] border border-border bg-card px-6 py-10 text-center shadow-sm @sm:px-12 @sm:py-14"
       >
         {/* Classic double-rule document frame — hairline, tokens only */}
         <span

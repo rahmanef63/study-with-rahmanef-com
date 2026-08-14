@@ -68,7 +68,7 @@ async function PostSurface({ slug, postId }: Params) {
   return (
     <article className="space-y-6">
       <div className="flex flex-wrap items-center gap-2 text-xs">
-        <span className={cn("eyebrow border px-2 py-0.5 text-[10px]", postKindTone(post.kind))}>
+        <span className={cn("eyebrow border px-2 py-0.5", postKindTone(post.kind))}>
           {postKindLabel(post.kind, POSTS_COPY)}
         </span>
         {post.pinned ? (
@@ -128,7 +128,7 @@ async function PostSurface({ slug, postId }: Params) {
           href={post.linkUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex max-w-full items-center gap-1.5 border-2 border-border px-3 py-2 text-sm text-accent shadow-[3px_3px_0_0_var(--pixel-shadow)] hover:border-primary hover:text-primary"
+          className="inline-flex max-w-full items-center gap-1.5 border border-border px-3 py-2 text-sm text-accent shadow-sm hover:border-primary hover:text-primary"
         >
           <Link2 className="size-3.5 shrink-0" aria-hidden />
           <span className="truncate">{post.linkUrl}</span>

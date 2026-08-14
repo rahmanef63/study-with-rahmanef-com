@@ -24,7 +24,7 @@ import { cn } from "@/lib/utils";
 import { HOME_LINK, isPathActive, kelolaLink } from "./nav-model";
 import { SidebarMenuButton } from "./sidebar-menu";
 
-const HALF = "min-w-0 flex-1 border-2 border-border justify-center gap-2 px-2";
+const HALF = "min-w-0 flex-1 border border-border justify-center gap-2 px-2";
 
 export function SidebarQuickRow({
   tenantId,

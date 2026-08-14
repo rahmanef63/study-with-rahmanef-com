@@ -78,7 +78,7 @@ export function MateriPicker({
       ) : available.length === 0 ? (
         <p className="text-sm text-muted-foreground">{copy.addMateriEmpty}</p>
       ) : (
-        <ul className="max-h-64 divide-y divide-border overflow-y-auto border border-border bg-card">
+        <ul className="max-h-64 divide-y divide-border overflow-y-auto rounded-[var(--radius)] border border-border bg-card">
           {available.map((row) => (
             <li key={row._id}>
               <button

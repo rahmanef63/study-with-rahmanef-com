@@ -31,7 +31,7 @@ export function CommentThread({
   const { root, replies } = thread;
 
   return (
-    <li className="space-y-3 rounded-[var(--radius-win)] border border-border bg-card p-4">
+    <li className="space-y-3 rounded-[var(--radius-win)] rounded-[var(--radius)] border border-border bg-card p-4">
       <CommentItem
         item={root}
         canDelete={!root.deleted && (root.mine || canModerate)}
@@ -54,7 +54,7 @@ export function CommentThread({
       />
 
       {(replies.length > 0 || replyOpen) && (
-        <div className="space-y-3 border-l-2 border-border pl-4">
+        <div className="space-y-3 border-l border-border pl-4">
           {replies.map((reply) => (
             <CommentItem
               key={reply._id}

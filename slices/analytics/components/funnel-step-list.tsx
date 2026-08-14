@@ -51,7 +51,7 @@ export function FunnelStepList({ steps, copy: copyOverride, className }: FunnelS
             )}
             <div
               className={cn(
-                "space-y-1.5 border-2 px-3 py-2.5",
+                "space-y-1.5 border px-3 py-2.5",
                 isWorst ? "border-destructive bg-destructive/5" : "border-border bg-card"
               )}
             >

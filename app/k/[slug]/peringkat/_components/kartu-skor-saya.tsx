@@ -25,7 +25,7 @@ export function KartuSkorSaya({ mine }: { mine: MyRank | undefined }) {
   const maxed = mine.nextLevelAt === null || mine.pointsToNext === null;
 
   return (
-    <div className="border-2 border-primary bg-card p-3.5 shadow-[4px_4px_0_0_var(--pixel-shadow)]">
+    <div className="border border-primary bg-card p-3.5 shadow-md">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <span className="eyebrow">Skor kamu</span>
@@ -71,7 +71,7 @@ export function KartuSkorSaya({ mine }: { mine: MyRank | undefined }) {
           aria-label={
             maxed ? `Level ${MAX_LEVEL}, sudah maksimal` : `Kemajuan ke level ${mine.level + 1}`
           }
-          className="h-2.5 w-full border-2 border-border bg-muted"
+          className="h-2.5 w-full border border-border bg-muted"
         >
           {/* Stepped block fill, not a gradient — it is a power bar, not a meter. */}
           <div className="h-full bg-primary" style={{ width: `${persen}%` }} />

@@ -49,15 +49,15 @@ export function MultiChoiceQuestion({ question, value, onSubmit }: MultiChoiceQu
                 type="button"
                 aria-pressed={on}
                 onClick={() => toggle(option.value)}
-                className={`flex min-h-14 w-full items-center gap-3 border-2 px-4 py-3 text-left transition-colors duration-75 [transition-timing-function:steps(2,end)] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring ${
+                className={`flex min-h-14 w-full items-center gap-3 border px-4 py-3 text-left transition-colors duration-75 [transition-timing-function:steps(2,end)] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring ${
                   on
-                    ? "border-primary bg-primary/10 text-primary shadow-[3px_3px_0_0_var(--pixel-shadow)]"
+                    ? "border-primary bg-primary/10 text-primary shadow-sm"
                     : "border-border bg-card hover:border-primary hover:text-primary"
                 }`}
               >
                 <span
                   aria-hidden
-                  className={`grid size-5 shrink-0 place-items-center border-2 ${on ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}
+                  className={`grid size-5 shrink-0 place-items-center border ${on ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}
                 >
                   {on ? <Check className="size-3.5" /> : null}
                 </span>

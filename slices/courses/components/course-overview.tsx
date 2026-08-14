@@ -92,7 +92,7 @@ export function CourseOverview({
         <div className={aboveSyllabusSlot ? "grid gap-4 @lg:grid-cols-2" : undefined}>
           {/* Biaya sampai selesai — a constant, honest truth (charity ethos): free.
               Progressive disclosure keeps it calm; the detail is one tap away. */}
-          <div className="h-full border border-border bg-card p-4">
+          <div className="h-full rounded-[var(--radius)] border border-border bg-card p-4">
             <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
               <Wallet className="size-3.5 shrink-0" aria-hidden /> {copy.costLabel}
             </p>

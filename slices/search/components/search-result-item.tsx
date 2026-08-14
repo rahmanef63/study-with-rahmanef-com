@@ -25,7 +25,7 @@ export type SearchResultItemProps = {
 };
 
 const ROW_CLASS =
-  "flex items-start gap-3 rounded-md border border-border bg-card px-3 py-2.5 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+  "flex items-start gap-3 rounded-md rounded-[var(--radius)] border border-border bg-card px-3 py-2.5 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 function RowBody({ hit }: { hit: SearchHit }) {
   const Icon =

@@ -75,7 +75,7 @@ function LessonBody({ tenantId, slug, courseSlug, lessonId }: Props & { tenantId
       <aside className="hidden @3xl:block">
         <div className="pr-1">{nav}</div>
       </aside>
-      <details className="mb-4 border border-border bg-card @3xl:hidden">
+      <details className="mb-4 rounded-[var(--radius)] border border-border bg-card @3xl:hidden">
         <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-2.5 text-sm font-medium [&::-webkit-details-marker]:hidden">
           <List className="size-4 text-muted-foreground" aria-hidden />
           Daftar materi

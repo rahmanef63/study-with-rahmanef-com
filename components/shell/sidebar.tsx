@@ -44,7 +44,7 @@ export function SidebarHeader({
   return (
     <div
       data-slot="sidebar-header"
-      className={cn("shrink-0 space-y-2 border-b-2 px-4 pb-4", className)}
+      className={cn("shrink-0 space-y-2 border-b px-4 pb-4", className)}
       {...props}
     />
   );
@@ -55,7 +55,7 @@ export function SidebarHeader({
  *
  * The rule between groups lives HERE, as a sibling selector, rather than on
  * SidebarGroup: expressed as "every group after the first", it cannot draw a
- * stray rule under the header (which already ends in `border-b-2`) and it
+ * stray rule under the header (which already ends in `border-b`) and it
  * cannot double up with the footer's own. 1px, not the system's usual 2px —
  * this sits below the header's rule in the hierarchy, and four 2px lines in a
  * 256px rail is a ladder.

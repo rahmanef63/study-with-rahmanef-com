@@ -45,11 +45,11 @@ export function PageHeading({
   return (
     <div
       className={cn(
-        // border-b-2 with no colour class on purpose: globals.css carries an
+        // border-b with no colour class on purpose: globals.css carries an
         // UNLAYERED `* { border-color: var(--color-border) }` that beats any
         // Tailwind border-* utility, so the token is already what renders and
         // naming it would be a lie about where the colour comes from.
-        "mb-5 flex flex-wrap items-start justify-between gap-x-4 gap-y-2 border-b-2 pb-3",
+        "mb-5 flex flex-wrap items-start justify-between gap-x-4 gap-y-2 border-b pb-3",
         className
       )}
     >

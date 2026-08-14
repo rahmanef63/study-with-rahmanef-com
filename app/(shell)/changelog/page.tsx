@@ -57,7 +57,7 @@ function Entry({ e }: { e: ChangelogEntry }) {
           </span>
         ))}
       </div>
-      <h2 className="mt-1.5 font-display text-xs font-semibold">{e.title}</h2>
+      <h2 className="mt-1.5 font-display font-semibold">{e.title}</h2>
       <ul className="mt-2 space-y-1.5">
         {e.points.map((p, i) => (
           <li key={`${e.date}-${i}`} className="flex gap-2 text-sm text-muted-foreground">

@@ -5,18 +5,18 @@ import { Slot } from "radix-ui"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "pixel-press inline-flex shrink-0 items-center justify-center gap-2 text-sm font-medium whitespace-nowrap uppercase tracking-wide outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "pixel-press rounded-[var(--radius)] inline-flex shrink-0 items-center justify-center gap-2 text-sm font-medium whitespace-nowrap uppercase tracking-wide outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
         default:
-          "border-2 border-primary bg-primary text-primary-foreground shadow-[3px_3px_0_0_var(--pixel-shadow)] hover:bg-primary/85",
+          "border border-primary bg-primary text-primary-foreground shadow-sm hover:bg-primary/85",
         destructive:
-          "border-2 border-destructive bg-destructive text-white shadow-[3px_3px_0_0_var(--pixel-shadow)] hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40",
+          "border border-destructive bg-destructive text-white shadow-sm hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40",
         outline:
-          "border-2 border-border bg-card shadow-[3px_3px_0_0_var(--pixel-shadow)] hover:border-primary hover:text-primary",
+          "rounded-[var(--radius)] border border-border bg-card shadow-sm hover:border-primary hover:text-primary",
         secondary:
-          "border-2 border-border bg-secondary text-secondary-foreground shadow-[3px_3px_0_0_var(--pixel-shadow)] hover:bg-secondary/80",
+          "border border-border bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",

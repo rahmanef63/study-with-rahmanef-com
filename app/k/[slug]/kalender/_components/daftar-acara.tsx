@@ -13,7 +13,7 @@ function Waktu({ acara }: { acara: AcaraPublik }) {
   return (
     <time
       dateTime={new Date(acara.startsAt).toISOString()}
-      className="border-2 border-primary/40 bg-primary/10 px-2 py-0.5 font-display text-[10px] leading-5 text-primary"
+      className="border border-primary/40 bg-primary/10 px-2 py-0.5 font-display text-[10px] leading-5 text-primary"
     >
       {labelRentang(acara.startsAt, acara.endsAt)}
     </time>
@@ -109,7 +109,7 @@ export function ArsipAcara({
 }) {
   if (acara.length === 0) return null;
   return (
-    <details className="border-2 border-border bg-card/40 px-4 py-3 shadow-[3px_3px_0_0_var(--pixel-shadow)]">
+    <details className="rounded-[var(--radius)] border border-border bg-card/40 px-4 py-3 shadow-sm">
       <summary className="cursor-pointer font-display text-[11px] uppercase tracking-wide text-muted-foreground marker:text-primary">
         Arsip sesi ({acara.length})
       </summary>

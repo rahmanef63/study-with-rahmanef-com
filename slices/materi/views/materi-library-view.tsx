@@ -92,7 +92,7 @@ export function MateriLibraryView({
       {tags !== undefined ? <TagChips tags={tags} value={tag} onChange={setTag} /> : null}
 
       {visible.length === 0 ? (
-        <p className="border-2 border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
+        <p className="border border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
           {q !== "" ? copy.emptySearch(query) : tag !== null ? copy.emptyTag : copy.emptyLibrary}
         </p>
       ) : (
