@@ -216,8 +216,14 @@ export function BerandaView() {
           value={`${data.badgeCount}${plus}`}
           label="kelas tuntas"
         />
+        {/* The badge hexagon, not the campfire. `anggota.webp` was here and it
+            failed at the size it actually renders: its dashed speech bubble
+            survives the downscale to 44px and the campfire under it collapses
+            into a smudge. Caught in a real browser, not in review — which is
+            the lesson: a sprite that reads at 112px is not a sprite that reads
+            at 44px, so check candidates at the BOX SIZE, not the file size. */}
         <Stat
-          art="/ui/empty/anggota.webp"
+          art="/learning/badge/community.webp"
           value={String(data.communities.length)}
           label="komunitas"
         />

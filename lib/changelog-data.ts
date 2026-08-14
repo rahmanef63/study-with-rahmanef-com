@@ -28,6 +28,15 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-08-14",
+    version: "v4.4",
+    title: "Ikon “komunitas” di Beranda diganti",
+    tags: ["Perbaikan"],
+    points: [
+      "Gambar di kartu hitungan komunitas tadinya api unggun dengan balon obrolan. Di ukuran 44px balonnya menang dan api unggunnya jadi noda yang tidak terbaca. Diganti lencana komunitas yang tetap jelas sekecil itu.",
+    ],
+  },
+  {
+    date: "2026-08-14",
     version: "v4.3",
     title: "Beranda — ringkasan belajarmu di satu halaman",
     tags: ["Baru", "Tampilan"],
