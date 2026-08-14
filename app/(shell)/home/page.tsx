@@ -1,0 +1,102 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import { EXPLORE_LINKS } from "@/components/shell";
+import { BerandaView } from "../../_components/beranda-view";
+
+// THE HOME SCREEN. Where "Jelajah" went.
+//
+// Those three destinations — Komunitas, Roadmap, Peta belajar — used to be a
+// permanent group in the rail, under the community's own tabs. That is a lot of
+// standing chrome for three places a reader goes deliberately and occasionally,
+// and it made the rail a mix of "where I am" and "where else there is". They
+// are cards here instead: one tap from the Beranda button, and with room for
+// the sentence that says what each one is for, which a 44px row never had.
+//
+// TWO HALVES, AND THE TOP ONE IS ANONYMOUS. The explore cards are server-
+// rendered from `EXPLORE_LINKS` — the same list the rail used, so the two can
+// never drift — and they render for everyone. The summary below is a client
+// island because it is the caller's own state and this server is permanently
+// anonymous; it simply is not there for a signed-out reader, who gets the cards
+// and nothing that implies a session they do not have.
+//
+// The art is picked for its ALPHA as much as its subject: these sit on
+// `bg-card` (#0f1626), lighter than `--background`, so a sprite whose baked
+// field survived the flood fill shows as a box. All three were checked on that
+// exact colour — see the same note in app/(shell)/page.tsx.
+const TITLE = "Beranda";
+const DESCRIPTION =
+  "Ringkasan belajarmu — kelas yang sedang jalan, komunitas yang kamu ikuti, dan ke mana lagi kamu bisa pergi.";
+
+export const metadata: Metadata = {
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: { canonical: "/home" },
+  // Signed-out this page is three links; signed-in it is somebody's private
+  // progress. Neither is worth indexing, and the second must not be.
+  robots: { index: false, follow: true },
+};
+
+/** One line each, because a card has room for the thing a nav row could not say. */
+const BLURB: Record<string, string> = {
+  komunitas: "Semua komunitas belajar yang aktif. Gratis, terbuka, berbahasa Indonesia.",
+  roadmap: "Seluruh jalur belajar sekaligus — dari nol sampai menjalankan beberapa agent AI.",
+  peta: "Jawab beberapa kartu, keluar dengan dua sampai tiga rencana belajar yang cocok denganmu.",
+};
+
+const ART: Record<string, string> = {
+  komunitas: "/ui/empty/anggota.webp",
+  roadmap: "/ui/spot/roadmap-path.webp",
+  peta: "/ui/empty/discovery.webp",
+};
+
+export default function BerandaPage() {
+  return (
+    <div className="@container mx-auto w-full max-w-4xl">
+      <header className="space-y-2">
+        <span className="eyebrow">Ringkasan</span>
+        <h1 className="font-display text-lg @sm:text-xl">{TITLE}</h1>
+        <p className="max-w-xl text-pretty text-body text-muted-foreground">{DESCRIPTION}</p>
+      </header>
+
+      <div className="mt-8">
+        <BerandaView />
+      </div>
+
+      <section className="mt-10 border-t-2 pt-8">
+        <h2 className="eyebrow">Jelajah</h2>
+        <ul className="mt-3 grid gap-3 @2xl:grid-cols-3">
+          {EXPLORE_LINKS.map((link) => (
+            <li key={link.key}>
+              <Link
+                href={link.href}
+                className="group flex h-full flex-col border-2 border-border bg-card p-5 transition-colors hover:border-primary"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element -- committed static asset. */}
+                <img
+                  src={ART[link.key]}
+                  alt=""
+                  width={56}
+                  height={56}
+                  loading="lazy"
+                  decoding="async"
+                  className="pixelated size-14 object-contain"
+                />
+                <span className="mt-3 text-title font-medium group-hover:text-primary">
+                  {link.label}
+                </span>
+                <span className="mt-1 flex-1 text-pretty text-footnote text-muted-foreground">
+                  {BLURB[link.key]}
+                </span>
+                <span className="mt-4 inline-flex min-h-11 items-center gap-1.5 text-title font-medium text-primary">
+                  Buka
+                  <ArrowRight className="size-4" aria-hidden />
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </div>
+  );
+}

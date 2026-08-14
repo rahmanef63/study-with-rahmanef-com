@@ -86,17 +86,13 @@ export function ShellAction({
     // never drift into naming the same destination two different ways — the
     // drift the nav-model header argues against, and which this file was
     // quietly committing by rebuilding the link inline.
+    // The RAIL's Kelola moved into SidebarQuickRow, beside Beranda — rendering
+    // it here too would put the same destination in the sidebar twice. The bar
+    // keeps it: below md the rail is behind a tap.
     const kelola = kelolaLink(slug);
     return isBar ? (
       <BarIconLink href={kelola.href} label="Kelola komunitas" icon={kelola.icon} />
-    ) : (
-      <SidebarMenuButton
-        href={kelola.href}
-        label={kelola.label}
-        icon={kelola.icon}
-        onNavigate={onNavigate}
-      />
-    );
+    ) : null;
   }
 
   return (

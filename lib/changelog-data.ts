@@ -28,6 +28,18 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-08-14",
+    version: "v4.3",
+    title: "Beranda — ringkasan belajarmu di satu halaman",
+    tags: ["Baru", "Tampilan"],
+    points: [
+      "Ada tombol Beranda di menu samping, tepat di bawah nama komunitas (bersebelahan dengan Kelola kalau kamu pengelola). Isinya ringkasanmu: berapa materi selesai, berapa kelas tuntas, berapa komunitas yang kamu ikuti.",
+      "Di bawahnya: kelas yang sedang kamu jalani lengkap dengan bar progres dan hitungan materi, kelas yang belum kamu mulai, lalu daftar komunitasmu.",
+      "Komunitas, Roadmap, dan Peta belajar pindah dari menu samping ke halaman Beranda sebagai kartu. Di menu mereka cuma tiga baris tanpa penjelasan; sebagai kartu ada ruang untuk satu kalimat tentang gunanya masing-masing.",
+      "Semua itu diambil dalam satu permintaan ke server, bukan satu per kelas — kalau tidak, halaman ini akan membuka puluhan sambungan sekaligus.",
+    ],
+  },
+  {
+    date: "2026-08-14",
     version: "v4.2",
     title: "Ganti komunitas dari menu, dan menu akun sendiri",
     tags: ["Baru", "Tampilan"],

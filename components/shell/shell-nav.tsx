@@ -18,10 +18,11 @@ import { visibleCommunityTabs, type TenantTabSignal } from "@/lib/community";
 import { cn } from "@/lib/utils";
 import { SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader } from "./sidebar";
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "./sidebar-menu";
+import { SidebarQuickRow } from "./sidebar-quick-row";
 import { SidebarSwitcher } from "./sidebar-switcher";
 import { SidebarUser } from "./sidebar-user";
 import { ShellAction } from "./shell-action";
-import { communityToolLinks, EXPLORE_LINKS, iconFor, isPathActive, type ShellLink } from "./nav-model";
+import { communityToolLinks, iconFor, isPathActive, type ShellLink } from "./nav-model";
 
 /** The community this rail is inside, when it is inside one. */
 export type ShellCommunity = {
@@ -77,6 +78,18 @@ export function ShellNav({ community, onNavigate, className }: ShellNavProps) {
           }
           onNavigate={onNavigate}
         />
+        {/* Beranda first, and Kelola beside it when the reader can manage this
+            community. The rail used to carry three global destinations in a
+            "Jelajah" group; they moved to /beranda, and this button is the way
+            in. Gabung stays a full-width row below — halving the one thing this
+            app asks of a stranger to make room for a home link is the wrong
+            trade. */}
+        <SidebarQuickRow
+          tenantId={community?.tenantId}
+          slug={community?.slug}
+          pathname={pathname}
+          onNavigate={onNavigate}
+        />
         {community === undefined ? null : (
           <ShellAction
             tenantId={community.tenantId}
@@ -124,33 +137,6 @@ export function ShellNav({ community, onNavigate, className }: ShellNavProps) {
           </SidebarGroup>
         )}
 
-          {/* THE STATIC HALF, and the rule above it is the whole point of the
-              split. The group above changes shape with the tab signal — a
-              community with no published skill has no Skills row — so the rail
-              a reader sees is different in every community. These three never
-              move, in or out of one, which makes them the part you can aim at
-              from muscle memory.
-
-              "Komunitas" belongs HERE and used to exist only as a back-link in
-              the header, which meant the directory was reachable from the rail
-              on the account pages and NOT from inside a community. Roadmap and
-              Peta belajar had the opposite bug once: they lived only inside a
-              community, so /pengaturan could not reach them at all. */}
-          <SidebarGroup label="Jelajah" heading="Jelajah">
-            <SidebarMenu>
-              {EXPLORE_LINKS.map((link) => (
-              <SidebarMenuItem key={link.key}>
-                <SidebarMenuButton
-                  href={link.href}
-                  label={link.label}
-                  icon={link.icon}
-                  isActive={isPathActive(link.href, pathname, link.exact)}
-                  onNavigate={onNavigate}
-                />
-              </SidebarMenuItem>
-            ))}
-            </SidebarMenu>
-          </SidebarGroup>
         </SidebarContent>
 
         <SidebarFooter>

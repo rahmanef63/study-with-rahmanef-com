@@ -398,3 +398,14 @@ swapping one.
 and `/ui/status/{install,notification,offline,offline-mobile,not-found}.webp` — the last five because
 their surfaces already render `/web/banner-skyline.webp`, and because building a PWA install prompt
 to justify a 14 KB file is a feature, not a wiring job.
+
+### 10.6 Wired count, 2026-08-14
+
+**36 distinct paths are referenced from source**, against 73 files shipped under
+`ui/ learning/ web/`. The gap is not laziness: 10 course covers, 5 medallions,
+6 `social/post-*` cards and `certificate-bg` are parked for the reason stated in
+§9.4 and §10.1 — they bake their copy into the pixels — and five `ui/status/*`
+sprites have no surface because the screens they would serve already render the
+one precached banner. What is left is the text-free sprite pool, and it is now
+wired across the landing, `/roadmap`, the `/mulai` result, `/home`, `/masuk`,
+`/changelog`, `app/error.tsx` and eight empty states.

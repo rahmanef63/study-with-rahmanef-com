@@ -8,7 +8,8 @@
 // tab strip used. Re-declaring those rows here would freeze them into a static
 // list and quietly regress that. All this file adds is the ICON per tab key and
 // the two sections the tab SSOT does not own (community tools, account).
-import { Bell, BookOpen, CalendarDays, Circle, Compass, Info, Library, LayoutGrid,
+import { Bell, BookOpen, CalendarDays, Circle, Compass, Home,
+  Info, Library, LayoutGrid,
   Map, MessagesSquare, ScrollText, Search, Settings, SlidersHorizontal, Trophy, UserRound, Users, Wand2, type LucideIcon } from "lucide-react";
 import { communityHref } from "@/lib/community";
 
@@ -75,6 +76,33 @@ export const GLOBAL_DOCK_LINKS: ShellLink[] = [
   { key: "notifikasi", label: "Notifikasi", href: "/notifikasi", icon: Bell, exact: true },
 ];
 
+/**
+ * The home screen. The PATH is `/home` and the LABEL is Bahasa, which is a
+ * deliberate mismatch: `next.config.mjs` carries a `permanent: true` redirect
+ * from `/beranda` to `/`, left over from an earlier route migration. A 308 is
+ * cached by browsers indefinitely, so anyone who ever opened the old `/beranda`
+ * would keep being bounced to the landing page no matter what this repo does
+ * next — removing the redirect cannot un-cache it. `/home` has no such history.
+ * The path is not user-facing; the label is.
+ */
+export const HOME_LINK: ShellLink = {
+  key: "home",
+  label: "Beranda",
+  href: "/home",
+  icon: Home,
+  exact: true,
+};
+
+/**
+ * NO LONGER IN THE RAIL. These three sat in a "Jelajah" group under the
+ * community's own tabs, where they were permanent chrome for three
+ * destinations a reader visits deliberately, not constantly. They are now the
+ * CARDS on /beranda — same three links, same order, one tap away via the
+ * Beranda button, and with room for a sentence explaining each.
+ *
+ * Kept exported because /beranda renders from this list: the rail and the home
+ * screen cannot drift into naming the same destination two different ways.
+ */
 export const EXPLORE_LINKS: ShellLink[] = [
   // ALWAYS THREE, community or not. "Komunitas" used to exist only as a
   // "‹ Komunitas lain" back-link in the header, which meant the directory was

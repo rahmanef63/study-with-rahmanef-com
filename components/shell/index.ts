@@ -23,6 +23,8 @@ export { SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader } from "./si
 export { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "./sidebar-menu";
 export {
   ACCOUNT_LINKS,
+  HOME_LINK,
+  EXPLORE_LINKS,
   ICON_KEYS,
   communityToolLinks,
   iconFor,

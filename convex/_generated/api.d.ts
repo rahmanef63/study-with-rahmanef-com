@@ -117,6 +117,7 @@ import type * as features_progress_constants from "../features/progress/constant
 import type * as features_progress_derive from "../features/progress/derive.js";
 import type * as features_progress_errors from "../features/progress/errors.js";
 import type * as features_progress_mutations from "../features/progress/mutations.js";
+import type * as features_progress_overview from "../features/progress/overview.js";
 import type * as features_progress_queries from "../features/progress/queries.js";
 import type * as features_progress_recents from "../features/progress/recents.js";
 import type * as features_quiz_access from "../features/quiz/access.js";
@@ -263,6 +264,7 @@ declare const fullApi: ApiFromModules<{
   "features/progress/derive": typeof features_progress_derive;
   "features/progress/errors": typeof features_progress_errors;
   "features/progress/mutations": typeof features_progress_mutations;
+  "features/progress/overview": typeof features_progress_overview;
   "features/progress/queries": typeof features_progress_queries;
   "features/progress/recents": typeof features_progress_recents;
   "features/quiz/access": typeof features_quiz_access;
