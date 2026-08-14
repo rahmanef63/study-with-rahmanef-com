@@ -28,6 +28,17 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-08-14",
+    version: "v5.1",
+    title: "Warna garis tepi akhirnya muncul, dan sudutnya benar-benar membulat",
+    tags: ["Perbaikan", "Tampilan"],
+    points: [
+      "Satu baris di file gaya diam-diam menimpa SEMUA warna garis tepi di aplikasi. Akibatnya tombol emas dibingkai garis abu-abu, kolom isian yang salah tidak pernah berubah merah, dan garis fokus — yang dipakai orang yang menavigasi dengan keyboard — tidak pernah ganti warna. Diukur di situs live: 65 elemen memakai warna garis tepi, semuanya menggambar abu-abu yang sama persis.",
+      "Sekarang 23 di antaranya tampil emas sebagaimana mestinya, dan sisanya menyala saat disorot atau difokus.",
+      "Sudut membulat yang dijanjikan pembaruan sebelumnya ternyata tidak pernah menyala — angkanya masih 0, jadi semua sudut tetap siku. Sekarang benar-benar 6px.",
+    ],
+  },
+  {
+    date: "2026-08-14",
     version: "v5.0",
     title: "Tampilan baru — arcade 80-an diganti yang lebih bersih",
     tags: ["Tampilan"],

@@ -1,7 +1,7 @@
 // Mockup kit — the "Design Platform Wireframe" component vocabulary, rebuilt in
 // THIS app's design system (Editorial Warmth tokens + theme presets), not the
 // wireframe's grayscale/Kalam skin. Every primitive is:
-//   • token-only  → reads --primary/--card/--border/--muted-foreground/--radius-win,
+//   • token-only  → reads --primary/--card/--border/--muted-foreground/--radius,
 //                    so it tracks the active theme preset (the mockup's accent-swap knob).
 //   • CONTAINER-responsive (@sm/@md/@lg…), never viewport (sm:/md:) — app views mount
 //     in a [container-type:inline-size] body, so they must size to the WINDOW, not the

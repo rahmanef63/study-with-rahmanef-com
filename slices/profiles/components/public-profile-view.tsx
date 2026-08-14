@@ -86,7 +86,7 @@ function PublicProfileContent({ username, shareUrl, certificateHref, labels }: C
 function ProfileSkeleton() {
   return (
     <div className="flex w-full flex-col gap-10 @sm:gap-12" aria-busy="true">
-      <div className="rounded-[var(--radius-win)] bg-gradient-to-b from-primary/[0.08] to-transparent to-90% px-5 py-8 @md:px-8 @md:py-10 dark:from-primary/[0.14]">
+      <div className="rounded-[var(--radius)] bg-gradient-to-b from-primary/[0.08] to-transparent to-90% px-5 py-8 @md:px-8 @md:py-10 dark:from-primary/[0.14]">
         <div className="flex flex-col gap-3 @sm:flex-row @sm:items-center @sm:gap-5">
           <Skeleton className="size-24 shrink-0" />
           <div className="flex w-full min-w-0 flex-col gap-2">

@@ -38,13 +38,13 @@ export function TenantProfileCard({
             alt=""
             loading="lazy"
             decoding="async"
-            className="h-32 w-full rounded-[var(--radius-win)] border border-border object-cover @md:h-44"
+            className="h-32 w-full rounded-[var(--radius)] border border-border object-cover @md:h-44"
             onError={(e) => { e.currentTarget.style.display = "none"; }}
           />
           {coverAction ? <div className="absolute right-3 top-3">{coverAction}</div> : null}
         </div>
       ) : coverAction ? (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-win)] border border-dashed border-border bg-muted/30 px-4 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius)] border border-dashed border-border bg-muted/30 px-4 py-3">
           <span className="text-sm text-muted-foreground">Belum ada sampul komunitas.</span>
           {coverAction}
         </div>

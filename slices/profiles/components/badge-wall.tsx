@@ -105,7 +105,7 @@ export function BadgeWall({ badges, certificateHref, labels, className }: BadgeW
                 </>
               );
               const tileClass =
-                "group flex flex-col items-center gap-2.5 rounded-[var(--radius-win)] rounded-[var(--radius)] border border-border bg-card p-4 text-center transition-colors hover:border-primary/30 @sm:p-5";
+                "group flex flex-col items-center gap-2.5 rounded-[var(--radius)] border border-border bg-card p-4 text-center transition-colors hover:border-primary/30 @sm:p-5";
               return (
                 <li key={badge.completionId}>
                   {certificateHref ? (

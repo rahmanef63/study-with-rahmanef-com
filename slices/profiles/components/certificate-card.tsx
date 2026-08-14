@@ -57,12 +57,12 @@ export function CertificateCard({
     <div className={cn("mx-auto flex w-full max-w-2xl flex-col gap-5", className)}>
       <article
         aria-label={copy.heading}
-        className="relative rounded-[var(--radius-win)] rounded-[var(--radius)] border border-border bg-card px-6 py-10 text-center shadow-sm @sm:px-12 @sm:py-14"
+        className="relative rounded-[var(--radius)] border border-border bg-card px-6 py-10 text-center shadow-sm @sm:px-12 @sm:py-14"
       >
         {/* Classic double-rule document frame — hairline, tokens only */}
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute inset-2 rounded-[calc(var(--radius-win)-0.25rem)] border border-border/70 @sm:inset-3"
+          className="pointer-events-none absolute inset-2 rounded-[calc(var(--radius)-0.25rem)] border border-border/70 @sm:inset-3"
         />
 
         {/* Medal + eyebrow */}

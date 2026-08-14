@@ -60,10 +60,12 @@ describe("arcade primitives", () => {
     expect(uiFiles.length).toBeGreaterThan(10)
   })
 
-  it.each(uiFiles)("%s writes no dead rounded-* utility", (file) => {
-    // --radius is 0, so `rounded-md` resolves to a NEGATIVE calc and every
-    // other named step to 0. Writing one is dead code that tells the next
-    // author a radius is on the table.
+  it.each(uiFiles)("%s takes its radius from the token, not a named step", (file) => {
+    // ONE radius language: `rounded-[var(--radius)]`. A named step resolves
+    // through the derived ladder (--radius-sm/-md/-lg), which is a SECOND
+    // scale that drifts from the token the rest of the app uses — and for the
+    // whole arcade era resolved to 0 or to a negative calc that browsers drop
+    // on the floor, so nobody noticed it was a second scale at all.
     // NOT policed: `rounded-full` (a circle is a shape, not a corner radius —
     // avatars and scrollbar thumbs are allowed to be round) and arbitrary
     // values like `rounded-[2px]`, which are a deliberate literal rather than
@@ -76,5 +78,37 @@ describe("arcade primitives", () => {
       })
       .join("\n")
     expect(code).not.toMatch(/(?<![\w-])rounded(?:-[trbl]{1,2})?-(?:none|xs|sm|md|lg|xl|2xl|3xl)(?![\w-])/)
+  })
+})
+
+describe("cascade layers", () => {
+  // Comments are stripped first: a brace inside one would derail the scan.
+  const css = globalsCss.replace(/\/\*[\s\S]*?\*\//g, "")
+
+  /** The selectors of every block still open at `index`, outermost first. */
+  function enclosingBlocks(index: number): string[] {
+    const stack: string[] = []
+    let lineStart = 0
+    for (let k = 0; k < index; k += 1) {
+      const ch = css[k]
+      if (ch === "\n") lineStart = k + 1
+      else if (ch === "{") stack.push(css.slice(lineStart, k).trim())
+      else if (ch === "}") stack.pop()
+    }
+    return stack
+  }
+
+  it("keeps the default border colour inside @layer base", () => {
+    // THE RULE THIS PINS: unlayered CSS beats every cascade layer no matter
+    // the specificity, and Tailwind emits `border-primary` into @layer
+    // utilities. So a `* { border-color }` written outside a layer overrides
+    // every border-colour utility in the app — silently, with no build error
+    // and nothing to see in the component. Measured on production at 3e64bda:
+    // 65 elements across the seven anonymous routes carried one, and all 65
+    // painted the same grey. Gold buttons had grey outlines, focus rings never
+    // changed colour, aria-invalid fields stayed neutral.
+    const i = css.search(/\*\s*\{[^}]*border-color/)
+    expect(i).toBeGreaterThan(-1)
+    expect(enclosingBlocks(i)).toEqual(["@layer base"])
   })
 })

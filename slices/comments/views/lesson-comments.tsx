@@ -65,8 +65,8 @@ export function LessonComments({
 
       {threads === undefined ? (
         <div className="space-y-3" aria-busy>
-          <Skeleton className="h-20 w-full rounded-[var(--radius-win)]" />
-          <Skeleton className="h-20 w-full rounded-[var(--radius-win)]" />
+          <Skeleton className="h-20 w-full rounded-[var(--radius)]" />
+          <Skeleton className="h-20 w-full rounded-[var(--radius)]" />
         </div>
       ) : threads.length === 0 ? (
         <CommentsEmptyState title={copy.emptyTitle} hint={copy.emptyHint} />

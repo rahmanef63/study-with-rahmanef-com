@@ -20,13 +20,13 @@ export function SidebarMenuItem(props: React.ComponentProps<"li">) {
 // three signals, because the one thing navigation must never be is ambiguous
 // about where you are.
 //
-// THE CURSOR IS AN INSET box-shadow, NOT A BORDER, and that is not a style
-// preference. app/globals.css carries an UNLAYERED `* { border-color:
-// var(--color-border) }`, and an unlayered declaration beats anything Tailwind
-// emits into @layer utilities no matter how specific — so `border-primary`
-// silently renders grey and `border-transparent` silently renders a visible
-// frame around every idle row (which is exactly what nine stacked rows looked
-// like before this comment existed). box-shadow is not in that cascade.
+// THE CURSOR IS AN INSET box-shadow, NOT A BORDER. It was originally forced:
+// `* { border-color }` in app/globals.css used to sit OUTSIDE any cascade
+// layer, which beats every Tailwind utility regardless of specificity, so
+// `border-primary` rendered grey and `border-transparent` rendered a visible
+// frame around all nine idle rows. That rule now lives in @layer base and both
+// utilities work — but the inset shadow stays, because unlike a border it
+// costs no layout box and cannot shift the row by a pixel when it lights up.
 //
 // HEIGHT IS BREAKPOINT-SPLIT. 44px is the TOUCH floor this design system holds
 // everywhere, and the only touch rendering of this row is the phone slide-over,

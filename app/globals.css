@@ -390,9 +390,14 @@
   --chart-4: oklch(0.82 0.19 148);
   --chart-5: oklch(0.66 0.18 295);
 
-  /* Every corner is square. A pixel grid has no radius. */
-  --radius: 0rem;
-  --radius-win: 0rem;
+  /* 6px. Small enough to stay architectural, large enough that a hairline
+     border reads as a drawn edge instead of a table cell. The old value was
+     0 ("a pixel grid has no radius"); 3e64bda wired 51 sites to this token and
+     rewrote the docs around 6px but never changed the number, so every corner
+     shipped square anyway. `--radius-win` was a second name for the same
+     value, left over from the deleted window shell — its 14 call sites now
+     read this one. */
+  --radius: 0.375rem;
 
 }
 
@@ -454,9 +459,8 @@
   --chart-4: oklch(0.82 0.19 148);
   --chart-5: oklch(0.66 0.18 295);
 
-  /* Every corner is square. A pixel grid has no radius. */
-  --radius: 0rem;
-  --radius-win: 0rem;
+  /* See :root. */
+  --radius: 0.375rem;
 
 }
 
@@ -500,14 +504,31 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  /* max() because `calc(6px - 4px)` is fine but `calc(0px - 4px)` is NEGATIVE,
+     and a negative border-radius is invalid at computed-value time: the whole
+     declaration is dropped, silently. Clamped, the ladder survives any --radius
+     a future theme picks. */
+  --radius-sm: max(0px, calc(var(--radius) - 4px));
+  --radius-md: max(0px, calc(var(--radius) - 2px));
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-* {
-  border-color: var(--color-border);
+/* The default border colour, so `border` alone draws the theme's hairline
+   instead of `currentColor`.
+
+   IT HAS TO BE LAYERED. Unlayered CSS beats every cascade layer regardless of
+   specificity, and Tailwind emits `border-primary` into @layer utilities — so
+   while this rule sat outside a layer it silently overrode EVERY border-colour
+   utility in the app. Measured on production at 3e64bda: 65 elements across
+   the seven anonymous routes carried one, and all 65 painted the same grey.
+   A gold button with a grey outline, a focus ring that never changed colour,
+   an aria-invalid field that stayed neutral. Inside @layer base it loses to
+   utilities, which is the whole point of a default. */
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
 }
 
 body {

@@ -31,7 +31,7 @@ export function CommentThread({
   const { root, replies } = thread;
 
   return (
-    <li className="space-y-3 rounded-[var(--radius-win)] rounded-[var(--radius)] border border-border bg-card p-4">
+    <li className="space-y-3 rounded-[var(--radius)] border border-border bg-card p-4">
       <CommentItem
         item={root}
         canDelete={!root.deleted && (root.mine || canModerate)}
