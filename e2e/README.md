@@ -24,27 +24,31 @@ npx playwright codegen --save-storage=e2e/.auth/user.json http://localhost:3000/
 
 Sign in with Google in the window that opens, then close it.
 
-**THE STATE IS GOOD FOR ABOUT ONE JWT LIFETIME — RUN THE SUITE RIGHT AFTER
-RECORDING IT.** This was measured on 2026-08-16, not assumed, and it is the
-opposite of what this file used to claim ("record once, that is the whole
-refresh procedure"):
+**THE STATE SURVIVES UNTIL THE FIRST REFRESH — RECORD, THEN RUN THE AUTHED
+PROJECT ONCE.** Measured on 2026-08-16, and sharper than the "it expires after
+an hour" version this file briefly carried, because the real mechanism is not
+expiry at all:
 
-- `@convex-dev/auth` keeps TWO values in localStorage: a short-lived JWT and a
-  refresh token. The recorded file is a frozen copy of both.
-- While the JWT is valid, every spec works — 16 parallel contexts replay the
-  same still-good token and none of them needs to refresh. A full run in that
-  window went 14/16, and both failures were real product drift.
-- Once the JWT expires, each context tries to REFRESH. The refresh token is
-  single-use and rotates server-side: the first context to spend it invalidates
-  the copy every other context (and every future run) is holding. The next full
-  run went 2 passed / 11 failed — not a flake, not eleven regressions, one dead
-  token.
-- `fullyParallel: true` makes this loud rather than gradual, and `--workers=1`
-  does NOT help: Playwright builds a fresh context per test, so each one replays
-  the same frozen token regardless of ordering.
+- `@convex-dev/auth` keeps TWO values in localStorage: a JWT (1 hour exactly,
+  read off `exp`) and a refresh token. The recorded file freezes both.
+- The refresh token is single-use and ROTATES. Replaying one frozen copy from
+  many parallel contexts is indistinguishable from token theft, and the server
+  responds the way any rotating-refresh implementation does: it revokes the
+  whole session family.
+- The proof that this is revocation and not expiry: after a failing run, the
+  recorded JWT still had **45 minutes left on `exp`** and the app rendered
+  signed-out anyway. A token that is valid by its own clock can only be refused
+  by the server.
+- So the run that kills the session is not the late one, it is the first one
+  where any context refreshes. `--workers=1` does not save you — Playwright
+  builds a context per test, so every test replays the same frozen token.
 
-So: record, then run. If a run comes back mostly red, re-record before believing
-a single one of those failures.
+Measured sequence, same recording: authed project alone → **16/16**. Then the
+full 34-spec run (anon + authed together) → the authed half collapsed to mostly
+red while the JWT was still valid. Not eleven regressions. One revoked session.
+
+So: record, run `--project=chromium-auth` once, and read the result. If a later
+run comes back mostly red, re-record before believing a single failure in it.
 
 **BEFORE you re-record, read the failure snapshot** (`error-context.md` next to
 the trace). If it contains a `Kelola` link, the session was ALIVE and the spec

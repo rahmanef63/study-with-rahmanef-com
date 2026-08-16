@@ -62,25 +62,27 @@ async function expectNoCrash(page: Page) {
 }
 
 test.describe("community routes — anon smoke", () => {
-  test("1. / redirects into the flagship community and lands on the Kelas section", async ({
+  test("1. / is the landing page itself — no redirect — and it crawls into the community", async ({
     page,
   }) => {
     const errors = collectErrors(page);
     await page.goto("/");
-    await expect(page).toHaveURL(new RegExp(`/k/${TENANT}$`));
-    // WAS: `page.locator("header").getByRole("heading", { level: 1 })`, i.e.
-    // the community name inside the community <header>. Both are gone — the
-    // stacked header was replaced by a dashboard rail on 2026-08-11, and the
-    // layout's <h1> is now sr-only in the content column, outside any <header>.
-    //
-    // The landing marker is the page's own <h2>, which is real server HTML and
-    // is the ONE thing on a 390px phone that names the section (the rail is
-    // behind a hamburger there). Plus, unchanged, at least one real course link
-    // — the only crawl path from a community to its courses.
-    await expect(page.getByRole("heading", { level: 2, name: "Kelas" })).toBeVisible();
-    // Exactly one <h1> per route under /k: the layout's. A page that adds its
-    // own on top of it is the doubled-heading regression this guards.
+    // NO REDIRECT. This spec asserted `/k/<tenant>` until 2026-08-16, because
+    // `/` really did `redirect()` into the flagship — a stopgap left over from
+    // the OS-shell removal. Fase 1 (#42) gave `/` a real landing page, and this
+    // assertion stayed behind for four releases. Pinning the URL keeps that
+    // stopgap from creeping back: a stranger arriving from a search result must
+    // land somewhere that explains the place, not inside a community feed.
+    await expect(page).toHaveURL(/\/$/);
+    // Exactly one <h1> anywhere on the page. `/` is outside the /k layout, so
+    // this one belongs to the landing itself — and it is the same
+    // doubled-heading regression the old assertion guarded, which is why it
+    // survives the rewrite rather than being dropped with the redirect.
     await expect(page.getByRole("heading", { level: 1, includeHidden: true })).toHaveCount(1);
+    // The one thing this page owes the product: a way IN. The primary CTA is a
+    // real server-rendered anchor, not a client handler, so a crawler follows it.
+    await expect(page.locator(`main a[href="/k/${TENANT}"]`).first()).toBeVisible();
+    // …and the course grid below it, which is the crawl path to every class.
     await expect(page.locator(`main a[href*="/kelas/"]`).first()).toBeVisible();
     await expectNoCrash(page);
     expect(errors).toEqual([]);
