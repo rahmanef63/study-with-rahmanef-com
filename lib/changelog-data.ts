@@ -27,6 +27,16 @@ export type ChangelogEntry = {
 // NEWEST FIRST. Prepend here on every update.
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-08-16",
+    version: "v5.3",
+    title: "Judul di dalam materi tidak lagi bersaing dengan judul halaman",
+    tags: ["Perbaikan"],
+    points: [
+      "Setiap `#` yang ditulis pengajar di badan materi selama ini menghasilkan judul tingkat-satu — sama tingkatnya dengan judul halaman itu sendiri. Satu halaman materi bisa punya tiga judul utama sekaligus. Buat pembaca biasa tidak kelihatan, tapi pembaca layar membacakannya sebagai tiga awal dokumen yang berbeda, dan mesin pencari melihat hal yang sama.",
+      "Sekarang judul di dalam materi turun satu tingkat. Ukuran tampilannya tidak berubah sedikit pun — hierarki yang pengajar susun tetap persis seperti yang mereka tulis.",
+    ],
+  },
+  {
     date: "2026-08-14",
     version: "v5.2",
     title: "Sampul kelas digambar ulang, ikon kecil diganti yang terbaca",

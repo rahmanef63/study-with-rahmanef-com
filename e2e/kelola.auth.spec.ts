@@ -126,9 +126,13 @@ test.describe("kelola — authoring console (storage state)", () => {
     // draft has no slug yet), and the only UI links to it are on skill rows —
     // of which there are currently none.
     await page.goto(`/k/${TENANT}/kelas/${COURSE}`);
-    const modul = page.locator('section[aria-label="Modul"]');
-    await expect(modul).toBeVisible({ timeout: DATA_TIMEOUT });
-    const href = await modul.locator("a[href*='/kelas/']").first().getAttribute("href");
+    // `section[aria-label="Silabus"]`, not "Modul". Modules were dropped from
+    // the schema in #48 and the section renamed with them; A4 in
+    // member.auth.spec.ts was updated then and this one was missed, so C4 sat
+    // red against a selector for a table that no longer exists.
+    const silabus = page.locator('section[aria-label="Silabus"]');
+    await expect(silabus).toBeVisible({ timeout: DATA_TIMEOUT });
+    const href = await silabus.locator("a[href*='/kelas/']").first().getAttribute("href");
     const lessonId = (href ?? "").split("/").pop() ?? "";
     test.skip(lessonId === "", "Silabus kelas seeded kosong — tidak ada lessonId untuk diuji.");
 

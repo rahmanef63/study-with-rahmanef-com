@@ -71,7 +71,17 @@ function MdListItem({ node }: { node: ListNode }) {
 export function MdNodeView({ node }: { node: MdNode }): React.ReactNode {
   switch (node.type) {
     case "heading": {
-      const Tag = `h${node.level}` as keyof React.JSX.IntrinsicElements;
+      // DEMOTED ONE LEVEL. Every surface that renders markdown here — a materi
+      // body, a post, the editor preview — sits inside a page that already owns
+      // its <h1>, so an authored `#` used to emit a SECOND h1 and break the
+      // document outline. Caught by e2e B2 on a real materi permalink: three
+      // level-1 headings on one page (the community name, the materi title, and
+      // `# Terminal + GitHub` from the body).
+      //
+      // The SIZE still comes from the authored level, so nothing moves visually
+      // and an author's own hierarchy is untouched — only the tag changes. h6 is
+      // the floor; below it there is no deeper heading to demote into.
+      const Tag = `h${Math.min(node.level + 1, 6)}` as keyof React.JSX.IntrinsicElements;
       const size = ["text-3xl", "text-2xl", "text-xl", "text-lg", "text-base", "text-sm"][node.level - 1];
       return <Tag className={cn("mt-6 mb-2 font-semibold tracking-tight first:mt-0", size)}>{renderInline(node.text)}</Tag>;
     }

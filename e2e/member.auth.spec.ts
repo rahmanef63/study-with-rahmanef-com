@@ -20,6 +20,7 @@ import {
   DENY_PROD_AUTH,
   DENY_PROD_AUTH_REASON,
   TENANT,
+  USERNAME,
   expectNoCrash,
 } from "./helpers";
 
@@ -32,23 +33,44 @@ test.describe("community routes — member (storage state)", () => {
     page,
   }) => {
     await page.goto(`/k/${TENANT}`);
-    // MARKER BARU (2026-08-11). Dulu spec ini menunggu "Kamu sudah bergabung" —
-    // state ketiga JoinButton di header komunitas. Header itu diganti dashboard
-    // sidebar, dan <ShellAction/> (components/shell/shell-action.tsx) sekarang
-    // TIDAK merender apa pun untuk member biasa: rail-nya sudah memuat semua
-    // tujuan, jadi JoinButton cuma muncul buat yang belum gabung. Assertion
-    // lama otomatis gagal untuk member — persis kebalikan maksudnya.
+    // MARKER, REVISI KEDUA (2026-08-16). Riwayatnya penting karena spec ini
+    // adalah kenari untuk seluruh suite ber-login, dan sudah dua kali gagal
+    // BUKAN karena sesinya mati:
     //
-    // Penanda sesi hidup yang sekarang: blok "Akun" di rail. Signed out ia satu
-    // baris "Masuk"; signed in ia Profil saya · Notifikasi · Pengaturan ·
-    // Changelog. Viewport default Playwright 1280px ⇒ rail terlihat (md+).
-    // Kalau state kedaluwarsa spec ini gagal = sinyal rekam ulang (itu
-    // SATU-SATUNYA prosedur refresh — lihat e2e/README.md).
-    await expect(page.getByRole("link", { name: "Notifikasi" })).toBeVisible({
-      timeout: DATA_TIMEOUT,
-    });
+    //   v1 menunggu "Kamu sudah bergabung" — state ketiga JoinButton di header
+    //   komunitas. Header itu diganti sidebar, dan ShellAction tidak merender
+    //   apa pun untuk member biasa, jadi assertion-nya jadi kebalikan maksudnya.
+    //
+    //   v2 menunggu link "Notifikasi" di rail, karena blok Akun dulu empat
+    //   baris (Profil saya · Notifikasi · Pengaturan · Changelog). Baris-baris
+    //   itu dilipat jadi SATU dropdown di SidebarFooter (sidebar-user.tsx,
+    //   commit 220923f): empat tujuan yang jarang dikunjungi berhenti memakan
+    //   ~150px lantai rail. Isinya kini di balik klik, jadi `toBeVisible` pada
+    //   sebuah link tidak akan pernah benar lagi.
+    //
+    // PELAJARANNYA, dan alasan komentar ini panjang: dua kali berturut-turut,
+    // kegagalan kenari ini dibaca sebagai "state kedaluwarsa, rekam ulang" —
+    // padahal storage state-nya baik-baik saja. Sebelum merekam ulang, BACA
+    // snapshot kegagalannya. Kalau di sana ada link "Kelola", sesinya hidup:
+    // tombol itu hanya dirender untuk owner/instructor yang terautentikasi.
+    //
+    // Penanda sekarang = pemicu dropdown akun itu sendiri, yang menyebut
+    // @username — satu-satunya elemen di rail yang mustahil ada tanpa sesi.
+    const account = page.getByRole("button", { name: new RegExp(`@${USERNAME}`) });
+    await expect(account).toBeVisible({ timeout: DATA_TIMEOUT });
     await expect(page.getByRole("link", { name: "Masuk", exact: true })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "Gabung", exact: true })).toHaveCount(0);
+
+    // ISI dropdown-nya, bukan cuma pemicunya. Empat tujuan akun pindah ke balik
+    // klik ini; tanpa assertion di sini mereka bisa hilang seluruhnya tanpa satu
+    // pun spec berubah merah.
+    await account.click();
+    for (const label of ["Notifikasi", "Pengaturan", "Changelog"]) {
+      await expect(page.getByRole("menuitem", { name: label })).toBeVisible();
+    }
+    await expect(page.getByRole("menuitem", { name: "Keluar" })).toBeVisible();
+    await page.keyboard.press("Escape");
+
     await expectNoCrash(page);
   });
 
