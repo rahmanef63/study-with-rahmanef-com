@@ -16,14 +16,52 @@ with Escape; it never presses Simpan / Terbitkan / Hapus and never types into
 the block editor (which autosaves). **No spec in this folder writes data, so no
 spec needs a cleanup step.** Keep it that way.
 
-## THE ONE COMMAND — record the session
+## Record the session
 
 ```bash
 npx playwright codegen --save-storage=e2e/.auth/user.json http://localhost:3000/masuk
 ```
 
-Sign in with Google in the window that opens, then close it. That is the whole
-setup, and the whole refresh procedure when the session expires.
+Sign in with Google in the window that opens, then close it.
+
+**THE STATE IS GOOD FOR ABOUT ONE JWT LIFETIME — RUN THE SUITE RIGHT AFTER
+RECORDING IT.** This was measured on 2026-08-16, not assumed, and it is the
+opposite of what this file used to claim ("record once, that is the whole
+refresh procedure"):
+
+- `@convex-dev/auth` keeps TWO values in localStorage: a short-lived JWT and a
+  refresh token. The recorded file is a frozen copy of both.
+- While the JWT is valid, every spec works — 16 parallel contexts replay the
+  same still-good token and none of them needs to refresh. A full run in that
+  window went 14/16, and both failures were real product drift.
+- Once the JWT expires, each context tries to REFRESH. The refresh token is
+  single-use and rotates server-side: the first context to spend it invalidates
+  the copy every other context (and every future run) is holding. The next full
+  run went 2 passed / 11 failed — not a flake, not eleven regressions, one dead
+  token.
+- `fullyParallel: true` makes this loud rather than gradual, and `--workers=1`
+  does NOT help: Playwright builds a fresh context per test, so each one replays
+  the same frozen token regardless of ordering.
+
+So: record, then run. If a run comes back mostly red, re-record before believing
+a single one of those failures.
+
+**BEFORE you re-record, read the failure snapshot** (`error-context.md` next to
+the trace). If it contains a `Kelola` link, the session was ALIVE and the spec
+is what is wrong — that button only renders for an authenticated owner or
+instructor. A1 has now failed twice for reasons that had nothing to do with
+expiry, and both times the snapshot said so.
+
+**Playwright's own codegen may not survive Google sign-in.** It drives Chromium
+with automation flags that Google's account chooser regularly refuses. On the
+VPS the practical route is the hardened-Firefox profile behind `mso camoufox`
+(it exists for exactly this class of problem): sign in there, then lift the two
+`__convexAuth*` keys for the app origin out of
+`<profile>/storage/default/https+++<host>/ls/data.sqlite` into the storageState
+shape (`{cookies: [], origins: [{origin, localStorage: [{name, value}]}]}`).
+Cookies are not needed — SSR here is permanently anonymous, so the session lives
+entirely in localStorage. Never print those values; write them straight to the
+gitignored file.
 
 `playwright.config.ts` registers the `chromium-auth` project **only when
 `e2e/.auth/user.json` exists**. Without it, `npx playwright test` runs anon-only
