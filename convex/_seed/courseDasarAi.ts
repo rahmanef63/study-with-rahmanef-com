@@ -70,13 +70,15 @@ Parameter yang mengatur kreativitas jawaban:
       title: "Alat AI populer & kegunaannya",
       contentMd: `## Peta alat
 
-- **Chat / asisten** — Claude, ChatGPT: menulis, meringkas, brainstorming, analisis.
-- **Gambar** — Midjourney, DALL·E: ilustrasi & konsep visual.
-- **Kode** — Claude Code, Copilot: membantu ngoding.
+- **Chat / asisten** — Claude, ChatGPT, Gemini: menulis, meringkas, brainstorming, analisis. Ketiganya punya tingkat gratis.
+- **Gambar** — untuk mencoba tanpa bayar, mulai dari pembuat gambar yang sudah menempel di asisten gratis (Gemini, Copilot). **Midjourney tidak punya tingkat gratis** — bagus, tapi jangan dijadikan titik awal.
+- **Kode** — Claude Code, Copilot: membantu ngoding. Pemakaian penuhnya berbayar; untuk belajar, asisten chat biasa sudah cukup jauh.
 
 ## Tips memilih
 
-Cocokkan alat dengan tugasnya. Untuk teks & analisis, asisten chat sudah sangat kuat dan jadi titik awal terbaik.`,
+Cocokkan alat dengan tugasnya. Untuk teks & analisis, asisten chat sudah sangat kuat dan jadi titik awal terbaik.
+
+Harga dan batas gratis berubah tiap beberapa bulan, jadi jangan dihafal — cek sendiri sebelum mengeluarkan uang. Dan tidak ada satu pun materi di kelas ini yang mengharuskan kamu berlangganan apa pun.`,
       links: [{ label: "Claude", url: "https://claude.ai" }],
     },
     {
