@@ -17,13 +17,12 @@ import {
   EMPTY_RUN,
   normalise,
   runFromDraft,
-  runProgress,
   setMulti,
   setSingle,
   setSwipe,
-  type RunProgress,
   type RunState,
 } from "../lib/run";
+import { runProgress, type RunProgress } from "../lib/run-progress";
 import { clearRun, loadRun, saveRun } from "../lib/storage";
 
 export type PetaRun = {

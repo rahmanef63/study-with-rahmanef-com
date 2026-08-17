@@ -1,0 +1,29 @@
+{
+  "$schema": "https://resource.rahmanef.com/slice-manifest-schema.json",
+  "slug": "responsive-dialog",
+  "version": "0.1.0",
+  "tier": 1,
+  "distribution": {
+    "method": "cli-copy",
+    "command": "npx rr add responsive-dialog",
+    "consumerPath": "slices/responsive-dialog"
+  },
+  "files": [
+    "README.md",
+    "agent.md",
+    "components/ResponsiveDialog.tsx",
+    "index.ts"
+  ],
+  "imports": {
+    "shared": [],
+    "external": [
+      "react",
+      "@/components/ui/dialog",
+      "@/components/ui/drawer",
+      "@/components/ui/sheet",
+      "@/components/ui/alert-dialog",
+      "@/hooks/use-mobile",
+      "@/lib/utils"
+    ]
+  }
+}

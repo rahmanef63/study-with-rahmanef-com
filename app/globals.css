@@ -5,22 +5,24 @@
 @import "tw-animate-css";
 
 /* ONE theme, always dark. <html> carries a permanent `class="dark"` (see
-   app/layout.tsx) and :root and .dark hold the SAME arcade palette, so every
-   `dark:` utility the shadcn kit ships still resolves as its author intended.
-   There is no switcher: a CRT cabinet does not have a light mode. */
+   app/layout.tsx) and :root and .dark hold the SAME palette, so every `dark:`
+   utility the shadcn kit ships still resolves as its author intended. There is
+   no switcher, and adding one means writing a second palette from scratch. */
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  /* ONE downloaded face. Press Start 2P is the cabinet lettering — display
-     sizes only; every glyph is full-width, so it is unreadable in a paragraph
-     and globals caps h1/h2 with clamp() to stop it overflowing a phone.
+  /* ONE downloaded face: SORA, loaded by app/layout.tsx as the DISPLAY face.
+     It replaced Press Start 2P — the 8-bit face was twice the width per glyph,
+     so course titles truncated and lesson headings wrapped to two–five lines.
+     If a comment anywhere still reasons about "the display face truncates",
+     that reasoning came from the retired face and is no longer a constraint.
+
      BODY IS THE PLATFORM UI STACK, deliberately. A pixel body face (Pixelify
      Sans) shipped here for weeks and the owner reported it as hard to read —
      correctly: body text is where nearly every glyph on this site lives, and a
      face that costs a little legibility per glyph costs a lot across 128
      materi. The system stack is hinted for the reader's own screen, needs no
-     download and cannot flash. The arcade identity rides on the display face,
-     the hard shadows and the zero radius, none of which tax reading. */
+     download and cannot flash. */
   --font-sans:
     ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
     Arial, "Noto Sans", sans-serif;

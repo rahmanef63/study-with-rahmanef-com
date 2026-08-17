@@ -16,7 +16,7 @@
 Convex Cloud ── managed storage (tidak ada Postgres/volume yang kita urus)
 ```
 
-Frontend = windowed **OS desktop** (satu catch-all route `app/[[...slug]]`, mount `slices/appshell` via `slices/os-shell/`); tiap path jadi deep-link URL yang membuka window. Tetap satu app Next.js seperti diagram di atas. (Detail arsitektur: AGENTS.md §0.)
+Frontend = app komunitas ber-tab di **rute Next.js sungguhan** (`/k/<slug>/…`), bukan lagi OS desktop berjendela — `slices/appshell`, `slices/os-shell` dan catch-all `app/[[...slug]]` dihapus pada pivot rute 2026-08-09. Server rendering **selalu anonim** (token di localStorage, `proxy.ts` stub), jadi hanya query etalase yang boleh lewat `lib/convex-server.ts`. (Detail arsitektur: AGENTS.md §0.)
 
 ## A. Deployment Convex Cloud (sekali)
 
@@ -62,7 +62,7 @@ Env NAMES prod (values JANGAN pernah di-print/commit): `AUTH_GOOGLE_ID`, `AUTH_G
    - `NEXT_PUBLIC_CONVEX_SITE_URL` = `https://rare-toucan-552.convex.site`
    - `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` = acak 32-byte base64 (pin sekali)
 3. Domain `study-with.rahmanef.com` + TLS di Dokploy (live sejak 2026-07-06).
-4. ✅ Cek: OS desktop (Beranda) tampil di `/`, app Masuk jalan di `/masuk`, tidak ada error di logs.
+4. ✅ Cek: `/` menampilkan landing komunitas unggulan, `/k/<slug>` merender header + rail komunitas dengan daftar kelas sebagai HTML (bukan cangkang kosong), `/masuk` jalan, tidak ada error di logs.
 
 ## E. Seed tenant pertama (sekali, SETELAH login Google pertamamu)
 

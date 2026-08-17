@@ -15,13 +15,13 @@ import {
   EMPTY_RUN,
   normalise,
   runFromDraft,
-  runProgress,
   runSteps,
   setMulti,
   setSingle,
   setSwipe,
   type RunState,
 } from "../lib/run";
+import { runProgress } from "../lib/run-progress";
 
 /** Answer whatever is on screen with its FIRST option until the run ends. */
 function autoplay(start: RunState = EMPTY_RUN, pick = 0): RunState {

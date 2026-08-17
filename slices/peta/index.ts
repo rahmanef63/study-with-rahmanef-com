@@ -66,15 +66,14 @@ export {
   EMPTY_RUN,
   normalise,
   runFromDraft,
-  runProgress,
   runSteps,
   setMulti,
   setSingle,
   setSwipe,
-  type RunProgress,
   type RunState,
   type RunStep,
 } from "./lib/run";
+export { runProgress, type RunProgress } from "./lib/run-progress";
 export { clearRun, loadRun, PETA_STORAGE_KEY, saveRun, type StoredRun } from "./lib/storage";
 
 // types

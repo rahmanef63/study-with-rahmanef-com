@@ -1,93 +1,106 @@
-# BRAND — belajar-with-rahmanef.com
+# BRAND — study-with.rahmanef.com
 
-> Mini brand kit (UI-UX-PRD §5). Arah: **Editorial Warmth** — hangat, editorial,
-> berkarakter (bukan generik/"AI slop"). Identitas bespoke, hidup di token BASE
-> (`app/globals.css` `:root`/`.dark`), bukan preset. Semua warna UI lewat theme
-> tokens (SSOT) — TANPA hex, kecuali aset PNG/OG + `components/brand/**`.
+> **Ditulis ulang 2026-08-17.** Versi sebelumnya mendokumentasikan arah
+> **"Editorial Warmth"** (Fraunces + Hanken Grotesk, palet terracotta, default
+> TERANG, preset tema ±30) — tiga arah desain sebelum yang sekarang. Tidak ada
+> satu pun angkanya yang masih benar, dan `README.md` sudah menandainya sebagai
+> perlu ditulis ulang sejak lama. Yang di bawah ini dibaca langsung dari
+> `app/globals.css` dan `app/layout.tsx`.
+>
+> **SSOT tetap kode.** Dokumen ini turunan. Kalau berbeda, `app/globals.css`
+> yang benar — dan yang harus diperbaiki adalah dokumen ini.
 
-## Wordmark & logo
+## Arah
 
-- **Wordmark:** `belajar-with-rahmanef.com` (lowercase, apa adanya).
-- **Monogram / LogoMark:** mark serif, aset SVG di-code (`components/brand/logo.tsx`
-  → `LogoMark` + `Logo`), diwarnai `currentColor` sehingga ikut token aktif.
-  Dipakai sebagai favicon (`app/icon.svg`), lencana OG, dan brand shell OS
-  (`manifest.BRAND`).
-- Codename produk tetap "belajar-with-rahmanef.com"; host live
-  `study-with.rahmanef.com` (keputusan brand final: pending Rahman).
+**Permukaan bersih, gelap, tanpa gimmick.** Satu aksen emas, satu aksen sekunder
+sian, bingkai 1px, sudut kecil, bayangan sebagai kedalaman biasa (blur kecil,
+spread negatif) — bukan hard-offset ala stiker.
 
-## Palet — bespoke "Editorial Warmth" (token BASE, light default)
+Dua arah sebelumnya sudah dipensiunkan dan **jangan dihidupkan lagi tanpa
+keputusan baru**: "Editorial Warmth" (terracotta, serif optik) dan "Arcade
+Cabinet" (piksel 8-bit, `--radius: 0`, hard shadow, Press Start 2P). Yang tersisa
+dari era arcade hanya `components/brand/logo.tsx` — dipertahankan karena grid
+16px-nya membuat mark tetap tajam di favicon, bukan karena gayanya.
 
-Sumber kebenaran = token `:root`/`.dark` di `app/globals.css`. Rasa: **kertas
-hangat + tinta espresso + satu aksen terracotta/clay**. `DEFAULT_PRESET = null`
-→ brand tampil tanpa injeksi preset; "Default" di switcher balik ke sini.
-Nilai oklch nyata (jangan ubah jadi hex):
+## Tema — SATU, selalu gelap
 
-**Light (`:root`)**
+`<html>` membawa `class="dark"` permanen (`app/layout.tsx`), dan `:root` maupun
+`.dark` berisi palet yang **sama persis**, supaya setiap utility `dark:` bawaan
+shadcn tetap resolve seperti maksud penulisnya. Tidak ada switcher; menambahkan
+mode terang berarti menulis palet kedua dari nol.
 
-- **Background** (kertas hangat): `oklch(0.986 0.006 83)`
-- **Foreground** (tinta espresso, kontras AA): `oklch(0.246 0.017 55)`
-- **Card** (kertas lebih terang): `oklch(0.997 0.004 83)`
-- **Primary** (aksen terracotta/clay — satu aksen): `oklch(0.567 0.132 41)`
-  · **Primary-foreground:** `oklch(0.98 0.008 83)`
-- **Accent** (permukaan warm-neutral clay): `oklch(0.927 0.026 55)`
-  · **Accent-foreground:** `oklch(0.36 0.045 44)`
-- **Muted:** `oklch(0.949 0.01 79)` · **Muted-foreground:** `oklch(0.505 0.018 54)`
-- **Border:** `oklch(0.902 0.013 71)`
-- **Ring:** `oklch(0.567 0.132 41)` (= primary)
-- **Radius:** `--radius: 0.5rem`
+Slice `theme-presets` sudah **dihapus** (pivot rute 2026-08-09). Tidak ada
+`ThemePresetSwitcher`, tidak ada injeksi preset.
 
-**Dark (`.dark`)**
+## Palet — token BASE (`app/globals.css`)
 
-- **Background** (espresso pekat): `oklch(0.203 0.012 54)`
-- **Foreground** (teks kertas hangat): `oklch(0.944 0.008 83)`
-- **Card:** `oklch(0.243 0.014 54)`
-- **Primary** (terracotta diangkat): `oklch(0.706 0.124 46)`
-  · **Primary-foreground:** `oklch(0.203 0.012 54)`
-- **Accent:** `oklch(0.334 0.03 48)` · **Accent-foreground:** `oklch(0.92 0.02 70)`
-- **Muted:** `oklch(0.283 0.014 52)` · **Muted-foreground:** `oklch(0.724 0.012 70)`
-- **Border:** `oklch(0.345 0.014 52)`
-- **Ring:** `oklch(0.706 0.124 46)` (= primary)
+Nilai asli oklch. Hex hanya sebagai rujukan mata; **jangan tulis hex di kode** —
+UI lewat token, tanpa kecuali (aset PNG/OG + `components/brand/**` boleh).
 
-Preset opsional (±30, via `ThemePresetSwitcher`) boleh menimpa warna & radius —
-chrome shell OS (glass/window/dock) ikut lewat remap token di `app/globals.css`.
-Base tetap Editorial Warmth.
+| Token | oklch | ≈ hex | Peran |
+|---|---|---|---|
+| `--background` | `oklch(0.17 0.028 264)` | `#090f1c` | latar biru-malam |
+| `--foreground` | `oklch(0.95 0.012 240)` | `#e8f0f6` | teks utama |
+| `--card` | `oklch(0.225 0.031 264)` | `#141c2a` | permukaan terangkat |
+| `--primary` | `oklch(0.845 0.166 88)` | `#f9c423` | aksen emas — SATU aksen |
+| `--accent` | `oklch(0.79 0.14 199)` | `#00d5dc` | aksen sekunder sian |
+| `--muted-foreground` | `oklch(0.735 0.028 250)` | `#9cabbb` | teks sekunder |
+| `--border` | `oklch(0.41 0.045 262)` | `#3d4b63` | garis 1px |
+| `--ring` | `oklch(0.845 0.166 88)` | `#f9c423` | ring fokus (= primary) |
+
+**`--radius: 0.375rem`** (6px), dan tangga turunannya dijepit
+`max(0px, calc(var(--radius) - Npx))` — `calc()` yang menghasilkan radius negatif
+itu tidak valid dan deklarasinya dibuang diam-diam oleh browser.
+
+**Warna border default WAJIB di dalam `@layer base`.** CSS tanpa layer
+mengalahkan setiap cascade layer berapa pun spesifisitasnya, dan Tailwind
+memancarkan utility ke `@layer utilities` — aturan `*{border-color}` yang tak
+ber-layer pernah memaksa 65 utility border memakai satu warna abu yang sama di
+produksi (`42898ca`). Dijaga oleh `components/ui/design-system.test.ts`.
 
 ## Tipografi
 
-- **Display (h1/h2):** serif optik **Fraunces** via `next/font/google` →
-  `--font-serif` (`app/layout.tsx`; subset `latin`, style `normal` + `italic`).
-  Di `@layer base`: `font-optical-sizing: auto`, `font-weight: 560`,
-  `letter-spacing: -0.02em`, `line-height: 1.05` — karakter editorial, italic
-  sebagai aksen.
-- **Body & UI:** **Hanken Grotesk** (`--font-sans`, subset `latin`). BUKAN Inter.
-  Chrome komponen (mis. CardTitle h3) tetap sans; util `font-sans` menang eksplisit.
-- **Eyebrow / kicker:** util `.eyebrow` (sans, `0.75rem`, uppercase,
-  `letter-spacing: 0.14em`, muted-foreground) untuk label editorial di atas h2.
-- Var font (`--font-sans`/`--font-serif`) naik di `<html>` sebagai default, jadi
-  preset tweakcn yang bawa fontnya sendiri bisa menimpa; "Default" balik ke sini.
+- **Display:** **Sora** via `next/font/google` → `--font-display-face` di
+  `<html>`, dipakai lewat util `font-display`. Menggantikan **Press Start 2P**:
+  huruf 8-bit itu dua kali lebih lebar per glyph, jadi judul kelas terpotong dan
+  heading materi membungkus dua sampai lima baris.
+- **Body & UI:** **stack UI platform** (`ui-sans-serif, system-ui, …`), sengaja
+  tidak diunduh. Badan teks adalah tempat hampir semua glyph di situs ini hidup;
+  stack sistem sudah ter-hint untuk layar pembacanya sendiri, tidak perlu unduh,
+  dan tidak bisa flash. Body face piksel (Pixelify Sans) pernah dicoba dan
+  ditolak owner karena sulit dibaca.
+- **Skala kustom:** `--text-caption` · `--text-title` · `--text-marquee`
+  (+ `-lg`), masing-masing lengkap dengan line-height & letter-spacing-nya.
+- **Eyebrow:** util `.eyebrow` (uppercase, tracking lebar, muted) — dipakai di
+  ~71 tempat sebagai label kecil di atas heading.
+
+> Sebagian komentar di komponen masih beralasan "pakai body face, jangan display
+> face — Press Start 2P memotong judul". Alasannya berasal dari face yang sudah
+> pensiun. Stylingnya dibiarkan apa adanya karena mengubahnya = keputusan desain,
+> bukan pembersihan komentar.
 
 ## Motion
 
-Halus & reduced-motion safe. Reveal saat scroll pakai CSS scroll-driven
-animation (`animation-timeline: view()`) di `.reveal-on-scroll`, dijaga
-`@media (prefers-reduced-motion)` + `@supports`; browser tanpa dukungan
-menampilkan konten langsung. Tekstur `.grain` (noise SVG low-opacity) membunuh
-kesan flat. Tanpa glow/gradient ramai.
+Halus dan aman untuk `prefers-reduced-motion`. `.reveal-on-scroll` memakai
+scroll-driven animation (`animation-timeline: view()`), dijaga `@supports` +
+media query; browser tanpa dukungan menampilkan konten langsung. Tekstur
+`.grain` (noise SVG opacity rendah) membunuh kesan flat.
 
-## Aset — code-generated, tanpa foto stok
+## Aset — dihasilkan dari kode
 
-- **Logo/mark:** `components/brand/logo.tsx` (`Logo` + `LogoMark`, SVG,
-  `currentColor`).
-- **Favicon:** `app/icon.svg` (monogram).
-- **OG image:** `app/opengraph-image.tsx` (`next/og`, 1200×630) — kartu kertas
-  hangat + aksen terracotta.
-- **Latar/tekstur:** mesh gradient + grain via CSS (`.grain` di `app/globals.css`),
-  bukan raster.
-- **Metadata:** `openGraph` + `twitter` di root layout; `metadataBase` = host live.
-
-Semua visual dihasilkan dari kode (SVG/canvas/CSS). Foto stok dihapus — sengaja.
+- **Mark:** `components/brand/logo.tsx` (`Logo` + `LogoMark`, SVG,
+  `currentColor`, ~1 KB). **Jangan pernah meng-import PNG merek ke komponen.**
+- **Favicon:** `app/icon.svg`.
+- **Kartu OG:** `app/opengraph-image.tsx` + `lib/og.tsx`, digenerate per halaman
+  (8 rute punya `opengraph-image.tsx` sendiri).
+- **PNG di `public/brand/`** untuk DI LUAR app (README, Discord, dek). Statusnya
+  bermasalah dan sengaja belum diperbaiki: file-nya bertulis "STUDY WITH RAHMAN"
+  sementara lockup app sendiri berbunyi "belajar·with·rahmanef" — nama merek
+  final masih pending owner (AGENTS.md §9), jadi ekspor ulang yang setia justru
+  akan mereproduksi merek yang salah. Detail: `docs/ASSETS.md`.
 
 ## Anti-goals
 
 Neon, glassmorphism norak, gradient mencolok, animasi besar, kepadatan ala
-trading app/dashboard, foto stok generik, font Inter/Lora/generik.
+dashboard trading, foto stok generik, font generik (Inter/Roboto/Arial), dan
+hex yang ditulis langsung di komponen.

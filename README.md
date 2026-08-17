@@ -135,7 +135,7 @@ generated (`app/opengraph-image.tsx` + `lib/og.tsx`) instead of serving the stat
 | Framework | Next.js 16 (App Router, real routes; cacheComponents OFF) |
 | UI shell | `app/k/[slug]/layout.tsx` (~140 LOC: header + tab strip) |
 | UI | React 19 + Tailwind 4 + shadcn |
-| Design | bespoke "Arcade Cabinet" — ONE dark theme, `--radius: 0`, hard offset shadows, Press Start 2P as a DISPLAY-only face (`app/globals.css`). Note `docs/design/BRAND.md` still documents the retired "Editorial Warmth" palette and needs a rewrite by whoever owns the tokens. |
+| Design | ONE dark theme, gold accent, 1px borders, `--radius: 0.375rem`, ordinary depth shadows; Sora as the DISPLAY-only face. Tokens live in `app/globals.css` (SSOT) and are written up in [docs/design/BRAND.md](docs/design/BRAND.md). Two earlier directions — "Editorial Warmth" and "Arcade Cabinet" — are retired; don't revive either without a new decision. |
 | Backend | Convex **Cloud** `rare-toucan-552` (self-hosted retired 2026-07-10) |
 | Auth | `@convex-dev/auth` — **Google OAuth only** (no password option; see DECISIONS #15) |
 

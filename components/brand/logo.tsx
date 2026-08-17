@@ -2,11 +2,12 @@ import type { SVGProps } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * Brand mark — the same open-book-with-a-spark as before, redrawn on a 16×16
- * pixel grid for the arcade concept. Every shape is an axis-aligned run of
- * whole pixels and `shapeRendering="crispEdges"` disables antialiasing, so it
- * stays sharp at any size instead of turning into a grey smudge the way a
- * monoline SVG does when scaled down to a 16px favicon.
+ * Brand mark — an open book with a spark, drawn on a 16×16 grid. The grid came
+ * from the retired "Arcade Cabinet" skin (3e64bda), but the mark outlived it on
+ * its own merit: every shape is an axis-aligned run of whole pixels and
+ * `shapeRendering="crispEdges"` disables antialiasing, so it stays sharp at a
+ * 16px favicon instead of turning into the grey smudge a monoline SVG becomes
+ * at that size. That is a rendering property, not a style era.
  *
  * Drawn in `currentColor` so it still inherits the surrounding text colour.
  */

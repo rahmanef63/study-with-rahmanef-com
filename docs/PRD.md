@@ -127,7 +127,21 @@ Komentar per lesson · role Moderator/TA · subdomain per tenant · email (Resen
 
 Urutan build teknis & definition of done: lihat [SLICES.md](SLICES.md).
 
-## 11. Antarmuka & delivery — OS desktop (v0.2, 2026-07-07)
+## 11. Antarmuka & delivery — OS desktop (v0.2, 2026-07-07) — **SUPERSEDED**
+
+> **⚠️ SELURUH §11 ADALAH SEJARAH (di-supersede 2026-08-09, pivot rute).**
+> OS desktop berjendela sudah DIHAPUS: `slices/appshell` (16.366 LOC),
+> `slices/os-shell` (4.901), `slices/theme-presets` (1.154) dan catch-all
+> `app/[[...slug]]/page.tsx` tidak ada lagi di repo. Tidak ada window-app, tidak
+> ada capabilities seam, tidak ada shell chrome yang bisa diganti.
+>
+> Yang berlaku sekarang: app komunitas ber-tab di rute Next.js sungguhan —
+> **AGENTS.md §0** + addendum **DECISIONS.md 2026-08-09**. Peta rute yang benar
+> ada di filesystem `app/**`, bukan di tabel deep-link di bawah.
+>
+> Bagian ini dipertahankan karena §7 masih menunjuk ke §11.4 saat menjelaskan
+> requirement mana yang di-supersede. Requirement domain R1–R13 **tidak berubah**
+> oleh pivot mana pun; yang berganti selalu hanya host antarmukanya.
 
 > **Perubahan delivery, bukan domain.** Sejak commit OS pivot, frontend tidak lagi berupa halaman ber-route (`app/(public)`, `app/t/[slug]`, `app/u/[username]` — **dihapus**). UI sekarang satu **OS desktop berjendela** di atas framework `slices/appshell`. **Semua requirement R1–R13, prinsip produk (§2), dan Convex backend (skema, tabel, authz, `convex/features/<slice>`) TIDAK berubah** — yang berganti hanya "kulit"/host antarmukanya (route → jendela OS). [DATA-MODEL.md](DATA-MODEL.md) masih valid.
 

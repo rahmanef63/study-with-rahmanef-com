@@ -16,11 +16,15 @@
     "smoke": "node scripts/smoke-test.mjs",
     "test": "vitest run",
     "e2e": "playwright test",
-    "e2e:staging": "playwright test",
-    "e2e:prod": "playwright test",
+    "e2e:staging": "E2E_BASE_URL=${E2E_STAGING_URL:?setel E2E_STAGING_URL dulu — tidak ada domain staging tetap di repo ini} playwright test",
+    "e2e:prod": "E2E_BASE_URL=https://study-with.rahmanef.com playwright test",
     "pwa:screenshots": "node scripts/generateScreenshots.mjs",
     "setup:check": "node scripts/setup-check.mjs",
-    "pwa:verify": "node scripts/verifyInstallSurface.mjs"
+    "pwa:verify": "node scripts/verifyInstallSurface.mjs",
+    "audit:slices": "node scripts/audit-slices.mjs",
+    "audit:file-size": "node scripts/audit-file-size.mjs",
+    "check:stack-pin": "node scripts/check-stack-pin.mjs",
+    "audit": "npm run check:stack-pin && npm run audit:slices && npm run audit:file-size"
   },
   "dependencies": {
     "@auth/core": "^0.37.4",
