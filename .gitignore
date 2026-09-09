@@ -22,3 +22,6 @@ next-env.d.ts
 # production, which is how three dependencies stayed "removed" locally while
 # the deployed image still had them.
 pnpm-lock.yaml
+
+# Local MSO runtime state — never commit
+.mso/
