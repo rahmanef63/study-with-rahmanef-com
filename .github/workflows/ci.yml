@@ -30,6 +30,9 @@ jobs:
       - name: Install (lockfile)
         run: npm ci --legacy-peer-deps --no-audit --no-fund
 
+      - name: Lint (ESLint)
+        run: npm run lint
+
       - name: Typecheck (tsc --noEmit)
         run: npx tsc --noEmit
 

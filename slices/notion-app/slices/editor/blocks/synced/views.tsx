@@ -70,7 +70,7 @@ export function SyncedSourceView({
           </Button>
         </span>
       </div>
-      <SyncedChildrenList children={children} setChildren={setChildren} pageId={pageId} editable />
+      <SyncedChildrenList setChildren={setChildren} pageId={pageId} editable>{children}</SyncedChildrenList>
       <div className="mt-1 flex items-center gap-3">
         <Button
           variant="ghost" onClick={addChild}
@@ -164,7 +164,7 @@ export function SyncedRefView({
         </Button>
         <span className="ml-auto text-[9px] normal-case opacity-70">edits propagate to all refs</span>
       </div>
-      <SyncedChildrenList children={children} setChildren={setChildren} pageId={sourcePage.id} editable />
+      <SyncedChildrenList setChildren={setChildren} pageId={sourcePage.id} editable>{children}</SyncedChildrenList>
     </div>
   );
 }
