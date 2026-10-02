@@ -6,14 +6,15 @@ export const PROGRESS_COPY = {
   markComplete: "Tandai selesai",
   marking: "Menyimpan…",
   completed: "Selesai",
-  markCompleteSuccess: "Lesson ditandai selesai",
+  markCompleteSuccess: "Materi ditandai selesai",
   courseCompleteSuccess: "Selamat! Kamu menyelesaikan kelas ini",
   // course overview — progress bar
   progressTitle: "Progres kelas",
-  lessonsUnit: "lesson",
+  lessonsUnit: "materi",
   completedSuffix: "selesai",
   courseCompleteBadge: "Kelas selesai",
-  emptyProgress: "Belum ada lesson di kelas ini",
+  emptyProgress: "Belum ada materi di kelas ini",
+  partialProgress: "Sebagian progres belum dapat ditampilkan. Kamu tetap bisa membuka materi dari silabus.",
   // errors (ConvexError.code → user copy; VALIDATION_FAILED uses server msg)
   errNotAuthenticated: "Silakan login dulu",
   errNotAuthorized: "Kamu tidak punya akses untuk aksi ini",

@@ -127,11 +127,14 @@ export async function deleteMateriJoinRows(
   ctx: MutationCtx,
   lessonId: Id<"lessons">
 ): Promise<void> {
+  const placements = await ctx.db.query("courseLessons")
+    .withIndex("by_lesson", (q) => q.eq("lessonId", lessonId))
+    .take(MAX_PLACEMENTS_PER_MATERI + 1);
+  if (placements.length > MAX_PLACEMENTS_PER_MATERI) {
+    fail("VALIDATION_FAILED", "Materi memiliki terlalu banyak penempatan; hubungi pengelola");
+  }
   const rows = [
-    ...(await ctx.db
-      .query("courseLessons")
-      .withIndex("by_lesson", (q) => q.eq("lessonId", lessonId))
-      .take(MAX_PLACEMENTS_PER_MATERI)),
+    ...placements,
     ...(await ctx.db
       .query("lessonTags")
       .withIndex("by_lesson", (q) => q.eq("lessonId", lessonId))
@@ -158,4 +161,14 @@ export async function getPlacement(
     .query("courseLessons")
     .withIndex("by_course_lesson", (q) => q.eq("courseId", courseId).eq("lessonId", lessonId))
     .unique();
+}
+
+/** Preserve the backlink bound used by status updates, deletion and progress. */
+export async function assertMaterialPlacementLimit(ctx: Ctx, lessonId: Id<"lessons">): Promise<void> {
+  const placements = await ctx.db.query("courseLessons")
+    .withIndex("by_lesson", (q) => q.eq("lessonId", lessonId))
+    .take(MAX_PLACEMENTS_PER_MATERI);
+  if (placements.length >= MAX_PLACEMENTS_PER_MATERI) {
+    fail("VALIDATION_FAILED", `Maksimal ${MAX_PLACEMENTS_PER_MATERI} kelas per materi`);
+  }
 }

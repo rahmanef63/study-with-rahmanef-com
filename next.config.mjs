@@ -1,9 +1,12 @@
-/** @type {import('next').NextConfig} */
+import { randomUUID } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { PHASE_PRODUCTION_SERVER } from "next/constants.js";
 
 // Flagship community — mirrors DEFAULT_COMMUNITY_SLUG in lib/community.ts. Only
 // used to point the retired shell-level deep links at something real.
 const DEFAULT_COMMUNITY = process.env.NEXT_PUBLIC_DEFAULT_COMMUNITY_SLUG ?? "belajar-ai";
 
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
   // cacheComponents (PPR) is OFF. It was turned on so the ONE catch-all route
@@ -78,6 +81,14 @@ const nextConfig = {
   async headers() {
     return [
       {
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Content-Security-Policy", value: "frame-ancestors 'self'; object-src 'none'; base-uri 'self'" },
+        ],
+      },
+      {
         // A service worker that its own HTTP cache can hand back stale is a
         // worker that can never update itself — and this one is the only thing
         // standing between an offline user and a browser error page. Modern
@@ -151,4 +162,10 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+export default function config(phase) {
+  // next start reloads this file; reuse the ID baked into its built assets.
+  const deploymentId = phase === PHASE_PRODUCTION_SERVER
+    ? JSON.parse(readFileSync(new URL("./.next/required-server-files.json", import.meta.url), "utf8")).config.deploymentId
+    : process.env.APP_REVISION || process.env.GITHUB_SHA || randomUUID();
+  return { ...nextConfig, deploymentId };
+}

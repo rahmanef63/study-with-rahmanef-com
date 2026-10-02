@@ -94,3 +94,61 @@ test("getMine: a suspended community disappears from the home screen", async () 
   expect(after.communities).toHaveLength(0);
   expect(after.notStarted).toHaveLength(0);
 });
+
+test("getMine: a course started after 500 older completions still has accurate progress", async () => {
+  const t = setup();
+  const fx = await seedTenantFixture(t);
+  await t.run(async (ctx) => {
+    for (let i = 0; i < 500; i++) {
+      const lessonId = await ctx.db.insert("lessons", {
+        tenantId: fx.tenantId, title: `Older ${i}`, contentMd: "Materi", links: [],
+      });
+      await ctx.db.insert("lessonCompletions", {
+        tenantId: fx.tenantId, userId: fx.memberId, lessonId,
+      });
+    }
+  });
+  const { courseId, lessonIds } = await seedCourseWithLessons(t, fx, "published", 2);
+  await complete(t, { tenantId: fx.tenantId, userId: fx.memberId, lessonId: lessonIds[0]! });
+
+  const out = await t.withIdentity(asUser(fx.memberId)).query(api.features.progress.overview.getMine, {});
+  expect(out.inProgress).toEqual([expect.objectContaining({ courseId, total: 2, done: 1, percent: 50 })]);
+  expect(out.notStarted).toEqual([]);
+  expect(out.materiDone).toBe(500);
+  expect(out.truncated).toBe(true);
+});
+
+test("getMine: exactly 500 completions is complete data, not truncation", async () => {
+  const t = setup();
+  const fx = await seedTenantFixture(t);
+  await t.run(async (ctx) => {
+    for (let i = 0; i < 500; i++) {
+      const lessonId = await ctx.db.insert("lessons", {
+        tenantId: fx.tenantId, title: `Materi ${i}`, contentMd: "Materi", links: [],
+      });
+      await ctx.db.insert("lessonCompletions", {
+        tenantId: fx.tenantId, userId: fx.memberId, lessonId,
+      });
+    }
+  });
+  const out = await t.withIdentity(asUser(fx.memberId)).query(api.features.progress.overview.getMine, {});
+  expect(out.materiDone).toBe(500);
+  expect(out.truncated).toBe(false);
+});
+
+test("getMine: additional memberships are reported as truncated", async () => {
+  const t = setup();
+  const fx = await seedTenantFixture(t);
+  await t.run(async (ctx) => {
+    for (let i = 1; i <= 20; i++) {
+      const tenantId = await ctx.db.insert("tenants", {
+        slug: `community-${i}`, name: `Komunitas ${i}`, description: "Komunitas belajar",
+        ownerId: fx.ownerId, status: "active",
+      });
+      await ctx.db.insert("memberships", { tenantId, userId: fx.memberId, role: "member" });
+    }
+  });
+  const out = await t.withIdentity(asUser(fx.memberId)).query(api.features.progress.overview.getMine, {});
+  expect(out.communities).toHaveLength(20);
+  expect(out.truncated).toBe(true);
+});

@@ -3,7 +3,7 @@
 // mapped code → Bahasa Indonesia copy, surfaced via the shared toast (sonner)
 // — never swallowed, never alert() (rr error-handling rules).
 import { useMutation } from "convex/react";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
@@ -75,9 +75,12 @@ export function useSubmitAttempt(copyOverride?: QuizCopyOverride) {
   const copy = mergeQuizCopy(copyOverride);
   const submitRaw = useMutation(api.features.quiz.attempts.submitAttempt);
   const [isPending, setIsPending] = useState(false);
+  const pending = useRef(false);
 
   const submitAttempt = useCallback(
     async (quizId: Id<"quizzes">, answers: number[]): Promise<AttemptResult | null> => {
+      if (pending.current) return null;
+      pending.current = true;
       setIsPending(true);
       try {
         return (await submitRaw({ quizId, answers })) as AttemptResult;
@@ -85,6 +88,7 @@ export function useSubmitAttempt(copyOverride?: QuizCopyOverride) {
         toast.error(quizErrorMessage(error, copy));
         return null;
       } finally {
+        pending.current = false;
         setIsPending(false);
       }
     },

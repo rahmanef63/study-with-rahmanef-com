@@ -1,15 +1,5 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
-
-let id: string | null = null;
+import { serverRelease } from "@/lib/server-release";
 
 export function GET() {
-  if (id === null) {
-    try {
-      id = readFileSync(join(process.cwd(), ".next/BUILD_ID"), "utf8").trim() || "unknown";
-    } catch {
-      id = "unknown";
-    }
-  }
-  return Response.json({ id }, { headers: { "cache-control": "no-store" } });
+  return Response.json(serverRelease(), { headers: { "cache-control": "no-store" } });
 }

@@ -3,10 +3,17 @@
 // userId comes from ctx via the helper, NEVER from args — a user can only ever
 // write their own completions.
 import { v } from "convex/values";
+import { makeFunctionReference } from "convex/server";
 import type { Id } from "../../_generated/dataModel";
 import { mutation } from "../../_generated/server";
 import { assertLessonVisibleByRole, requireMemberForLesson } from "./access";
-import { deriveCourseProgress, ensureCourseCompletion, listLessonPlacements } from "./derive";
+import { deriveCourseProgress, ensureCourseCompletion, listLessonPlacements, type LegacyEligibility } from "./derive";
+
+const settleCourseRef = makeFunctionReference<"mutation", {
+  userId: Id<"users">; lessonId: Id<"lessons">; courseId: Id<"courses">;
+}, boolean>("features/progress/settleCourse:settle");
+/** Three full 200-lesson courses stay comfortably under 4,096 index ranges. */
+const IMMEDIATE_COURSES = 3;
 
 /** Per-course numbers for one course this materi is taught in. */
 type CourseOutcome = {
@@ -14,6 +21,7 @@ type CourseOutcome = {
   completedCount: number;
   totalCount: number;
   isComplete: boolean;
+  truncated?: boolean;
 };
 
 /**
@@ -59,22 +67,43 @@ export const markLessonComplete = mutation({
 
     // Recount AFTER the insert (Convex mutations read their own writes).
     const courses: CourseOutcome[] = [];
-    for (const placement of placements) {
-      const progress = await deriveCourseProgress(ctx, userId, placement.courseId);
+    const legacyEligibility: LegacyEligibility = new Map([[lesson._id, {
+      tenantId: lesson.tenantId, published: (lesson.status ?? "published") === "published",
+    }]]);
+    const courseIds = [...new Set(placements
+      .filter((placement) => placement.tenantId === lesson.tenantId)
+      .map((placement) => placement.courseId))];
+    for (const courseId of courseIds.slice(0, IMMEDIATE_COURSES)) {
+      const course = await ctx.db.get(courseId);
+      if (course === null || course.tenantId !== lesson.tenantId) continue;
+      const progress = await deriveCourseProgress(ctx, userId, courseId, undefined, legacyEligibility);
       courses.push({
-        courseId: placement.courseId,
+        courseId,
         completedCount: progress.completedCount,
         totalCount: progress.totalCount,
         isComplete: progress.isComplete,
+        ...(progress.truncated ? { truncated: true } : {}),
       });
       if (!progress.isComplete) continue;
-      const course = await ctx.db.get(placement.courseId);
-      if (course === null || course.status !== "published") continue;
+      if (course.status !== "published") continue;
       await ensureCourseCompletion(ctx, {
         tenantId: course.tenantId,
         userId,
-        courseId: placement.courseId,
+        courseId,
       });
+    }
+
+    // A finite fanout, not a retry loop. Every job rechecks current access,
+    // placement and completion; old metadata must be backfilled separately.
+    const pending = courseIds.slice(IMMEDIATE_COURSES);
+    let pendingCourses = 0;
+    for (const courseId of pending) {
+      const badge = await ctx.db.query("courseCompletions")
+        .withIndex("by_user_course", (q) => q.eq("userId", userId).eq("courseId", courseId)).first();
+      if (badge === null) {
+        await ctx.scheduler.runAfter(0, settleCourseRef, { userId, lessonId: lesson._id, courseId });
+        pendingCourses += 1;
+      }
     }
 
     return {
@@ -82,8 +111,9 @@ export const markLessonComplete = mutation({
       wasAlreadyComplete: existing !== null,
       /** At least one course containing this materi is now fully complete. */
       courseCompleted: courses.some((course) => course.isComplete),
-      /** One entry per course this materi is taught in (may be empty). */
+      /** Immediate courses; the remaining courses settle in bounded jobs. */
       courses,
+      ...(pendingCourses > 0 ? { pendingCourses } : {}),
     };
   },
 });

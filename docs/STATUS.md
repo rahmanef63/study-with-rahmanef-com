@@ -4,6 +4,21 @@
 > Status flow: `open` → `claimed` → `in-progress` → `review` → `done` · or `blocked`.
 > A claim is stale after 48h without commits — it may then be re-claimed.
 
+## Current improvement wave — 2026-10-02
+
+Integrator: alpha. Isolated branch `feat/study-improvements-20261002`, baseline `7a49f66` (includes September security fixes). Canonical checkout remains untouched. Four agents maximum, same worktree with non-overlapping ownership; historic content-only wave in AGENT-PROMPTS is superseded for this assignment.
+
+| Agent | Area | State | Ownership |
+|---|---|---|---|
+| alpha | Shared access guard, app shell, metadata, runtime checks and integration | review | shared files, app, components, config, docs |
+| beta | Learner flow and accessibility | review | slices/courses, slices/progress, slices/quiz |
+| gamma | Progress correctness and quiz limits | review | convex/features/progress, convex/features/quiz |
+| delta / vps | Independent correctness, dependency and runtime review | review | read-only runtime and review |
+
+Production data, auth sessions and existing content are preserved. Rollback for source changes: revert this branch's commits. Production release remains a separate action under AGENTS §4; frontend rollback uses the previous Dokploy image and backend rollback uses previous verified functions. Acceptance: focused regressions, all unit/authz tests, lint, typecheck, audits, build, desktop/mobile browser checks. An optional placement eligibility field and resumable operator-only backfill are included; neither production deployment nor data migration has been run. Backend rollback must preserve this optional field after backfill. No paid service is added.
+
+Verified candidate: 1,131 full-suite tests passed; final edge regressions 32 tests and release identity 3 tests passed; 23 anonymous browser tests passed at desktop/mobile widths. Build, typecheck, lint (zero errors), project contracts and dependency audit (zero vulnerabilities) passed. Authenticated browser acceptance remains a release gate. See [dated report](reports/study-improvements-2026-10-02.md).
+
 ## Assignments
 
 | # | Area | Release | Depends on | Status | Agent | Branch | Last commit | Notes |
@@ -65,6 +80,9 @@
 | — | **CATATAN PAPAN**: baris #49 melompati enam sesi. Pekerjaan v3.0–v3.7 (asesmen `/mulai`, perbaikan glitch transisi, penyatuan sidebar+dock, pack aset pertama, picker avatar, halaman depan) **tidak pernah dicatat di sini** — rekamannya ada di `lib/changelog-data.ts` dan riwayat git, bukan di papan ini. Jangan baca papan ini sebagai lengkap. | | | | | | |
 
 ## Proposals (shared-surface changes — integrator applies)
+
+- 2026-10-02 alpha: rr catalog `/api/knowledge` checked successfully. Apply compatible security patches: Next + eslint-config-next 16.3.8 (minimum patched release 16.3.6), Vitest 4.1.11; refresh vulnerable transitive brace-expansion and DOMPurify within their parent ranges. Baseline npm audit reports 1 critical, 1 high, 2 moderate, 1 low; verify with fresh npm audit and complete build/regression. No new dependency or major migration.
+
 
 - **[vps → zeta/alpha] e2e spec 8 console-error whitelist** — ✅ RESOLVED 2026-07-16 alpha (commit `635b904`): filter per-spec HANYA utk error NOT_FOUND yang expected di spec 8 (allowlist global tetap ketat). ⚠️ **RE-FIX vps 2026-07-17 (#40 run):** filter `635b904` match teks `NOT_FOUND`/`Sertifikat tidak ditemukan` — tapi bundle browser PROD mencetak wrapper ter-scrub `Server Error` (payload `{code:NOT_FOUND}` ada di `.data`, bukan string console; CLI cetak payload, browser tidak) → spec 8 GAGAL lawan prod. vps anchor ulang allowlist ke path query `publicGetCertificate` (tetap sertakan NOT_FOUND/teks utk robust) → 9/9 PASS. Prod tak diubah (BENAR). alpha post-review.
 - **[vps → alpha/owner] handle profil `rahman` tidak ada di prod** — ✅ RESOLVED 2026-07-16 alpha (commit `635b904`): default `E2E_USERNAME` → `abdurrahman-fakhrul` (handle real; override via env tetap ada). Seed handle "rahman" tidak dilakukan — profil dibuat organik oleh user.

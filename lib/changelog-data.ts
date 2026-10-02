@@ -27,6 +27,17 @@ export type ChangelogEntry = {
 // NEWEST FIRST. Prepend here on every update.
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-10-02",
+    title: "Belajar lebih mudah dilanjutkan, progres dan kuis lebih jelas",
+    points: [
+      "Kelas punya tombol mulai, lanjutkan, dan baca ulang; materi terakhir menyediakan jalan kembali ke kelas.",
+      "Batas percobaan kuis ditampilkan sebelum mengerjakan, dengan hasil dan tombol kembali yang lebih mudah diakses.",
+      "Progres tetap akurat untuk riwayat belajar panjang dan materi yang dipakai di beberapa kelas; materi draft tidak menghalangi penyelesaian.",
+      "Navigasi keyboard, pengurangan animasi, judul halaman, dan pemuatan halaman depan diperbaiki.",
+    ],
+    tags: ["Perbaikan", "Tampilan"],
+  },
+  {
     date: "2026-08-16",
     version: "v5.3",
     title: "Judul di dalam materi tidak lagi bersaing dengan judul halaman",

@@ -18,6 +18,7 @@ import {
   requireVisibleCourse,
 } from "./access";
 import { ATTEMPTS_TAKE, MAX_QUIZZES_PER_COURSE } from "./validate";
+import { MAX_ATTEMPTS_PER_QUIZ } from "./attempts";
 
 /**
  * One quiz, ANSWER-STRIPPED, for a member to take. Draft-course quizzes are
@@ -38,6 +39,7 @@ export const getQuizForTaking = query({
       title: quiz.title,
       passingScorePct: quiz.passingScorePct,
       questionCount: quiz.questions.length,
+      attemptsAllowed: MAX_ATTEMPTS_PER_QUIZ,
       // SAFE projection — no correctIndex, no explanation.
       questions: quiz.questions.map((q) => ({
         prompt: q.prompt,

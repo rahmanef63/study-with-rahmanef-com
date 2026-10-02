@@ -86,6 +86,8 @@ export const courseLessons = defineTable({
   courseId: v.id("courses"),
   lessonId: v.id("lessons"),
   order: v.number(),
+  // Maintained by placement/status writers; legacy rows are backfilled in bounded batches.
+  lessonPublished: v.optional(v.boolean()),
 })
   .index("by_course", ["courseId", "order"])
   .index("by_lesson", ["lessonId"])

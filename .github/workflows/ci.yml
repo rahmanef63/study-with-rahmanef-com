@@ -30,8 +30,39 @@ jobs:
       - name: Install (lockfile)
         run: npm ci --legacy-peer-deps --no-audit --no-fund
 
+      - name: Lint (ESLint)
+        run: npm run lint
+
       - name: Typecheck (tsc --noEmit)
         run: npx tsc --noEmit
 
+      - name: Project contracts
+        run: npm run audit
+
+      - name: Dependency advisories
+        run: npm audit
+
       - name: Unit + convex-test (vitest)
         run: npx vitest run
+
+      - name: Production build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_CONVEX_URL: https://rare-toucan-552.convex.cloud
+          APP_REVISION: ${{ github.sha }}
+          NEXT_TELEMETRY_DISABLED: "1"
+
+      - name: Standalone readiness
+        env:
+          APP_REVISION: ${{ github.sha }}
+        run: |
+          cp -r public .next/standalone/public
+          cp -r .next/static .next/standalone/.next/static
+          PORT=3000 HOSTNAME=127.0.0.1 node .next/standalone/server.js > /tmp/study-ci-server.log 2>&1 &
+          study_server_pid=$!
+          trap 'kill "$study_server_pid"' EXIT
+          for attempt in {1..20}; do
+            if curl --fail --silent http://127.0.0.1:3000/api/health -o /tmp/study-ci-health.json; then break; fi
+            sleep 1
+          done
+          node --input-type=module -e 'import { readFileSync } from "node:fs"; import assert from "node:assert/strict"; const health=JSON.parse(readFileSync("/tmp/study-ci-health.json")); assert.equal(health.status,"ok"); assert.equal(health.id,process.env.APP_REVISION); assert.equal(health.revision,process.env.APP_REVISION);'

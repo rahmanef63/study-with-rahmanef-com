@@ -4,6 +4,7 @@
 // own-attempts-only isolation. Quizzes are addressed by quizId (DECISIONS #37).
 import { expect, test } from "vitest";
 import { api } from "../../_generated/api";
+import { MAX_ATTEMPTS_PER_QUIZ } from "./attempts";
 import { asUser, seedCourse, seedQuiz, seedTenantFixture, setup } from "./test.helpers";
 
 test("getQuizForTaking: P0 — returned questions carry ONLY prompt+options (no answers)", async () => {
@@ -16,6 +17,7 @@ test("getQuizForTaking: P0 — returned questions carry ONLY prompt+options (no 
     .withIdentity(asUser(fx.memberId))
     .query(api.features.quiz.taking.getQuizForTaking, { quizId });
 
+  expect(quiz.attemptsAllowed).toBe(MAX_ATTEMPTS_PER_QUIZ);
   for (const q of quiz.questions) {
     // Exact key set — no correctIndex, no explanation may ever appear.
     expect(Object.keys(q).sort()).toEqual(["options", "prompt"]);

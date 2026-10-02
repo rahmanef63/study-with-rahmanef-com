@@ -18,6 +18,7 @@ export type MarkLessonCompleteCourseOutcome = {
   completedCount: number;
   totalCount: number;
   isComplete: boolean;
+  truncated?: boolean;
 };
 
 /**
@@ -34,4 +35,5 @@ export type MarkLessonCompleteResult = {
   wasAlreadyComplete: boolean;
   courseCompleted: boolean;
   courses: MarkLessonCompleteCourseOutcome[];
+  pendingCourses?: number;
 };

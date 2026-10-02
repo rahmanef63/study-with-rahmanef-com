@@ -46,6 +46,8 @@ export type QuizTakingData = {
   title: string;
   passingScorePct: number;
   questionCount: number;
+  /** Optional while the additive server projection rolls out. */
+  attemptsAllowed?: number;
   questions: QuizPublicQuestion[];
 };
 

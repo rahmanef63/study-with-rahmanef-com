@@ -30,6 +30,7 @@ export function CourseProgress({ courseId, copy, className }: CourseProgressProp
       completedCount={progress.completedCount}
       totalCount={progress.totalCount}
       isComplete={progress.isComplete}
+      truncated={progress.truncated}
       copy={copy}
       className={className}
     />
