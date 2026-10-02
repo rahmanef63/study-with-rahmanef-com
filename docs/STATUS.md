@@ -10,14 +10,16 @@ Integrator: alpha. Isolated branch `feat/study-improvements-20261002`, baseline 
 
 | Agent | Area | State | Ownership |
 |---|---|---|---|
-| alpha | Shared access guard, app shell, metadata, runtime checks and integration | review | shared files, app, components, config, docs |
-| beta | Learner flow and accessibility | review | slices/courses, slices/progress, slices/quiz |
-| gamma | Progress correctness and quiz limits | review | convex/features/progress, convex/features/quiz |
-| delta / vps | Independent correctness, dependency and runtime review | review | read-only runtime and review |
+| alpha | Shared access guard, app shell, metadata, runtime checks and integration | done | shared files, app, components, config, docs |
+| beta | Learner flow and accessibility | done | slices/courses, slices/progress, slices/quiz |
+| gamma | Progress correctness and quiz limits | done | convex/features/progress, convex/features/quiz |
+| delta / vps | Independent correctness, dependency and runtime review | done | read-only runtime and review |
 
-Production data, auth sessions and existing content are preserved. Rollback for source changes: revert this branch's commits. Production release remains a separate action under AGENTS §4; frontend rollback uses the previous Dokploy image and backend rollback uses previous verified functions. Acceptance: focused regressions, all unit/authz tests, lint, typecheck, audits, build, desktop/mobile browser checks. An optional placement eligibility field and resumable operator-only backfill are included; neither production deployment nor data migration has been run. Backend rollback must preserve this optional field after backfill. No paid service is added.
+Production data, auth sessions and existing content are preserved. Rollback for source changes: revert this branch's commits. Production release remains a separate action under AGENTS §4; frontend rollback uses the previous Dokploy image and backend rollback uses previous verified functions. Acceptance: focused regressions, all unit/authz tests, lint, typecheck, audits, build, desktop/mobile browser checks. An optional placement eligibility field and resumable operator-only backfill are included. Rahman explicitly approved merge/publication; PR #1 merged and production backend/frontend plus the complete backfill were released on 2026-10-02. Backend rollback must preserve this optional field after backfill. No paid service is added.
 
-Verified candidate: 1,131 full-suite tests passed; final edge regressions 32 tests and release identity 3 tests passed; 23 anonymous browser tests passed at desktop/mobile widths. Build, typecheck, lint (zero errors), project contracts and dependency audit (zero vulnerabilities) passed. Authenticated browser acceptance remains a release gate. See [dated report](reports/study-improvements-2026-10-02.md).
+Verified candidate: 1,131 full-suite tests passed; final edge regressions 32 tests and release identity 3 tests passed; 23 anonymous browser tests passed at desktop/mobile widths. Build, typecheck, lint (zero errors), project contracts and dependency audit (zero vulnerabilities) passed. Hosted CI passed all 1,134 tests after the final fixes. Authenticated OAuth/session browser acceptance remains unverified; no recorded auth state was available. See the [source report](reports/study-improvements-2026-10-02.md) and [verified release](reports/study-release-2026-10-02.md).
+
+Released code: `4eab003f35a13dbaacd79744bb730fc9517c50f9` (PR #1 merge). Dokploy deployment `A_kxKz83Bbgw9PZcIVAnH` is done, runtime is healthy, public health/version identify the same SHA. Cloud backend and all 134 placement snapshots were verified; full final scan found zero mismatches. Provider GitHub lacked githubId, so the existing app now uses public Git source on main. APP_REVISION is pinned in build/runtime; automatic deployment is disabled until commit-aware revision injection and webhook delivery are proven. Subsequent evidence-only documentation commits do not require an app rebuild.
 
 ## Assignments
 
@@ -106,7 +108,7 @@ Verified candidate: 1,131 full-suite tests passed; final edge regressions 32 tes
 
 ## Deploy
 
-Dokploy webhook on `git push origin main` → build → deploy (owner auto-ship).
+Current release flow: owner-authorized main commit → update APP_REVISION in Dokploy build/runtime → application.deploy → public health/version and browser verification. Automatic deployment is disabled; a main push alone is not proof of release. See DEPLOY for the verified public Git source configuration.
 Convex Cloud (`rare-toucan-552`) **tidak** auto-deploy on push — perubahan di `convex/`
 butuh `npx convex deploy --yes` manual. Live: https://study-with.rahmanef.com.
 
