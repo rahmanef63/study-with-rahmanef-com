@@ -5,7 +5,7 @@
 > Referensi resmi: https://docs.convex.dev · https://labs.convex.dev/auth · https://docs.dokploy.com
 
 > **Alur deploy — 2 jalur TERPISAH (PENTING).**
-> - **Next app:** `git push origin main` → webhook Dokploy auto-build + auto-deploy. Tidak perlu trigger manual.
+> - **Next app:** source Git publik branch main di Dokploy; operator menetapkan APP_REVISION pada build/runtime lalu memicu application.deploy. Auto-deploy ditahan sampai webhook dan pembaruan revision per commit terbukti.
 > - **Convex Cloud:** TIDAK auto-deploy saat push. Perubahan di `convex/` (schema/functions) HANYA live setelah `npx convex deploy --yes` manual (§B). Repo ini tidak punya pre-push hook Convex — `git push` saja tidak mempublish backend.
 
 ## Arsitektur
@@ -54,15 +54,15 @@ Semua env di-set pada deployment Cloud dengan `npx convex env set <NAME> <value>
 
 Env NAMES prod (values JANGAN pernah di-print/commit): `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `JWKS`, `JWT_PRIVATE_KEY`, `SITE_URL`.
 
-## D. App Next.js di Dokploy (tiap push ke main)
+## D. App Next.js di Dokploy (setiap rilis)
 
-1. Dokploy project **belajar-web** → source GitHub `rahmanef63/study-with-rahmanef-com`, branch `main`, auto-deploy on push.
+1. Dokploy project **belajar-web** → source Git publik `https://github.com/rahmanef63/study-with-rahmanef-com.git`, branch `main`, root Dockerfile/context. Gunakan provider Git; provider GitHub tanpa githubId tidak dapat clone. Auto-deploy dinonaktifkan sampai updater APP_REVISION dan webhook yang benar tersedia.
 2. Env build & runtime:
    - `NEXT_PUBLIC_CONVEX_URL` = `https://rare-toucan-552.convex.cloud`
    - `NEXT_PUBLIC_CONVEX_SITE_URL` = `https://rare-toucan-552.convex.site`
    - `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` = acak 32-byte base64 (pin sekali)
    - `APP_REVISION` = SHA commit yang sama pada Docker build argument dan runtime. Deployment ID dibekukan dalam build; `/api/version` dan `/api/health` melaporkan ID tersebut, bukan BUILD_ID Next yang dapat dipakai ulang.
-3. Domain `study-with.rahmanef.com` + TLS di Dokploy (live sejak 2026-07-06).
+3. Domain `study-with.rahmanef.com` + TLS di Dokploy (live sejak 2026-07-06). Picu application.deploy, tunggu deployment done dan task healthy, lalu cocokkan checkout SHA, deployment ID, dan health revision dengan commit main yang dirilis. APP_REVISION harus diperbarui setiap release; nilai statis tidak boleh dipakai ulang oleh build otomatis.
 4. ✅ Cek: `/` menampilkan landing komunitas unggulan, `/k/<slug>` merender header + rail komunitas dengan daftar kelas sebagai HTML (bukan cangkang kosong), `/masuk` jalan, tidak ada error di logs.
 
 ## E. Seed tenant pertama (sekali, SETELAH login Google pertamamu)
@@ -82,7 +82,7 @@ Idempoten — aman diulang. Setelah ini akunmu = platform admin + owner komunita
 
 ## F. Acceptance, backfill & rollback
 
-AGENTS §4 melarang agent deploy. Semua langkah produksi berikut dijalankan operator setelah persetujuan release. Push ke main dapat memicu frontend; pastikan backend yang kompatibel siap dahulu.
+AGENTS §4 melarang agent deploy. Semua langkah produksi berikut dijalankan operator setelah persetujuan release. Pastikan backend yang kompatibel siap dahulu; merge main tidak membuktikan frontend sudah dirilis.
 
 1. Verifikasi kandidat di worktree/branch terpisah: `npm ci`, `npm run audit`, `npm run lint`, `npm run typecheck`, `npm test`, lalu build dengan URL Convex publik dan `APP_REVISION`. Jalankan server standalone beserta `public` dan `.next/static`, cek health/version, jalankan E2E anonim dan inspeksi desktop/mobile. `npm run e2e:staging` membutuhkan E2E_STAGING_URL nyata; branch staging saja tidak membuktikan deployment. Tidak ada domain staging tetap yang dikonfigurasi.
 2. Sebelum release, simpan revision/config dan image rollback frontend; jangan mencetak secret. Konfirmasi target frontend Dokploy dan backend Convex secara terpisah. Gunakan additive schema dahulu; backend baru tetap kompatibel dengan frontend lama.
