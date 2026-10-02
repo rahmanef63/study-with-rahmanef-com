@@ -6,10 +6,10 @@ Binding contract for EVERY AI agent working in this repo. Read this file fully b
 
 Charity AI-learning platform & community (Bahasa Indonesia). Multi-tenant LMS-lite: communities (tenants) → courses → modules → lessons (YouTube embed + markdown + links), self-paced progress tracking, MCQ quizzes, curated resource sharing, Discord-first discussion. Zero running cost beyond VPS + domain — this constraint is product law, not preference.
 
-**Frontend shell (updated 2026-08-09 — route pivot; SUPERSEDES the 2026-07-07 OS pivot).** The windowed OS desktop is GONE. `slices/appshell` (16,366 LOC), `slices/os-shell` (4,901), `slices/theme-presets` (1,154) and the catch-all `app/[[...slug]]/page.tsx` were all deleted. The UI is now a plain Skool.com-style tabbed community app on REAL Next.js routes:
+**Frontend shell (current routed app; SUPERSEDES the 2026-07-07 OS pivot).** The windowed OS desktop is GONE. `slices/appshell` (16,366 LOC), `slices/os-shell` (4,901), `slices/theme-presets` (1,154) and the catch-all `app/[[...slug]]/page.tsx` were all deleted. The UI is now a plain Skool.com-style tabbed community app on REAL Next.js routes:
 
-- `/` → redirects to `/k/<DEFAULT_COMMUNITY_SLUG>` (single-community-first; the directory is demoted to `/komunitas`).
-- `app/k/[slug]/layout.tsx` is the community shell: server-rendered header + a four-tab strip — **Kelas · Diskusi · Anggota · Tentang** (`lib/community.ts` `COMMUNITY_TABS` is the SSOT; NEVER list a tab whose route does not exist). Search hangs off the header at `/k/<slug>/cari`; `Kelola` is an instructor+ header link, never a learner tab.
+- `/` is the anonymous landing page; `/home` is the signed-in learning overview. The directory is `/komunitas`.
+- `app/k/[slug]/layout.tsx` owns the shared community shell: persistent sidebar on desktop and a bottom dock/menu on mobile. `lib/community.ts` `COMMUNITY_TABS` remains the navigation SSOT; every advertised destination must have a route. Search is `/k/<slug>/cari`; `Kelola` is instructor-only. Each content page owns its visible h1; the shell community label is context text.
 - Course/lesson/quiz live under `/k/<slug>/kelas/…`; the public profile is `/u/<username>`; the certificate is `/sertifikat/<completionId>`.
 - Every internal href comes from `lib/community.ts` `communityHref` — no hardcoded paths.
 - 14 permanent redirects in `next.config.mjs` cover every retired OS deep link. They are LOAD-BEARING, not polish: `notifications.href` rows written before the pivot still hold the old paths.
@@ -18,7 +18,7 @@ Charity AI-learning platform & community (Bahasa Indonesia). Multi-tenant LMS-li
 
 **`cacheComponents` (PPR) is OFF** — it existed to keep the OS catch-all statically prerenderable. Every page now reads request data, so under PPR each needs its whole body inside Suspense or the build fails; the only global fix is a root boundary whose fallback becomes the first paint of the entire site, which is the splash behaviour the pivot removed.
 
-**Backend UNCHANGED**: same Convex schema, authz, and `convex/features/<slice>` functions — DATA-MODEL.md stays valid; only the frontend host changed (OS windows → routes).
+**Backend:** Convex Cloud, feature-local handlers and shared guards. Materi belongs to the tenant and is reused via `courseLessons`; modules are retired. See the current DATA-MODEL addenda and the placement eligibility snapshot/migration contract.
 
 ## 1. Binding documents — read order & precedence
 
@@ -106,6 +106,12 @@ Quality gate: `audit-bp` score ≥80 to ship (pulls latest Next 16 / React 19 / 
 - **UI:** shadcn primitives only; theme tokens only (no hex); mobile-first; exactly one shell chrome; workspace surfaces full-bleed `h-dvh` without marketing chrome.
 - **Convex module naming (discovered 2026-07-06, hotfix 86ca386):** non-test module files under `convex/**` must be camelCase — Convex forbids `-` in module paths and the whole deploy fails (`*.test.ts` exempt: Convex excludes them). Slice frontend files stay kebab-case per rr P2. Until a CI guard exists, this rule is prompt-enforced (treat as P1).
 - **Tenancy:** every domain table carries `tenantId` and every query scopes by it (index `by_tenant*`). The tenant is the `/k/<slug>` route segment (see §0).
+
+## Verification and release notes
+
+- Changes to lesson publication or placement must keep `courseLessons.lessonPublished` in sync in the same transaction. Legacy rows require the resumable backfill and independent zero-mismatch verification described in DATA-MODEL and DEPLOY. Never mint badges from truncated progress.
+- `/api/health` checks frontend readiness without calling Convex. `/api/version.id` uses the persisted deployment ID, because Next may reuse BUILD_ID when deploymentId is configured. Pass APP_REVISION for source provenance; do not confuse a successful source build with a live release.
+- Record deployment ownership, actual revision, rollback image and browser acceptance in dated project reports. Credentials and auth state never belong in those reports.
 
 ## 8. When blocked
 

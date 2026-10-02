@@ -70,7 +70,7 @@ async function KelasHeader({ slug, courseSlug }: Params) {
   return (
     <div className="mb-4">
       <div className="sr-only" aria-hidden>
-        <h1>{course.title}</h1>
+        <h2>{course.title}</h2>
         {course.description ? <p>{course.description}</p> : null}
         <ol>
           {lessons.map((lesson) => (

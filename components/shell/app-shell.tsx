@@ -43,6 +43,9 @@ export function AppShell({
 }) {
   return (
     <div className="min-h-dvh bg-background md:grid md:grid-cols-[14rem_minmax(0,1fr)] lg:grid-cols-[16rem_minmax(0,1fr)]">
+      <a href="#main-content" className="sr-only fixed left-4 top-4 z-[100] rounded-[var(--radius)] bg-primary px-4 py-3 font-medium text-primary-foreground focus:not-sr-only focus:outline-2 focus:outline-offset-2 focus:outline-ring">
+        Lewati navigasi
+      </a>
       {/* self-start + h-dvh is what makes `sticky` work on a grid item: a
           stretched item is already as tall as the row and has nothing to stick
           within. pl picks up the landscape notch inset. */}
@@ -57,6 +60,8 @@ export function AppShell({
             of the windowed shell). A route that does not declare one leaves all
             of them stuck on their narrowest variant. */}
         <main
+          id="main-content"
+          tabIndex={-1}
           className={`@container ${SHELL_GUTTER} flex-1 py-5 pb-[calc(var(--safe-b)+1.5rem)] md:py-8`}
         >
           {children}

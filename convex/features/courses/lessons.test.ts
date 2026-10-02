@@ -169,6 +169,13 @@ test("setLessonStatus: member denied; unpublishing hides the materi from every c
       courseSlug: "kelas-published",
     });
   expect(overview.lessonCount).toBe(0);
+  const placement = await t.run(async (ctx) => ctx.db.query("courseLessons")
+    .withIndex("by_course_lesson", (q) => q.eq("courseId", courseId).eq("lessonId", lessonId)).unique());
+  expect(placement?.lessonPublished).toBe(false);
+  await t.withIdentity(asUser(fx.instructorId)).mutation(api.features.courses.lessons.setLessonStatus, {
+    lessonId, status: "published",
+  });
+  expect(await t.run(async (ctx) => (await ctx.db.get(placement!._id))?.lessonPublished)).toBe(true);
   expect(courseId).toBeDefined();
 });
 
@@ -347,4 +354,29 @@ test("updateLesson: refuses contentMd once the materi has blocks", async () => {
   const after = await t.run(async (ctx) => ctx.db.get(lessonId));
   expect(after?.title).toEqual("Sub Agents (revisi)");
   expect(after?.contentMd).toContain("Versi markdown");
+});
+
+test("deleteLesson: legacy placement overflow rejects atomically and preserves snapshots", async () => {
+  const t = setup();
+  const fx = await seedTenantFixture(t);
+  const { lessonId } = await seedCourse(t, fx, "published");
+  await t.run(async (ctx) => {
+    for (let index = 1; index < 51; index++) {
+      const courseId = await ctx.db.insert("courses", {
+        tenantId: fx.tenantId, slug: `legacy-${index}`, title: "Legacy", description: "",
+        status: "published", createdBy: fx.instructorId,
+      });
+      await ctx.db.insert("courseLessons", {
+        tenantId: fx.tenantId, courseId, lessonId, order: 1, lessonPublished: true,
+      });
+    }
+  });
+  await expect(t.withIdentity(asUser(fx.instructorId)).mutation(
+    api.features.courses.lessons.deleteLesson, { lessonId },
+  )).rejects.toThrow(/VALIDATION_FAILED/);
+  await t.run(async (ctx) => {
+    expect(await ctx.db.get(lessonId)).not.toBeNull();
+    expect(await ctx.db.query("courseLessons")
+      .withIndex("by_lesson", (q) => q.eq("lessonId", lessonId)).take(52)).toHaveLength(51);
+  });
 });

@@ -90,7 +90,7 @@ export function LessonView({
           <div className="sticky bottom-3 z-10">{completionSlot}</div>
         )}
 
-        <nav className="flex items-center justify-between gap-3 border-t border-border pt-5">
+        <nav aria-label={copy.lessons} className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-5">
           {lesson.prevLessonId !== null ? (
             <Button asChild variant="outline" size="sm" className="min-h-11 @sm:min-h-9">
               <Link href={lessonHref(lesson.prevLessonId)}>
@@ -107,7 +107,9 @@ export function LessonView({
               </Link>
             </Button>
           ) : (
-            <span />
+            <Button asChild variant="outline" size="sm" className="min-h-11 @sm:min-h-9">
+              <Link href={backHref}>{copy.backToCourse}<ArrowRight aria-hidden /></Link>
+            </Button>
           )}
         </nav>
       </div>

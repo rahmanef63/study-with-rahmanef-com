@@ -6,7 +6,7 @@
 // status colors.
 import { Check, CheckCircle2, Target, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge, StatTile } from "@/components/mockup-kit";
 import { mergeQuizCopy, type QuizCopyOverride } from "../config/copy";
 import type { AttemptResult, QuizPublicQuestion } from "../types";
@@ -22,6 +22,7 @@ export type QuizResultCardProps = {
 export function QuizResultCard({ result, questions, copy: copyOverride, onRetry, className }: QuizResultCardProps) {
   const copy = mergeQuizCopy(copyOverride);
   const toneText = result.passed ? "text-success" : "text-destructive";
+  const attemptsRemaining = Math.max(0, result.attemptsAllowed - result.attemptsUsed);
 
   return (
     <div
@@ -31,11 +32,11 @@ export function QuizResultCard({ result, questions, copy: copyOverride, onRetry,
           : "mx-auto w-full max-w-2xl space-y-5"
       }
     >
+      <h1 className="text-xl font-semibold">{copy.yourScore}</h1>
       <Card>
         <CardHeader className="gap-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="min-w-0 space-y-1">
-              <CardDescription className="eyebrow">{copy.yourScore}</CardDescription>
               <CardTitle
                 className={`font-display text-2xl font-semibold tabular-nums @sm:text-4xl ${toneText}`}
               >
@@ -64,7 +65,7 @@ export function QuizResultCard({ result, questions, copy: copyOverride, onRetry,
       </Card>
 
       <section aria-label={copy.reviewAnswers} className="space-y-3">
-        <h3 className="eyebrow border-b pb-2">{copy.reviewAnswers}</h3>
+        <h2 className="eyebrow border-b pb-2">{copy.reviewAnswers}</h2>
         {result.results.map((r) => {
           const q = questions[r.questionIndex];
           if (q === undefined) return null;
@@ -115,13 +116,16 @@ export function QuizResultCard({ result, questions, copy: copyOverride, onRetry,
         })}
       </section>
 
-      {onRetry !== undefined && (
-        <div className="flex justify-end">
-          <Button variant="outline" className="min-h-11" onClick={onRetry}>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-muted-foreground" role="status">
+          {attemptsRemaining > 0 ? `${copy.attemptsRemaining}: ${attemptsRemaining}` : copy.attemptsExhausted}
+        </p>
+        {onRetry !== undefined && attemptsRemaining > 0 && (
+          <Button type="button" variant="outline" className="min-h-11" onClick={onRetry}>
             {copy.retry}
           </Button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

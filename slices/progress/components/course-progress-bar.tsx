@@ -12,6 +12,7 @@ export type CourseProgressBarProps = {
   completedCount: number;
   totalCount: number;
   isComplete: boolean;
+  truncated?: boolean;
   copy?: ProgressCopyOverride;
   className?: string;
 };
@@ -20,10 +21,15 @@ export function CourseProgressBar({
   completedCount,
   totalCount,
   isComplete,
+  truncated = false,
   copy: copyOverride,
   className,
 }: CourseProgressBarProps) {
   const copy = mergeProgressCopy(copyOverride);
+
+  if (truncated) {
+    return <p role="status" className={cn("text-sm text-muted-foreground", className)}>{copy.partialProgress}</p>;
+  }
 
   if (totalCount <= 0) {
     return <p className="text-sm text-muted-foreground">{copy.emptyProgress}</p>;
@@ -47,6 +53,7 @@ export function CourseProgressBar({
       </div>
       <div
         role="progressbar"
+        aria-label={copy.progressTitle}
         aria-valuenow={percent}
         aria-valuemin={0}
         aria-valuemax={100}

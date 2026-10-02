@@ -515,7 +515,7 @@ yang menunjuk materi. `modules` PENSIUN.
 
 | Tabel | Kolom | Index |
 |---|---|---|
-| `courseLessons` (baru) | `tenantId`, `courseId`, `lessonId`, `order` | `by_course` [courseId, order] · `by_lesson` [lessonId] *(backlink "muncul di kelas")* · `by_course_lesson` *(keunikan penempatan)* |
+| `courseLessons` (baru) | `tenantId`, `courseId`, `lessonId`, `order`, optional `lessonPublished` | `by_course` [courseId, order] · `by_lesson` [lessonId] *(backlink "muncul di kelas")* · `by_course_lesson` *(keunikan penempatan)* |
 | `lessonTags` (baru) | `tenantId`, `tag`, `lessonId` | `by_tenant_tag` · `by_lesson` · `by_tenant_tag_lesson` |
 | `lessonRefs` (baru) | `tenantId`, `fromLessonId`, `toLessonId` | `by_from` · `by_to` · `by_from_to` |
 | `lessons` (+) | `slug`, `status`, `authorId`, `contentBlocks` — semua optional | `by_tenant_slug` *(permalink)* · `by_tenant_status` · `by_author` |
@@ -532,8 +532,8 @@ yang menunjuk materi. `modules` PENSIUN.
   orang yang sudah menuntaskan "sub agents" di Claude Code disuruh mengulangnya di Hermes dan progresnya
   dihitung dua kali. Karena itu `courseId` dibiarkan `undefined` untuk materi yang dipakai >1 kelas —
   dan karena itu pula guard hapus-materi WAJIB lewat `by_lesson`, bukan `by_course`.
-- **Progres kelas** = |completions ∩ `courseLessons(courseId)`| / |`courseLessons(courseId)`|
-  *(menggantikan count `lessons.by_course`)*.
+- **Progres kelas** = completions intersected with eligible course placements / eligible course placements. Eligible placements reference existing lessons in the course tenant with `status === "published"` (missing status is published for legacy rows). Draft material is excluded from learner and instructor progress/badge calculations; instructor syllabi may still preview it. A course with no eligible material is never complete. This replaces counting every `courseLessons` placement, which could leave learners unable to finish the visible syllabus.
+- **Placement eligibility snapshot (2026-10-02):** `courseLessons.lessonPublished` is maintained in the same transaction by placement writers and `setLessonStatus`. This lightweight boolean prevents progress reads from loading up to 200 large lesson bodies per course. Backfill existing rows with the internal, resumable `progress/placementBackfill` function in batches of at most 10; verify parity before declaring migration complete. Missing snapshots use a bounded legacy fallback and explicitly report truncation; truncated derivations never mint badges. No table or user history is deleted. Material reuse is capped at 50 courses and completion fan-out is scheduled in bounded transactions.
 - **Isi materi punya SATU jalur tulis** — `contentBlocks` kanonik kalau ada, `contentMd` **diturunkan**
   darinya di transaksi yang sama oleh `features/materi/content.saveContent`. `courses/lessons.updateLesson`
   menolak `contentMd` pada materi yang sudah punya blok; kalau tidak, simpan berikutnya dari editor

@@ -10,6 +10,15 @@
    no switcher, and adding one means writing a second palette from scratch. */
 @custom-variant dark (&:is(.dark *));
 
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 @theme {
   /* ONE downloaded face: SORA, loaded by app/layout.tsx as the DISPLAY face.
      It replaced Press Start 2P — the 8-bit face was twice the width per glyph,

@@ -157,3 +157,29 @@ test("markLessonComplete: a DRAFT course does not hide its materi, but mints no 
     expect(await ctx.db.query("courseCompletions").collect()).toHaveLength(0);
   });
 });
+
+test("markLessonComplete: drafts do not prevent finishing the published syllabus", async () => {
+  const t = setup();
+  const fx = await seedTenantFixture(t);
+  const { courseId, lessonIds } = await seedCourseWithLessons(t, fx, "published", 2);
+  await t.run(async (ctx) => { await ctx.db.patch(lessonIds[1], { status: "draft" }); });
+
+  const result = await t.withIdentity(asUser(fx.memberId)).mutation(fn, { lessonId: lessonIds[0] });
+  expect(result.courses).toEqual([{ courseId, completedCount: 1, totalCount: 1, isComplete: true }]);
+  await t.run(async (ctx) => {
+    expect(await ctx.db.query("courseCompletions").collect()).toHaveLength(1);
+  });
+});
+
+test("markLessonComplete: an instructor preview cannot complete a draft-only syllabus", async () => {
+  const t = setup();
+  const fx = await seedTenantFixture(t);
+  const { courseId, lessonIds } = await seedCourseWithLessons(t, fx, "published", 1);
+  await t.run(async (ctx) => { await ctx.db.patch(lessonIds[0], { status: "draft" }); });
+
+  const result = await t.withIdentity(asUser(fx.instructorId)).mutation(fn, { lessonId: lessonIds[0] });
+  expect(result.courses).toEqual([{ courseId, completedCount: 0, totalCount: 0, isComplete: false }]);
+  await t.run(async (ctx) => {
+    expect(await ctx.db.query("courseCompletions").collect()).toHaveLength(0);
+  });
+});

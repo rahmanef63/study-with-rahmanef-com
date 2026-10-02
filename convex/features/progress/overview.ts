@@ -13,19 +13,21 @@
 import { query } from "../../_generated/server";
 import type { Doc, Id } from "../../_generated/dataModel";
 import { requireUser } from "../../_shared/auth";
-import { MAX_LESSONS_PER_COURSE } from "./constants";
+import { deriveCourseProgress, type LegacyEligibility } from "./derive";
 
 /**
  * Read ceilings, declared locally on purpose — progress must NOT deep-import
  * the courses or tenants features (cross-slice coupling resolves through shared
- * tables only). Chosen so the worst case is ~1 + T + C indexed reads.
+ * tables only). Ten courses read at most 2,000 completion index ranges, plus
+ * small placement snapshots. One shared cache caps legacy full-body reads at 10.
  */
 const MAX_COMMUNITIES = 20;
 /** Published courses examined per community. */
 const MAX_COURSES_PER_COMMUNITY = 30;
 /** Total courses examined across ALL communities — the real bound. A reader in
  *  twenty communities must not turn their home screen into a hundred reads. */
-const MAX_COURSES_TOTAL = 40;
+const MAX_COURSES_TOTAL = 10;
+// ponytail: summarize 10 courses; paginate if learners regularly exceed this roster.
 /** One row per finished materi, ever. Above this the counts read "N+". */
 const MAX_COMPLETIONS = 500;
 /** One row per finished course, ever. */
@@ -65,31 +67,34 @@ export const getMine = query({
   handler: async (ctx) => {
     const userId = await requireUser(ctx);
 
-    // One read of the caller's completions, reused for every course below —
-    // the alternative (deriveCourseProgress per course) re-reads this set once
-    // per course.
+    // Only a COMPLETE scan can answer per-course membership correctly. Past
+    // this cap, deriveCourseProgress falls back to indexed point lookups.
     const completions = await ctx.db
       .query("lessonCompletions")
       .withIndex("by_user", (q) => q.eq("userId", userId))
-      .take(MAX_COMPLETIONS);
-    const finished = new Set<string>(completions.map((c) => c.lessonId));
+      .take(MAX_COMPLETIONS + 1);
+    const finished = completions.length <= MAX_COMPLETIONS
+      ? new Set<string>(completions.map((c) => c.lessonId)) : undefined;
 
     const badges = await ctx.db
       .query("courseCompletions")
       .withIndex("by_user", (q) => q.eq("userId", userId))
-      .take(MAX_BADGES);
-    const badgeCourseIds = new Set<string>(badges.map((b) => b.courseId));
+      .take(MAX_BADGES + 1);
+    const badgeCourseIds = new Set<string>(badges.slice(0, MAX_BADGES).map((b) => b.courseId));
 
     const memberships = await ctx.db
       .query("memberships")
       .withIndex("by_user", (q) => q.eq("userId", userId))
-      .take(MAX_COMMUNITIES);
+      .take(MAX_COMMUNITIES + 1);
 
     const communities: OverviewCommunity[] = [];
     const courses: OverviewCourse[] = [];
+    const legacyEligibility: LegacyEligibility = new Map();
     let examined = 0;
+    let truncated = completions.length > MAX_COMPLETIONS || badges.length > MAX_BADGES ||
+      memberships.length > MAX_COMMUNITIES;
 
-    for (const membership of memberships) {
+    for (const membership of memberships.slice(0, MAX_COMMUNITIES)) {
       const tenant: Doc<"tenants"> | null = await ctx.db.get(membership.tenantId);
       // Same rule listMine holds: pending and suspended communities stay
       // invisible, so a home screen never advertises one you cannot open.
@@ -100,33 +105,32 @@ export const getMine = query({
         .withIndex("by_tenant_status", (q) =>
           q.eq("tenantId", tenant._id).eq("status", "published")
         )
-        .take(MAX_COURSES_PER_COMMUNITY);
+        .take(MAX_COURSES_PER_COMMUNITY + 1);
+      if (published.length > MAX_COURSES_PER_COMMUNITY) truncated = true;
 
       communities.push({
         slug: tenant.slug,
         name: tenant.name,
         role: membership.role,
-        courseCount: published.length,
+        courseCount: Math.min(published.length, MAX_COURSES_PER_COMMUNITY),
       });
 
-      for (const course of published) {
-        if (examined >= MAX_COURSES_TOTAL) break;
+      for (const course of published.slice(0, MAX_COURSES_PER_COMMUNITY)) {
+        if (examined >= MAX_COURSES_TOTAL) { truncated = true; break; }
         examined += 1;
-        const placements = await ctx.db
-          .query("courseLessons")
-          .withIndex("by_course", (q) => q.eq("courseId", course._id))
-          .take(MAX_LESSONS_PER_COURSE);
-        if (placements.length === 0) continue;
-        const done = placements.reduce((n, p) => n + (finished.has(p.lessonId) ? 1 : 0), 0);
+        const progress = await deriveCourseProgress(ctx, userId, course._id, finished, legacyEligibility);
+        if (progress.truncated) { truncated = true; continue; }
+        const { totalCount: total, completedCount: done } = progress;
+        if (total === 0) continue;
         courses.push({
           courseId: course._id,
           slug: course.slug,
           title: course.title,
           communitySlug: tenant.slug,
           communityName: tenant.name,
-          total: placements.length,
+          total,
           done,
-          percent: Math.round((done / placements.length) * 100),
+          percent: Math.round((done / total) * 100),
         });
       }
     }
@@ -144,12 +148,9 @@ export const getMine = query({
       /** Courses whose every materi is finished — the badge wall's population. */
       completedCount: courses.filter((c) => c.total > 0 && c.done === c.total).length,
       badgeCount: badgeCourseIds.size,
-      materiDone: completions.length,
-      /** True when a ceiling was hit, so the UI can say "N+" honestly. */
-      truncated:
-        completions.length === MAX_COMPLETIONS ||
-        badges.length === MAX_BADGES ||
-        examined >= MAX_COURSES_TOTAL,
+      materiDone: Math.min(completions.length, MAX_COMPLETIONS),
+      /** True only when rows were actually omitted, not just at an exact cap. */
+      truncated,
     };
   },
 });

@@ -22,7 +22,7 @@ export async function requireUser(ctx: Ctx): Promise<Id<"users">> {
 }
 
 /**
- * Membership with at least `min` role in `tenantId`, or throw.
+ * Membership with at least `min` role in an active tenant, or throw.
  * Hierarchy: member < instructor < owner (owner passes every check).
  */
 export async function requireTenantRole(
@@ -38,6 +38,7 @@ export async function requireTenantRole(
   if (membership === null || ROLE_RANK[membership.role] < ROLE_RANK[min]) {
     throw new ConvexError({ code: "NOT_AUTHORIZED", message: "Kamu tidak punya akses untuk aksi ini" });
   }
+  await requireActiveTenantById(ctx, tenantId);
   return { userId, membership };
 }
 

@@ -11,8 +11,11 @@ export const MAX_COMPLETIONS_PER_COURSE = MAX_LESSONS_PER_COURSE;
 
 /**
  * How many courses one materi may be placed in (courseLessons.by_lesson).
- * Reuse is the point of the materi model — "sub agents" sits in Claude Code AND
- * Hermes — but a single page belonging to dozens of courses is a data defect,
- * not a use case, so the backlink read stays small and bounded.
+ * Matches the courses placement writer and the data model.
  */
-export const MAX_COURSES_PER_LESSON = 20;
+export const MAX_COURSES_PER_LESSON = 50;
+
+/** Legacy rows lack the eligibility snapshot. Ten full lesson documents leave
+ * headroom below Convex's 16MiB transaction read limit (1MiB per document). */
+// ponytail: legacy fallback reads 10 bodies; finish placement backfill for full-course counts.
+export const MAX_LEGACY_LESSON_READS = 10;

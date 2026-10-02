@@ -46,7 +46,7 @@ function MemberSilabus({
       tenantId={tenantId}
       courseSlug={courseSlug}
       lessonHref={(lessonId) => communityHref.lesson(slug, courseSlug, lessonId)}
-      completedLessonIds={progress?.completedLessonIds}
+      completedLessonIds={progress?.truncated ? undefined : progress?.completedLessonIds}
       progressSlot={<CourseProgress courseId={courseId} />}
       aboveSyllabusSlot={<SumberBelajarCard slug={slug} />}
       quizSlot={

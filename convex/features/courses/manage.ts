@@ -10,6 +10,7 @@ import { mutation, query } from "../../_generated/server";
 import { requireTenantRole, requireUser } from "../../_shared/auth";
 import {
   getCourseOrFail,
+  assertMaterialPlacementLimit,
   getLessonOrFail,
   getPlacement,
   listPlacements,
@@ -139,6 +140,7 @@ export const addLessonToCourse = mutation({
     if (placements.length >= MAX_LESSONS_PER_COURSE) {
       fail("VALIDATION_FAILED", `Maksimal ${MAX_LESSONS_PER_COURSE} materi per kelas`);
     }
+    await assertMaterialPlacementLimit(ctx, lesson._id);
     const maxOrder = placements.reduce((max, row) => Math.max(max, row.order), 0);
 
     return ctx.db.insert("courseLessons", {
@@ -146,6 +148,7 @@ export const addLessonToCourse = mutation({
       courseId: course._id,
       lessonId: lesson._id,
       order: maxOrder + 1,
+      lessonPublished: (lesson.status ?? "published") === "published",
     });
   },
 });

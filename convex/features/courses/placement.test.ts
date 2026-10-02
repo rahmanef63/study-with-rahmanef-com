@@ -30,6 +30,32 @@ test("addLessonToCourse: anon + member denied, instructor appends at the end", a
     .query(api.features.courses.manage.getCourseForManage, { courseId });
   expect(overview.lessons.map((l) => l._id)).toEqual([lessonId, materiId]);
   expect(overview.lessons[1].order).toBe(2);
+  expect(await t.run(async (ctx) => (await ctx.db.query("courseLessons")
+    .withIndex("by_course_lesson", (q) => q.eq("courseId", courseId).eq("lessonId", materiId))
+    .unique())?.lessonPublished)).toBe(true);
+});
+
+test("placement reuse stops at 50 courses and preserves the existing rows", async () => {
+  const t = setup();
+  const fx = await seedTenantFixture(t);
+  const lessonId = await seedMateri(t, fx);
+  const courseIds = await t.run(async (ctx) => {
+    const ids = [];
+    for (let i = 0; i < 51; i++) ids.push(await ctx.db.insert("courses", {
+      tenantId: fx.tenantId, slug: `reuse-${i}`, title: `Reuse ${i}`, description: "Fixture",
+      status: "published", createdBy: fx.instructorId,
+    }));
+    return ids;
+  });
+  const instructor = t.withIdentity(asUser(fx.instructorId));
+  for (const courseId of courseIds.slice(0, 50)) {
+    await instructor.mutation(api.features.courses.manage.addLessonToCourse, { courseId, lessonId });
+  }
+  await expect(instructor.mutation(api.features.courses.manage.addLessonToCourse, {
+    courseId: courseIds[50], lessonId,
+  })).rejects.toThrow(/Maksimal 50 kelas per materi/);
+  expect(await t.run(async (ctx) => (await ctx.db.query("courseLessons")
+    .withIndex("by_lesson", (q) => q.eq("lessonId", lessonId)).take(51)).length)).toBe(50);
 });
 
 test("addLessonToCourse: the same materi twice is VALIDATION_FAILED", async () => {

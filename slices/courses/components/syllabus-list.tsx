@@ -15,6 +15,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import type { Id } from "@convex/_generated/dataModel";
 import type { SyllabusLessonData } from "../types";
+import { COURSES_COPY } from "../config/copy";
 
 export type SyllabusListProps = {
   lessons: SyllabusLessonData[];
@@ -26,6 +27,8 @@ export type SyllabusListProps = {
   locked?: boolean;
   emptyText: string;
   lockedText?: string;
+  completedText?: string;
+  pendingText?: string;
   /** Rendered as the last rows of the same list — e.g. the course's quizzes.
    *  Kept inside the frame so a quiz reads as a step of the course, not a
    *  detached card floating under it. MUST render `<li>` elements: it is
@@ -45,6 +48,8 @@ export function SyllabusList({
   locked = false,
   emptyText,
   lockedText,
+  completedText = COURSES_COPY.lessonCompleted,
+  pendingText = COURSES_COPY.lessonPending,
   footerSlot,
   className,
 }: SyllabusListProps) {
@@ -56,7 +61,7 @@ export function SyllabusList({
     return (
       <div className={className ? `space-y-3 ${className}` : "space-y-3"}>
         <p className="text-sm text-muted-foreground">{emptyText}</p>
-        {footerSlot}
+        {footerSlot && <ol className={`${GROUP} divide-y divide-border`}>{footerSlot}</ol>}
       </div>
     );
   }
@@ -83,6 +88,9 @@ export function SyllabusList({
                 <Circle className="size-4 shrink-0 text-muted-foreground/40" aria-hidden />
               )}
               <span className="min-w-0 flex-1 truncate font-medium">{lesson.title}</span>
+              {!locked && completedLessonIds !== undefined && (
+                <span className="sr-only"> — {isDone ? completedText : pendingText}</span>
+              )}
               {lesson.hasVideo && (
                 <PlayCircle className="size-4 shrink-0 text-muted-foreground" aria-hidden />
               )}

@@ -8,6 +8,7 @@
 // so the module grouping this rail used to draw is gone — one list, one
 // numbered sequence, which is also what the Silabus now shows.
 import { useMemo } from "react";
+import Link from "next/link";
 import { Check, ChevronLeft, Lock, Play } from "lucide-react";
 import type { Id } from "@convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
@@ -20,7 +21,7 @@ import type { RoadmapLesson, RoadmapNodeStatus } from "../types";
 // so this is the only status signal AT gets per row.
 const STATUS_WORD: Record<RoadmapNodeStatus, string> = {
   done: "Selesai",
-  next: "Kamu di sini",
+  next: "Materi berikutnya",
   available: "Terbuka",
   locked: "Terkunci",
 };
@@ -109,13 +110,13 @@ export function CourseNav({
   return (
     <div className="flex flex-col gap-3 text-sm">
       {/* Header — back to the full map + course title */}
-      <a
+      <Link
         href={overviewHref}
         className="group inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <ChevronLeft className="size-3.5 transition-transform group-hover:-translate-x-0.5" aria-hidden />
         Kembali ke peta
-      </a>
+      </Link>
       <p className="min-w-0 truncate font-display text-base font-medium leading-tight">{overview.course.title}</p>
       {isMember && total > 0 && (
         <div className="space-y-1">
@@ -159,7 +160,7 @@ export function CourseNav({
                     {row}
                   </span>
                 ) : (
-                  <a
+                  <Link
                     href={lessonHref(l.id)}
                     aria-current={current ? "page" : undefined}
                     className={cn(
@@ -168,7 +169,7 @@ export function CourseNav({
                     )}
                   >
                     {row}
-                  </a>
+                  </Link>
                 )}
               </li>
             );

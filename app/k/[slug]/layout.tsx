@@ -27,7 +27,7 @@ import { getStats, getTabSignal, getTenant } from "./_lib/tenant-reads";
 //     crosses the boundary as three plain booleans — never the tab list, whose
 //     `href` members are functions (a function cannot cross server→client; it
 //     has broken this app three times).
-//   · A real <h1> in the server HTML of every page, `generateMetadata`, the
+//   · A real page title in the server HTML of every page, `generateMetadata`, the
 //     colocated OG cards, and the `@container` on <main> that every reused
 //     slice sizes itself against.
 //   · Every read is anonymous and memoised in ./_lib/tenant-reads.ts; anything
@@ -96,25 +96,12 @@ async function DockSlot({ slug }: Params) {
   return <ShellDock community={props} />;
 }
 
-/**
- * THE PAGE HEADING, server-rendered on every route under /k.
- *
- * `sr-only`, and that is a decision rather than an oversight. The community
- * name is already on screen at every width — in the rail at md and up, in the
- * compact bar below it — and printing it a third time at the top of the content
- * pane is the stacked header this rebuild removed. What a heading must actually
- * do it still does: it is real HTML in the server response (crawlers, the
- * document outline), it is the first thing a screen reader hears inside the
- * content, and there is exactly ONE of it at every breakpoint rather than two
- * hidden copies. The visible chrome copies are `aria-hidden` for that reason.
- *
- * notFound() lives here (not in the layout body) so an unknown slug renders the
- * real 404 page instead of an empty shell with a nav in it.
- */
+// Resolve unknown communities here while keeping the shell asynchronous.
+// Pages own their visible h1; this slot supplies only community context.
 async function HeadingSlot({ slug }: Params) {
   const tenant = await getTenant(slug);
   if (tenant === null) notFound();
-  return <h1 className="sr-only">{tenant.name}</h1>;
+  return <p className="sr-only">{tenant.name}</p>;
 }
 
 export default async function CommunityLayout({

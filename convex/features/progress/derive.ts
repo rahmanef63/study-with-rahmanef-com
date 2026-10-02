@@ -5,13 +5,13 @@
 //
 // MATERI MODEL (DECISIONS #36/#37). A completion is keyed on (userId, lessonId)
 // ONLY. The roster of a course is `courseLessons`, not `lessons.courseId`, so
-// course progress = |completions ∩ courseLessons(courseId)| / |courseLessons|.
+// course progress uses existing published materi in the course's own tenant.
 // Keeping courseId in the completion key would ask someone who finished "sub
 // agents" in Claude Code to finish it again in Hermes, and would double-count
 // their progress — see the note on `lessonCompletions` in _tables/learning.ts.
 import type { Doc, Id } from "../../_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "../../_generated/server";
-import { MAX_COURSES_PER_LESSON, MAX_LESSONS_PER_COURSE } from "./constants";
+import { MAX_COURSES_PER_LESSON, MAX_LEGACY_LESSON_READS, MAX_LESSONS_PER_COURSE } from "./constants";
 
 type Ctx = QueryCtx | MutationCtx;
 
@@ -22,9 +22,14 @@ export type CourseProgress = {
   totalCount: number;
   /** All lessons done AND the course has at least one lesson. */
   isComplete: boolean;
+  /** Missing eligibility metadata or an oversized legacy roster makes counts incomplete. */
+  truncated?: boolean;
 };
 
-/** A course's materi roster, in teaching order (by_course = [courseId, order]). */
+/** Share this cache across all courses in a transaction, never across users. */
+export type LegacyEligibility = Map<Id<"lessons">, { tenantId: Id<"tenants">; published: boolean } | null>;
+
+/** Teaching order, plus one sentinel placement to detect legacy overflow. */
 export async function listCoursePlacements(
   ctx: Ctx,
   courseId: Id<"courses">
@@ -32,7 +37,7 @@ export async function listCoursePlacements(
   return await ctx.db
     .query("courseLessons")
     .withIndex("by_course", (q) => q.eq("courseId", courseId))
-    .take(MAX_LESSONS_PER_COURSE);
+    .take(MAX_LESSONS_PER_COURSE + 1);
 }
 
 /** The backlink: every course this materi is taught in. Empty is legitimate —
@@ -55,16 +60,39 @@ export async function listLessonPlacements(
  * (scanning the user's completions and intersecting) would silently FLOOR the
  * count for a heavy learner once their history outgrew the scan cap.
  * `.first()` rather than `.unique()`: a duplicate legacy row must degrade to
- * "completed", never crash a progress read.
+ * "completed", never crash a progress read. The overview may pass a COMPLETE
+ * completion set to reuse its bounded scan; a truncated scan must never be passed.
  */
 export async function deriveCourseProgress(
   ctx: Ctx,
   userId: Id<"users">,
-  courseId: Id<"courses">
+  courseId: Id<"courses">,
+  completedLessons?: ReadonlySet<string>,
+  legacyEligibility: LegacyEligibility = new Map()
 ): Promise<CourseProgress> {
-  const placements = await listCoursePlacements(ctx, courseId);
+  const course = await ctx.db.get(courseId);
+  const roster = course === null ? [] : await listCoursePlacements(ctx, courseId);
+  const placements: Doc<"courseLessons">[] = [];
+  let truncated = roster.length > MAX_LESSONS_PER_COURSE;
+  for (const placement of roster.slice(0, MAX_LESSONS_PER_COURSE)) {
+    if (placement.tenantId !== course?.tenantId) continue;
+    if (placement.lessonPublished !== undefined) {
+      if (placement.lessonPublished) placements.push(placement);
+      continue;
+    }
+    if (!legacyEligibility.has(placement.lessonId)) {
+      if (legacyEligibility.size >= MAX_LEGACY_LESSON_READS) { truncated = true; continue; }
+      const lesson = await ctx.db.get(placement.lessonId);
+      legacyEligibility.set(placement.lessonId, lesson === null ? null : {
+        tenantId: lesson.tenantId, published: (lesson.status ?? "published") === "published",
+      });
+    }
+    const lesson = legacyEligibility.get(placement.lessonId);
+    if (lesson?.tenantId === course?.tenantId && lesson?.published) placements.push(placement);
+  }
   const flags = await Promise.all(
     placements.map(async (placement) => {
+      if (completedLessons !== undefined) return completedLessons.has(placement.lessonId);
       const completion = await ctx.db
         .query("lessonCompletions")
         .withIndex("by_user_lesson", (q) =>
@@ -84,7 +112,8 @@ export async function deriveCourseProgress(
     completedLessonIds,
     completedCount,
     totalCount,
-    isComplete: totalCount > 0 && completedCount >= totalCount,
+    isComplete: !truncated && totalCount > 0 && completedCount >= totalCount,
+    ...(truncated ? { truncated: true } : {}),
   };
 }
 

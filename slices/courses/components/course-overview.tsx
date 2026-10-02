@@ -7,8 +7,10 @@
 // the course's quizzes land at the END of the list via `quizSlot`.
 import type { Id } from "@convex/_generated/dataModel";
 import type { ReactNode } from "react";
-import { ChevronDown, FileText, PlayCircle, Wallet } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, ChevronDown, FileText, PlayCircle, Wallet } from "lucide-react";
 import { Hero, SectionHeader, Badge } from "@/components/mockup-kit";
+import { Button } from "@/components/ui/button";
 import { mergeCopy, type CoursesCopyOverride } from "../config/copy";
 import type { CourseOverviewData } from "../types";
 import { SyllabusList } from "./syllabus-list";
@@ -56,7 +58,13 @@ export function CourseOverview({
   // Video count is the only genuinely-new signal derivable with zero query
   // (hasVideo is already per-materi in getOverview).
   const videoCount = lessons.reduce((n, l) => (l.hasVideo ? n + 1 : n), 0);
-  const hasHeroSlot = statusLabel !== null || progressSlot != null || (!isMember && joinCtaSlot);
+  const completed = new Set(completedLessonIds ?? []);
+  const nextLesson = lessons.find((lesson) => !completed.has(lesson._id));
+  const actionLesson = nextLesson ?? lessons[0];
+  const canStart = isMember && completedLessonIds !== undefined && actionLesson !== undefined;
+  const actionLabel = !nextLesson ? copy.reviewCourse
+    : lessons.some((lesson) => completed.has(lesson._id)) ? copy.resumeCourse : copy.startCourse;
+  const hasHeroSlot = canStart || statusLabel !== null || progressSlot != null || (!isMember && joinCtaSlot);
 
   return (
     <div className={className ? `space-y-10 ${className}` : "space-y-10"}>
@@ -65,6 +73,13 @@ export function CourseOverview({
           <div className="space-y-4">
             {statusLabel !== null ? <Badge tone="muted">{statusLabel}</Badge> : null}
             {progressSlot}
+            {canStart && (
+              <Button asChild className="min-h-11 w-full @sm:w-auto">
+                <Link href={lessonHref(actionLesson._id)}>
+                  {actionLabel}<ArrowRight aria-hidden />
+                </Link>
+              </Button>
+            )}
             {!isMember && joinCtaSlot}
           </div>
         ) : null}
@@ -122,6 +137,8 @@ export function CourseOverview({
           locked={!isMember}
           emptyText={copy.emptySyllabus}
           lockedText={copy.lockedLesson}
+          completedText={copy.lessonCompleted}
+          pendingText={copy.lessonPending}
           footerSlot={quizSlot}
         />
       </section>

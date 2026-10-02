@@ -1,25 +1,11 @@
-// Seeding a KELAS in the post-module shape (DECISIONS #37): a course is an
-// ordered list of MATERI, not a tree. `modules` is gone, so a curriculum is a
-// flat lesson array plus the quizzes that hang off the course.
-//
-// IDEMPOTENCE IS THE POINT OF THIS FILE. Production is already seeded by the
-// module-tree version of these seeds, and convex/seed.ts promises "re-running
-// keeps existing rows", so every write here is gated on a probe of the
-// DESTINATION rather than on a "course exists → skip the lot" shortcut:
-//
-//   · materi  → `lessons.by_tenant_slug`, walking the same candidate ladder
-//               (`slug`, `slug-2`, …) that `courses/slug.uniqueSlug` and the
-//               one-shot materiBackfill used, so a title-derived slug FINDS the
-//               live row the backfill minted instead of duplicating it;
-//   · placement → `courseLessons.by_course_lesson`;
-//   · kuis    → `quizzes.by_course` + title.
-//
-// A second run therefore inserts zero rows and renumbers nothing.
+// Idempotent curriculum seeding: preserve existing lessons and placements,
+// append new material after the current order, and never rewrite user progress.
 import type { Id } from "../_generated/dataModel";
 import type { MutationCtx } from "../_generated/server";
 import { baseSlug } from "../features/courses/slug";
 import { MAX_LESSONS_PER_COURSE } from "../features/courses/validate";
-
+import { assertMaterialPlacementLimit } from "../features/courses/access";
+import { fail } from "../features/courses/errors";
 export type SeedMateri = {
   title: string;
   contentMd: string;
@@ -39,7 +25,6 @@ export type SeedCurriculum = {
   lessons: SeedMateri[];
   quizzes: SeedCourseQuiz[];
 };
-
 export type CurriculumResult = {
   courseSlug: string;
   course: 0 | 1;
@@ -47,12 +32,10 @@ export type CurriculumResult = {
   placements: number;
   quizzes: number;
 };
-
 /** Same bound as `uniqueSlug` — a title colliding 50 times is not real. */
 const MAX_SLUG_TRIES = 50;
 /** Bounded read instead of a bare `.collect()`; no course seeds near this. */
 const MAX_QUIZZES_PER_COURSE = 50;
-
 /**
  * The materi with this title in this tenant, or null. Walks `slug`, `slug-2`, …
  * exactly like `uniqueSlug` mints them and stops at the first FREE candidate:
@@ -84,7 +67,6 @@ async function findMateriByTitle(
   }
   return { id: null, slug: `${base}-${Date.now()}` };
 }
-
 /** Upsert one kelas: course row, its materi, their placements, its quizzes. */
 export async function upsertCurriculum(
   ctx: MutationCtx,
@@ -98,7 +80,6 @@ export async function upsertCurriculum(
     placements: 0,
     quizzes: 0,
   };
-
   const existingCourse = await ctx.db
     .query("courses")
     .withIndex("by_tenant_slug", (q) => q.eq("tenantId", tenantId).eq("slug", curriculum.slug))
@@ -114,7 +95,6 @@ export async function upsertCurriculum(
       createdBy,
     }));
   if (existingCourse === null) made.course = 1;
-
   // Placement order comes from what the course ALREADY holds, never from the
   // curriculum array index.
   //
@@ -145,7 +125,6 @@ export async function upsertCurriculum(
     .take(MAX_LESSONS_PER_COURSE);
   const placedLessonIds = new Set(existing.map((row) => row.lessonId));
   let nextOrder = existing.reduce((high, row) => Math.max(high, row.order + 1), 1);
-
   const claimed = new Set<Id<"lessons">>();
   for (const materi of curriculum.lessons) {
     const found = await findMateriByTitle(ctx, tenantId, materi.title, claimed);
@@ -168,7 +147,13 @@ export async function upsertCurriculum(
     claimed.add(lessonId);
 
     if (!placedLessonIds.has(lessonId)) {
-      await ctx.db.insert("courseLessons", { tenantId, courseId, lessonId, order: nextOrder });
+      if (placedLessonIds.size >= MAX_LESSONS_PER_COURSE) fail("VALIDATION_FAILED", "Kelas sudah penuh");
+      await assertMaterialPlacementLimit(ctx, lessonId);
+      const lesson = await ctx.db.get(lessonId);
+      await ctx.db.insert("courseLessons", {
+        tenantId, courseId, lessonId, order: nextOrder,
+        lessonPublished: lesson !== null && (lesson.status ?? "published") === "published",
+      });
       placedLessonIds.add(lessonId);
       nextOrder++;
       made.placements++;

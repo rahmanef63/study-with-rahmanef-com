@@ -148,3 +148,33 @@ test("getCourseProgress: counts the courseLessons roster, and a shared materi co
     expect(progress.completedLessonIds).toEqual([shared]);
   }
 });
+
+test("course progress and overview count only existing published lessons in the course tenant", async () => {
+  const t = setup();
+  const fx = await seedTenantFixture(t);
+  const { courseId, lessonIds } = await seedCourseWithLessons(t, fx, "published", 5);
+  await t.run(async (ctx) => {
+    await ctx.db.patch(lessonIds[0], { status: undefined }); // Legacy published material.
+    await ctx.db.patch(lessonIds[2], { status: "draft" });
+    await ctx.db.delete(lessonIds[3]);
+    const foreignTenantId = await ctx.db.insert("tenants", {
+      slug: "foreign", name: "Komunitas lain", description: "Komunitas lain",
+      status: "active", ownerId: fx.ownerId,
+    });
+    await ctx.db.patch(lessonIds[4], { tenantId: foreignTenantId });
+  });
+
+  for (const userId of [fx.memberId, fx.instructorId]) {
+    // Even a previously completed draft must not inflate the numerator.
+    for (const lessonId of [lessonIds[0], lessonIds[2]]) {
+      await complete(t, { tenantId: fx.tenantId, userId, lessonId });
+    }
+    const caller = t.withIdentity(asUser(userId));
+    const progress = await caller.query(api.features.progress.queries.getCourseProgress, { courseId });
+    expect(progress).toEqual({
+      completedLessonIds: [lessonIds[0]], completedCount: 1, totalCount: 2, isComplete: false,
+    });
+    const overview = await caller.query(api.features.progress.overview.getMine, {});
+    expect(overview.inProgress).toEqual([expect.objectContaining({ courseId, done: 1, total: 2, percent: 50 })]);
+  }
+});

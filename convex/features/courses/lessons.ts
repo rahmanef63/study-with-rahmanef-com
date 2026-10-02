@@ -1,10 +1,5 @@
-// courses feature — MATERI mutations (instructor+, R4). A materi belongs to the
-// TENANT, not to a course: createLesson takes a tenantId and puts the materi in
-// NO course. Placement is a separate, explicit act (manage.addLessonToCourse) —
-// which is what lets one materi be taught by several courses at once
-// (DECISIONS #36/#37). A SKILL is one of these rows with `kind: "skill"`.
-// P0: youtubeVideoId is validated as an 11-char ID here (a full URL is rejected,
-// preventing arbitrary embeds); a materi with completions cannot be deleted.
+// Tenant-owned materi writes; authenticated instructor access is the boundary.
+// Completion history prevents deletion; publication updates placement snapshots.
 import { v } from "convex/values";
 import type { Id } from "../../_generated/dataModel";
 import { mutation, type MutationCtx } from "../../_generated/server";
@@ -22,12 +17,11 @@ import {
   assertMateriSlug,
   assertTitle,
   assertYoutubeVideoId,
+  MAX_PLACEMENTS_PER_MATERI,
 } from "./validate";
-
 const linkValidator = v.object({ label: v.string(), url: v.string() });
 const statusValidator = v.union(v.literal("draft"), v.literal("published"));
 const kindValidator = v.union(v.literal("materi"), v.literal("skill"));
-
 /** Slug the caller asked for: validated + proven free in the tenant. */
 async function resolveSlug(
   ctx: MutationCtx,
@@ -41,7 +35,6 @@ async function resolveSlug(
   }
   return slug;
 }
-
 /**
  * Create a standalone materi. It lands in NO course — add it to one with
  * manage.addLessonToCourse. `status` defaults to "published" so nothing
@@ -77,7 +70,6 @@ export const createLesson = mutation({
       args.slug === undefined
         ? await uniqueSlug(ctx, args.tenantId, args.title)
         : await resolveSlug(ctx, args.tenantId, args.slug);
-
     return ctx.db.insert("lessons", {
       tenantId: args.tenantId,
       title: args.title.trim(),
@@ -92,7 +84,6 @@ export const createLesson = mutation({
     });
   },
 });
-
 export const updateLesson = mutation({
   args: {
     lessonId: v.id("lessons"),
@@ -108,7 +99,6 @@ export const updateLesson = mutation({
   },
   handler: async (ctx, args) => {
     const { lesson } = await requireInstructorForLesson(ctx, args.lessonId);
-
     const patch: Record<string, unknown> = {};
     if (args.title !== undefined) {
       assertTitle(args.title, "materi");
@@ -155,7 +145,6 @@ export const updateLesson = mutation({
     return lesson._id;
   },
 });
-
 /** Publish / unpublish. Drafts stay instructor+ only in EVERY course that
  *  teaches them — status is a property of the materi, not of a placement. */
 export const setLessonStatus = mutation({
@@ -163,10 +152,20 @@ export const setLessonStatus = mutation({
   handler: async (ctx, args) => {
     const { lesson } = await requireInstructorForLesson(ctx, args.lessonId);
     await ctx.db.patch(lesson._id, { status: args.status });
+    const placements = await ctx.db.query("courseLessons")
+      .withIndex("by_lesson", (q) => q.eq("lessonId", lesson._id))
+      .take(MAX_PLACEMENTS_PER_MATERI + 1);
+    if (placements.length > MAX_PLACEMENTS_PER_MATERI) {
+      fail("VALIDATION_FAILED", "Materi memiliki terlalu banyak penempatan; hubungi pengelola");
+    }
+    for (const placement of placements) {
+      await ctx.db.patch(placement._id, {
+        lessonPublished: placement.tenantId === lesson.tenantId && args.status === "published",
+      });
+    }
     return lesson._id;
   },
 });
-
 /**
  * Delete a materi ONLY if nobody has completed it (DATA-MODEL invariant —
  * otherwise unpublish it, or remove it from the course). Deleting cascades to

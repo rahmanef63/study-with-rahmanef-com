@@ -16,6 +16,11 @@ export const COURSES_COPY = {
   prevLesson: "Sebelumnya",
   nextLesson: "Berikutnya",
   backToCourse: "Kembali ke kelas",
+  startCourse: "Mulai belajar",
+  resumeCourse: "Lanjutkan belajar",
+  reviewCourse: "Pelajari ulang",
+  lessonCompleted: "Selesai",
+  lessonPending: "Belum selesai",
   videoUnavailable: "Materi ini belum punya video",
   videos: "Video",
   // "Tentang kelas ini" + biaya — derived from data already in hand (no schema/deploy)

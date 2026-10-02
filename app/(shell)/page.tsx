@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Compass, Map, MessagesSquare } from "lucide-react";
-import { api } from "@convex/_generated/api";
-import { safeQuery } from "@/lib/convex-server";
 import { DEFAULT_COMMUNITY_SLUG, communityHref } from "@/lib/community";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LandingCourses } from "../_components/landing-courses";
+import { LandingStats } from "../_components/landing-stats";
 
 // The front door.
 //
@@ -75,11 +75,7 @@ const STEPS = [
   },
 ];
 
-export default async function LandingPage() {
-  const stats = await safeQuery(api.features.tenants.queries.getPublicStatsBySlug, {
-    slug: DEFAULT_COMMUNITY_SLUG,
-  });
-
+export default function LandingPage() {
   return (
     <div className="mx-auto w-full max-w-5xl">
       <section className="grid items-center gap-8 py-6 md:grid-cols-[1fr_minmax(0,26rem)] md:gap-10 md:py-10">
@@ -109,21 +105,9 @@ export default async function LandingPage() {
             </Link>
           </div>
 
-          {stats === null ? null : (
-            <dl className="mt-8 flex flex-wrap gap-x-8 gap-y-3">
-              {[
-                [`${stats.courseCount}`, "kelas"],
-                [`${stats.memberCount}${stats.memberCountCapped ? "+" : ""}`, "anggota"],
-                ["100%", "gratis"],
-              ].map(([value, label]) => (
-                <div key={label}>
-                  <dt className="sr-only">{label}</dt>
-                  <dd className="font-display text-marquee text-primary">{value}</dd>
-                  <p className="text-caption text-muted-foreground">{label}</p>
-                </div>
-              ))}
-            </dl>
-          )}
+          <Suspense fallback={<div aria-hidden className="mt-8 h-12" />}>
+            <LandingStats />
+          </Suspense>
         </div>
 
         {/* THE SCENE, not the full hero. web/hero.webp bakes "Learn AI by
@@ -133,13 +117,13 @@ export default async function LandingPage() {
             the sentences above be real text — selectable, translatable, and
             able to reflow at 390px. Same call as the 404 and offline art.
             `alt=""`: it is decoration; the heading beside it says the thing. */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src="/web/hero-scene.webp"
           alt=""
           width={1040}
           height={1080}
-          fetchPriority="high"
+          priority
+          sizes="(min-width: 768px) 416px, 100vw"
           // MEASURED, and the first attempt was wrong: full-height and
           // order-first on a phone put the <h1> at y=533 and pushed the second
           // CTA past the fold — the whole first screen was decoration. Capped
