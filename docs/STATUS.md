@@ -4,6 +4,19 @@
 > Status flow: `open` → `claimed` → `in-progress` → `review` → `done` · or `blocked`.
 > A claim is stale after 48h without commits — it may then be re-claimed.
 
+## Phase 2 — learner UI and unused-code cleanup — 2026-10-02
+
+Integrator alpha; clean isolated `feat/study-phase2-20261002` at `/home/rahman/worktrees/study-phase2-20261002`, baseline `50b302c`. Canonical untracked `.agent/` is preserved. Existing main release is the rollback target; no production data/auth changes are planned. UI dials: variation 4, motion 2, density 6. Historical content-only assignments are superseded for this wave.
+
+| Agent | Area | State | Ownership |
+|---|---|---|---|
+| alpha | Lesson reader scroll/navigation, shell integration, verification and release | in-progress | app, components, slices/roadmap, docs; integrate courses changes |
+| beta | Comments surface and comment form usability | review | slices/comments only |
+| gamma | Public profile/certificate presentation and unused-code audit | review | slices/profiles; read-only independent cleanup/full-diff review |
+| delta | Independent reader/layout review and browser verification | review | e2e/reader-fixture, e2e/reader-layout.fixture.spec.ts, scripts/reader-preview.mjs; independent browser review |
+
+Acceptance includes actual long-content reader and thread behavior at desktop/mobile widths, one header return control, keyboard scroll access, and regression checks. No new dependencies. Phase 1 authenticated browser coverage was absent; phase 2 must exercise the reader presentation explicitly without creating fake production data.
+
 ## Current improvement wave — 2026-10-02
 
 Integrator: alpha. Isolated branch `feat/study-improvements-20261002`, baseline `7a49f66` (includes September security fixes). Canonical checkout remains untouched. Four agents maximum, same worktree with non-overlapping ownership; historic content-only wave in AGENT-PROMPTS is superseded for this assignment.

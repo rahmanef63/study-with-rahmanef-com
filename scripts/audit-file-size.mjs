@@ -15,7 +15,7 @@
 //
 // `*.test.ts` is exempt by the convention itself — a thorough spec file is not
 // the debt this rule exists to prevent.
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 
 const ROOT = new URL("..", import.meta.url).pathname.replace(/\/$/, "");

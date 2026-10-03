@@ -52,19 +52,20 @@ export function CommentForm({
         placeholder={placeholder ?? copy.bodyPlaceholder}
         aria-label={copy.fieldBody}
         autoFocus={autoFocus}
+        disabled={submitting}
         className={compact ? "min-h-16" : "min-h-24"}
       />
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="text-xs tabular-nums text-muted-foreground">
           {body.trim().length}/{MAX_BODY}
         </span>
         <div className="flex gap-2">
           {onCancel && (
-            <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
+            <Button type="button" variant="ghost" size="sm" className="min-h-11" disabled={submitting} onClick={onCancel}>
               {copy.cancel}
             </Button>
           )}
-          <Button type="submit" size={compact ? "sm" : "default"} disabled={!canSubmit}>
+          <Button type="submit" size={compact ? "sm" : "default"} className="min-h-11" aria-busy={submitting} disabled={!canSubmit}>
             {submitting ? copy.submitting : copy.submit}
           </Button>
         </div>

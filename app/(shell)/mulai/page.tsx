@@ -62,8 +62,8 @@ export default async function MulaiPage({
 
   return (
     // max-w-2xl: one question per screen wants a reading column, not a page.
-    // The bottom padding clears the home indicator on an installed PWA.
-    <main className="@container mx-auto w-full max-w-2xl px-4 py-8 pb-[calc(3rem+var(--safe-b))]">
+    // AccountShell supplies the gutters and mobile dock clearance.
+    <div className="@container mx-auto w-full max-w-2xl">
       <header className="mb-6 space-y-2">
         <span className="eyebrow">Peta belajar</span>
         <h1 className="text-balance">Mau mulai dari mana?</h1>
@@ -72,6 +72,6 @@ export default async function MulaiPage({
       <Suspense fallback={<DeckSkeleton />}>
         <Deck code={code} />
       </Suspense>
-    </main>
+    </div>
   );
 }

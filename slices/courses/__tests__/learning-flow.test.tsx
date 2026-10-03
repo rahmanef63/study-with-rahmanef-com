@@ -80,6 +80,10 @@ describe("course learning actions", () => {
     const footer = html.slice(html.indexOf("<nav"));
     expect(footer).toMatch(/href="\/kelas\/ai"[^>]*>Kembali ke kelas/);
     expect(footer).toContain('href="/materi/awal"');
+    const embedded = renderToStaticMarkup(<LessonView lesson={{ ...lesson, nextLessonId: lessons[0]._id }}
+      lessonHref={lessonHref} backHref="/kelas/ai" showBackLink={false} />);
+    expect(embedded).not.toContain("Kembali ke kelas");
+    expect(embedded).toContain("Berikutnya");
   });
 });
 

@@ -16,7 +16,6 @@
 // the gutter instead, which is Settings.app's geometry anyway and cannot
 // overflow whatever the gutter becomes.
 import type { ReactNode } from "react";
-import { cn } from "@/lib/utils";
 
 /** Row geometry, shared so every list in the community keeps one rhythm.
  *  min-h-14 is the iOS row (56px) — comfortably past the 44px target floor. */

@@ -29,7 +29,8 @@ function QuizBody({ tenantId, slug, courseSlug, quizId }: Props & { tenantId: Id
       />
     );
   }
-  return <QuizTakeView quizId={quizId} backHref={communityHref.course(slug, courseSlug)} />;
+  // The route owns the return link, including during loading/join states.
+  return <QuizTakeView quizId={quizId} />;
 }
 
 export function KuisSurface({ slug, courseSlug, quizId }: Props) {

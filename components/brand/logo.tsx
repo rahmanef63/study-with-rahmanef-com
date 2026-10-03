@@ -59,15 +59,3 @@ export function LogoMark({ className, ...props }: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
-
-/** Full lockup — mark + wordmark in the cabinet face. */
-export function Logo({ className, markClassName }: { className?: string; markClassName?: string }) {
-  return (
-    <span className={cn("inline-flex items-center gap-2", className)}>
-      <LogoMark className={cn("size-5 text-primary", markClassName)} />
-      <span className="font-display text-caption uppercase leading-none tracking-wider">
-        belajar<span className="text-muted-foreground">·with·rahmanef</span>
-      </span>
-    </span>
-  );
-}

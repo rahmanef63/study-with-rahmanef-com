@@ -18,6 +18,7 @@ export type LessonViewProps = {
   /** Route builders — consumer owns the routing scheme. */
   lessonHref: (lessonId: string) => string;
   backHref: string;
+  showBackLink?: boolean;
   /** Injected by progress (#3): mark-complete button / status chip. */
   completionSlot?: ReactNode;
   copy?: CoursesCopyOverride;
@@ -28,6 +29,7 @@ export function LessonView({
   lesson,
   lessonHref,
   backHref,
+  showBackLink = true,
   completionSlot,
   copy: copyOverride,
   className,
@@ -39,7 +41,7 @@ export function LessonView({
   return (
     <article className={className ? `space-y-6 ${className}` : "space-y-6"}>
       <header className="space-y-3">
-        <Button
+        {showBackLink && <Button
           asChild
           variant="ghost"
           size="sm"
@@ -48,7 +50,7 @@ export function LessonView({
           <Link href={backHref}>
             <ArrowLeft aria-hidden /> {copy.backToCourse}
           </Link>
-        </Button>
+        </Button>}
         <div className="flex flex-col gap-1.5">
           <div className="flex flex-wrap items-center gap-2">
             {/* courseTitle is null when the materi is read outside a course the
@@ -87,7 +89,7 @@ export function LessonView({
         <LessonLinks links={lesson.links} heading={copy.resources} />
 
         {completionSlot !== undefined && (
-          <div className="sticky bottom-3 z-10">{completionSlot}</div>
+          <div className="sticky bottom-[calc(3.75rem+var(--safe-b)+0.75rem)] z-10 bg-background py-2 md:bottom-3">{completionSlot}</div>
         )}
 
         <nav aria-label={copy.lessons} className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-5">

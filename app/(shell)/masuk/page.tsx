@@ -33,12 +33,12 @@ async function MasukPanel({ searchParams }: { searchParams: Promise<Search> }) {
 
 export default function MasukPage({ searchParams }: { searchParams: Promise<Search> }) {
  return (
-    <main className="@container mx-auto flex w-full max-w-sm flex-col items-center gap-6 px-6 py-12 text-center">
+    <div className="@container mx-auto flex w-full max-w-sm flex-col items-center gap-6 text-center">
       {/* Reading searchParams is dynamic under cacheComponents, so the await
  lives in its own boundary. */}
       <Suspense fallback={<Skeleton className="h-64 w-full " />}>
         <MasukPanel searchParams={searchParams} />
       </Suspense>
-    </main>
+    </div>
   );
 }

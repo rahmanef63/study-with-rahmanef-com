@@ -34,7 +34,8 @@
 // the old file was DELETED. Worse than v3's stale-bytes case — without this
 // bump an installed user's precache points at a URL that now 404s, so the one
 // screen designed to survive a dead network shows a broken image on it.
-const VERSION = "v4";
+// v5: refreshed Indonesian offline copy and connection-recovery instructions.
+const VERSION = "v5";
 const CACHE = `belajar-shell-${VERSION}`;
 
 /** The only asset /offline references. Named because two lists need it.

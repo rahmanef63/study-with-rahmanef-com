@@ -28,7 +28,7 @@ export function CommentItem({ item, canDelete, onDelete, copy, actions }: Commen
   }
 
   return (
-    <div className="space-y-1.5">
+    <div className="min-w-0 space-y-1.5 [overflow-wrap:anywhere]">
       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
         <span className="text-sm font-medium">
           {item.author?.displayName ?? copy.anonymousAuthor}
@@ -41,14 +41,14 @@ export function CommentItem({ item, canDelete, onDelete, copy, actions }: Commen
         </span>
       </div>
       <p className="whitespace-pre-wrap text-sm leading-relaxed">{item.bodyMd}</p>
-      <div className="flex items-center gap-1">
+      <div className="flex flex-wrap items-center gap-1">
         {actions}
         {canDelete && (
           <Button
             type="button"
             variant="ghost"
             size="sm"
-            className="h-7 px-2 text-xs text-muted-foreground hover:text-destructive"
+            className="min-h-11 px-2 text-xs text-muted-foreground hover:text-destructive"
             onClick={onDelete}
           >
             <Trash2 className="size-3.5" aria-hidden />

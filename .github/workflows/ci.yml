@@ -66,3 +66,19 @@ jobs:
             sleep 1
           done
           node --input-type=module -e 'import { readFileSync } from "node:fs"; import assert from "node:assert/strict"; const health=JSON.parse(readFileSync("/tmp/study-ci-health.json")); assert.equal(health.status,"ok"); assert.equal(health.id,process.env.APP_REVISION); assert.equal(health.revision,process.env.APP_REVISION);'
+
+      - name: Install browser for reader regression
+        run: npx playwright install --with-deps chromium
+
+      - name: Reader and comments browser regression (disconnected fixture)
+        env:
+          READER_FIXTURE_URL: http://127.0.0.1:3012
+        run: |
+          node scripts/reader-preview.mjs > /tmp/study-reader-preview.log 2>&1 &
+          study_fixture_pid=$!
+          trap 'kill "$study_fixture_pid"' EXIT
+          for attempt in {1..20}; do
+            if curl --fail --silent http://127.0.0.1:3012/ -o /dev/null; then break; fi
+            sleep 1
+          done
+          npx playwright test e2e/reader-layout.fixture.spec.ts --workers=2

@@ -15,7 +15,7 @@ import type { CommentsCopy } from "../config/copy";
 export type DeleteCommentDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: () => void | Promise<void>;
+  onConfirm: () => boolean | void | Promise<boolean | void>;
   pending: boolean;
   copy: CommentsCopy;
 };
@@ -28,7 +28,7 @@ export function DeleteCommentDialog({
   copy,
 }: DeleteCommentDialogProps) {
   return (
-    <ResponsiveDialog open={open} onOpenChange={onOpenChange} variant="alert" size="sm">
+    <ResponsiveDialog open={open} onOpenChange={(nextOpen) => { if (!pending) onOpenChange(nextOpen); }} variant="alert" size="sm">
       <ResponsiveDialogHeader>
         <ResponsiveDialogTitle>{copy.deleteConfirmTitle}</ResponsiveDialogTitle>
       </ResponsiveDialogHeader>
@@ -36,16 +36,18 @@ export function DeleteCommentDialog({
         <p className="text-sm text-muted-foreground">{copy.deleteConfirmBody}</p>
       </ResponsiveDialogBody>
       <ResponsiveDialogFooter>
-        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+        <Button type="button" variant="outline" className="min-h-11" disabled={pending} onClick={() => onOpenChange(false)}>
           {copy.cancel}
         </Button>
         <Button
           type="button"
           variant="destructive"
+          className="min-h-11"
           disabled={pending}
+          aria-busy={pending}
           onClick={async () => {
-            await onConfirm();
-            onOpenChange(false);
+            if (pending) return;
+            if (await onConfirm() !== false) onOpenChange(false);
           }}
         >
           {copy.deleteConfirm}

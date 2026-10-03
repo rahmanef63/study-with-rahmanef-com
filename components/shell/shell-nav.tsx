@@ -10,7 +10,6 @@
 // active state, and the account section needs a session. Everything the server
 // knows arrives as plain strings and booleans — never the tab list itself,
 // whose `href` members are functions and cannot cross the boundary.
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Id } from "@convex/_generated/dataModel";
 import { isCommunityTabActive } from "@/components/community/tab-active";
@@ -95,7 +94,6 @@ export function ShellNav({ community, onNavigate, className }: ShellNavProps) {
             tenantId={community.tenantId}
             slug={community.slug}
             variant="rail"
-            onNavigate={onNavigate}
           />
         )}
       </SidebarHeader>

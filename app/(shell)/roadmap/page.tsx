@@ -4,7 +4,6 @@ import { ART_SIZE } from "@/lib/art";
 import { ArrowRight, Check, ExternalLink } from "lucide-react";
 import { PATHS } from "@/lib/peta";
 import { communityHref } from "@/lib/community";
-import { absoluteUrl } from "@/lib/site";
 import { readCatalogue } from "../mulai/catalogue";
 import { indexCatalogue } from "@/features/peta";
 

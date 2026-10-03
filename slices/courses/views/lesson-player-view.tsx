@@ -19,6 +19,8 @@ export type LessonPlayerViewProps = {
   courseId?: Id<"courses"> | null;
   lessonHref: (lessonId: string) => string;
   backHref: string;
+  /** Hide when the route supplies the shared reader return link. */
+  showBackLink?: boolean;
   /** From progress (#3): mark-complete button, completion chip, etc. */
   completionSlot?: ReactNode;
   copy?: CoursesCopyOverride;
@@ -30,6 +32,7 @@ export function LessonPlayerView({
   courseId,
   lessonHref,
   backHref,
+  showBackLink,
   completionSlot,
   copy,
   className,
@@ -51,6 +54,7 @@ export function LessonPlayerView({
       lesson={lesson}
       lessonHref={lessonHref}
       backHref={backHref}
+      showBackLink={showBackLink}
       completionSlot={completionSlot}
       copy={copy}
       className={className}

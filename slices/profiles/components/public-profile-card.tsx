@@ -7,7 +7,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Hero } from "@/components/mockup-kit";
 import { cn } from "@/lib/utils";
 import { DEFAULT_PUBLIC_PROFILE_LABELS } from "../config/public-labels";
 import type { Badge, PublicProfile, PublicProfileLabels } from "../types";
@@ -19,6 +18,8 @@ export type PublicProfileCardProps = {
   badges: Badge[];
   /** Text the copy button writes — a full share URL when the host supplies one, else the handle. */
   shareValue: string;
+  /** Host already renders the profile title, bio and share action. */
+  hasServerHeading?: boolean;
   /** When set (viewer owns this profile), an "Edit profil" link renders next to the copy button. */
   editHref?: string;
   /** Builds the certificate href per badge (STATUS #24) — forwarded to BadgeWall. */
@@ -31,6 +32,7 @@ export function PublicProfileCard({
   profile,
   badges,
   shareValue,
+  hasServerHeading = false,
   editHref,
   certificateHref,
   labels,
@@ -51,35 +53,18 @@ export function PublicProfileCard({
 
   return (
     <div className={cn("flex w-full flex-col gap-10 @sm:gap-12", className)}>
-      {/* NAME AND HANDLE ARE NOT REPEATED HERE. The route's server-rendered
-          header already carries them, and it must: it owns the page's one <h1>
-          and it is what a crawler and a link preview read. Printing them again
-          a few pixels below put the same person's name on screen twice — once
-          in the marquee face and once in the card — which is what the owner saw
-          when this page moved into the shell. The AVATAR stays: it is the one
-          identity element the header does not have. */}
-      <Hero
-        eyebrow="Profil publik"
-        title={
-          <span aria-hidden="true" className="block shrink-0">
-            <ProfileAvatar
-              name={profile.displayName}
-              avatarUrl={profile.avatarUrl}
-              size={96}
-              className="shadow-sm"
-            />
-          </span>
-        }
-      >
-        <div className="space-y-4">
-          {/* real bio stays full-contrast; only the empty placeholder is muted */}
-          {profile.bio ? (
-            <p className="max-w-xl text-pretty leading-relaxed text-foreground">{profile.bio}</p>
-          ) : (
-            <p className="max-w-xl text-sm text-muted-foreground">{copy.bioEmpty}</p>
-          )}
+      <div className="flex flex-wrap items-center gap-4">
+        <ProfileAvatar name={profile.displayName} avatarUrl={profile.avatarUrl} size={96} />
+        {!hasServerHeading || editHref ? <div className="min-w-0 flex-1 space-y-4">
+          {!hasServerHeading ? <div className="space-y-2">
+            <h1 className="title-content text-2xl [overflow-wrap:anywhere]">{profile.displayName}</h1>
+            <p className="text-muted-foreground">@{profile.username}</p>
+            <p className={profile.bio ? "max-w-xl text-pretty text-foreground" : "text-sm text-muted-foreground"}>
+              {profile.bio || copy.bioEmpty}
+            </p>
+          </div> : null}
           <div className="flex flex-wrap items-center gap-2">
-            <div aria-live="polite">
+            {!hasServerHeading ? <div aria-live="polite">
               <Button
                 type="button"
                 variant="outline"
@@ -90,7 +75,7 @@ export function PublicProfileCard({
               >
                 {copied ? copy.copiedLabel : copy.copyLabel}
               </Button>
-            </div>
+            </div> : null}
             {editHref ? (
               <Button
                 asChild
@@ -102,8 +87,8 @@ export function PublicProfileCard({
               </Button>
             ) : null}
           </div>
-        </div>
-      </Hero>
+        </div> : null}
+      </div>
 
       <BadgeWall badges={badges} certificateHref={certificateHref} labels={labels} />
     </div>

@@ -11,7 +11,6 @@ import { COMMUNITY_TABS, visibleCommunityTabs, type TenantTabSignal } from "@/li
 import { isCommunityTabActive } from "@/components/community/tab-active";
 import {
   ACCOUNT_LINKS,
-  EXPLORE_LINKS,
   ICON_KEYS,
   communityToolLinks,
   iconFor,

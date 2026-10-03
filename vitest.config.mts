@@ -4,6 +4,10 @@ import { fileURLToPath } from "node:url";
 export default defineConfig({
   resolve: {
     alias: [
+      {
+        find: "@/features",
+        replacement: fileURLToPath(new URL("./slices", import.meta.url)),
+      },
       // MUST precede the bare "@" entry: vite alias `find` is a prefix match,
       // so "@" would swallow "@notion/..." first.
       {

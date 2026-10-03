@@ -150,7 +150,7 @@ export default async function SkillDetailPage({ params }: { params: Promise<Para
     <div className="@container mx-auto w-full max-w-3xl space-y-6">
       <Link
         href={communityHref.skills(slug)}
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary"
+        className="inline-flex min-h-11 items-center gap-1.5 text-sm text-muted-foreground hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
       >
         <ArrowLeft className="size-3.5" aria-hidden />
         Kembali ke Skills

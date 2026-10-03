@@ -43,10 +43,11 @@ export async function generateMetadata({
   };
 }
 
-async function ProfileHeading({ username }: { username: string }) {
+async function ProfileSurface({ username }: { username: string }) {
  const profile = await getProfile(username);
- if (profile === null) return null;
+ if (profile === null) return <ProfilView username={username} />;
  return (
+    <>
     <header className="mb-6 space-y-2">
       {/* `title-content`: a person's NAME is content, not chrome. In the marquee
           face it set as two lines of uppercase pixels — the least readable
@@ -61,6 +62,8 @@ async function ProfileHeading({ username }: { username: string }) {
         />
       </div>
     </header>
+    <ProfilView username={username} hasServerHeading />
+    </>
   );
 }
 
@@ -73,9 +76,8 @@ export default async function ProfilPublikPage({ params }: { params: Promise<Par
     // between on a page that has one.
     <div className="mx-auto w-full max-w-2xl py-2">
       <Suspense fallback={<Skeleton className="mb-6 h-24 w-full " />}>
-        <ProfileHeading username={username} />
+        <ProfileSurface username={username} />
       </Suspense>
-      <ProfilView username={username} />
     </div>
   );
 }

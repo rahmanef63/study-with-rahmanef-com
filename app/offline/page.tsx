@@ -30,15 +30,15 @@ export default function OfflinePage() {
       <LogoMark className="size-16 text-primary" />
 
       <div className="space-y-4">
-        <p className="eyebrow blink">Koneksi terputus</p>
-        <h1 className="marquee-text">Game Paused</h1>
+        <p className="eyebrow blink">Offline</p>
+        <h1 className="marquee-text">Koneksi terputus</h1>
         <p className="text-pretty text-sm text-muted-foreground">
-          Perangkatmu sedang tidak terhubung ke internet. Progres belajarmu aman — tersimpan di
-          server dan akan muncul lagi begitu koneksi kembali.
+          Perangkatmu sedang tidak terhubung ke internet. Progres yang sudah tersimpan akan
+          muncul lagi setelah koneksi kembali.
         </p>
       </div>
 
-      {/* Hard-framed panel, arcade cabinet style: border + hard offset shadow. */}
+      {/* Connection recovery steps. */}
       <div className="pixel-frame w-full border-border bg-card px-5 py-4 text-left">
         <p className="eyebrow mb-3">Coba ini</p>
         <ul className="space-y-2 text-sm text-muted-foreground">
@@ -51,10 +51,6 @@ export default function OfflinePage() {
       <Button asChild size="lg" className="min-h-11 w-full font-display text-caption">
         <Link href="/">Coba lagi</Link>
       </Button>
-
-      <p className="text-xs text-muted-foreground">
-        <span aria-hidden="true">▸ </span>Insert coin to continue
-      </p>
 
       {/* The one image on the one screen whose whole job is to work with no
           network. Three things have to be true, and all three are done in
