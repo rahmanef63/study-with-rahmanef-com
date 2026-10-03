@@ -19,6 +19,15 @@ describe("analytics barrel type contract (compile-time, enforced by tsc)", () =>
     expectTypeOf<typeof Barrel.PlatformAnalyticsView>().toBeFunction();
     expectTypeOf<typeof Barrel.PlatformTrafficView>().toBeFunction();
     expectTypeOf<typeof Barrel.PlatformTrafficDashboard>().toBeFunction();
+    expectTypeOf<typeof Barrel.PlatformUsersView>().toBeFunction();
+    expectTypeOf<typeof Barrel.PlatformUserDetailView>().toBeFunction();
+    expectTypeOf<typeof Barrel.PlatformUserDetail>().toBeFunction();
+    expectTypeOf<typeof Barrel.PlatformUsersTable>().toBeFunction();
+    expectTypeOf<typeof Barrel.PlatformUsersDashboard>().toBeFunction();
+    expectTypeOf<typeof Barrel.usePlatformUsers>().toBeFunction();
+    expectTypeOf<typeof Barrel.usePlatformUserDetail>().toBeFunction();
+    expectTypeOf<Barrel.PlatformUserData>().toBeObject();
+    expectTypeOf<Barrel.PlatformUserDetailData>().toBeObject();
     expectTypeOf<typeof Barrel.usePlatformTraffic>().toBeFunction();
     expectTypeOf<Barrel.PlatformTrafficData>().toBeObject();
     expectTypeOf<Barrel.PlatformTrafficDays>().toEqualTypeOf<7 | 30>();

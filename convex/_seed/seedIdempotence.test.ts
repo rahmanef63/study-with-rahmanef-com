@@ -157,25 +157,18 @@ describe("seedWorld", () => {
 });
 
 describe("seedEngagement", () => {
-  test("hangs its starter threads off the first PLACEMENT, not a module walk", async () => {
+  test("seeds only curated resources and never invents accounts or engagement", async () => {
     const t = await bootstrapped();
     await t.mutation(internal.seed.seedContent, seedArgs);
     const engagement = await t.mutation(internal.seed.seedEngagement, seedArgs);
-    expect(engagement.comments).toBeGreaterThan(0);
-
+    expect(engagement).toMatchObject({ members: 0, memberships: 0, comments: 0, usulan: 0, likes: 0, sumber: 9 });
     await t.run(async (ctx) => {
-      const comments = await ctx.db.query("comments").collect();
-      const openers = new Set<string>();
-      for (const course of await ctx.db.query("courses").collect()) {
-        const first = await ctx.db
-          .query("courseLessons")
-          .withIndex("by_course", (q) => q.eq("courseId", course._id))
-          .first();
-        if (first) openers.add(String(first.lessonId));
-      }
-      // Every seeded thread sits on a course's opening materi (order 1).
-      for (const c of comments) expect(openers.has(String(c.lessonId))).toBe(true);
+      expect((await ctx.db.query("users").collect()).length).toBe(1);
+      expect((await ctx.db.query("postLikes").collect()).length).toBe(0);
+      expect((await ctx.db.query("comments").collect()).length).toBe(0);
     });
+
+
   });
 
   test("re-running the whole runbook changes nothing", async () => {

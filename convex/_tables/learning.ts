@@ -12,6 +12,7 @@ export const courses = defineTable({
   status: v.union(v.literal("draft"), v.literal("published"), v.literal("archived")),
   createdBy: v.id("users"),
 })
+  .index("by_creator", ["createdBy"])
   .index("by_tenant", ["tenantId"])
   .index("by_tenant_slug", ["tenantId", "slug"])
   .index("by_tenant_status", ["tenantId", "status"])
@@ -180,5 +181,6 @@ export const quizAttempts = defineTable({
   scorePct: v.number(),
   passed: v.boolean(),
 })
+  .index("by_user", ["userId"])
   .index("by_user_quiz", ["userId", "quizId"])
   .index("by_quiz", ["quizId"]);

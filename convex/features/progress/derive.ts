@@ -68,7 +68,8 @@ export async function deriveCourseProgress(
   userId: Id<"users">,
   courseId: Id<"courses">,
   completedLessons?: ReadonlySet<string>,
-  legacyEligibility: LegacyEligibility = new Map()
+  legacyEligibility: LegacyEligibility = new Map(),
+  maxLegacyReads = MAX_LEGACY_LESSON_READS
 ): Promise<CourseProgress> {
   const course = await ctx.db.get(courseId);
   const roster = course === null ? [] : await listCoursePlacements(ctx, courseId);
@@ -81,7 +82,7 @@ export async function deriveCourseProgress(
       continue;
     }
     if (!legacyEligibility.has(placement.lessonId)) {
-      if (legacyEligibility.size >= MAX_LEGACY_LESSON_READS) { truncated = true; continue; }
+      if (legacyEligibility.size >= Math.min(maxLegacyReads, MAX_LEGACY_LESSON_READS)) { truncated = true; continue; }
       const lesson = await ctx.db.get(placement.lessonId);
       legacyEligibility.set(placement.lessonId, lesson === null ? null : {
         tenantId: lesson.tenantId, published: (lesson.status ?? "published") === "published",

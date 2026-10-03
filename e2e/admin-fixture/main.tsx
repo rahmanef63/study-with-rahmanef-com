@@ -11,9 +11,10 @@ import { learningData, type FixtureState } from "./learning-data";
 import { trafficData } from "./traffic-data";
 import { FixtureRichtext } from "./richtext-view";
 import { FixtureMcp } from "./mcp-view";
+import { FixtureUsers } from "./users-view";
 import { navigate, useFixtureParams } from "./next-adapter";
 import "../../app/globals.css";
-const views = { menu: "Menu akun admin", learning: "Statistik belajar platform", traffic: "Statistik pengunjung", richtext: "Richtext dan media", mcp: "MCP admin" };
+const views = { menu: "Menu akun admin", learning: "Statistik belajar platform", traffic: "Statistik pengunjung", users: "Pengguna", "user-detail": "Aktivitas pengguna", richtext: "Richtext dan media", mcp: "MCP admin" };
 function AdminFixture() {
   const params = useFixtureParams();
   const requested = params.get("view") ?? "menu";
@@ -28,7 +29,7 @@ function AdminFixture() {
   const topBar = <div className="space-y-3 border-b border-border bg-sidebar p-4 md:hidden"><p className="text-xs text-muted-foreground">Fixture lokal · bukan sesi produksi</p>{navigation}{selectors}<SidebarUser /></div>;
   return <AppShell rail={rail} topBar={topBar}>
     <header className="mb-7"><p className="mb-2 text-xs text-muted-foreground">Fixture lokal · bukan sesi produksi</p><h1 className="text-2xl font-semibold">{views[view]}</h1></header>
-    {view === "learning" ? <PlatformAnalyticsDashboard key={`${state}:${days}`} data={learningData(days, state)} days={days} onDaysChange={value => set("days", value)} /> : view === "traffic" ? <PlatformTrafficDashboard key={`${state}:${days}`} data={trafficData(days as PlatformTrafficDays, state)} days={days as PlatformTrafficDays} onDaysChange={value => set("days", value)} /> : view === "richtext" ? <FixtureRichtext /> : view === "mcp" ? <FixtureMcp /> : <div className="space-y-5"><p className="text-sm text-muted-foreground">Buka menu akun pada sidebar atau header mobile untuk memeriksa menu Admin platform dan Statistik &amp; analitik. Peran fixture hanya memengaruhi presentasi; ini bukan pengujian otorisasi produksi.</p><nav aria-label="Tautan akun hasil kontrak" className="space-y-2">{accountLinks("fixture-admin", role === "admin").map(link => <div key={link.key} className="border-b border-border py-2 text-sm"><span>{link.label}</span><span className="ml-3 break-all font-mono text-xs text-muted-foreground">{link.href}</span></div>)}</nav></div>}
+    {view === "learning" ? <PlatformAnalyticsDashboard key={`${state}:${days}`} data={learningData(days, state)} days={days} onDaysChange={value => set("days", value)} /> : view === "traffic" ? <PlatformTrafficDashboard key={`${state}:${days}`} data={trafficData(days as PlatformTrafficDays, state)} days={days as PlatformTrafficDays} onDaysChange={value => set("days", value)} /> : view === "users" || view === "user-detail" ? <FixtureUsers key={`${view}:${state}:${role}`} state={state} detail={view === "user-detail"} role={role} /> : view === "richtext" ? <FixtureRichtext /> : view === "mcp" ? <FixtureMcp /> : <div className="space-y-5"><p className="text-sm text-muted-foreground">Buka menu akun pada sidebar atau header mobile untuk memeriksa menu Admin platform dan Statistik &amp; analitik. Peran fixture hanya memengaruhi presentasi; ini bukan pengujian otorisasi produksi.</p><nav aria-label="Tautan akun hasil kontrak" className="space-y-2">{accountLinks("fixture-admin", role === "admin").map(link => <div key={link.key} className="border-b border-border py-2 text-sm"><span>{link.label}</span><span className="ml-3 break-all font-mono text-xs text-muted-foreground">{link.href}</span></div>)}</nav></div>}
     <Toaster />
   </AppShell>;
 }

@@ -3,4 +3,5 @@ import { internal } from "./_generated/api";
 
 const crons = cronJobs();
 crons.interval("purge expired visitor analytics", { hours: 1 }, internal.features.traffic.retention.purge);
+crons.interval("purge expired authenticated user activity", { hours: 1 }, internal.features.userAnalytics.retention.purge);
 export default crons;

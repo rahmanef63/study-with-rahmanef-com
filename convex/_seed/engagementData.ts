@@ -1,10 +1,8 @@
-// Community life for the flagship (seed:seedEngagement): starter members, the
-// Diskusi feed rows across all four kinds, and starter lesson threads.
-// Content only; the rules live in convex/_seed/engagement.ts.
-import type { SeedFeedPost, SeedMember, SeedResource, SeedThread } from "./types";
+// Historical demo provenance for the guarded cleanup, plus real curated resources.
+// Synthetic identities/threads remain only to verify removal of previously seeded rows.
+import type { SeedMember, SeedResource, SeedThread } from "./types";
 
-// Starter community members. Owner ("rahman") is added to the author map at
-// runtime; these three give the boards a human, non-owner voice.
+// Exact retired synthetic identities. Do not insert these accounts again.
 export const SEED_MEMBERS: SeedMember[] = [
   { email: "sari.seed@belajar-ai.local", username: "sari", displayName: "Sari Wulandari", bio: "Ibu rumah tangga, lagi belajar pakai AI buat bantu usaha kecil." },
   { email: "budi.seed@belajar-ai.local", username: "budi", displayName: "Budi Santoso", bio: "Fresh grad yang lagi banting setir ke dunia digital." },
@@ -54,18 +52,6 @@ export const SEED_THREADS: SeedThread[] = [
     root: { author: "dewi_a", bodyMd: `Aku pengin hasil AI konsisten sesuai **gaya tulisanku** biar nggak edit banyak tiap kali. Ada cara selain jelasin panjang lebar terus-terusan?` },
     reply: { author: "rahman", bodyMd: `Ada, namanya **few-shot**, Dewi 🙌 Kasih 2-3 contoh tulisan gaya kamu di dalam prompt, terus minta *"tiru gaya di atas"*. AI jauh lebih nurut belajar dari contoh ketimbang dijelasin panjang. Simpan contoh favoritmu biar tinggal tempel.` },
   },
-];
-
-// Usulan kelas berikutnya. The open/planned/done status is GONE (#33): a usulan
-// is just a post, and its likes are the only signal of demand.
-export const SEED_USULAN: SeedFeedPost[] = [
-  { title: "Bikin chatbot WhatsApp sederhana pakai AI", author: "budi", likedBy: ["rahman", "sari", "budi", "dewi_a"], bodyMd: `Banyak yang pengen balas chat pelanggan otomatis tanpa harus ngoding. Kayaknya pas banget jadi kelas lanjutan setelah Prompt Engineering.` },
-  { title: "AI untuk bikin konten & caption jualan olshop", author: "sari", likedBy: ["sari", "budi", "dewi_a"], bodyMd: `Bantu nulis deskripsi produk dan caption promo yang menarik biar dagangan di warung sama olshop makin dilirik.` },
-  { title: "Bikin gambar produk & template feed pakai AI", author: "dewi_a", likedBy: ["dewi_a", "sari"], bodyMd: `Foto produk seadanya bisa jadi rapi, plus bikin template feed Instagram tanpa perlu jago desain.` },
-  { title: "Keamanan & privasi: data apa yang aman dikasih ke AI", author: "budi", likedBy: ["rahman", "budi", "dewi_a"], bodyMd: `Mana yang boleh dan yang jangan sampai dishare ke chatbot — kayaknya perlu dibahas khusus, bukan cuma sambil lalu.` },
-  { title: "AI untuk guru: bikin soal, RPP, dan materi ajar", author: "budi", likedBy: ["rahman", "budi"], bodyMd: `Beberapa guru di grup pengen mempersingkat waktu nyiapin bahan ngajar tiap minggu.` },
-  { title: "AI bantu catat pemasukan & stok warung", author: "sari", likedBy: ["sari", "budi"], bodyMd: `Rekap penjualan harian dan ingatkan stok yang mau habis lewat obrolan sederhana.` },
-  { title: "Ngobrol & tanya AI pakai suara (bahasa Indonesia)", author: "sari", likedBy: ["sari"], bodyMd: `Buat yang kurang nyaman ngetik, biar bisa tanya AI sambil ngerjain hal lain di rumah.` },
 ];
 
 // Obrolan bebas — the DEFAULT kind. Without these the Diskusi feed opens on a

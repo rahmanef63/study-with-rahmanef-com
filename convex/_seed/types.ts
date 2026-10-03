@@ -47,9 +47,3 @@ export type SeedThread = {
   reply?: { author: string; bodyMd: string };
 };
 /** posts(kind "usulan" | "diskusi") + the members who liked it. */
-export type SeedFeedPost = {
-  title: string;
-  bodyMd: string;
-  author: string;
-  likedBy: string[];
-};

@@ -15,7 +15,7 @@ test("discovery is scope-isolated and capability metadata/schema mirrors actual 
   const users = await fx.t.action(api.features.mcp.bridge.discover, { token: fx.userToken.token, scope: "user" });
   const admins = await fx.t.action(api.features.mcp.bridge.discover, { token: fx.adminToken.token, scope: "admin" });
   expect(users).toHaveLength(12);
-  expect(admins).toHaveLength(5);
+  expect(admins).toHaveLength(7);
   expect(users.every(item => item.id.startsWith("user."))).toBe(true);
   expect(admins.every(item => item.id.startsWith("admin."))).toBe(true);
   expect(users.find(c => c.id === "user.comment_add")).toMatchObject({ readOnly: false, destructive: false, idempotent: false });
@@ -126,4 +126,13 @@ test("library preserves paginated materi/skill membership reads and strict curso
   for (const extra of [{ kind: "unknown" }, { sort: "global-title" }, { limit: 21 }]) await expect(execute(fx, "user.library", { tenantId: fx.tenantId, ...extra })).rejects.toThrow(/VALIDATION_FAILED/);
   await fx.t.run(ctx => ctx.db.delete(fx.memberMembershipId));
   await expect(execute(fx, "user.library", { tenantId: fx.tenantId })).rejects.toThrow(/NOT_AUTHORIZED/);
+});
+
+ test("admin user analytics delegate to guarded browser handlers with strict scope and IDs", async () => {
+  const fx = await setupMcp();
+  expect(await execute(fx, "admin.users", { limit: 20 }, "admin")).toEqual(await fx.admin.query(api.features.userAnalytics.users.listUsers, { paginationOpts: { numItems: 20, cursor: null } }));
+  expect(await execute(fx, "admin.user_detail", { userId: fx.memberId }, "admin")).toEqual(await fx.admin.query(api.features.userAnalytics.users.getUserDetail, { userId: fx.memberId }));
+  await expect(execute(fx, "admin.user_detail", { userId: fx.memberId })).rejects.toThrow(/NOT_AUTHORIZED/);
+  await expect(execute(fx, "admin.user_detail", { userId: fx.lessonId }, "admin")).rejects.toThrow(/VALIDATION_FAILED/);
+  await expect(execute(fx, "admin.users", { limit: 21 }, "admin")).rejects.toThrow(/VALIDATION_FAILED/);
 });

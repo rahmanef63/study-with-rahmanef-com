@@ -8,9 +8,7 @@ export function trafficForwardPayload(input: unknown, headers: Headers, secret: 
   if (!input || typeof input !== "object" || Array.isArray(input)) return null;
   const raw = input as Record<string, unknown>;
   if (Object.keys(raw).some(key => !CLIENT_FIELDS.has(key))) return null;
-  const agent = headers.get("user-agent") ?? "";
-  const browser = /Edg\//.test(agent) ? "Edge" : /OPR\//.test(agent) ? "Opera" : /SamsungBrowser\//.test(agent) ? "Samsung Internet" : /Firefox\//.test(agent) ? "Firefox" : /(?:Chrome|CriOS)\//.test(agent) ? "Chrome" : /Safari\//.test(agent) ? "Safari" : agent ? "Other" : "Unknown";
-  const os = /Android/.test(agent) ? "Android" : /(?:iPhone|iPad|iPod)/.test(agent) ? "iOS" : /Windows/.test(agent) ? "Windows" : /CrOS/.test(agent) ? "ChromeOS" : /Macintosh/.test(agent) ? "macOS" : /Linux/.test(agent) ? "Linux" : agent ? "Other" : "Unknown";
+  const { browser, os } = trafficDevice(headers);
   // No raw address is forwarded or persisted. Global budget remains authoritative
   // even if a proxy fails to overwrite an incoming forwarded header.
   const address = trafficLocationIp(headers) ?? "unknown";
@@ -26,4 +24,12 @@ export function analyticsSiteUrl(convexUrl: string | undefined): string | null {
     if (url.protocol !== "https:" || !/^[a-z0-9-]+\.convex\.cloud$/.test(url.hostname)) return null;
     return `${url.origin.replace(/\.cloud$/, ".site")}/analytics/ingest`;
   } catch { return null; }
+}
+
+/** Shared coarse UA labels; the original user-agent never persists. */
+export function trafficDevice(headers: Headers) {
+  const agent = headers.get("user-agent") ?? "";
+  const browser = /Edg\//.test(agent) ? "Edge" : /OPR\//.test(agent) ? "Opera" : /SamsungBrowser\//.test(agent) ? "Samsung Internet" : /Firefox\//.test(agent) ? "Firefox" : /(?:Chrome|CriOS)\//.test(agent) ? "Chrome" : /Safari\//.test(agent) ? "Safari" : agent ? "Other" : "Unknown";
+  const os = /Android/.test(agent) ? "Android" : /(?:iPhone|iPad|iPod)/.test(agent) ? "iOS" : /Windows/.test(agent) ? "Windows" : /CrOS/.test(agent) ? "ChromeOS" : /Macintosh/.test(agent) ? "macOS" : /Linux/.test(agent) ? "Linux" : agent ? "Other" : "Unknown";
+  return { browser, os };
 }

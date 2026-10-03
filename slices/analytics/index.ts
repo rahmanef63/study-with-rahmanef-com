@@ -98,3 +98,13 @@ export { PlatformTrafficDashboard, type PlatformTrafficDashboardProps } from "./
 export { usePlatformTraffic } from "./hooks/use-platform-traffic";
 export { PLATFORM_TRAFFIC_COPY, mergePlatformTrafficCopy, type PlatformTrafficCopy, type PlatformTrafficCopyOverride } from "./config/traffic-copy";
 export type { PlatformTrafficData, PlatformTrafficDays } from "./types";
+
+// 0.5.0 — identity-level admin learning and authenticated-account activity.
+export { PlatformUsersView, type PlatformUsersViewProps } from "./views/platform-users-view";
+export { PlatformUserDetailView, type PlatformUserDetailViewProps } from "./views/platform-user-detail-view";
+export { PlatformUsersTable, type PlatformUsersTableProps } from "./components/platform-users-table";
+export { PlatformUsersDashboard, type PlatformUsersDashboardProps } from "./components/platform-users-dashboard";
+export { PlatformUserDetail, type PlatformUserDetailProps } from "./components/platform-user-detail";
+export { usePlatformUsers, usePlatformUserDetail } from "./hooks/use-platform-users";
+export { PLATFORM_USERS_COPY, mergePlatformUsersCopy, type PlatformUsersCopy, type PlatformUsersCopyOverride } from "./config/users-copy";
+export type { PlatformUserData, PlatformUserDetailData, PlatformUserActivity } from "./types";

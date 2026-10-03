@@ -120,3 +120,30 @@ is not the actual deployment/start date. Missing countries remain unknown; no
 city or country is inferred from timezone/language. Learning views and website
 traffic stay separate metrics. The backend collector/authorization/retention
 remain authoritative and are not recreated by these presentation components.
+
+
+## 0.5.0 — account-level admin analytics
+
+The host admin layout authorizes before mounting `PlatformUsersView` or
+`PlatformUserDetailView`. Both hooks also wait for authenticated Convex state;
+the backend independently requires a current platform-admin profile.
+`detailHref` and `geoAttributionHref` are host props. The host owns the page h1.
+
+`PlatformUsersDashboard` is controlled and props-driven: `rows`, `search`,
+`onSearchChange`, `status`, `onLoadMore`, and `detailHref`. Search covers loaded
+account pages, including users without profiles; an empty page is not an
+exhausted cursor. Search is capped at the backend's 100-character contract.
+CSV exports contain only displayed accounts, require an explicit click, and
+reuse formula-safe aggregate serialization.
+
+Detail tables separate current eligible course progress from historical badges.
+Incomplete sources show lower bounds and unavailable percentages/status rather
+than claiming exact completion. Missing role or learning evidence stays unknown.
+Member-day reads are not page views. Account traffic has its own authenticated
+boundary and timeline; historical anonymous sessions are never attributed to
+people. Unknown source/location is explicit. Click destinations remain text,
+not executable links, with bounded scrolling and sticky table headings.
+
+The disconnected `e2e/admin-fixture` views `users` and `user-detail` exercise
+synthetic long text, partial/empty/loading states, search, pagination, CSV and
+contained scroll. They do not prove real authentication or production data.

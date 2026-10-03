@@ -136,3 +136,7 @@ ini adalah projects untuk membuat platform dan komunitas belajar ai
 ### Standalone public API origin contract
 
 Next standalone reconstructs `Request.url` from its internal bind hostname, even when Traefik routes the canonical public Host. Public analytics/MCP routes must use `lib/request-public-origin.ts` for the external origin and normalize the MCP SDK request URL. Never enable general host trust, accept arbitrary forwarded hosts, or expose the Next service port. Keep proxy-shaped tests using `http://0.0.0.0:3000` plus canonical Host and verify the live endpoint after release; localhost SDK success alone does not prove reverse-proxy operation.
+
+### Authenticated activity and demo provenance
+
+Account activity is a separate authenticated stream: requireUser derives userId and a private server-only secret authorizes Next enrichment. Never accept client actor/time/IP/geo fields, associate old anonymous sessions with accounts, or expose user detail through user-scope MCP. Preserve Convex paginate splitCursor/pageStatus when wrapping usePaginatedQuery, and share a transaction byte budget across joins. Unknown profile/learning coverage must not claim ordinary-user/no-learning/no-badge status. Entry attribution expires without refreshing on token refresh/SPA navigation or replacing the original campaign with an OAuth referrer. Demo cleanup only targets exact retired seed provenance with dry-run/backup and same-transaction protective checks; keep real replies and never reseed invented accounts or engagement.

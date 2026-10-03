@@ -26,6 +26,7 @@ import {
 } from "./_tables/learning";
 import { insightTables } from "./features/insight/tables";
 import { trafficTables } from "./features/traffic/tables";
+import { userAnalyticsTables } from "./features/userAnalytics/tables";
 import { mcpTables } from "./features/mcp/tables";
 
 export default defineSchema({
@@ -67,4 +68,5 @@ export default defineSchema({
   ...insightTables,
   ...trafficTables,
   ...mcpTables,
+  ...userAnalyticsTables,
 });

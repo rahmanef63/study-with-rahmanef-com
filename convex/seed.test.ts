@@ -79,21 +79,22 @@ test("seedContent pins ONE welcome pengumuman, and re-running adds nothing", asy
   });
 });
 
-test("seedEngagement fills the seedable post kinds and scores the leaderboard", async () => {
+test("seedEngagement publishes curated resources without inventing people or engagement", async () => {
   const t = await bootstrapped();
   await t.mutation(internal.seed.seedContent, seedArgs);
 
   const first = await t.mutation(internal.seed.seedEngagement, seedArgs);
   expect(first.sumber).toBeGreaterThan(0);
-  expect(first.usulan).toBeGreaterThan(0);
-  expect(first.likes).toBeGreaterThan(0);
+  expect(first.usulan).toBe(0);
+  expect(first.likes).toBe(0);
+  expect(first.members).toBe(0);
+  expect(first.comments).toBe(0);
 
   await t.run(async (ctx) => {
     const posts = await ctx.db.query("posts").collect();
-    // Three kinds, not four: "diskusi" is deliberately NOT seeded — that chip is
-    // where real members talk, and filling it meant inventing conversation.
+    // Only owner-authored announcements and curated resources are seeded.
     expect(new Set(posts.map((p) => p.kind))).toEqual(
-      new Set(["pengumuman", "sumber", "usulan"])
+      new Set(["pengumuman", "sumber"])
     );
     // A "sumber" post IS its link; the retired board's `url` lives in linkUrl.
     for (const p of posts.filter((x) => x.kind === "sumber")) {
@@ -107,7 +108,7 @@ test("seedEngagement fills the seedable post kinds and scores the leaderboard", 
     // Points: +1 per like, EXCEPT on your own post (mirrors likes.ts).
     const byId = new Map(posts.map((p) => [p._id, p]));
     const scoring = likes.filter((l) => byId.get(l.postId)?.authorId !== l.userId).length;
-    expect(scoring).toBeGreaterThan(0);
+    expect(scoring).toBe(0);
     const memberships = await ctx.db.query("memberships").collect();
     expect(memberships.reduce((n, m) => n + (m.points ?? 0), 0)).toBe(scoring);
 
