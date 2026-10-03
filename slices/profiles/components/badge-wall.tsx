@@ -4,8 +4,10 @@
 // no data fetching and no hardcoded copy/URLs, so it is portable and unit-safe.
 // Container-first: two columns on the narrowest window, layering up with @sm/@lg.
 import Link from "next/link";
-import { Award, CalendarCheck, Users } from "lucide-react";
+import { CalendarCheck, Users } from "lucide-react";
 import { Empty, EmptyArt, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
+import { ART_SIZE } from "@/lib/art";
+import { badgeArtForCourse } from "../lib/badge-art";
 import { SectionHeader, StatTile, Badge as CountBadge } from "@/components/mockup-kit";
 import { formatEarnedDate } from "../lib/earned-date";
 import { cn } from "@/lib/utils";
@@ -78,12 +80,17 @@ export function BadgeWall({ badges, certificateHref, labels, className }: BadgeW
             {badges.map((badge) => {
               const tile = (
                 <>
-                  <span
-                    aria-hidden="true"
-                    className="flex size-11 shrink-0 items-center justify-center bg-primary/10 text-primary transition-colors group-hover:bg-primary/15"
-                  >
-                    <Award className="size-5" />
-                  </span>
+                  {/* eslint-disable-next-line @next/next/no-img-element -- committed
+                      badge sprite; next/image would re-encode a small WebP. */}
+                  <img
+                    src={badgeArtForCourse(badge.courseSlug)}
+                    alt=""
+                    width={ART_SIZE.tile}
+                    height={ART_SIZE.tile}
+                    loading="lazy"
+                    decoding="async"
+                    className="pixelated size-11 object-contain"
+                  />
                   <span className="line-clamp-2 text-sm font-medium leading-snug text-foreground">
                     {badge.courseTitle}
                   </span>

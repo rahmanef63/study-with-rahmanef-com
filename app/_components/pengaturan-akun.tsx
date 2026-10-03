@@ -12,9 +12,9 @@ import { useCurrentProfile } from "@/features/profiles";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
+  EmptyArt,
   EmptyDescription,
   EmptyHeader,
-  EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -51,9 +51,7 @@ export function PengaturanAkun() {
  return (
       <Empty className="border">
         <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <CircleUser aria-hidden />
-          </EmptyMedia>
+          <EmptyArt src="/ui/empty/anggota.webp" />
           <EmptyTitle className="font-display">Belum masuk</EmptyTitle>
           <EmptyDescription className="text-pretty">
             Masuk untuk melihat sesi akun dan keluar kapan saja.

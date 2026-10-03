@@ -10,9 +10,9 @@ import { useCurrentProfile } from "@/features/profiles";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
+  EmptyArt,
   EmptyDescription,
   EmptyHeader,
-  EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -36,9 +36,7 @@ export function NotifikasiInbox() {
  return (
       <Empty className="border">
         <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <LogIn aria-hidden />
-          </EmptyMedia>
+          <EmptyArt src="/ui/status/notification.webp" />
           <EmptyTitle className="font-display">Masuk untuk melihat notifikasi</EmptyTitle>
           <EmptyDescription className="text-pretty">
             Setelah masuk, balasan dan kabar komunitasmu tampil di sini.

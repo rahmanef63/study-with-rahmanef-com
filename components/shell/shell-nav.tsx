@@ -13,6 +13,7 @@
 import { usePathname } from "next/navigation";
 import type { Id } from "@convex/_generated/dataModel";
 import { isCommunityTabActive } from "@/components/community/tab-active";
+import { PwaInstallButton } from "@/components/pwa/install-button";
 import { visibleCommunityTabs, type TenantTabSignal } from "@/lib/community";
 import { cn } from "@/lib/utils";
 import { SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader } from "./sidebar";
@@ -138,6 +139,7 @@ export function ShellNav({ community, onNavigate, className }: ShellNavProps) {
         </SidebarContent>
 
         <SidebarFooter>
+          <PwaInstallButton onNavigate={onNavigate} />
           <SidebarUser onNavigate={onNavigate} />
         </SidebarFooter>
       </nav>

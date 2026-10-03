@@ -422,3 +422,32 @@ sprites have no surface because the screens they would serve already render the
 one precached banner. What is left is the text-free sprite pool, and it is now
 wired across the landing, `/roadmap`, the `/mulai` result, `/home`, `/masuk`,
 `/changelog`, `app/error.tsx` and eight empty states.
+
+## 11. Third pass — 2026-10-03
+
+Wired the text-free cutouts that still had a matching surface. Left the
+compositions that bake their own copy.
+
+| Path | Surface |
+|---|---|
+| `/ui/empty/notifications.webp` | Empty notification inbox |
+| `/ui/empty/kuis.webp` | Kelola → belum ada kuis |
+| `/ui/empty/resources.webp` | Diskusi filtered to Sumber, when that filter is empty |
+| `/ui/status/notification.webp` | `/notifikasi` signed-out gate |
+| `/ui/status/not-found.webp` | `app/not-found.tsx` and a missing public profile. The skyline strip stays. |
+| `/ui/status/offline.webp` · `offline-mobile.webp` | `/offline` (laptop from `md`, phone below). Both precached; worker `VERSION` `v6`. Skyline strip stays. |
+| `/learning/badge/{seedling,lightbulb,code,ai-brain,growth,community,compass,calendar,star,shield}.webp` | Badge wall, one sprite per seeded course slug. Unknown slugs use `achievement.webp`. |
+| `/learning/badge/certificate.webp` | Certificate card seal, and the missing-certificate empty |
+
+Still not in the UI, each for one reason:
+
+- `brand/wordmark-*.png` — opaque `#071536` field. The shell mark stays the SVG in `components/brand/logo.tsx`. README already links the horizontal file.
+- `learning/cover/*` except `roadmap-trail` — English titles baked in, 16:9 against a 2:1 slot, and a course cover stored in Convex must be an absolute `https://` URL.
+- `learning/medal/*` — English labels and a taxonomy no table has.
+- `learning/certificate-bg.webp` — a finished certificate mock with the recipient name baked in.
+- `social/post-*` and `social/mockup-dashboard.webp` — finished cards (wordmark, copy, and on several a drawn button) or a picture of a loading skeleton.
+- `web/scene-*` — full-bleed scenes; the landing already uses the cropped `hero-scene`, and Tentang already has its cover.
+- `ui/status/install.webp` — a phone illustration does not fit a 36px nav row. The install control is a text button, shown only when `beforeinstallprompt` fires.
+- `ui/status/maintenance.webp` — no maintenance route. The global error page is a different message and already uses the skyline.
+- `ui/empty/results.webp` — search with no hits already uses `search.webp`.
+- `ui/spot/*` not already on a path or the changelog — no remaining slot at ≥96px. The landing cards stay Lucide because these sprites turn to noise at 56px.

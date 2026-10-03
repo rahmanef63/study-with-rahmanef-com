@@ -135,7 +135,9 @@ export function FeedView({
       ) : posts.length === 0 ? (
         <Empty className="border">
           <EmptyHeader>
-            <EmptyArt src="/ui/empty/diskusi.webp" />
+            <EmptyArt
+              src={kind === "sumber" ? "/ui/empty/resources.webp" : "/ui/empty/diskusi.webp"}
+            />
             {/* text-xs: Press Start 2P is full-width, so EmptyTitle's default
                 text-lg would overflow a phone at this string length. */}
             <EmptyTitle className="font-display">
