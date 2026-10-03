@@ -10,12 +10,14 @@ Integrator alpha; clean isolated `feat/study-phase2-20261002` at `/home/rahman/w
 
 | Agent | Area | State | Ownership |
 |---|---|---|---|
-| alpha | Lesson reader scroll/navigation, shell integration, verification and release | in-progress | app, components, slices/roadmap, docs; integrate courses changes |
+| alpha | Lesson reader scroll/navigation, shell integration, verification and release | done | app, components, slices/roadmap, docs; integrate courses changes |
 | beta | Comments surface and comment form usability | done | slices/comments only |
 | gamma | Public profile/certificate presentation and unused-code audit | done | slices/profiles; read-only independent cleanup/full-diff review |
 | delta | Independent reader/layout review and browser verification | done | e2e/reader-fixture, e2e/reader-layout.fixture.spec.ts, scripts/reader-preview.mjs; independent browser review |
 
 Acceptance includes actual long-content reader and thread behavior at desktop/mobile widths, one header return control, keyboard scroll access, and regression checks. No new dependencies. Phase 1 authenticated browser coverage was absent; phase 2 must exercise the reader presentation explicitly without creating fake production data.
+
+Phase 2 released through PR #2 and final visual correction PR #3, final code `8e87199acba4271fb53bab0a667c03ec4436dac7`. Hosted CI passed 1,161 tests/134 files, eight reader browser checks, typecheck, build, readiness and contracts; dependency audit zero vulnerabilities, lint zero errors/47 retained warnings. Dokploy `04H98axJ7KzYtabTl_luU` is done and healthy; checkout/build/runtime/public revision match. Native long-reader/comment/quiz fixture and live public desktop/mobile checks passed. Actual built public profile/certificate success and server-null/client recovery were verified; production OAuth/member/session restart remains unverified. Backend/data unchanged. Full [phase 1/2 change ledger](reports/study-phase1-phase2-2026-10-03.md).
 
 ## Current improvement wave — 2026-10-02
 
