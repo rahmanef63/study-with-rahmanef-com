@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { LogoMark } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
+import { ART_SIZE } from "@/lib/art";
 
 // The service worker's floor: every navigation that cannot reach the network
 // lands here (public/sw.js precaches this exact URL at install).
@@ -27,7 +27,20 @@ export const metadata: Metadata = {
 export default function OfflinePage() {
   return (
     <main className="mx-auto flex min-h-[100svh] max-w-md flex-col items-center justify-center gap-8 px-6 py-16 text-center">
-      <LogoMark className="size-16 text-primary" />
+      {/* Laptop on md+, the phone cutout below it. Both are precached in
+          public/sw.js — this page is the one that has to paint with no network.
+          alt="" because the heading under it already says the page is offline. */}
+      <picture>
+        <source media="(max-width: 767px)" srcSet="/ui/status/offline-mobile.webp" />
+        <img
+          src="/ui/status/offline.webp"
+          alt=""
+          width={ART_SIZE.media}
+          height={ART_SIZE.media}
+          decoding="async"
+          className="pixelated size-24 object-contain"
+        />
+      </picture>
 
       <div className="space-y-4">
         <p className="eyebrow blink">Offline</p>

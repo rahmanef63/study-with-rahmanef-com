@@ -35,7 +35,9 @@
 // bump an installed user's precache points at a URL that now 404s, so the one
 // screen designed to survive a dead network shows a broken image on it.
 // v5: refreshed Indonesian offline copy and connection-recovery instructions.
-const VERSION = "v5";
+// v6: /offline also draws /ui/status/offline.webp and offline-mobile.webp.
+//     Unhashed URLs — without this bump an installed user never fetches them.
+const VERSION = "v6";
 const CACHE = `belajar-shell-${VERSION}`;
 
 /** The only asset /offline references. Named because two lists need it.
@@ -55,6 +57,8 @@ const PRECACHE = [
   // The skyline strip /offline renders. Precached for the obvious reason and
   // ALSO matched by CACHEABLE below for the non-obvious one — see there.
   OFFLINE_IMAGE,
+  "/ui/status/offline.webp",
+  "/ui/status/offline-mobile.webp",
   "/manifest.webmanifest",
   "/icons/icon-192.png",
   "/icons/icon-512.png",
@@ -64,8 +68,8 @@ const PRECACHE = [
 
 /** Content-addressed or immutable — the only things safe to serve from cache first.
  *
- *  OFFLINE_IMAGE is the one non-immutable entry, and PRECACHING IT IS NOT
- *  ENOUGH ON ITS OWN — that is why it is also here. A path that misses this
+ *  The offline page's images are the non-immutable entries, and PRECACHING
+ *  THEM IS NOT ENOUGH ON ITS OWN — that is why they are also here. A path that misses this
  *  predicate falls out of the fetch handler with no respondWith(), handing the
  *  request back to the browser; cached bytes the handler never consults cannot
  *  be served.
@@ -81,17 +85,17 @@ const PRECACHE = [
  *  buys a week; this line is what makes it durable and independent of a config
  *  file this worker does not control.
  *
- *  Scoped to this exact file rather than all of /ui/: the sibling asset pass
- *  left the /social /ui /web /learning /profiles question open on the grounds
- *  that those images "only appear on pages a network is needed to render
- *  anyway". True of every one of them except this one — /offline is by
- *  definition the page rendered with no network — so the exception is exactly
- *  one file wide. The rest stay plain network until someone has a reason. */
+ *  Scoped to the offline page's images rather than all of /ui/. Those sprites
+ *  otherwise only appear on pages a network is needed to render. /offline is
+ *  the page rendered with no network, so its three images are the exception.
+ *  The rest stay plain network. */
 const CACHEABLE = (pathname) =>
   pathname.startsWith("/_next/static/") ||
   pathname.startsWith("/icons/") ||
   pathname.startsWith("/screenshots/") ||
-  pathname === OFFLINE_IMAGE;
+  pathname === OFFLINE_IMAGE ||
+  pathname === "/ui/status/offline.webp" ||
+  pathname === "/ui/status/offline-mobile.webp";
 
 /** Never touched, at any cost: realtime data, per-request images, auth. */
 const NEVER = (pathname) =>

@@ -21,10 +21,10 @@ export function ShellTopBar({ community, title }: { community?: ShellCommunity; 
     <header
       // z-30: above content, under the sheet (50) and the CRT overlay (9999).
       // Opaque bg-card and a hard 2px rule — no blur, no floating pill.
-      className="sticky top-0 z-30 border-b bg-card pt-[var(--safe-t)] md:hidden"
+      className="sticky top-0 z-30 border-b bg-card pt-[calc(var(--safe-t)+0.75rem)] md:hidden"
     >
       <div
-        className="mx-auto flex w-full max-w-5xl items-center gap-3 px-4"
+        className="mx-auto flex w-full max-w-5xl items-center gap-3 px-5"
         style={{ minHeight: BAR_H }}
       >
         {/* Body face, not Press Start 2P: the display face is DISPLAY-ONLY and
@@ -47,8 +47,8 @@ export function ShellTopBarSkeleton() {
   return (
     <div
       aria-hidden
-      className="sticky top-0 z-30 border-b bg-card pt-[var(--safe-t)] md:hidden"
-      style={{ minHeight: BAR_H }}
+      className="sticky top-0 z-30 border-b bg-card pt-[calc(var(--safe-t)+0.75rem)] md:hidden"
+      style={{ minHeight: `calc(${BAR_H} + var(--safe-t) + 0.75rem)` }}
     />
   );
 }

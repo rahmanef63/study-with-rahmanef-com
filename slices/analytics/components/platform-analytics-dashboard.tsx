@@ -2,7 +2,7 @@
 import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { PlatformAnalyticsData, PlatformAnalyticsDays } from "../types";
+import { PLATFORM_ANALYTICS_DAY_OPTIONS, type PlatformAnalyticsData, type PlatformAnalyticsDays } from "../types";
 import { mergePlatformAnalyticsCopy, type PlatformAnalyticsCopyOverride } from "../config/platform-copy";
 import { platformDate, platformNumber } from "../lib/platform-format";
 import { PlatformSummary } from "./platform-summary";
@@ -23,7 +23,7 @@ export function PlatformAnalyticsDashboard({ data, days, onDaysChange, copy: ove
   const incomplete = data.sources.some((source) => !source.complete);
   return <div className="min-w-0 space-y-7">
     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
-      <div role="group" aria-label={copy.period} className="flex flex-wrap gap-1">{([7, 30, 90] as const).map((period) => <Button key={period} variant={days === period ? "default" : "outline"} className="min-h-11" aria-pressed={days === period} onClick={() => onDaysChange(period)}>{period} {copy.days}</Button>)}</div>
+      <div role="group" aria-label={copy.period} className="flex flex-wrap gap-1">{PLATFORM_ANALYTICS_DAY_OPTIONS.map((period) => <Button key={period} variant={days === period ? "default" : "outline"} className="min-h-11" aria-pressed={days === period} onClick={() => onDaysChange(period)}>{period} {copy.days}</Button>)}</div>
       <p className="text-sm text-muted-foreground">{copy.updated}: <time dateTime={data.period.from}>{platformDate(data.period.from)}</time> — <time dateTime={data.period.to}>{platformDate(data.period.to)}</time> · WIB</p>
     </div>
     {incomplete ? <p role="status" className="border-l-4 border-primary bg-muted px-4 py-3 text-sm">{copy.incomplete}</p> : null}

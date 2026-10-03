@@ -25,6 +25,9 @@ describe("platform analytics presentation", () => {
     expect(html).toContain("Belum ada aktivitas tercatat");
     expect(html).toContain("Tidak ada data yang cocok");
     expect(html).toContain("Kelulusan kuis");
+    expect(html).toContain("180 hari");
+    expect(html).toContain("365 hari");
+    expect(html).toContain('role="meter"');
     expect(html).toContain("bukan page view");
     expect(html).not.toContain("NaN");
   });
@@ -78,6 +81,8 @@ describe("platform traffic presentation", () => {
     expect(html).toContain("Bukan GPS atau alamat pasti");
     expect(html).toContain("dataset September 2026");
     expect(html).toContain("bukan tanggal pasti pertama kali");
+    expect(html).toContain("Data pengunjung disimpan 30 hari");
+    expect(html).not.toContain("365 hari");
     expect(html).not.toContain("NaN");
   });
   test("capped aggregate and export coverage stay visible", () => {

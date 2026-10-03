@@ -1,7 +1,7 @@
 "use client";
 // courses slice — /t/[slug]/kelola/kelas list view (instructor+; the
 // server query is the gate). Create dialog + rows linking to the editor.
-import { GraduationCap, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import type { Id } from "@convex/_generated/dataModel";
@@ -9,10 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Empty,
+  EmptyArt,
   EmptyContent,
   EmptyDescription,
   EmptyHeader,
-  EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -88,9 +88,7 @@ export function ManageCoursesView({
       ) : courses.length === 0 ? (
         <Empty>
           <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <GraduationCap aria-hidden />
-            </EmptyMedia>
+            <EmptyArt src="/ui/empty/courses.webp" />
             <EmptyTitle>{copy.emptyManageTitle}</EmptyTitle>
             <EmptyDescription>{copy.emptyManageBody}</EmptyDescription>
           </EmptyHeader>

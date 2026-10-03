@@ -7,6 +7,7 @@ import type { ReactNode } from "react";
 import { ArrowLeft, ChevronRight, Inbox, type LucideIcon } from "lucide-react";
 import {
   Empty,
+  EmptyArt,
   EmptyContent,
   EmptyDescription,
   EmptyHeader,
@@ -29,11 +30,14 @@ export function KelolaSkeleton({ lines = 3 }: { lines?: number }) {
 
 export function KelolaEmpty({
   icon: Icon = Inbox,
+  art,
   title,
   body,
   action,
 }: {
   icon?: LucideIcon;
+  /** Sprite path. When set, replaces the lucide icon. */
+  art?: string;
   title: string;
   body?: string;
   action?: ReactNode;
@@ -41,9 +45,13 @@ export function KelolaEmpty({
   return (
     <Empty>
       <EmptyHeader>
-        <EmptyMedia variant="icon">
-          <Icon aria-hidden />
-        </EmptyMedia>
+        {art !== undefined ? (
+          <EmptyArt src={art} />
+        ) : (
+          <EmptyMedia variant="icon">
+            <Icon aria-hidden />
+          </EmptyMedia>
+        )}
         <EmptyTitle>{title}</EmptyTitle>
         {body ? <EmptyDescription className="text-pretty">{body}</EmptyDescription> : null}
       </EmptyHeader>

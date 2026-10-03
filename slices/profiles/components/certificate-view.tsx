@@ -5,7 +5,7 @@
 // skeleton while loading, renders the card when ready, and — via the shared
 // slice boundary — a friendly not-found/error fallback for an unknown or
 // invalid id. Signed-out visitors are fully supported (no auth, §6 etalase).
-import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
+import { Empty, EmptyArt, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { DEFAULT_CERTIFICATE_LABELS } from "../config/certificate-labels";
@@ -97,6 +97,7 @@ function CertificateFallback({
   return (
     <Empty className="mx-auto max-w-2xl border">
       <EmptyHeader>
+        {notFound ? <EmptyArt src="/learning/badge/certificate.webp" /> : null}
         <EmptyTitle className="font-display">
           {notFound ? copy.notFoundTitle : copy.errorTitle}
         </EmptyTitle>

@@ -1,7 +1,7 @@
 import type { QueryCtx } from "../../_generated/server";
 import { query } from "../../_generated/server";
 import { requirePlatformAdmin } from "../../_shared/auth";
-import { platformAnalyticsResult, platformDays } from "./platformContract";
+import { platformAnalyticsResult, platformDays, type PlatformAnalytics } from "./platformContract";
 import { DAY_MS, startOfPlatformDay } from "./platformActivity";
 import { loadPlatformSources } from "./platformRead";
 import { aggregatePlatform } from "./platformAggregate";
@@ -10,7 +10,7 @@ import { aggregatePlatform } from "./platformAggregate";
  * Activity is current members' learning, not anonymous traffic. No PII leaves
  * this function, and every incomplete source is exposed instead of extrapolated.
  */
-export const getPlatformAnalyticsHandler = async (ctx: QueryCtx, args: {days:7|30|90}) => {
+export const getPlatformAnalyticsHandler = async (ctx: QueryCtx, args: { days: PlatformAnalytics["period"]["days"] }) => {
     await requirePlatformAdmin(ctx);
     const today = startOfPlatformDay(Date.now());
     const fromMs = today - (args.days - 1) * DAY_MS;

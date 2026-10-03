@@ -35,7 +35,7 @@ export const execute = internalQuery({
       case "admin.users": result = await listUsersHandler(delegated, { paginationOpts: { numItems: a.limit as number | undefined ?? 20, cursor: a.cursor as string | undefined ?? null }, search: a.search as string | undefined }); break;
       case "admin.user_detail": result = await getUserDetailHandler(delegated, { userId: id("userId", "users") }); break;
       case "admin.pending_communities": result = await listPendingHandler(delegated, { limit: a.limit as number | undefined }); break;
-      case "admin.learning_analytics": result = await getPlatformAnalyticsHandler(delegated, { days: a.days as 7 | 30 | 90 }); break;
+      case "admin.learning_analytics": result = await getPlatformAnalyticsHandler(delegated, { days: a.days as 7 | 30 | 90 | 180 | 365 }); break;
       case "admin.traffic_analytics": result = await getTrafficAnalyticsHandler(delegated, { days: a.days as 7 | 30 }); break;
       default: throw new ConvexError({ code: "VALIDATION_FAILED", message: "Capability tidak tersedia sebagai read" });
     }

@@ -3,7 +3,7 @@ import { buildPlatformActivity, platformDay } from "./platformActivity";
 import type { PlatformSources } from "./platformRead";
 
 type Name = keyof PlatformSources;
-export function aggregatePlatform(s: PlatformSources, fromMs: number, days: 7 | 30 | 90): PlatformAnalytics {
+export function aggregatePlatform(s: PlatformSources, fromMs: number, days: PlatformAnalytics["period"]["days"]): PlatformAnalytics {
   const a = buildPlatformActivity(s, fromMs, days);
   const exact = (...names: Name[]) => names.every(name => s[name].complete);
   const relations: Name[] = ["tenants", "users", "memberships"];

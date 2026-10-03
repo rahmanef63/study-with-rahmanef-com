@@ -5,7 +5,7 @@
 // unit-testable. The container (CertificateView) fetches and feeds it.
 // Elegant "document" styling with theme tokens only (no hex — rr UI rules).
 import { useState } from "react";
-import { Award } from "lucide-react";
+import { ART_SIZE } from "@/lib/art";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { formatEarnedDate } from "../lib/earned-date";
@@ -63,12 +63,16 @@ export function CertificateCard({
 
         {/* Medal + eyebrow */}
         <div className="flex flex-col items-center gap-3">
-          <span
-            aria-hidden="true"
-            className="flex size-14 items-center justify-center bg-primary/10 text-primary ring-1 ring-primary/20"
-          >
-            <Award className="size-7" />
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element -- committed
+              certificate seal; the card's text already names the document. */}
+          <img
+            src="/learning/badge/certificate.webp"
+            alt=""
+            width={ART_SIZE.card}
+            height={ART_SIZE.card}
+            decoding="async"
+            className="pixelated size-14 object-contain"
+          />
           <p className="eyebrow">{copy.eyebrow}</p>
           <Heading className="font-display text-base text-foreground @sm:text-lg">
             {copy.heading}

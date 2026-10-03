@@ -92,7 +92,7 @@ export function NestedBlockControls({ block, pageId, listeners, onUpdate, onAddA
                     const patch = buildSmartTurnIntoPatch(block.type, s.type);
                     if (typeof window !== "undefined" && window.location.search.includes("debug=blocks")) {
 
-                      console.log("[turnInto:nested]", { blockId: block.id, from: block.type, to: s.type, patch });
+                      console.log("[turnInto:nested]", { blockId: block.id, from: block.type, to: s.type });
                     }
                     onUpdate(patch);
                     closeMenu();

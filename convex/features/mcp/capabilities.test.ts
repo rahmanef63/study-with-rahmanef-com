@@ -22,7 +22,7 @@ test("discovery is scope-isolated and capability metadata/schema mirrors actual 
   expect(users.find(c => c.id === "user.comment_delete")).toMatchObject({ readOnly: false, destructive: true, idempotent: true });
   const learning = JSON.parse(admins.find(c => c.id === "admin.learning_analytics")!.inputSchemaJson);
   const traffic = JSON.parse(admins.find(c => c.id === "admin.traffic_analytics")!.inputSchemaJson);
-  expect(learning.properties.days.enum).toEqual([7, 30, 90]);
+  expect(learning.properties.days.enum).toEqual([7, 30, 90, 180, 365]);
   expect(traffic.properties.days.enum).toEqual([7, 30]);
   expect(learning.additionalProperties).toBe(false);
   for (const scope of ["user", "admin"] as const) {
@@ -86,7 +86,7 @@ test("writes preserve progress/comment identities, idempotency, anti-spam and mo
 
 test("admin queries and approval/suspension match browser guards; member PAT cannot select privileged capability", async () => {
   const fx = await setupMcp();
-  for (const days of [7, 30, 90] as const) expect(await execute(fx, "admin.learning_analytics", { days }, "admin")).toEqual(await fx.admin.query(api.features.analytics.platform.getPlatformAnalytics, { days }));
+  for (const days of [7, 30, 90, 180, 365] as const) expect(await execute(fx, "admin.learning_analytics", { days }, "admin")).toEqual(await fx.admin.query(api.features.analytics.platform.getPlatformAnalytics, { days }));
   expect(await execute(fx, "admin.traffic_analytics", { days: 7 }, "admin")).toEqual(await fx.admin.query(api.features.traffic.queries.getTrafficAnalytics, { days: 7 }));
   expect(await execute(fx, "admin.pending_communities", {}, "admin")).toEqual(await fx.admin.query(api.features.tenants.admin.listPending, {}));
   await expect(execute(fx, "admin.pending_communities")).rejects.toThrow(/NOT_AUTHORIZED/);

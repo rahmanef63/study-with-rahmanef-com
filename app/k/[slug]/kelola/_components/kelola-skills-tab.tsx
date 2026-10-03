@@ -123,7 +123,7 @@ export function KelolaSkillsTab({
         <KelolaSkeleton lines={3} />
       ) : skills === undefined || skills.length === 0 ? (
         <KelolaEmpty
-          icon={Sparkles}
+          art={searching ? "/ui/empty/search.webp" : "/ui/empty/generic.webp"}
           title={searching ? copy.searchSkillsEmpty : copy.emptySkillsTitle}
           body={searching ? undefined : copy.emptySkillsBody}
           action={

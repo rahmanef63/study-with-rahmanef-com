@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { ART_SIZE } from "@/lib/art";
 
 // THE SKYLINE STRIP, AND WHY IT NO LONGER NEEDS A CSS CROP
 //
@@ -30,6 +31,18 @@ import { Button } from "@/components/ui/button";
 export default function NotFound() {
   return (
     <div className="mx-auto flex max-w-md flex-col items-center gap-4 px-6 py-16 text-center md:py-24">
+      {/* The subject, at the empty-state size. The skyline below stays — it is
+          the precached strip a 404 can share with /offline. This sprite is the
+          "nothing here" mark and is small enough to keep the heading on screen. */}
+      {/* eslint-disable-next-line @next/next/no-img-element -- committed static asset. */}
+      <img
+        src="/ui/status/not-found.webp"
+        alt=""
+        width={ART_SIZE.media}
+        height={ART_SIZE.media}
+        decoding="async"
+        className="pixelated size-24 object-contain"
+      />
       <h1 className="text-xl font-semibold">Halaman tidak ditemukan</h1>
       <p className="text-muted-foreground">
         Alamat yang kamu buka tidak ada — mungkin sudah dipindah atau salah ketik.

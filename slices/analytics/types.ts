@@ -42,7 +42,9 @@ export type { PulseMateri as PulseMateriData } from "@convex/features/insight/pu
 
 /** Admin-only platform totals; authenticated query remains the security boundary. */
 export type { PlatformAnalytics as PlatformAnalyticsData } from "@convex/features/analytics/platformContract";
-export type PlatformAnalyticsDays = 7 | 30 | 90;
+/** Learning windows. Traffic stays 7 | 30 because that stream is purged after 30 days. */
+export const PLATFORM_ANALYTICS_DAY_OPTIONS = [7, 30, 90, 180, 365] as const;
+export type PlatformAnalyticsDays = (typeof PLATFORM_ANALYTICS_DAY_OPTIONS)[number];
 /** First-party traffic projection, no user identities or geographic inference. */
 export type { TrafficAnalytics as PlatformTrafficData } from "@convex/features/traffic/contract";
 export type PlatformTrafficDays = 7 | 30;

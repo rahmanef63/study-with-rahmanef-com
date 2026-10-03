@@ -4,7 +4,7 @@
 // Fetches the anonymous etalase data, shows a skeleton while loading, renders
 // the card when ready, and — via the boundary — a not-found/error fallback when
 // the handle is unknown. Signed-out visitors are fully supported (no auth).
-import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
+import { Empty, EmptyArt, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { DEFAULT_PUBLIC_PROFILE_LABELS } from "../config/public-labels";
@@ -119,6 +119,7 @@ function ProfileFallback({ copy, notFound }: { copy: PublicProfileLabels; notFou
   return (
     <Empty className="mx-auto max-w-2xl">
       <EmptyHeader>
+        {notFound ? <EmptyArt src="/ui/status/not-found.webp" /> : null}
         <EmptyTitle>{notFound ? copy.notFoundTitle : copy.errorTitle}</EmptyTitle>
         <EmptyDescription>{notFound ? copy.notFoundBody : copy.errorBody}</EmptyDescription>
       </EmptyHeader>

@@ -72,7 +72,7 @@ function CoursePicker({
   if (courses.length === 0) {
     return (
       <KelolaEmpty
-        icon={ListChecks}
+        art="/ui/empty/courses.webp"
         title="Belum ada kelas"
         body="Buat kelas dulu di tab Kelas sebelum menyusun kuis."
       />
@@ -137,7 +137,7 @@ function QuizPicker({
         <KelolaSkeleton lines={2} />
       ) : quizzes.length === 0 ? (
         <KelolaEmpty
-          icon={ListChecks}
+          art="/ui/empty/kuis.webp"
           title="Belum ada kuis"
           body="Satu kelas boleh punya beberapa kuis. Mulai dari satu, tambah lagi kapan pun."
           action={
