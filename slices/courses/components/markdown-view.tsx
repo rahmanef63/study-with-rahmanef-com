@@ -30,7 +30,7 @@ export type MarkdownViewProps = {
 
 export function MarkdownView({ content, className }: MarkdownViewProps) {
   return (
-    <div className={cn("space-y-4 leading-relaxed", className)}>
+    <div className={cn("min-w-0 space-y-4 leading-relaxed [overflow-wrap:anywhere]", className)}>
       {renderNodes(parseMarkdown(content))}
     </div>
   );

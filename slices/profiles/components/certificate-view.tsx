@@ -19,6 +19,8 @@ export type CertificateViewProps = {
   completionId: string;
   /** Full shareable URL for the copy button (host-supplied; never hardcoded). */
   shareUrl?: string;
+  /** Host already renders the page title and primary share action. */
+  hasServerHeading?: boolean;
   labels?: Partial<CertificateLabels>;
   className?: string;
 };
@@ -26,6 +28,7 @@ export type CertificateViewProps = {
 export function CertificateView({
   completionId,
   shareUrl,
+  hasServerHeading,
   labels,
   className,
 }: CertificateViewProps) {
@@ -42,6 +45,7 @@ export function CertificateView({
         <CertificateContent
           completionId={completionId}
           shareUrl={shareUrl}
+          hasServerHeading={hasServerHeading}
           labels={labels}
         />
       </PublicProfileBoundary>
@@ -52,17 +56,18 @@ export function CertificateView({
 type ContentProps = {
   completionId: string;
   shareUrl?: string;
+  hasServerHeading?: boolean;
   labels?: Partial<CertificateLabels>;
 };
 
-function CertificateContent({ completionId, shareUrl, labels }: ContentProps) {
+function CertificateContent({ completionId, shareUrl, hasServerHeading, labels }: ContentProps) {
   const { certificate, isLoading } = useCertificate(completionId);
-  if (isLoading) return <CertificateSkeleton />;
+  if (isLoading) return <CertificateSkeleton hasServerHeading={hasServerHeading} />;
   if (!certificate) return null; // unreachable: an invalid id throws → boundary
-  return <CertificateCard certificate={certificate} shareUrl={shareUrl} labels={labels} />;
+  return <CertificateCard certificate={certificate} shareUrl={shareUrl} hasServerHeading={hasServerHeading} labels={labels} />;
 }
 
-function CertificateSkeleton() {
+function CertificateSkeleton({ hasServerHeading }: { hasServerHeading?: boolean }) {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-5" aria-busy="true">
       <span className="sr-only">{DEFAULT_CERTIFICATE_LABELS.loading}</span>
@@ -75,9 +80,9 @@ function CertificateSkeleton() {
         <Skeleton className="mt-4 h-5 w-56 max-w-full" />
         <Skeleton className="h-4 w-40" />
       </div>
-      <div className="flex justify-center">
+      {!hasServerHeading ? <div className="flex justify-center">
         <Skeleton className="h-11 w-48 rounded-md" />
-      </div>
+      </div> : null}
     </div>
   );
 }

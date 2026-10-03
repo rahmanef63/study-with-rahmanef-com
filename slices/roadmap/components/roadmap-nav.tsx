@@ -9,7 +9,7 @@
 // numbered sequence, which is also what the Silabus now shows.
 import { useMemo } from "react";
 import Link from "next/link";
-import { Check, ChevronLeft, Lock, Play } from "lucide-react";
+import { Check, Lock, Play } from "lucide-react";
 import type { Id } from "@convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
 import { useCourseOverview } from "@/features/courses";
@@ -31,8 +31,6 @@ export type CourseNavProps = {
   courseSlug: string;
   /** Materi route builder. */
   lessonHref: (lessonId: string) => string;
-  /** Back to the full course overview / map. */
-  overviewHref: string;
   /** The materi currently open in the sheet — highlighted in the rail. */
   currentLessonId?: string | null;
 };
@@ -69,7 +67,6 @@ export function CourseNav({
   tenantId,
   courseSlug,
   lessonHref,
-  overviewHref,
   currentLessonId,
 }: CourseNavProps) {
   const overview = useCourseOverview(tenantId, courseSlug);
@@ -79,7 +76,9 @@ export function CourseNav({
   const steps: RoadmapLesson[] = useMemo(() => {
     if (!overview) return [];
     const done = new Set<string>(progress?.completedLessonIds ?? []);
-    const nextId = overview.lessons.find((l) => !done.has(l._id))?._id ?? null;
+    const nextId = progress && !progress.truncated
+      ? overview.lessons.find((l) => !done.has(l._id))?._id ?? null
+      : null;
     const statusOf = (id: Id<"lessons">): RoadmapNodeStatus => {
       if (!isMember) return "locked";
       if (done.has(id)) return "done";
@@ -108,19 +107,16 @@ export function CourseNav({
   const completed = progress?.completedCount ?? 0;
 
   return (
-    <div className="flex flex-col gap-3 text-sm">
-      {/* Header — back to the full map + course title */}
-      <Link
-        href={overviewHref}
-        className="group inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        <ChevronLeft className="size-3.5 transition-transform group-hover:-translate-x-0.5" aria-hidden />
-        Kembali ke peta
-      </Link>
-      <p className="min-w-0 truncate font-display text-base font-medium leading-tight">{overview.course.title}</p>
-      {isMember && total > 0 && (
-        <div className="space-y-1">
-          <div className="h-1.5 w-full overflow-hidden bg-muted">
+    <div className="flex h-full min-h-0 flex-col gap-3 text-sm">
+      <p className="min-w-0 shrink-0 font-display text-base font-medium leading-tight break-words">{overview.course.title}</p>
+      {isMember && (progress === undefined || progress.truncated) && (
+        <p role="status" className="shrink-0 text-xs text-muted-foreground">
+          {progress === undefined ? "Memuat kemajuan…" : "Kemajuan belum lengkap"}
+        </p>
+      )}
+      {isMember && progress !== undefined && !progress.truncated && total > 0 && (
+        <div className="shrink-0 space-y-1">
+          <div role="progressbar" aria-label="Kemajuan kelas" aria-valuenow={completed} aria-valuemin={0} aria-valuemax={total} className="h-1.5 w-full overflow-hidden bg-muted">
             <div className="h-full bg-primary" style={{ width: `${toPercent(completed, total)}%` }} />
           </div>
           <p className="text-[0.7rem] text-muted-foreground tabular-nums">
@@ -130,7 +126,7 @@ export function CourseNav({
       )}
 
       {/* Nav list — one flat, numbered sequence (the course IS the order). */}
-      <nav aria-label="Daftar materi">
+      <nav aria-label="Daftar materi" tabIndex={0} className="relative min-h-0 max-h-[55dvh] overflow-y-auto overscroll-contain pr-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring @3xl:max-h-none @3xl:flex-1">
         <ol className="divide-y divide-border border-y border-border">
           {steps.map((l, index) => {
             const current = l.id === currentLessonId;
@@ -156,7 +152,7 @@ export function CourseNav({
             return (
               <li key={l.id}>
                 {l.status === "locked" ? (
-                  <span className="flex min-h-9 items-center gap-2 px-2 py-1.5 opacity-70">
+                  <span className="flex min-h-11 items-center gap-2 px-2 py-1.5 opacity-70">
                     {row}
                   </span>
                 ) : (
@@ -164,7 +160,7 @@ export function CourseNav({
                     href={lessonHref(l.id)}
                     aria-current={current ? "page" : undefined}
                     className={cn(
-                      "flex min-h-9 items-center gap-2 px-2 py-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+                      "flex min-h-11 items-center gap-2 px-2 py-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
                       current ? "bg-primary/10" : "hover:bg-accent/60",
                     )}
                   >

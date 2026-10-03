@@ -23,7 +23,6 @@ import type { Id } from "@convex/_generated/dataModel";
 import { JoinButton, useMyMembership } from "@/features/tenants";
 import { Skeleton } from "@/components/ui/skeleton";
 import { communityHref } from "@/lib/community";
-import { SidebarMenuButton } from "./sidebar-menu";
 
 /** `bar` = the phone top bar (exactly one 44px control).
  *  `rail` = the sidebar's community block (full width, or nothing). */
@@ -44,7 +43,7 @@ function BarIconLink({
       aria-label={label}
       // size-11 = 44px square. Quiet on purpose: chrome recedes, the content
       // is the interface.
-      className="pixel-press inline-flex size-11 shrink-0 items-center justify-center text-muted-foreground hover:text-foreground"
+      className="pixel-press inline-flex size-11 shrink-0 items-center justify-center text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
     >
       <Icon className="size-5" aria-hidden />
     </Link>
@@ -55,12 +54,10 @@ export function ShellAction({
   tenantId,
   slug,
   variant,
-  onNavigate,
 }: {
   tenantId: Id<"tenants">;
   slug: string;
   variant: ShellActionVariant;
-  onNavigate?: () => void;
 }) {
   const { membership, isAuthenticated, isAuthLoading } = useMyMembership(tenantId);
   const isBar = variant === "bar";

@@ -30,7 +30,12 @@ export type LessonCommentsProps = CommentsTarget & {
   className?: string;
 };
 
-export function LessonComments({
+export function LessonComments(props: LessonCommentsProps) {
+  // Target navigation discards drafts, reply forms, pending state and delete confirmations.
+  return <CommentsSession key={props.postId ? `post:${props.postId}` : `lesson:${props.lessonId}`} {...props} />;
+}
+
+function CommentsSession({
   lessonId,
   postId,
   copy: copyOverride,
@@ -51,10 +56,10 @@ export function LessonComments({
   const target: CommentsTarget = postId ? { postId } : { lessonId: lessonId as Id<"lessons"> };
 
   return (
-    <section className={className ? `space-y-5 ${className}` : "space-y-5"}>
+    <section className={className ? `min-w-0 space-y-5 ${className}` : "min-w-0 space-y-5"}>
       <div className="space-y-1">
         <h2 className="text-lg font-semibold">{copy.sectionTitle}</h2>
-        <p className="text-sm text-muted-foreground">{copy.sectionSubtitle}</p>
+        <p className="text-sm text-muted-foreground">{copyOverride?.sectionSubtitle ?? (postId ? copy.postSectionSubtitle : copy.sectionSubtitle)}</p>
       </div>
 
       <CommentForm
@@ -63,13 +68,20 @@ export function LessonComments({
         copy={copy}
       />
 
+      <div
+        role="region"
+        aria-label={copy.threadRegion}
+        aria-busy={threads === undefined}
+        tabIndex={threads && threads.length > 0 ? 0 : undefined}
+        className="max-h-[min(32rem,60dvh)] min-w-0 overflow-y-auto overscroll-contain pr-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+      >
       {threads === undefined ? (
         <div className="space-y-3" aria-busy>
           <Skeleton className="h-20 w-full rounded-[var(--radius)]" />
           <Skeleton className="h-20 w-full rounded-[var(--radius)]" />
         </div>
       ) : threads.length === 0 ? (
-        <CommentsEmptyState title={copy.emptyTitle} hint={copy.emptyHint} />
+        <CommentsEmptyState title={copyOverride?.emptyTitle ?? (postId ? copy.emptyPostTitle : copy.emptyTitle)} hint={copy.emptyHint} />
       ) : (
         <ul className="space-y-3">
           {threads.map((thread) => (
@@ -85,6 +97,7 @@ export function LessonComments({
           ))}
         </ul>
       )}
+      </div>
 
       <DeleteCommentDialog
         open={deleteTarget !== null}
@@ -92,7 +105,7 @@ export function LessonComments({
           if (!open) setDeleteTarget(null);
         }}
         onConfirm={async () => {
-          if (deleteTarget !== null) await softDelete(deleteTarget);
+          return deleteTarget !== null && await softDelete(deleteTarget);
         }}
         pending={deleting}
         copy={copy}

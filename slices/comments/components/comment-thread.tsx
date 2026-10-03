@@ -31,7 +31,7 @@ export function CommentThread({
   const { root, replies } = thread;
 
   return (
-    <li className="space-y-3 rounded-[var(--radius)] border border-border bg-card p-4">
+    <li className="min-w-0 space-y-3 rounded-[var(--radius)] border border-border bg-card p-4">
       <CommentItem
         item={root}
         canDelete={!root.deleted && (root.mine || canModerate)}
@@ -43,7 +43,9 @@ export function CommentThread({
               type="button"
               variant="ghost"
               size="sm"
-              className="h-7 px-2 text-xs text-muted-foreground"
+              className="min-h-11 px-2 text-xs text-muted-foreground"
+              disabled={replying}
+              aria-expanded={replyOpen}
               onClick={() => setReplyOpen((v) => !v)}
             >
               <MessageSquare className="size-3.5" aria-hidden />
@@ -53,7 +55,7 @@ export function CommentThread({
         }
       />
 
-      {(replies.length > 0 || replyOpen) && (
+      {(replies.length > 0 || (replyOpen && !root.deleted)) && (
         <div className="space-y-3 border-l border-border pl-4">
           {replies.map((reply) => (
             <CommentItem
@@ -64,7 +66,7 @@ export function CommentThread({
               copy={copy}
             />
           ))}
-          {replyOpen && (
+          {replyOpen && !root.deleted && (
             <CommentForm
               onSubmit={(bodyMd) => onReply(root._id, bodyMd)}
               submitting={replying}

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { cache, Suspense } from "react";
 import Link from "next/link";
 import { api } from "@convex/_generated/api";
-import { CertificateView } from "@/features/profiles";
+import { CertificateView, formatEarnedDate } from "@/features/profiles";
 import { TombolBagikan } from "@/components/tombol-bagikan";
 import { Skeleton } from "@/components/ui/skeleton";
 import { absoluteUrl, safeQuery } from "@/lib/convex-server";
@@ -49,15 +49,12 @@ export async function generateMetadata({
 
 /** Server block: the certificate as real HTML, so a crawler and the first paint
  * both get text. The interactive client view hydrates below it. */
-async function CertificateHeading({ completionId }: { completionId: string }) {
+async function CertificateSurface({ completionId }: { completionId: string }) {
  const cert = await getCertificate(completionId);
- if (cert === null) return null;
- const earned = new Date(cert.earnedAt).toLocaleDateString("id-ID", {
- day: "numeric",
- month: "long",
- year: "numeric",
-  });
+ if (cert === null) return <CertificateView completionId={completionId} shareUrl={absoluteUrl(certificatePath(completionId))} />;
+ const earned = formatEarnedDate(cert.earnedAt);
  return (
+    <>
     <header className="mb-6 space-y-2 text-center">
       <p className="eyebrow">Sertifikat penyelesaian</p>
       <h1 className="text-balance font-display text-lg @sm:text-xl">{cert.courseTitle}</h1>
@@ -76,24 +73,20 @@ async function CertificateHeading({ completionId }: { completionId: string }) {
         />
       </div>
     </header>
+    <CertificateView completionId={completionId} shareUrl={absoluteUrl(certificatePath(completionId))} hasServerHeading />
+    </>
   );
 }
 
 export default async function SertifikatPage({ params }: { params: Promise<Params> }) {
  const { completionId } = await params;
  return (
-    <main className="mx-auto w-full max-w-2xl px-6 py-12">
+    <div className="mx-auto w-full max-w-2xl">
       {/* Own boundary: the awaited read is dynamic, and without one it would
  suspend to whatever ancestor boundary exists. */}
       <Suspense fallback={<Skeleton className="mb-6 h-28 w-full " />}>
-        <CertificateHeading completionId={completionId} />
+        <CertificateSurface completionId={completionId} />
       </Suspense>
-      {/* Client view owns the live/not-found states and retries over the socket
- if the server read failed. */}
-      <CertificateView
- completionId={completionId}
- shareUrl={absoluteUrl(certificatePath(completionId))}
-      />
-    </main>
+    </div>
   );
 }

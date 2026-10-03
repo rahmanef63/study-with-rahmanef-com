@@ -23,7 +23,6 @@ const required = [
   "convex/settings.ts",
   "convex/setup.ts",
   "scripts/setup-auth.mjs",
-  "lib/headless-core/version.ts",
 ];
 for (const f of required) { if (existsSync(f)) ok(f); else bad(`missing ${f}`); }
 

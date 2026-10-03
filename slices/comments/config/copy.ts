@@ -4,7 +4,9 @@
 export const COMMENTS_COPY = {
   // ── section ──
   sectionTitle: "Diskusi",
-  sectionSubtitle: "Tanya, jawab, dan berbagi catatan tentang lesson ini",
+  sectionSubtitle: "Tanya, jawab, dan berbagi catatan tentang materi ini",
+  postSectionSubtitle: "Ikut menjawab atau tambahkan catatanmu di post ini",
+  threadRegion: "Komentar dan balasan",
 
   // ── form ──
   fieldBody: "Komentar",
@@ -19,7 +21,8 @@ export const COMMENTS_COPY = {
   replies: "balasan",
   deletedPlaceholder: "Komentar ini sudah dihapus",
   anonymousAuthor: "Anggota",
-  emptyTitle: "Belum ada diskusi di lesson ini",
+  emptyTitle: "Belum ada diskusi di materi ini",
+  emptyPostTitle: "Belum ada balasan di post ini",
   emptyHint: "Jadilah yang pertama bertanya atau berbagi catatan",
 
   // ── delete ──

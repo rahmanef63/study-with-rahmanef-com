@@ -109,6 +109,7 @@ Quality gate: `audit-bp` score ≥80 to ship (pulls latest Next 16 / React 19 / 
 
 ## Verification and release notes
 
+- Lesson reader acceptance must include long signed-in presentation at desktop/mobile widths: the desktop reading pane and syllabus have independent bounded scroll, narrow screens keep document reading, and comments keep the composer outside their bounded thread. One route owns the header return link. Verify sticky controls clear the mobile dock and that loading/truncated progress never claims exact counts. A disconnected local fixture proves presentation only, not OAuth or production authorization.
 - Changes to lesson publication or placement must keep `courseLessons.lessonPublished` in sync in the same transaction. Legacy rows require the resumable backfill and independent zero-mismatch verification described in DATA-MODEL and DEPLOY. Never mint badges from truncated progress.
 - `/api/health` checks frontend readiness without calling Convex. `/api/version.id` uses the persisted deployment ID, because Next may reuse BUILD_ID when deploymentId is configured. Pass APP_REVISION for source provenance; do not confuse a successful source build with a live release.
 - Record deployment ownership, actual revision, rollback image and browser acceptance in dated project reports. Credentials and auth state never belong in those reports.

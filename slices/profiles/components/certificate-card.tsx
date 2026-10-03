@@ -8,6 +8,7 @@ import { useState } from "react";
 import { Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { formatEarnedDate } from "../lib/earned-date";
 import { cn } from "@/lib/utils";
 import { DEFAULT_CERTIFICATE_LABELS } from "../config/certificate-labels";
 import type { Certificate, CertificateLabels } from "../types";
@@ -20,27 +21,22 @@ export type CertificateCardProps = {
    * absolute URL when mounting /sertifikat/<completionId>).
    */
   shareUrl?: string;
+  /** Host already renders the page title and primary share action. */
+  hasServerHeading?: boolean;
   labels?: Partial<CertificateLabels>;
   className?: string;
 };
 
-/** Epoch ms → long Bahasa Indonesia date (e.g. "6 Juli 2026"). */
-function formatEarned(earnedAt: number): string {
-  return new Date(earnedAt).toLocaleDateString("id-ID", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-}
-
 export function CertificateCard({
   certificate,
   shareUrl,
+  hasServerHeading = false,
   labels,
   className,
 }: CertificateCardProps) {
   const copy = { ...DEFAULT_CERTIFICATE_LABELS, ...labels };
   const [copied, setCopied] = useState(false);
+  const Heading = hasServerHeading ? "h2" : "h1";
 
   const onCopy = async () => {
     if (!shareUrl) return;
@@ -74,9 +70,9 @@ export function CertificateCard({
             <Award className="size-7" />
           </span>
           <p className="eyebrow">{copy.eyebrow}</p>
-          <h1 className="font-display text-base text-foreground @sm:text-lg">
+          <Heading className="font-display text-base text-foreground @sm:text-lg">
             {copy.heading}
-          </h1>
+          </Heading>
         </div>
 
         <Separator className="mx-auto my-6 max-w-40" />
@@ -100,11 +96,11 @@ export function CertificateCard({
 
         {/* Earned date — quiet, letterpress-style closing line */}
         <p className="mt-7 text-xs uppercase tracking-[0.14em] text-muted-foreground">
-          {copy.earnedPrefix} {formatEarned(certificate.earnedAt)}
+          {copy.earnedPrefix} {formatEarnedDate(certificate.earnedAt)}
         </p>
       </article>
 
-      {shareUrl ? (
+      {shareUrl && !hasServerHeading ? (
         <div aria-live="polite" className="flex justify-center">
           <Button
             type="button"

@@ -8,10 +8,11 @@ import { PublicProfileView } from "@/features/profiles";
 import { communityHref } from "@/lib/community";
 import { absoluteUrl } from "@/lib/site";
 
-export function ProfilView({ username }: { username: string }) {
+export function ProfilView({ username, hasServerHeading = false }: { username: string; hasServerHeading?: boolean }) {
   return (
     <PublicProfileView
       username={username}
+      hasServerHeading={hasServerHeading}
       shareUrl={absoluteUrl(communityHref.profile(username))}
       certificateHref={(completionId) => `/sertifikat/${completionId}`}
     />

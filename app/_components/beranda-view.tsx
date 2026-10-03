@@ -25,7 +25,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { communityHref } from "@/lib/community";
-import { CARD, CourseRow, Section, Stat, TILE } from "./beranda-parts";
+import { CARD, CourseRow, Section, Stat } from "./beranda-parts";
 
 export function BerandaView() {
   // `getMine` is `requireUser` on its first line, so an anonymous caller gets a

@@ -47,6 +47,7 @@ export {
 } from "./hooks/use-profile-mutations";
 
 export { profilesFeature } from "./config";
+export { formatEarnedDate } from "./lib/earned-date";
 export { DEFAULT_PROFILE_LABELS } from "./config/labels";
 export { DEFAULT_PUBLIC_PROFILE_LABELS } from "./config/public-labels";
 export { DEFAULT_CERTIFICATE_LABELS } from "./config/certificate-labels";

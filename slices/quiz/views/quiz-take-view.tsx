@@ -160,7 +160,7 @@ function QuizSession({ quizId, copy: copyOverride, className }: QuizTakeViewProp
           ))}
         </section>
 
-        <div className="sticky bottom-3 z-10 flex flex-col gap-3 rounded-[var(--radius)] border border-border bg-background p-3 supports-[padding:max(0px)]:pb-[max(0.75rem,env(safe-area-inset-bottom))] @sm:flex-row @sm:items-center">
+        <div className="sticky bottom-[calc(3.75rem+var(--safe-b)+0.75rem)] z-10 flex flex-col gap-3 rounded-[var(--radius)] border border-border bg-background p-3 md:bottom-3 @sm:flex-row @sm:items-center">
           <div className="min-w-0 text-xs text-muted-foreground @sm:mr-auto">
             <span className="font-medium tabular-nums text-foreground">
               {answeredCount}/{quiz.questions.length}

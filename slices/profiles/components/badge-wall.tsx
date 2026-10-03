@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Award, CalendarCheck, Users } from "lucide-react";
 import { Empty, EmptyArt, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { SectionHeader, StatTile, Badge as CountBadge } from "@/components/mockup-kit";
+import { formatEarnedDate } from "../lib/earned-date";
 import { cn } from "@/lib/utils";
 import { DEFAULT_PUBLIC_PROFILE_LABELS } from "../config/public-labels";
 import type { Badge, PublicProfileLabels } from "../types";
@@ -22,15 +23,6 @@ export type BadgeWallProps = {
   labels?: Partial<PublicProfileLabels>;
   className?: string;
 };
-
-/** Epoch ms → short Bahasa Indonesia date (e.g. "6 Jul 2026"). */
-function formatEarned(earnedAt: number): string {
-  return new Date(earnedAt).toLocaleDateString("id-ID", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
 
 export function BadgeWall({ badges, certificateHref, labels, className }: BadgeWallProps) {
   const copy = { ...DEFAULT_PUBLIC_PROFILE_LABELS, ...labels };
@@ -75,7 +67,7 @@ export function BadgeWall({ badges, certificateHref, labels, className }: BadgeW
               <StatTile
                 icon={<CalendarCheck className="size-5" />}
                 label="Terbaru"
-                value={formatEarned(latest.earnedAt)}
+                value={formatEarnedDate(latest.earnedAt, "short")}
                 hint={latest.courseTitle}
               />
             ) : null}
@@ -100,7 +92,7 @@ export function BadgeWall({ badges, certificateHref, labels, className }: BadgeW
                     @{badge.tenantSlug}
                   </span>
                   <span className="text-[0.7rem] leading-tight text-muted-foreground">
-                    {copy.badgeEarnedPrefix} {formatEarned(badge.earnedAt)}
+                    {copy.badgeEarnedPrefix} {formatEarnedDate(badge.earnedAt, "short")}
                   </span>
                 </>
               );

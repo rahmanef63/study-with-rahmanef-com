@@ -1,6 +1,7 @@
-import { readdirSync, statSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "vitest";
+import ts from "typescript";
 
 // Every route gets the dashboard rail unless it is on the list below.
 //
@@ -57,4 +58,23 @@ test("the bare list stays short and every entry carries its reason", () => {
   // so the list growing quietly is the failure mode.
   expect(BARE.size).toBeLessThanOrEqual(3);
   for (const [route, why] of BARE) expect(why.length, route).toBeGreaterThan(20);
+});
+
+test("shelled routes do not introduce a second main landmark", () => {
+  function nestedMain(dir: string): string[] {
+    return readdirSync(dir).flatMap((entry) => {
+      const full = join(dir, entry);
+      if (statSync(full).isDirectory()) return entry === "__tests__" ? [] : nestedMain(full);
+      if (entry !== "page.tsx") return [];
+      const source = ts.createSourceFile(full, readFileSync(full, "utf8"), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+      let hasMain = false;
+      function visit(node: ts.Node) {
+        if ((ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) && node.tagName.getText(source) === "main") hasMain = true;
+        ts.forEachChild(node, visit);
+      }
+      visit(source);
+      return hasMain ? [full] : [];
+    });
+  }
+  expect([...nestedMain("app/(shell)"), ...nestedMain("app/k")]).toEqual([]);
 });

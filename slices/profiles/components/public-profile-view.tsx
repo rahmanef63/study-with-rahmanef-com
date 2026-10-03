@@ -22,6 +22,8 @@ export type PublicProfileViewProps = {
    * passes its own absolute URL when mounting the route).
    */
   shareUrl?: string;
+  /** Host already renders the profile title, bio and share action. */
+  hasServerHeading?: boolean;
   /**
    * Builds the certificate href per badge (STATUS #24), e.g.
    * `(id) => `/sertifikat/${id}``. Omitted → badge tiles stay non-interactive.
@@ -34,6 +36,7 @@ export type PublicProfileViewProps = {
 export function PublicProfileView({
   username,
   shareUrl,
+  hasServerHeading,
   certificateHref,
   labels,
   className,
@@ -49,6 +52,7 @@ export function PublicProfileView({
         <PublicProfileContent
           username={username}
           shareUrl={shareUrl}
+          hasServerHeading={hasServerHeading}
           certificateHref={certificateHref}
           labels={labels}
         />
@@ -60,15 +64,16 @@ export function PublicProfileView({
 type ContentProps = {
   username: string;
   shareUrl?: string;
+  hasServerHeading?: boolean;
   certificateHref?: (completionId: string) => string;
   labels?: Partial<PublicProfileLabels>;
 };
 
-function PublicProfileContent({ username, shareUrl, certificateHref, labels }: ContentProps) {
+function PublicProfileContent({ username, shareUrl, hasServerHeading, certificateHref, labels }: ContentProps) {
   const { profile, badges, isLoading } = usePublicProfile(username);
   // Signed-out viewers skip the query (hook returns null) → isOwner stays false.
   const { profile: currentProfile } = useCurrentProfile();
-  if (isLoading) return <ProfileSkeleton />;
+  if (isLoading) return <ProfileSkeleton hasServerHeading={hasServerHeading} />;
   if (!profile) return null; // unreachable: an unknown handle throws → boundary
   const isOwner = currentProfile?.username === profile.username;
   return (
@@ -76,6 +81,7 @@ function PublicProfileContent({ username, shareUrl, certificateHref, labels }: C
       profile={profile}
       badges={badges}
       shareValue={shareUrl ?? `@${profile.username}`}
+      hasServerHeading={hasServerHeading}
       editHref={isOwner ? "/pengaturan" : undefined}
       certificateHref={certificateHref}
       labels={labels}
@@ -83,20 +89,22 @@ function PublicProfileContent({ username, shareUrl, certificateHref, labels }: C
   );
 }
 
-function ProfileSkeleton() {
+function ProfileSkeleton({ hasServerHeading }: { hasServerHeading?: boolean }) {
   return (
     <div className="flex w-full flex-col gap-10 @sm:gap-12" aria-busy="true">
-      <div className="rounded-[var(--radius)] bg-gradient-to-b from-primary/[0.08] to-transparent to-90% px-5 py-8 @md:px-8 @md:py-10 dark:from-primary/[0.14]">
+      <div>
         <div className="flex flex-col gap-3 @sm:flex-row @sm:items-center @sm:gap-5">
           <Skeleton className="size-24 shrink-0" />
-          <div className="flex w-full min-w-0 flex-col gap-2">
+          {!hasServerHeading ? <div className="flex w-full min-w-0 flex-col gap-2">
             <Skeleton className="h-3 w-20" />
             <Skeleton className="h-9 w-52 max-w-full" />
             <Skeleton className="h-4 w-28" />
-          </div>
+          </div> : null}
         </div>
-        <Skeleton className="mt-5 h-4 w-full max-w-md" />
-        <Skeleton className="mt-5 h-11 w-40 rounded-md" />
+        {!hasServerHeading ? <>
+          <Skeleton className="mt-5 h-4 w-full max-w-md" />
+          <Skeleton className="mt-5 h-11 w-40 rounded-md" />
+        </> : null}
       </div>
       <div className="grid grid-cols-2 gap-3 @sm:grid-cols-3 @lg:grid-cols-4 @2xl:grid-cols-5 @4xl:grid-cols-6">
         <Skeleton className="h-28 w-full" />

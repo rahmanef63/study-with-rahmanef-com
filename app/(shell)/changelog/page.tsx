@@ -72,7 +72,7 @@ function Entry({ e }: { e: ChangelogEntry }) {
 
 export default function ChangelogPage() {
   return (
-    <main className="@container mx-auto w-full max-w-3xl px-6 py-12">
+    <div className="@container mx-auto w-full max-w-3xl">
       <header className="mb-10 space-y-2">
         {/* eslint-disable-next-line @next/next/no-img-element -- committed static asset. */}
         <img
@@ -93,6 +93,6 @@ export default function ChangelogPage() {
           <Entry key={e.date + e.title} e={e} />
         ))}
       </div>
-    </main>
+    </div>
   );
 }

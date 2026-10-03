@@ -2,7 +2,7 @@
 // comments slice — write hooks (rr "Error handling": catch here, map
 // ConvexError.code → copy, toast via sonner).
 import { useMutation } from "convex/react";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
@@ -26,9 +26,12 @@ export function useAddComment(copyOverride?: CommentsCopyOverride) {
   const copy = mergeCommentsCopy(copyOverride);
   const addRaw = useMutation(api.features.comments.comments.addComment);
   const [isPending, setIsPending] = useState(false);
+  const pending = useRef(false);
 
   const add = useCallback(
     async (input: AddCommentInput): Promise<boolean> => {
+      if (pending.current) return false;
+      pending.current = true;
       setIsPending(true);
       try {
         await addRaw(input);
@@ -38,6 +41,7 @@ export function useAddComment(copyOverride?: CommentsCopyOverride) {
         toast.error(commentsErrorMessage(error, copy));
         return false;
       } finally {
+        pending.current = false;
         setIsPending(false);
       }
     },
@@ -51,9 +55,12 @@ export function useDeleteComment(copyOverride?: CommentsCopyOverride) {
   const copy = mergeCommentsCopy(copyOverride);
   const deleteRaw = useMutation(api.features.comments.comments.softDelete);
   const [isPending, setIsPending] = useState(false);
+  const pending = useRef(false);
 
   const softDelete = useCallback(
     async (commentId: Id<"comments">): Promise<boolean> => {
+      if (pending.current) return false;
+      pending.current = true;
       setIsPending(true);
       try {
         await deleteRaw({ commentId });
@@ -63,6 +70,7 @@ export function useDeleteComment(copyOverride?: CommentsCopyOverride) {
         toast.error(commentsErrorMessage(error, copy));
         return false;
       } finally {
+        pending.current = false;
         setIsPending(false);
       }
     },
