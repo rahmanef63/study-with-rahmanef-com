@@ -12,6 +12,12 @@ export const DEFAULT_COMMUNITY_SLUG =
 const enc = encodeURIComponent;
 
 export const communityHref = {
+  admin: () => "/admin",
+  adminAnalytics: () => "/admin/statistik",
+  adminTraffic: () => "/admin/pengunjung",
+  adminCommunities: () => "/admin/komunitas",
+  mcp: () => "/pengaturan/mcp",
+  adminMcp: () => "/admin/mcp",
   /** Kelas — the default tab. */
   home: (slug: string) => `/k/${enc(slug)}`,
   course: (slug: string, courseSlug: string) => `/k/${enc(slug)}/kelas/${enc(courseSlug)}`,

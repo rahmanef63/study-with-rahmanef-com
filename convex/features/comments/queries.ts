@@ -45,9 +45,7 @@ async function joinAuthors(
  * (asserted in queries.test.ts). `canModerate` = viewer is instructor+ (UX
  * hint; softDelete re-checks server-side).
  */
-export const listByLesson = query({
-  args: { lessonId: v.id("lessons") },
-  handler: async (ctx, args): Promise<LessonCommentsResult> => {
+export const listByLessonHandler = async (ctx: QueryCtx, args: {lessonId: Id<"lessons">}): Promise<LessonCommentsResult> => {
     const { userId, membership } = await requireMemberForLesson(ctx, args.lessonId);
     const rows = await ctx.db
       .query("comments")
@@ -59,7 +57,11 @@ export const listByLesson = query({
       canModerate: membership.role !== "member",
       items: rows.map((c) => toCommentItem(c, authors.get(c.userId) ?? null, userId)),
     };
-  },
+  };
+
+export const listByLesson = query({
+  args: { lessonId: v.id("lessons") },
+  handler: listByLessonHandler,
 });
 
 /**
@@ -69,9 +71,7 @@ export const listByLesson = query({
  * readable via posts.publicGetPost, its replies are not — that is the
  * membership incentive, and it keeps a logged-out crawler off user comments.
  */
-export const listByPost = query({
-  args: { postId: v.id("posts") },
-  handler: async (ctx, args): Promise<LessonCommentsResult> => {
+export const listByPostHandler = async (ctx: QueryCtx, args: {postId: Id<"posts">}): Promise<LessonCommentsResult> => {
     const { userId, membership } = await requireMemberForPost(ctx, args.postId);
     const rows = await ctx.db
       .query("comments")
@@ -83,5 +83,9 @@ export const listByPost = query({
       canModerate: membership.role !== "member",
       items: rows.map((c) => toCommentItem(c, authors.get(c.userId) ?? null, userId)),
     };
-  },
+  };
+
+export const listByPost = query({
+  args: { postId: v.id("posts") },
+  handler: listByPostHandler,
 });

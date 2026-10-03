@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { communityHref } from "@/lib/community";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { ProfileSettingsView } from "@/features/profiles";
@@ -61,6 +63,9 @@ export default function PengaturanPage() {
       >
         {/* Owns its own signed-out card (a real /masuk link), so no gate here. */}
         <ProfileSettingsView />
+      </Section>
+      <Section title="MCP user" blurb="Akses materi dan progress dari asisten sesuai izin akun.">
+        <Link href={communityHref.mcp()} className="inline-flex min-h-11 items-center text-primary underline">Kelola koneksi MCP →</Link>
       </Section>
     </div>
   );

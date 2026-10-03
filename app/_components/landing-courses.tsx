@@ -44,6 +44,7 @@ export async function LandingCourses() {
           <li key={course._id}>
             <Link
               href={communityHref.course(DEFAULT_COMMUNITY_SLUG, course.slug)}
+              data-study-cta="view-course"
               className="group flex h-full flex-col rounded-[var(--radius)] border border-border bg-card transition-colors hover:border-primary"
             >
               {/* The procedural cover: a different one per course, derived from

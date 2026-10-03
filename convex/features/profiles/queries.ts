@@ -1,3 +1,4 @@
+import type { QueryCtx } from "../../_generated/server";
 // profiles — public queries (v1 minimal scope, docs/AGENT-PROMPTS.md #4).
 // P0 contract: v.* validators on args + authz helper as the FIRST line of
 // every handler (docs/rr-conventions.md "server-side authz").
@@ -13,15 +14,17 @@ import type { UsernameCheck } from "./types";
  * isPlatformAdmin is the caller's own flag (used to gate /admin nav), not a
  * secret from its owner. No public-profile query in v1 — that is row #9.
  */
-export const getCurrentProfile = query({
-  args: {},
-  handler: async (ctx) => {
+export const getCurrentProfileHandler = async (ctx: QueryCtx) => {
     const userId = await requireUser(ctx);
     return await ctx.db
       .query("profiles")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .unique();
-  },
+  };
+
+export const getCurrentProfile = query({
+  args: {},
+  handler: getCurrentProfileHandler,
 });
 
 /**

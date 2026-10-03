@@ -1,23 +1,40 @@
 {
   "$schema": "https://resource.rahmanef.com/slice-schema.json",
   "slug": "analytics",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "category": "lms",
   "kind": "fullstack",
-  "title": "Analytics — agregat instruktur per kelas",
-  "description": "Instructor+ analytics for belajar-with-rahmanef.com: per-materi completion counts, course-completion (badge) count, tenant member count, quiz attempt/pass stats per course, and — 0.3.0 — READER counts: the per-course drop-off funnel and the community's weekly pulse. Aggregates are derived on read over shared tables with documented bounded takes (no bare .collect(), P1) and carry no user identifiers. ONE write: MateriViewRecorder → insight/views:recordView, member-only and idempotent per member per materi per WIB day. EVERY reader number counts LOGGED-IN MEMBERS ONLY — anonymous reads are invisible — and MembersOnlyNote ships that caveat with the numbers. No routes: the Kelola › Statistik tab mounts TenantPulseView + CourseAnalyticsView (which leads with CourseFunnelView). 0.2.0: module grouping dropped (DECISIONS #37).",
+  "title": "Analytics \u2014 instructor and platform learning aggregates",
+  "description": "Instructor+ analytics for belajar-with-rahmanef.com: per-materi completion counts, course-completion (badge) count, tenant member count, quiz attempt/pass stats per course, and \u2014 0.3.0 \u2014 READER counts: the per-course drop-off funnel and the community's weekly pulse. Aggregates are derived on read over shared tables with documented bounded takes (no bare .collect(), P1) and carry no user identifiers. ONE write: MateriViewRecorder \u2192 insight/views:recordView, member-only and idempotent per member per materi per WIB day. EVERY reader number counts LOGGED-IN MEMBERS ONLY \u2014 anonymous reads are invisible \u2014 and MembersOnlyNote ships that caveat with the numbers. No routes: the Kelola \u203a Statistik tab mounts TenantPulseView + CourseAnalyticsView (which leads with CourseFunnelView). 0.2.0: module grouping dropped (DECISIONS #37). 0.4.0: admin-only platform inventory, selected-period activity, WIB daily trends and filterable/exportable community/course/materi/quiz tables. Count exactness and bounded-source completeness ship alongside data; no anonymous website traffic. First-party visitor analytics is a separate admin view with 7/30-day page-view/session/CTA trends, acquisition/device rankings and masked sessions; local approximate country/city GeoIP with honest unknowns and source attribution, no historical reconstruction.",
   "namespace": "@/features/analytics",
   "convex": {
     "tablesExport": "",
     "schemaPath": "convex/schema.ts",
-    "rootPaths": ["convex/features/analytics", "convex/features/insight"]
+    "rootPaths": [
+      "convex/features/analytics",
+      "convex/features/insight",
+      "convex/features/traffic"
+    ]
   },
-  "frontend": { "slicePath": "slices/analytics", "configExport": "analyticsFeature" },
+  "frontend": {
+    "slicePath": "slices/analytics",
+    "configExport": "analyticsFeature"
+  },
   "deps": {
-    "npm": ["recharts"],
-    "shadcn": ["card", "skeleton"],
+    "npm": [
+      "recharts"
+    ],
+    "shadcn": [
+      "card",
+      "skeleton",
+      "button",
+      "input"
+    ],
     "env": [],
-    "peers": ["progress", "tenants"]
+    "peers": [
+      "progress",
+      "tenants"
+    ]
   },
   "contract": {
     "barrel": {
@@ -28,25 +45,52 @@
         "FunnelStepList",
         "PulseMateriList",
         "MembersOnlyNote",
-        "MateriViewRecorder"
+        "MateriViewRecorder",
+        "PlatformAnalyticsDashboard",
+        "PlatformTrafficDashboard"
       ],
-      "views": ["CourseAnalyticsView", "CourseFunnelView", "TenantPulseView"],
-      "hooks": ["useCourseAnalytics", "useCourseSummaries", "useCourseFunnel", "useTenantPulse"],
+      "views": [
+        "CourseAnalyticsView",
+        "CourseFunnelView",
+        "TenantPulseView",
+        "PlatformAnalyticsView",
+        "PlatformTrafficView"
+      ],
+      "hooks": [
+        "useCourseAnalytics",
+        "useCourseSummaries",
+        "useCourseFunnel",
+        "useTenantPulse",
+        "usePlatformAnalytics",
+        "usePlatformTraffic"
+      ],
       "lib": [
         "analyticsErrorMessage",
         "extractAnalyticsError",
         "biggestDrop",
         "lostBefore",
-        "funnelEnds"
+        "funnelEnds",
+        "aggregateCsv",
+        "platformNumber",
+        "platformPercent",
+        "platformDate"
       ],
       "consumerSeams": {
-        "kelola › statistik tab (alpha #17)": [
-          "TenantPulseView(tenantId) ← denyut komunitas di atas daftar kelas",
-          "CourseAnalyticsView ← courseId dari daftar kelas di tab Statistik",
-          "useCourseSummaries(tenantId) ← angka {completionCount, memberCount} di daftar kelas kelola"
+        "kelola \u203a statistik tab (alpha #17)": [
+          "TenantPulseView(tenantId) \u2190 denyut komunitas di atas daftar kelas",
+          "CourseAnalyticsView \u2190 courseId dari daftar kelas di tab Statistik",
+          "useCourseSummaries(tenantId) \u2190 angka {completionCount, memberCount} di daftar kelas kelola"
         ],
         "reading surfaces (materi permalink, skill permalink, in-course reader)": [
-          "MateriViewRecorder(tenantId, lessonId) ← renders null; fires recordView once per mount for members only"
+          "MateriViewRecorder(tenantId, lessonId) \u2190 renders null; fires recordView once per mount for members only"
+        ],
+        "admin analytics route": [
+          "PlatformAnalyticsView(enabled=true only after current-profile platform-admin gate)",
+          "PlatformAnalyticsDashboard(data,days,onDaysChange,copy?) \u2190 portable presentation; one host-owned page title"
+        ],
+        "admin visitor route": [
+          "PlatformTrafficView(enabled=true only after current-profile platform-admin gate)",
+          "PlatformTrafficDashboard(data,days,onDaysChange,copy?) \u2190 isolated traffic presentation"
         ]
       }
     },
@@ -57,11 +101,25 @@
         "features/insight/funnel:courseFunnel",
         "features/insight/pulse:tenantPulse"
       ],
-      "member": ["features/insight/views:recordView"]
+      "member": [
+        "features/insight/views:recordView"
+      ],
+      "platformAdmin": [
+        "features/analytics/platform:getPlatformAnalytics",
+        "features/traffic/queries:getTrafficAnalytics"
+      ]
     }
   },
   "registers": [],
   "license": "MIT",
-  "tags": ["lms", "analytics", "instructor", "aggregates", "multi-tenant", "funnel", "drop-off"],
+  "tags": [
+    "lms",
+    "analytics",
+    "instructor",
+    "aggregates",
+    "multi-tenant",
+    "funnel",
+    "drop-off"
+  ],
   "providers": []
 }

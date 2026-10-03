@@ -1,3 +1,4 @@
+import type { QueryCtx } from "../../_generated/server";
 // courses feature — member/public read surface, on the MATERI model.
 // A course is an ordered list of placements (`courseLessons`), not a tree; the
 // materi visibility rule lives in ./access.ts and is quoted there in full.
@@ -32,9 +33,7 @@ function toCourseCard(course: Doc<"courses">) {
  * No auth by design (public read per access table); drafts/archived are
  * structurally excluded by the by_tenant_status index.
  */
-export const listPublished = query({
-  args: { tenantId: v.id("tenants") },
-  handler: async (ctx, args) => {
+export const listPublishedHandler = async (ctx: QueryCtx, args: {tenantId: Id<"tenants">}) => {
     // tenantId arrives from the client — a suspended/pending community must not
     // keep serving its catalog to anyone who kept the id.
     await requireActiveTenantById(ctx, args.tenantId);
@@ -45,7 +44,11 @@ export const listPublished = query({
       )
       .take(LIST_TAKE);
     return courses.map(toCourseCard);
-  },
+  };
+
+export const listPublished = query({
+  args: { tenantId: v.id("tenants") },
+  handler: listPublishedHandler,
 });
 
 /**
@@ -56,9 +59,7 @@ export const listPublished = query({
  * youtubeVideoId and links never leave via this query; draft materi are
  * filtered out for everyone below instructor.
  */
-export const getOverview = query({
-  args: { tenantId: v.id("tenants"), courseSlug: v.string() },
-  handler: async (ctx, args) => {
+export const getOverviewHandler = async (ctx: QueryCtx, args: {tenantId: Id<"tenants">; courseSlug: string}) => {
     await requireActiveTenantById(ctx, args.tenantId); // suspended/pending → NOT_FOUND
     const viewerRole = await getViewerRole(ctx, args.tenantId); // visibility gate
     const course = await ctx.db
@@ -99,7 +100,11 @@ export const getOverview = query({
       lessonCount: lessons.length,
       viewerRole,
     };
-  },
+  };
+
+export const getOverview = query({
+  args: { tenantId: v.id("tenants"), courseSlug: v.string() },
+  handler: getOverviewHandler,
 });
 
 /**
@@ -115,9 +120,7 @@ export const getOverview = query({
  * viewer may not see (draft, viewer below instructor) yields NO context rather
  * than hiding the materi — the course page is gated, the materi is not.
  */
-export const getLesson = query({
-  args: { lessonId: v.id("lessons"), courseId: v.optional(v.id("courses")) },
-  handler: async (ctx, args) => {
+export const getLessonHandler = async (ctx: QueryCtx, args: {lessonId: Id<"lessons">; courseId?: Id<"courses">}) => {
     await requireUser(ctx); // auth BEFORE read (review fix #2)
     const lesson = await ctx.db.get(args.lessonId);
     if (lesson === null) fail("NOT_FOUND", "Materi tidak ditemukan");
@@ -181,5 +184,9 @@ export const getLesson = query({
       nextLessonId,
       viewerRole: role,
     };
-  },
+  };
+
+export const getLesson = query({
+  args: { lessonId: v.id("lessons"), courseId: v.optional(v.id("courses")) },
+  handler: getLessonHandler,
 });

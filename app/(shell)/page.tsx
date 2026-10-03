@@ -99,6 +99,7 @@ export default function LandingPage() {
             </Link>
             <Link
               href="/mulai"
+              data-study-cta="start-learning"
               className="pixel-press inline-flex min-h-11 items-center border border-border px-5 text-title font-medium hover:border-primary hover:text-primary"
             >
               Belum tahu mulai dari mana?

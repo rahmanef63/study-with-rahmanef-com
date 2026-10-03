@@ -4,11 +4,7 @@
 // let an instructor paste a full URL into the form and extract the ID
 // client-side before submitting.
 export const YOUTUBE_ID_RE = /^[A-Za-z0-9_-]{11}$/;
-
-const URL_PATTERNS = [
-  /(?:youtube\.com|youtube-nocookie\.com)\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})(?:[?&#]|$)/,
-  /youtu\.be\/([A-Za-z0-9_-]{11})(?:[?&#]|$)/,
-];
+import { parseYoutubeSource } from "@/features/markdown";
 
 export function isValidYoutubeVideoId(value: string): boolean {
   return YOUTUBE_ID_RE.test(value);
@@ -23,11 +19,7 @@ export function extractYoutubeVideoId(input: string): string | null {
   const trimmed = input.trim();
   if (trimmed === "") return null;
   if (isValidYoutubeVideoId(trimmed)) return trimmed;
-  for (const pattern of URL_PATTERNS) {
-    const match = trimmed.match(pattern);
-    if (match) return match[1];
-  }
-  return null;
+  return parseYoutubeSource(trimmed)?.videoId ?? null;
 }
 
 /**

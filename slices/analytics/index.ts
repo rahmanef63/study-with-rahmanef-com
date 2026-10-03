@@ -85,3 +85,16 @@ export type {
   PulseMateriData,
   TenantPulseData,
 } from "./types";
+
+// 0.4.0 — admin-only cross-platform learning analytics. Host owns the page h1.
+export { PlatformAnalyticsView, type PlatformAnalyticsViewProps } from "./views/platform-analytics-view";
+export { PlatformAnalyticsDashboard, type PlatformAnalyticsDashboardProps } from "./components/platform-analytics-dashboard";
+export { usePlatformAnalytics } from "./hooks/use-platform-analytics";
+export { aggregateCsv, platformNumber, platformPercent, platformDate, type AggregateColumn } from "./lib/platform-format";
+export { PLATFORM_ANALYTICS_COPY, mergePlatformAnalyticsCopy, type PlatformAnalyticsCopy, type PlatformAnalyticsCopyOverride } from "./config/platform-copy";
+export type { PlatformAnalyticsData, PlatformAnalyticsDays } from "./types";
+export { PlatformTrafficView, type PlatformTrafficViewProps } from "./views/platform-traffic-view";
+export { PlatformTrafficDashboard, type PlatformTrafficDashboardProps } from "./components/platform-traffic-dashboard";
+export { usePlatformTraffic } from "./hooks/use-platform-traffic";
+export { PLATFORM_TRAFFIC_COPY, mergePlatformTrafficCopy, type PlatformTrafficCopy, type PlatformTrafficCopyOverride } from "./config/traffic-copy";
+export type { PlatformTrafficData, PlatformTrafficDays } from "./types";

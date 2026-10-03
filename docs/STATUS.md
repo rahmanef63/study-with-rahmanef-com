@@ -4,6 +4,25 @@
 > Status flow: `open` → `claimed` → `in-progress` → `review` → `done` · or `blocked`.
 > A claim is stale after 48h without commits — it may then be re-claimed.
 
+## Phase 3 — platform admin navigation and analytics — 2026-10-03
+
+Integrator alpha; isolated `feat/study-admin-20261003` at `/home/rahman/worktrees/study-admin-20261003`, baseline `ef78058`. Existing canonical `.agent/` is preserved. Owner requested discoverable admin navigation and detailed statistics comparable to rahmanef.com. Reference project is read-only; no production seed, auth migration or paid analytics service. Product direction: existing navy/gold, variation 4 / motion 2 / density 7; one shell, period filters, comparable tables and named charts; real data with explicit completeness.
+
+| Agent | Area | State | Ownership |
+|---|---|---|---|
+| alpha | Admin user navigation, app routes/shell, integration and release | in-progress | components/shell, app, shared/schema/generated, docs, git |
+| beta | Guarded platform learning analytics contract and tests | in-progress | convex/features/analytics platform files only; propose shared changes |
+| gamma | Detailed admin analytics presentation | in-progress | slices/analytics frontend only; existing tenant views remain |
+| delta | Service-authenticated visitor analytics backend | in-progress | convex/features/traffic only; root owns ingest proxy, beacon, schema and retention wiring |
+
+Acceptance: true platform-admin menu visibility, non-admin denial before data reads, detailed platform/community/course/materi/quiz statistics, truthful period/completeness definitions, responsive keyboard-accessible dashboard, focused authz/regression checks, full CI/build and exact release verification. Owner confirmed full visitors + learning analytics, richtext/YouTube metadata improvements, and separate admin/user MCP. Beta platform backend passed 8 focused tests; gamma presentation passed 23 tests and full typecheck. Beta next owns bounded token/capability backend; gamma next owns typed richtext parser/render fixes. Existing content, memberships and auth configuration are preserved. Root owns production integration and release authorized earlier by owner.
+
+### Phase 3 dependency proposals (accepted by integrator)
+
+Checked rr knowledge catalog and canonical `resources` MCP adapter (24f1a26). Its older dispatcher hardcodes 2024 protocol and permits null/env scope bypass; those patterns are unsuitable for distinct account scopes. Adapt the existing token/setup presentation and host-capability boundary, using official `@modelcontextprotocol/server` 2.3.0 plus explicit Zod 4 for current/legacy Streamable HTTP negotiation, strict schema validation and bounded bodies. Official client 2.3.0 is development-only for actual handshake/toolset refresh checks. No paid service, auth migration or env-key browser fallback. Verified official source docs and npm metadata before installation.
+
+Full visitor location uses the existing reference's pinned DB-IP City Lite September 2026 MMDB, hash-verified and CC BY 4.0 attributed, through `maxmind` 5.0.7 plus `ipaddr.js` 2.5.0. Source/reference and official package metadata were checked first. Database stays outside Git and the public web root in a managed root-owned, permission-protected bind (0444 file / 0555 directory; nonroot uid 1001). Only a trusted observed Cloudflare peer may provide the visitor address; direct requests use the observed peer and ignore spoofed headers. Lookup is local, approximate and never sends or stores raw addresses. No geolocation API or paid service.
+
 ## Phase 2 — learner UI and unused-code cleanup — 2026-10-02
 
 Integrator alpha; clean isolated `feat/study-phase2-20261002` at `/home/rahman/worktrees/study-phase2-20261002`, baseline `50b302c`. Canonical untracked `.agent/` is preserved. Existing main release is the rollback target; no production data/auth changes are planned. UI dials: variation 4, motion 2, density 6. Historical content-only assignments are superseded for this wave.

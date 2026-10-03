@@ -16,6 +16,16 @@ import manifest from "../slice.manifest.json";
 describe("analytics barrel type contract (compile-time, enforced by tsc)", () => {
   test("exports the connected view, components, hooks, lib, config, and types", () => {
     expectTypeOf<typeof Barrel.CourseAnalyticsView>().toBeFunction();
+    expectTypeOf<typeof Barrel.PlatformAnalyticsView>().toBeFunction();
+    expectTypeOf<typeof Barrel.PlatformTrafficView>().toBeFunction();
+    expectTypeOf<typeof Barrel.PlatformTrafficDashboard>().toBeFunction();
+    expectTypeOf<typeof Barrel.usePlatformTraffic>().toBeFunction();
+    expectTypeOf<Barrel.PlatformTrafficData>().toBeObject();
+    expectTypeOf<Barrel.PlatformTrafficDays>().toEqualTypeOf<7 | 30>();
+    expectTypeOf<typeof Barrel.PlatformAnalyticsDashboard>().toBeFunction();
+    expectTypeOf<typeof Barrel.usePlatformAnalytics>().toBeFunction();
+    expectTypeOf<Barrel.PlatformAnalyticsData>().toBeObject();
+    expectTypeOf<Barrel.PlatformAnalyticsDays>().toEqualTypeOf<7 | 30 | 90>();
     expectTypeOf<typeof Barrel.StatCard>().toBeFunction();
     expectTypeOf<typeof Barrel.LessonCompletionBars>().toBeFunction();
     expectTypeOf<typeof Barrel.QuizStatList>().toBeFunction();

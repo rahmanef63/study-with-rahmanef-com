@@ -28,7 +28,7 @@ const quote = (text: string) => (text || "").split("\n").map((l) => `> ${l}`).jo
 
 export function blocksToMarkdown(blocks: Block[]): string {
   const chunks = blocks.map(blockToMd).filter((s): s is string => s !== null);
-  return chunks.join("\n\n").replace(/\n{3,}/g, "\n\n").trim() + "\n";
+  return chunks.join("\n\n").trim() + "\n";
 }
 
 function blockToMd(b: Block): string | null {
@@ -44,7 +44,12 @@ function blockToMd(b: Block): string | null {
     case "numbered": return `${pad(b.indent)}1. ${b.text}`;
     case "todo": return `${pad(b.indent)}- [${b.checked ? "x" : " "}] ${b.text}`;
     case "quote": return quote(b.text);
-    case "code": return "```" + (b.lang ?? "") + "\n" + (b.text ?? "") + "\n```";
+    case "code": {
+      const text = b.text ?? "";
+      const longest = Math.max(0, ...(text.match(/`+/g) ?? []).map(run => run.length));
+      const fence = "`".repeat(Math.max(3, longest + 1));
+      return fence + (b.lang ?? "").replace(/[\r\n`]/g, "") + "\n" + text + "\n" + fence;
+    }
     case "divider": return "---";
     case "equation": return "$$\n" + (b.text ?? "") + "\n$$";
     case "callout":

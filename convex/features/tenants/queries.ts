@@ -1,3 +1,4 @@
+import type { QueryCtx } from "../../_generated/server";
 // tenants slice — tenant reads.
 // P0 contract: v.* validators on every function; guarded first line of every
 // handler. Public etalase reads (R2/R3) have no caller to authenticate — their
@@ -158,9 +159,7 @@ export const listActive = query({
  * by_user membership index; returns the public tenant projection + the caller's
  * own role. Active-only, matching R6 (pending/suspended stay invisible).
  */
-export const listMine = query({
-  args: {},
-  handler: async (ctx) => {
+export const listMineHandler = async (ctx: QueryCtx) => {
     const userId = await requireUser(ctx);
     const memberships = await ctx.db
       .query("memberships")
@@ -173,7 +172,11 @@ export const listMine = query({
       out.push({ ...toPublicTenant(tenant), role: m.role });
     }
     return out;
-  },
+  };
+
+export const listMine = query({
+  args: {},
+  handler: listMineHandler,
 });
 
 /**

@@ -36,7 +36,7 @@ export default defineConfig({
       "lib/**/*.test.ts",
       // components/editor holds the block-editor adapter seam; its pure halves
       // (block transforms, lesson→Page mapping) are unit-tested there.
-      "components/**/*.test.ts",
+      "components/**/*.test.{ts,tsx}",
       // Route-tree guards live beside the routes they check.
       "app/**/*.test.ts",
     ],

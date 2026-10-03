@@ -1,3 +1,5 @@
+import type { QueryCtx } from "../../_generated/server";
+import type { Id } from "../../_generated/dataModel";
 // progress feature — member self-read surface (own progress only; the access
 // table in docs/DATA-MODEL.md scopes lessonCompletions read to "user sendiri").
 // P0: v.* validators + authz helper as the FIRST handler line. userId is the
@@ -20,13 +22,15 @@ import { deriveCourseProgress } from "./derive";
  * percentages are never stored. Draft/archived courses are NOT_FOUND for plain
  * members: this is the COURSE surface, so the course-level gate applies.
  */
-export const getCourseProgress = query({
-  args: { courseId: v.id("courses") },
-  handler: async (ctx, args) => {
+export const getCourseProgressHandler = async (ctx: QueryCtx, args: {courseId: Id<"courses">}) => {
     const { userId, course, membership } = await requireMemberForCourse(ctx, args.courseId);
     assertCourseActableByRole(course, membership.role);
     return await deriveCourseProgress(ctx, userId, args.courseId);
-  },
+  };
+
+export const getCourseProgress = query({
+  args: { courseId: v.id("courses") },
+  handler: getCourseProgressHandler,
 });
 
 /**

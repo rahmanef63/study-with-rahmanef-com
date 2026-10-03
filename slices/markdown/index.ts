@@ -7,3 +7,7 @@ export { ChartBlock } from "./components/ChartBlock";
 export { parseMarkdown, type MdNode, type Align } from "./lib/parse";
 export { renderInline, tokenizeInline } from "./lib/inline";
 export { type MdComment, newCommentId, commentsFor, openCount } from "./lib/comments";
+export { safeMarkdownUrl, parseYoutubeSource, collectYoutubeSources, type YoutubeSource, type YoutubeMetadata } from "./lib/media";
+export { MarkdownMediaProvider, type MarkdownMediaProviderProps } from "./components/MarkdownMediaProvider";
+export { YoutubeMarkdownEmbed, type YoutubeMarkdownEmbedProps } from "./components/YoutubeMarkdownEmbed";
+export { MarkdownCodeBlock } from "./components/MarkdownCodeBlock";

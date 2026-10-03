@@ -39,3 +39,10 @@ export type { FunnelStep as FunnelStepData } from "@convex/features/insight/funn
 export type { TenantPulse as TenantPulseData } from "@convex/features/insight/pulse";
 /** A named materi in the read distribution (mostRead / leastRead). */
 export type { PulseMateri as PulseMateriData } from "@convex/features/insight/pulse";
+
+/** Admin-only platform totals; authenticated query remains the security boundary. */
+export type { PlatformAnalytics as PlatformAnalyticsData } from "@convex/features/analytics/platformContract";
+export type PlatformAnalyticsDays = 7 | 30 | 90;
+/** First-party traffic projection, no user identities or geographic inference. */
+export type { TrafficAnalytics as PlatformTrafficData } from "@convex/features/traffic/contract";
+export type PlatformTrafficDays = 7 | 30;

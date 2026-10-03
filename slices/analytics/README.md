@@ -80,3 +80,43 @@ the `courses/access.ts` pattern); `tenantId` always comes from the course row, n
   active member via `by_user` (exact & bounded; badges held by former members are not
   counted). A `by_course` index proposal has been raised with alpha — see the TODO(rr)
   in `aggregate.ts`.
+
+## Platform admin analytics (0.4.0)
+
+The host's `/admin/statistik` route owns the page heading and gates on the
+current authenticated profile before enabling `PlatformAnalyticsView`.
+`usePlatformAnalytics` additionally waits for Convex authentication; the server
+query `features/analytics/platform:getPlatformAnalytics` always authorizes the
+platform admin before reading any data. Anonymous server rendering must never
+call this query.
+
+`PlatformAnalyticsDashboard({ data, days, onDaysChange, copy? })` is a portable
+presentation for inventory, selected-period learner activity, a WIB daily trend,
+and comparable community/course/materi/quiz tables. Periods are 7/30/90 days;
+there are no invented previous-period comparisons. Search/community filters only
+change comparison tables; the inventory and trend remain platform-wide.
+
+Every bounded source reports completeness, Count objects carry `exact`, and
+partial totals render as minimums (`≥`). CSV exports reflect currently filtered,
+sorted aggregate rows and retain coverage columns; spreadsheet formulas in
+labels are neutralized. Nothing exports account identities. Member-day readings
+are distinct from anonymous website visits, and trial-based quiz pass rates are
+not a learner-cohort conversion metric. Tables contain their horizontal/vertical
+scrolling and have keyboard-focusable named regions; every touch control is 44px.
+
+## First-party visitor analytics (0.4.0)
+
+`PlatformTrafficView({ enabled, copy? })` uses the same host-admin + authenticated
+query gate. `/admin/pengunjung` owns its heading. The portable
+`PlatformTrafficDashboard({ data, days, onDaysChange, copy? })` accepts 7/30 days
+and renders page views, temporary browser sessions, CTA clicks, direct/unknown
+sources, rejected events, daily/local-hour trends, twelve ranking tables and
+masked recent sessions. Filtered/sorted CSV exports carry source completeness;
+session timestamps export as ISO UTC and display in WIB.
+
+Sessions do not identify people across visits. The UI states the 30-day
+retention, the gap before instrumentation, and that the earliest retained event
+is not the actual deployment/start date. Missing countries remain unknown; no
+city or country is inferred from timezone/language. Learning views and website
+traffic stay separate metrics. The backend collector/authorization/retention
+remain authoritative and are not recreated by these presentation components.
