@@ -3,11 +3,10 @@
 // else. The route layout that mounts it owns every read.
 //
 // TWO SHAPES, ONE NAV. At md and up a persistent 14/16rem rail with the content
-// beside it. Below md the rail becomes a slide-over, and a four-cell DOCK sits
-// on the bottom edge as the shortcut to it — the rail is the map, the dock is
-// the thumb-reachable path to the places people actually go. The dock owns the
-// menu trigger, so there is exactly one way to open the panel and it is not in
-// the top-left corner.
+// beside it. Below md that rail stays hidden. A four-cell DOCK sits on the
+// bottom edge, and its Menu opens a bottom drawer — it does not slide the
+// desktop sidebar in. The dock owns the menu trigger, so there is exactly one
+// way to open the panel and it is not in the top-left corner.
 //
 // WHY THERE IS NO <ViewTransition> ANYWHERE NEAR THIS. It used to wrap the
 // whole document in app/layout.tsx, and React ran a full-page transition for
@@ -33,9 +32,9 @@ export function AppShell({
   rail: React.ReactNode;
   /** The below-md compact bar: community name and one action. */
   topBar: React.ReactNode;
-  /** The below-md bottom dock, which owns the slide-over copy of the nav and
-   *  its own in-flow spacer. Omitted on shells that have no community to dock
-   *  into (the account pages). */
+  /** The below-md bottom dock, which owns the menu drawer and its own in-flow
+   *  spacer. Omitted on shells that have no community to dock into (the
+   *  account pages). */
   dock?: React.ReactNode;
   /** Server-rendered <h1>. Above <main> so the reading order is right. */
   heading?: React.ReactNode;

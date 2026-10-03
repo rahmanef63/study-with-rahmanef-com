@@ -12,6 +12,7 @@ export const PLATFORM_TRAFFIC_COPY = {
   privacyNote: "Tidak menyimpan nama, email, akun, raw IP, cookie autentikasi, query string, atau isi materi/komentar. Sumber kunjungan berupa hostname; campaign disaring. Negara dan kota hanya tampil jika lookup GeoIP lokal tersedia; lokasi tidak ditebak dari bahasa atau timezone. Nilai yang tidak tersedia tetap ditandai sebagai tidak tersedia.",
   geoNote: "Negara dan kota adalah perkiraan GeoIP lokal DB-IP City Lite, dataset September 2026. Bukan GPS atau alamat pasti; VPN, jaringan operator, dan data yang belum diperbarui dapat menghasilkan lokasi berbeda. IP digunakan saat request untuk lookup lokal; raw IP tidak disimpan dalam data analitik.",
   geoAttribution: "IP Geolocation by DB-IP",
+  retentionBound: "Data pengunjung disimpan",
   retentionNote: "Retensi maksimal 30 hari. Inventaris historis sebelum pelacakan tidak direkonstruksi. Event yang ditolak berasal dari batas penerimaan server; tidak mengukur seluruh kegagalan pengiriman browser.",
   earliest: "Event tersimpan paling awal", earliestNote: "Ini event paling awal yang masih tersimpan, bukan tanggal pasti pertama kali pelacakan diaktifkan.",
   capped: "Pembacaan event mencapai batas. Angka bertanda ≥ adalah minimum; ranking, sesi, dan CSV hanya mencakup event yang berhasil dibaca.",

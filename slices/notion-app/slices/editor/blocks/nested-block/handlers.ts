@@ -62,7 +62,7 @@ export function runNestedSlashSelect(
   }
   if (DEBUG()) {
 
-    console.log("[turnInto:slash]", { blockId: block.id, from: block.type, to: type, patch });
+    console.log("[turnInto:slash]", { blockId: block.id, from: block.type, to: type });
   }
   onUpdate(patch);
   setTimeout(() => {

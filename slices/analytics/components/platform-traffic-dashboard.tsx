@@ -12,7 +12,7 @@ export function PlatformTrafficDashboard({ data, days, onDaysChange, copy: overr
   const incomplete = data.sources.some((source) => !source.complete);
   return <div className="min-w-0 space-y-7">
     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
-      <div role="group" aria-label={copy.period} className="flex gap-1">{([7, 30] as const).map((period) => <Button key={period} variant={days === period ? "default" : "outline"} className="min-h-11" aria-pressed={days === period} onClick={() => onDaysChange(period)}>{period} {copy.days}</Button>)}</div>
+      <div className="space-y-1"><div role="group" aria-label={copy.period} className="flex flex-wrap gap-1">{([7, 30] as const).map((period) => <Button key={period} variant={days === period ? "default" : "outline"} className="min-h-11" aria-pressed={days === period} onClick={() => onDaysChange(period)}>{period} {copy.days}</Button>)}</div><p className="text-xs text-muted-foreground">{copy.retentionBound} {platformNumber(data.retentionDays)} {copy.days}.</p></div>
       <p className="text-sm text-muted-foreground">{copy.dates}: <time dateTime={data.period.from}>{platformDate(data.period.from)}</time> — <time dateTime={data.period.to}>{platformDate(data.period.to)}</time> · WIB</p>
     </div>
     {incomplete ? <p role="status" className="border-l-4 border-primary bg-muted px-4 py-3 text-sm">{copy.capped}</p> : null}

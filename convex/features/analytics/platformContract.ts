@@ -1,6 +1,7 @@
 import { v, type Infer } from "convex/values";
 
-export const platformDays = v.union(v.literal(7), v.literal(30), v.literal(90));
+/** Keep in sync with slices/analytics/types.ts PlatformAnalyticsDays. Traffic is a separate 7 | 30 union. */
+export const platformDays = v.union(v.literal(7), v.literal(30), v.literal(90), v.literal(180), v.literal(365));
 const count = v.object({ value: v.number(), exact: v.boolean() });
 const nullableNumber = v.union(v.number(), v.null());
 const activity = {

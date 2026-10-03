@@ -2,7 +2,7 @@ import type { McpScope } from "./contract";
 
 type Field = { type: "string" | "number" | "integer"; optional?: boolean; maxLength?: number; enum?: readonly (number | string)[]; minimum?: number; maximum?: number };
 const id = { type: "string", maxLength: 128 } as const;
-const period = { type: "integer", enum: [7, 30, 90] } as const;
+const period = { type: "integer", enum: [7, 30, 90, 180, 365] } as const;
 export type Capability = { id: string; scope: McpScope; description: string; fields: Record<string, Field>; readOnly: boolean; destructive: boolean; idempotent: boolean };
 const read = (id: string, scope: McpScope, description: string, fields: Record<string, Field> = {}): Capability => ({ id, scope, description, fields, readOnly: true, destructive: false, idempotent: true });
 const write = (id: string, scope: McpScope, description: string, fields: Record<string, Field>, destructive = false, idempotent = true): Capability => ({ id, scope, description, fields, readOnly: false, destructive, idempotent });

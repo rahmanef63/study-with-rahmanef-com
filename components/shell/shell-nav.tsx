@@ -1,7 +1,7 @@
 "use client";
 
 // THE NAV. One component, mounted twice: as the persistent rail at md and up,
-// and as the body of the phone slide-over. Two renderings of a nav that drift
+// and as the body of the phone menu drawer. Two renderings of a nav that drift
 // apart is a navigation bug you only notice on one breakpoint — the retired
 // shell had a desktop tab strip AND a phone bottom bar AND a "Lainnya" sheet,
 // three lists to keep in agreement.
@@ -44,7 +44,7 @@ export type ShellCommunity = {
 export type ShellNavProps = {
   /** Absent on the account surfaces — the rail is the same rail either way. */
   community?: ShellCommunity;
-  /** Closes the phone slide-over. Absent in the persistent rail. */
+  /** Closes the phone menu drawer. Absent in the persistent rail. */
   onNavigate?: () => void;
   className?: string;
 };

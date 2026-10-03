@@ -1,19 +1,47 @@
 import type { PlatformAnalyticsData } from "../types";
 import type { PlatformAnalyticsCopy } from "../config/platform-copy";
 import { platformNumber, platformPercent } from "../lib/platform-format";
+import { PlatformBreakdown } from "./platform-breakdown";
 
-export function PlatformSummary({ data, copy }: { data: PlatformAnalyticsData; copy: PlatformAnalyticsCopy }) {
-  const counts = (keys: readonly (keyof Omit<PlatformAnalyticsData["summary"], "quizPassRate">)[]) => (
-    <dl className="mt-3 grid grid-cols-2 divide-x divide-border border-y border-border sm:grid-cols-3 xl:grid-cols-5">
-      {keys.map((key) => <div key={key} className="min-w-0 px-3 py-4"><dt className="break-words text-xs text-muted-foreground">{copy[key]}</dt><dd className="mt-1 text-2xl font-semibold tabular-nums">{data.summary[key].exact ? "" : "≥ "}{platformNumber(data.summary[key].value)}</dd></div>)}
+type SummaryKey = keyof Omit<PlatformAnalyticsData["summary"], "quizPassRate">;
+
+function figure(count: { value: number; exact: boolean }) {
+  return `${count.exact ? "" : "≥ "}${platformNumber(count.value)}`;
+}
+
+function MetricRows({ keys, data, copy }: { keys: readonly SummaryKey[]; data: PlatformAnalyticsData; copy: PlatformAnalyticsCopy }) {
+  return (
+    <dl className="grid gap-x-8 sm:grid-cols-2">
+      {keys.map((key) => (
+        <div key={key} className="flex items-baseline justify-between gap-3 border-b border-border py-2">
+          <dt className="text-sm text-muted-foreground">{copy[key]}</dt>
+          <dd className="text-lg font-semibold tabular-nums">{figure(data.summary[key])}</dd>
+        </div>
+      ))}
     </dl>
   );
-  return <>
-    <section aria-label={copy.inventory}><h2 className="text-lg font-semibold">{copy.inventory}</h2><p className="mt-1 text-sm text-muted-foreground">{copy.inventoryHint}</p>{counts(["users", "communities", "memberships", "courses", "lessons", "skills", "quizzes"])}</section>
-    <section aria-label={copy.activity}><h2 className="text-lg font-semibold">{copy.activity}</h2><p className="mt-1 text-sm text-muted-foreground">{copy.activityHint}</p>{counts(["activeLearners", "readMemberDays", "lessonCompletions", "badges", "quizAttempts", "quizPassed", "comments", "newMembers"])}</section>
-    <div className="flex flex-wrap gap-x-8 gap-y-2 text-sm"><p>{copy.quizPassRate}: <strong className="tabular-nums">{platformPercent(data.summary.quizPassRate)}</strong></p><p>{copy.neverRead}: <strong className="tabular-nums">{data.inventory.neverReadLessons.exact ? "" : "≥ "}{platformNumber(data.inventory.neverReadLessons.value)}</strong></p></div>
-    <div className="grid gap-4 border-t border-border pt-4 md:grid-cols-3">
-      {(["tenantStatus", "courseStatus", "membershipRole"] as const).map((group) => <section key={group} aria-label={copy[group]}><h3 className="text-sm font-medium">{copy[group]}</h3><dl className="mt-2 space-y-1 text-sm">{Object.entries(data.inventory[group]).map(([key, count]) => <div key={key} className="flex items-baseline justify-between gap-3"><dt className="text-muted-foreground">{copy[key as keyof PlatformAnalyticsCopy]}</dt><dd className="tabular-nums">{count.exact ? "" : "≥ "}{platformNumber(count.value)}</dd></div>)}</dl></section>)}
-    </div>
-  </>;
+}
+
+export function PlatformSummary({ data, copy }: { data: PlatformAnalyticsData; copy: PlatformAnalyticsCopy }) {
+  return (
+    <>
+      <section aria-label={copy.inventory} className="space-y-4 border bg-card p-4">
+        <div>
+          <h2 className="text-lg font-semibold">{copy.inventory}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{copy.inventoryHint}</p>
+        </div>
+        <MetricRows keys={["users", "communities", "memberships", "courses", "lessons", "skills", "quizzes"]} data={data} copy={copy} />
+        <p className="text-sm">{copy.neverRead}: <strong className="tabular-nums">{figure(data.inventory.neverReadLessons)}</strong></p>
+        <PlatformBreakdown data={data} copy={copy} />
+      </section>
+      <section aria-label={copy.activity} className="space-y-4 border bg-card p-4">
+        <div>
+          <h2 className="text-lg font-semibold">{copy.activity}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{copy.activityHint}</p>
+        </div>
+        <MetricRows keys={["activeLearners", "readMemberDays", "lessonCompletions", "badges", "quizAttempts", "quizPassed", "comments", "newMembers"]} data={data} copy={copy} />
+        <p className="text-sm">{copy.quizPassRate}: <strong className="tabular-nums">{platformPercent(data.summary.quizPassRate)}</strong></p>
+      </section>
+    </>
+  );
 }

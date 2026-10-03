@@ -73,7 +73,7 @@ test("WIB inclusive day ranges include start boundary and exclude yesterday-befo
   expect(week.summary.lessonCompletions.value).toBe(1);
   expect(week.summary.readMemberDays.value).toBe(1);
   expect(platformDay(Date.parse("2026-10-02T17:00:00Z"))).toBe("2026-10-03");
-  for (const days of [30, 90] as const) {
+  for (const days of [30, 90, 180, 365] as const) {
     const result = await admin.query(api.features.analytics.platform.getPlatformAnalytics, { days });
     expect(result.series).toHaveLength(days);
     expect(result.summary.readMemberDays.value).toBe(2);

@@ -20,6 +20,9 @@ test("the control sits in the shared nav, which is both the sidebar and the dock
   const dock = readFileSync("components/shell/shell-dock.tsx", "utf8");
   expect(nav).toContain("PwaInstallButton");
   expect(dock).toContain("<ShellNav");
+  expect(dock).toContain('side="bottom"');
+  expect(dock).not.toContain('side="left"');
+  expect(dock).not.toContain("bg-sidebar");
   // Not a fifth dock cell. The drawer is the sheet that renders ShellNav.
   expect(dock).not.toContain("PwaInstallButton");
 });

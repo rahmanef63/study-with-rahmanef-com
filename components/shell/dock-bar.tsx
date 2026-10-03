@@ -1,8 +1,8 @@
 "use client";
 
 // The phone dock, as pure presentation. Two callers fill it: the community dock
-// (four destinations plus a Menu cell that opens the rail) and the account dock
-// (its whole nav fits, so no Menu cell).
+// (four destinations plus a Menu cell that opens a bottom drawer) and the
+// account dock (its whole nav fits, so no Menu cell).
 //
 // It exists so the app has ONE phone-navigation model. Before this, a community
 // page docked its nav to the bottom edge while an account page hid the same
@@ -69,7 +69,7 @@ export function DockBar({
         // z-30 matches the top bar: above content, below the sheet (50) and the
         // CRT overlay. Opaque, hard 2px rule, no floating pill — the same edge
         // language as everything else in the cabinet.
-        className="fixed inset-x-0 bottom-0 z-30 border-t bg-card pb-[var(--safe-b)] pl-[var(--safe-l)] pr-[var(--safe-r)] md:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 border-t bg-card pb-[var(--safe-b)] pl-[max(0.75rem,var(--safe-l))] pr-[max(0.75rem,var(--safe-r))] md:hidden"
       >
         <div className="mx-auto flex w-full max-w-5xl items-stretch">
           {cells.map((cell) => (
