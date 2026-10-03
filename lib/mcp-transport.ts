@@ -1,6 +1,7 @@
 import { createMcpHandler } from "@modelcontextprotocol/server";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@convex/_generated/api";
+import { requestPublicOrigin } from "./request-public-origin";
 import { makeMcpServer, type McpBackend, type McpScope } from "./mcp-server";
 
 function defaultBackend(): McpBackend | null {
@@ -16,10 +17,10 @@ function defaultBackend(): McpBackend | null {
 /** Thin transport; all identity, scope, current-role and capability guards live in Convex. */
 export async function serveMcp(request: Request, scope: McpScope, suppliedBackend?: McpBackend) {
   const url = new URL(request.url);
-  const hosts = new Set(["study-with.rahmanef.com", "localhost", "127.0.0.1"]);
-  if (!hosts.has(url.hostname)) return new Response(null, { status: 403 });
+  const publicOrigin = requestPublicOrigin(request);
+  if (!publicOrigin) return new Response(null, { status: 403 });
   const origin = request.headers.get("origin");
-  if (origin && origin !== url.origin) return new Response(null, { status: 403 });
+  if (origin && origin !== publicOrigin) return new Response(null, { status: 403 });
   const provided = request.headers.get("authorization") ?? "";
   const token = provided.startsWith("Bearer ") ? provided.slice(7) : "";
   if (!/^study_mcp_(user|admin)_[a-f0-9]{64}$/.test(token)) return new Response(null, { status: 401, headers: { "www-authenticate": 'Bearer realm="Study MCP"' } });
@@ -36,7 +37,8 @@ export async function serveMcp(request: Request, scope: McpScope, suppliedBacken
   }
   // Per-request instances cannot retain tokens or permissions between calls.
   const handler = createMcpHandler(() => makeMcpServer(scope, token, backend), { responseMode: "json", maxRequestBodySize: 16_384, maxSubscriptions: 0 });
-  const response = await handler.fetch(request);
+  const publicRequest = url.origin === publicOrigin ? request : new Request(`${publicOrigin}${url.pathname}${url.search}`, request);
+  const response = await handler.fetch(publicRequest);
   response.headers.set("cache-control", "no-store");
   return response;
 }

@@ -69,3 +69,12 @@ test("revocation is checked on the next client call; backend errors never echo c
     await expect(client.listTools()).rejects.toThrow();
   } finally { await client.close(); }
 });
+test("standalone proxy-shaped requests reach protocol authentication and initialize", async () => {
+  const headers = { host: "study-with.rahmanef.com", "content-type": "application/json", accept: "application/json, text/event-stream" };
+  expect((await serveMcp(new Request("http://0.0.0.0:3000/api/mcp/user", { method: "POST", headers }), "user", backend())).status).toBe(401);
+  const host = backend();
+  const response = await serveMcp(new Request("http://0.0.0.0:3000/api/mcp/user", { method: "POST", headers: { ...headers, authorization: `Bearer ${token("user")}` }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "initialize", params: { protocolVersion: "2025-11-25", capabilities: {}, clientInfo: { name: "proxy-test", version: "1.0.0" } } }) }), "user", host);
+  expect(response.status).toBe(200);
+  expect(await response.text()).toContain("study-user");
+  expect(host.authenticate).toHaveBeenCalledTimes(1);
+});
