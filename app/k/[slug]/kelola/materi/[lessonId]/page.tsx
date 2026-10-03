@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { MateriEditorLoader } from "@/components/editor/materi-editor-loader";
+import { BreadcrumbTrail } from "@/components/shell/breadcrumb-trail";
+import { communityBreadcrumbs } from "@/components/shell/breadcrumb-model";
+import { communityHref } from "@/lib/community";
 import { SkillPromptPanel } from "../../_components/skill-prompt-panel";
 
 // The block editor for one materi. Instructor-only and entirely client-side:
@@ -20,9 +23,12 @@ export default async function EditMateriPage({ params }: { params: Promise<Param
   const { slug, lessonId } = await params;
   return (
     <div className="@container flex min-h-[70vh] flex-col">
+      <div className="mb-3">
+        <BreadcrumbTrail items={communityBreadcrumbs(communityHref.kelolaMateri(slug, lessonId), slug)} />
+      </div>
       <nav className="mb-4">
         <Link
-          href={`/k/${slug}/kelola`}
+          href={communityHref.kelola(slug)}
           className="text-xs uppercase tracking-wide text-muted-foreground hover:text-foreground"
         >
           ← Kembali ke konsol

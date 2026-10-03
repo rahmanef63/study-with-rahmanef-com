@@ -11,6 +11,8 @@ import {
   type PublicMateri,
 } from "@/features/materi";
 import { Skeleton } from "@/components/ui/skeleton";
+import { BreadcrumbTrail } from "@/components/shell/breadcrumb-trail";
+import { communityBreadcrumbs } from "@/components/shell/breadcrumb-model";
 import { communityHref } from "@/lib/community";
 import { safeQuery } from "@/lib/convex-server";
 import { absoluteUrl } from "@/lib/site";
@@ -146,6 +148,9 @@ export default async function MateriDetailPage({ params }: { params: Promise<Par
 
   return (
     <div className="@container mx-auto w-full max-w-3xl space-y-6">
+      <BreadcrumbTrail
+        items={communityBreadcrumbs(communityHref.materiPage(slug, lessonSlug), slug, materi ? { materi: materi.title } : undefined)}
+      />
       <Link
         href={communityHref.materi(slug)}
         className="inline-flex min-h-11 items-center gap-1.5 text-sm text-muted-foreground hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"

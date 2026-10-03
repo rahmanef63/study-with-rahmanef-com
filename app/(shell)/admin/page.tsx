@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { communityHref } from "@/lib/community";
 
 const groups = [
@@ -24,12 +25,10 @@ const groups = [
 export default function AdminIndexPage() {
   return (
     <section className="space-y-8">
-      <header>
-        <h1 className="text-2xl font-semibold">Admin platform</h1>
-        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Pantau Study dan kelola komunitas. Pilih satu kelompok; angka lengkap ada di halaman masing-masing.
-        </p>
-      </header>
+      <AdminPageHeader
+        title="Admin platform"
+        description="Pantau Study dan kelola komunitas. Pilih satu kelompok; angka lengkap ada di halaman masing-masing."
+      />
       <div className="grid gap-6 lg:grid-cols-2">
         {groups.map((group) => (
           <section key={group.title} aria-labelledby={`admin-${group.title}`} className="border bg-card">

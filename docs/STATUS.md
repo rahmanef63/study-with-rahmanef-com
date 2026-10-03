@@ -4,6 +4,10 @@
 > Status flow: `open` → `claimed` → `in-progress` → `review` → `done` · or `blocked`.
 > A claim is stale after 48h without commits — it may then be re-claimed.
 
+## Breadcrumbs and admin scan — 2026-10-03
+
+Cloud agent on `cursor/admin-breadcrumbs-4022`. Owner asked for a trail where the hierarchy is not already the dock or sidebar, and for `/admin` to scan like CareerPack's admin (groups, page header, breadcrumbs) without new destinations or a fifth dock cell. Existing Pantau / Kelola routes stay. Not merged, not deployed.
+
 ## Phase 3 — platform admin navigation and analytics — 2026-10-03
 
 Integrator alpha; isolated `feat/study-admin-20261003` at `/home/rahman/worktrees/study-admin-20261003`, baseline `ef78058`. Existing canonical `.agent/` is preserved. Owner requested discoverable admin navigation and detailed statistics comparable to rahmanef.com. Reference project is read-only; no production seed, auth migration or paid analytics service. Product direction: existing navy/gold, variation 4 / motion 2 / density 7; one shell, period filters, comparable tables and named charts; real data with explicit completeness.
