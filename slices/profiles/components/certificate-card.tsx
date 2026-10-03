@@ -8,6 +8,7 @@ import { useState } from "react";
 import { Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { formatEarnedDate } from "../lib/earned-date";
 import { cn } from "@/lib/utils";
 import { DEFAULT_CERTIFICATE_LABELS } from "../config/certificate-labels";
 import type { Certificate, CertificateLabels } from "../types";
@@ -25,15 +26,6 @@ export type CertificateCardProps = {
   labels?: Partial<CertificateLabels>;
   className?: string;
 };
-
-/** Epoch ms → long Bahasa Indonesia date (e.g. "6 Juli 2026"). */
-function formatEarned(earnedAt: number): string {
-  return new Date(earnedAt).toLocaleDateString("id-ID", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-}
 
 export function CertificateCard({
   certificate,
@@ -104,7 +96,7 @@ export function CertificateCard({
 
         {/* Earned date — quiet, letterpress-style closing line */}
         <p className="mt-7 text-xs uppercase tracking-[0.14em] text-muted-foreground">
-          {copy.earnedPrefix} {formatEarned(certificate.earnedAt)}
+          {copy.earnedPrefix} {formatEarnedDate(certificate.earnedAt)}
         </p>
       </article>
 

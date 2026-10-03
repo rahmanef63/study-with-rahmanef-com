@@ -40,6 +40,7 @@ The phase 1 audit score covered its changed scope, not every screen. Authenticat
 - Removed nested main landmarks and duplicate shell gutters from sign-in, changelog, assessment and certificate routes; added an AST regression guard for all shelled routes.
 - Public profile retains one named title, biography and primary share action. Avatar, owner edit and badges remain. Standalone/client recovery still supplies its own title when the server read had no heading.
 - Certificate retains its document details but demotes its secondary document heading and suppresses its extra copy action when the route has supplied the real heading/share action. Server-null recovery preserves a named client title.
+- Unified certificate/badge dates in the Asia/Jakarta calendar. Actual runtime revealed a certificate showing 8 July in server context and 9 July in its client document; one formatter now prevents the timezone drift.
 - Replaced old English arcade offline copy with Indonesian recovery instructions. Bumped the service-worker cache to v5 to refresh the precached offline page.
 - Added this phase's user-facing changelog and a reusable disconnected reader fixture outside production routes. Vitest now resolves the same feature alias as TypeScript/Next, enabling real cross-slice presentation regressions.
 
@@ -64,9 +65,11 @@ Stored cover/avatar URLs can refer to assets without source imports. No asset pu
 - Native keyboard Tab traversed all 40 syllabus links; the last became visible. Native PageDown/CtrlEnd automation did not produce reliable scroll and is not counted as a successful keyboard-scroll check.
 - At 375×812: native mobile disclosure and document reading worked, no horizontal overflow, 44px controls; completion/quiz controls clear the dock. Safe-area geometry was checked at 0 and simulated 20px. The fixture was corrected to include RootLayout's existing safe-area variables; missing fixture variables were not mistaken for a production defect.
 - Failed comment add/delete, target draft/reply/dialog reset, and quiz submit/result focus were exercised through actual hooks with local transport. No production member data was written.
+- Hosted CI run 37082060044 passed all eight disconnected browser regressions, along with the full suite and production build. A subsequent timezone regression passed the focused 18-test profile suite and typecheck; its final hosted CI is recorded with publication below.
+- Native browser also inspected real built Next routes for public profile/certificate success: one main, one primary heading/share action, no horizontal overflow. Injecting server-only Convex fetch failure reproduced server-null fallback; the actual public client query recovered the named profile/certificate and copy action without duplicate headings. This closes the independent async-route validation follow-up.
 - This fixture proves layout and interaction, not OAuth, live authorization, real quiz grading or user session restart. Those backend contracts are unchanged in phase 2. Actual async profile/certificate route acceptance and exact production release evidence are recorded after publication below.
 
-Independent changed-scope audit-bp: **94/100, APPROVE**, no source blocker. Context7 consulted official Next.js, React and Convex documentation. Remaining medium validation follow-up: actual async server route success and server-null/client recovery, as recommended by [Next testing guidance](https://nextjs.org/docs/app/guides/testing/vitest).
+Independent changed-scope audit-bp: **94/100, APPROVE**, no source blocker. Context7 consulted official Next.js, React and Convex documentation. The recommended actual async server route success and server-null/client recovery checks are now complete, following [Next testing guidance](https://nextjs.org/docs/app/guides/testing/vitest); the recorded score remains scoped to the independent review.
 
 ```yaml
 audit_bp:
@@ -74,8 +77,9 @@ audit_bp:
   score: 94
   verdict: APPROVE
   source_blockers: []
-  remaining_validation:
+  completed_validation:
     - async_profile_certificate_route_success_and_recovery
+  remaining_validation:
     - authenticated_production_session_not_available
 ```
 

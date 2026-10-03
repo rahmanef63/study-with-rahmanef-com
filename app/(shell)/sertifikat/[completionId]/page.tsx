@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { cache, Suspense } from "react";
 import Link from "next/link";
 import { api } from "@convex/_generated/api";
-import { CertificateView } from "@/features/profiles";
+import { CertificateView, formatEarnedDate } from "@/features/profiles";
 import { TombolBagikan } from "@/components/tombol-bagikan";
 import { Skeleton } from "@/components/ui/skeleton";
 import { absoluteUrl, safeQuery } from "@/lib/convex-server";
@@ -52,11 +52,7 @@ export async function generateMetadata({
 async function CertificateSurface({ completionId }: { completionId: string }) {
  const cert = await getCertificate(completionId);
  if (cert === null) return <CertificateView completionId={completionId} shareUrl={absoluteUrl(certificatePath(completionId))} />;
- const earned = new Date(cert.earnedAt).toLocaleDateString("id-ID", {
- day: "numeric",
- month: "long",
- year: "numeric",
-  });
+ const earned = formatEarnedDate(cert.earnedAt);
  return (
     <>
     <header className="mb-6 space-y-2 text-center">
