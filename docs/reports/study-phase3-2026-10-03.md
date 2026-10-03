@@ -15,11 +15,11 @@ Scope accepted on 2026-10-03. The earlier [phase 1 and phase 2 change ledger](st
 
 ## Candidate verification
 
-- 1,245 tests across 148 files passed, including actual local MMDB lookup, platform auth/WIB/truncation, visitor quotas/retention, richtext/YouTube/editor roundtrips, token/permission changes and official MCP SDK clients using legacy and modern protocol negotiation.
+- 1,249 tests across 149 files passed, including actual local MMDB lookup, platform auth/WIB/truncation, visitor quotas/retention, richtext/YouTube/editor roundtrips, token/permission changes and official MCP SDK clients using legacy and modern protocol negotiation.
 - TypeScript and optimized Next build passed. ESLint: zero errors, 47 pre-existing warnings. Stack/slice/file-size audit: zero violations.
 - Production dependency audit: zero vulnerabilities. Full development audit: five high entries in the `eslint-config-next → fast-glob → micromatch → braces` chain from one [braces advisory](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm), with no patched version available. The pinned framework is not downgraded to npm's unrelated suggested major version. Development tools do not process public visitor input and are not shipped in the standalone runtime. CI permits only this exact advisory on those five lockfile-confirmed development nodes until 2026-11-01; production advisories, any new advisory, audit failures and an expired exception fail the gate.
 - Native T3 browser presentation checks at 1280/1440 px and 375 px: admin/member account-menu visibility, 7-day selector update, single page heading, contained table scrolling, no page overflow, visitor complete/partial/empty states and visible GeoIP attribution. Shared richtext uses escaped placeholder and nested-code fixtures with responsive YouTube metadata. Token-hide removes plaintext; simulated revoke failure retains its dialog and rows. Fixture identities/data are disconnected synthetic props, not a production OAuth session or forged production auth state.
-- Independent bounded source security review: 100/100 APPROVE. Live runtime verification is recorded separately after deployment.
+- Independent bounded source security review: 100/100 APPROVE. Live runtime verification is recorded separately after deployment. The first release exposed Next standalone reconstructing an internal Request URL: the API host/origin guard rejected legitimate proxy requests. A shared canonical-Host adapter, proxy-shaped tests and live MCP verification correct this boundary; arbitrary forwarded hosts remain rejected. Account token settings also retain revocation of owned admin tokens after admin-role loss, preventing those hidden rows from exhausting the account-wide quota.
 
 ## GeoIP operations and rollback
 

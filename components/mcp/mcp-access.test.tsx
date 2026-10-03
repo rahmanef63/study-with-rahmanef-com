@@ -117,3 +117,13 @@ test("errors use localized codes and never echo unknown backend text or credenti
   expect(mcpError({ data: { code: "NOT_AUTHORIZED", message: "secret token" } })).toContain("tidak memiliki akses MCP admin");
   expect(mcpError(new Error("secret token"))).not.toContain("secret token");
 });
+
+test("account settings retain owner-only revocation controls after platform admin role loss", () => {
+  state.authenticated = true; state.admin = false;
+  rawList.mockReturnValueOnce([{ ...row, scope: "admin", label: "Former admin client" }]);
+  const html = renderToStaticMarkup(<McpAccessView scope="user" />);
+  expect(html).toContain("Semua token milik Anda");
+  expect(html).toContain("Cabut token Former admin client");
+  expect(html).toContain("Buat token user");
+  expect(html).not.toContain("Buat token admin");
+});

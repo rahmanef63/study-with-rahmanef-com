@@ -132,3 +132,7 @@ Quality gate: `audit-bp` score ≥80 to ship (pulls latest Next 16 / React 19 / 
 ## Imported Claude Cowork project instructions
 
 ini adalah projects untuk membuat platform dan komunitas belajar ai
+
+### Standalone public API origin contract
+
+Next standalone reconstructs `Request.url` from its internal bind hostname, even when Traefik routes the canonical public Host. Public analytics/MCP routes must use `lib/request-public-origin.ts` for the external origin and normalize the MCP SDK request URL. Never enable general host trust, accept arbitrary forwarded hosts, or expose the Next service port. Keep proxy-shaped tests using `http://0.0.0.0:3000` plus canonical Host and verify the live endpoint after release; localhost SDK success alone does not prove reverse-proxy operation.

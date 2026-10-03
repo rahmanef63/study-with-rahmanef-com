@@ -5,7 +5,7 @@ Study exposes separate Streamable HTTP endpoints:
 - User: `https://study-with.rahmanef.com/api/mcp/user`; issue tokens at `/pengaturan/mcp`.
 - Admin: `https://study-with.rahmanef.com/api/mcp/admin`; platform admins issue tokens at `/admin/mcp`.
 
-Log in normally, choose a label and 7/30/90-day lifetime, and save the returned token once. The server stores only its SHA256 hash. Tokens belong to the issuing account; admin tokens require its current platform-admin role on every call. User and admin scopes are isolated, including for an administrator who needs both endpoints. Revoke unused tokens from the same page. Expiry, revocation, membership changes and account deletion take effect on the next call. Twenty stored tokens per account are allowed; revoke expired entries to make space.
+Log in normally, choose a label and 7/30/90-day lifetime, and save the returned token once. The server stores only its SHA256 hash. Tokens belong to the issuing account; admin tokens require its current platform-admin role on every call. User and admin scopes are isolated, including for an administrator who needs both endpoints. Revoke unused tokens from the same page. User account settings list all of your tokens, including former admin tokens, so cleanup remains possible after losing the platform-admin role. Expiry, revocation, membership changes and account deletion take effect on the next call. Twenty stored tokens per account are allowed; revoke expired entries to make space.
 
 Configure a client that supports Streamable HTTP and custom Bearer headers. Example (replace the placeholder locally; never commit credentials):
 
