@@ -63,6 +63,8 @@ Env NAMES prod (values JANGAN pernah di-print/commit): `AUTH_GOOGLE_ID`, `AUTH_G
    - `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` = acak 32-byte base64 (pin sekali)
    - `APP_REVISION` = SHA commit yang sama pada Docker build argument dan runtime. Deployment ID dibekukan dalam build; `/api/version` dan `/api/health` melaporkan ID tersebut, bukan BUILD_ID Next yang dapat dipakai ulang.
 3. Domain `study-with.rahmanef.com` + TLS di Dokploy (live sejak 2026-07-06). Picu application.deploy, tunggu deployment done dan task healthy, lalu cocokkan checkout SHA, deployment ID, dan health revision dengan commit main yang dirilis. APP_REVISION harus diperbarui setiap release; nilai statis tidak boleh dipakai ulang oleh build otomatis.
+
+Respons sukses `application.deploy` hanya membuktikan permintaan diterima. Job dapat menunggu sebelum record deployment baru muncul; periksa `deployment.queueList` dan cocokkan applicationId/status sebelum mengirim ulang. Jangan membersihkan antrean atau me-restart Dokploy hanya karena build belum mulai. Bukti release tetap deployment baru selesai, task healthy, checkout SHA dan revision publik yang sesuai.
 4. ✅ Cek: `/` menampilkan landing komunitas unggulan, `/k/<slug>` merender header + rail komunitas dengan daftar kelas sebagai HTML (bukan cangkang kosong), `/masuk` jalan, tidak ada error di logs.
 
 ## E. Seed tenant pertama (sekali, SETELAH login Google pertamamu)

@@ -32,7 +32,7 @@ export function BadgeWall({ badges, certificateHref, labels, className }: BadgeW
   const latest = hasBadges ? badges.reduce((a, b) => (b.earnedAt > a.earnedAt ? b : a)) : null;
 
   return (
-    <section className={cn("flex flex-col gap-5", className)} aria-label={copy.badgesTitle}>
+    <section className={cn("@container flex flex-col gap-5", className)} aria-label={copy.badgesTitle}>
       <SectionHeader
         eyebrow="Koleksi"
         title={copy.badgesTitle}
@@ -73,9 +73,8 @@ export function BadgeWall({ badges, certificateHref, labels, className }: BadgeW
             ) : null}
           </div>
 
-          {/* Polished card grid — bordered tiles with a hover lift, 2-up on the
-              narrowest window, more columns as the window widens. */}
-          <ul className="grid grid-cols-2 gap-3 @sm:grid-cols-3 @lg:grid-cols-4 @2xl:grid-cols-5 @4xl:grid-cols-6">
+          {/* Use this section's width rather than the surrounding app shell. */}
+          <ul className="grid grid-cols-1 gap-3 @md:grid-cols-2 @3xl:grid-cols-3">
             {badges.map((badge) => {
               const tile = (
                 <>

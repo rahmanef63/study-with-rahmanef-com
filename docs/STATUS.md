@@ -11,9 +11,9 @@ Integrator alpha; clean isolated `feat/study-phase2-20261002` at `/home/rahman/w
 | Agent | Area | State | Ownership |
 |---|---|---|---|
 | alpha | Lesson reader scroll/navigation, shell integration, verification and release | in-progress | app, components, slices/roadmap, docs; integrate courses changes |
-| beta | Comments surface and comment form usability | review | slices/comments only |
-| gamma | Public profile/certificate presentation and unused-code audit | review | slices/profiles; read-only independent cleanup/full-diff review |
-| delta | Independent reader/layout review and browser verification | review | e2e/reader-fixture, e2e/reader-layout.fixture.spec.ts, scripts/reader-preview.mjs; independent browser review |
+| beta | Comments surface and comment form usability | done | slices/comments only |
+| gamma | Public profile/certificate presentation and unused-code audit | done | slices/profiles; read-only independent cleanup/full-diff review |
+| delta | Independent reader/layout review and browser verification | done | e2e/reader-fixture, e2e/reader-layout.fixture.spec.ts, scripts/reader-preview.mjs; independent browser review |
 
 Acceptance includes actual long-content reader and thread behavior at desktop/mobile widths, one header return control, keyboard scroll access, and regression checks. No new dependencies. Phase 1 authenticated browser coverage was absent; phase 2 must exercise the reader presentation explicitly without creating fake production data.
 
