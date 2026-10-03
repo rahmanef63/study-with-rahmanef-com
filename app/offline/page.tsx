@@ -32,8 +32,6 @@ export default function OfflinePage() {
           alt="" because the heading under it already says the page is offline. */}
       <picture>
         <source media="(max-width: 767px)" srcSet="/ui/status/offline-mobile.webp" />
-        {/* eslint-disable-next-line @next/next/no-img-element -- precached static
-            asset; it must resolve to a plain URL the service worker can match. */}
         <img
           src="/ui/status/offline.webp"
           alt=""

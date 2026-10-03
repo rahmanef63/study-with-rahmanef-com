@@ -4,7 +4,7 @@
 // mount that nav, so this single button is the install control in both places.
 // It stays out of the dock: a fifth always-visible cell would advertise an
 // action the browser often cannot perform.
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { Download } from "lucide-react";
 import {
   promptPwaInstall,
@@ -12,15 +12,20 @@ import {
   subscribeInstall,
 } from "./install-availability";
 
-export function PwaInstallButton({ onNavigate }: { onNavigate?: () => void }) {
-  // False until after mount. The server has no install event, and painting a
-  // button that then disappears is the dead control this exists to avoid.
-  const [canInstall, setCanInstall] = useState(false);
+function subscribe(onStoreChange: () => void) {
+  return subscribeInstall(onStoreChange);
+}
 
-  useEffect(() => {
-    setCanInstall(readInstallOffer());
-    return subscribeInstall(() => setCanInstall(readInstallOffer()));
-  }, []);
+/** Server and the hydration snapshot: no prompt exists yet, so no button. */
+function hiddenOnServer() {
+  return false;
+}
+
+export function PwaInstallButton({ onNavigate }: { onNavigate?: () => void }) {
+  // External browser state. The server snapshot is always hidden, so a dead
+  // button never ships in the HTML. The client snapshot updates when Chromium
+  // fires beforeinstallprompt or the app becomes standalone.
+  const canInstall = useSyncExternalStore(subscribe, readInstallOffer, hiddenOnServer);
 
   if (!canInstall) return null;
 
