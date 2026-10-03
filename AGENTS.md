@@ -114,6 +114,8 @@ Quality gate: `audit-bp` score ≥80 to ship (pulls latest Next 16 / React 19 / 
 - `/api/health` checks frontend readiness without calling Convex. `/api/version.id` uses the persisted deployment ID, because Next may reuse BUILD_ID when deploymentId is configured. Pass APP_REVISION for source provenance; do not confuse a successful source build with a live release.
 - Record deployment ownership, actual revision, rollback image and browser acceptance in dated project reports. Credentials and auth state never belong in those reports.
 
+- Public visitor analytics uses a dedicated service-authenticated HTTP boundary only: Next forwards validated coarse public events to a Convex HTTP action authenticated by a private server-only ingest secret before reading/writing data, then an internal mutation. No anonymous public mutation is exposed. Existing user/tenant/platform-admin guards remain mandatory. Public-only allowlists, DNT/GPC, omitted raw IP/query/account identifiers, strict budgets and bounded 30-day retention are required. Administrative reads call requirePlatformAdmin first. See DATA-MODEL; never reinterpret member-only materiViews as site traffic.
+
 ## 8. When blocked
 
 - Decision you cannot ask about → take the option these docs recommend, mark `// TODO(rr): confirm — chose X over Y because <reason>`, list it in the commit body and STATUS notes.

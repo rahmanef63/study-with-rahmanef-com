@@ -10,7 +10,7 @@
 // the two sections the tab SSOT does not own (community tools, account).
 import { Bell, BookOpen, CalendarDays, Circle, Compass, Home,
   Info, Library, LayoutGrid,
-  Map, MessagesSquare, ScrollText, Search, Settings, SlidersHorizontal, Trophy, UserRound, Users, Wand2, type LucideIcon } from "lucide-react";
+  Map, MessagesSquare, ScrollText, Search, Settings, ShieldCheck, ChartNoAxesCombined, SlidersHorizontal, Trophy, UserRound, Users, Wand2, type LucideIcon } from "lucide-react";
 import { communityHref } from "@/lib/community";
 
 /** One rail row. `icon` is a component, so this module is client-only — it is
@@ -137,6 +137,14 @@ export const ACCOUNT_LINKS: ShellLink[] = [
   { key: "pengaturan", label: "Pengaturan", href: "/pengaturan", icon: Settings, exact: true },
   { key: "changelog", label: "Changelog", href: "/changelog", icon: ScrollText, exact: true },
 ];
+
+/** Platform administration is independent of community instructor roles. */
+export function accountLinks(username: string, isPlatformAdmin = false): ShellLink[] {
+  return [profileLink(username), ...(isPlatformAdmin ? [
+    { key: "admin", label: "Admin platform", href: communityHref.admin(), icon: ShieldCheck },
+    { key: "statistik", label: "Statistik & analitik", href: communityHref.adminAnalytics(), icon: ChartNoAxesCombined },
+  ] : []), ...ACCOUNT_LINKS];
+}
 
 /** `/u/<username>` — only knowable in the browser (see shell-account-nav.tsx). */
 export function profileLink(username: string): ShellLink {

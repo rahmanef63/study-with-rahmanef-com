@@ -5,10 +5,10 @@ import { VersionWatcher } from "@/components/version-watcher";
 import { LocalStoragePurge } from "@/components/local-storage-purge";
 import { ServiceWorkerRegistrar } from "@/components/pwa/service-worker";
 import { Toaster } from "@/components/ui/sonner";
+import { PublicTrafficRecorder } from "@/components/public-traffic-recorder";
 import "./globals.css";
 
-// ONE downloaded face, and it is the marquee only.
-//
+// One display face; body text uses the platform stack.
 // Pixelify Sans used to be the BODY face, on the argument that it kept enough
 // word shape for prose. The owner read the site and said "fontnya agak sulit
 // dibaca", and they were right: a pixel face costs legibility on every glyph,
@@ -168,6 +168,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <VersionWatcher />
         <ServiceWorkerRegistrar />
         <LocalStoragePurge />
+        <PublicTrafficRecorder />
         {/* No Suspense wrapper here on purpose. It used to exist because the
             OS shell's UrlSync read window.location during prerender, which
             suspended EVERY route to a full-screen splash. Pages own their own

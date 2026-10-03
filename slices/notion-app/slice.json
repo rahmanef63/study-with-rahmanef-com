@@ -1,10 +1,10 @@
 {
   "$schema": "https://resource.rahmanef.com/slice-schema.json",
   "slug": "notion-app",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "category": "content",
-  "title": "Notion App — Block Editor",
-  "description": "Nested vertical slice (slice-of-slices) housing the notion-page-clone block editor as rr's rich-text content engine. Mount <PageEditor pageId> inside <EditorAdapterProvider adapter> — with `{}` it's a working plain-text/markdown block editor (slash menu, markdown triggers, drag, per-block toolbar, undo); host capabilities (data CRUD, selection, comments, AI, databases, mentions, page nav/uploads) light up per optional adapter. Cluster-private shared layer under @notion/* (vendored block/page/database model, uid, inline + page markdown/html export). Pure convex block helpers ship in convex/features/notion (_blocks/_blockOps). 182 tests.",
+  "title": "Notion App \u2014 Block Editor",
+  "description": "Nested vertical slice (slice-of-slices) housing the notion-page-clone block editor as rr's rich-text content engine. Mount <PageEditor pageId> inside <EditorAdapterProvider adapter> \u2014 with `{}` it's a working plain-text/markdown block editor (slash menu, markdown triggers, drag, per-block toolbar, undo); host capabilities (data CRUD, selection, comments, AI, databases, mentions, page nav/uploads) light up per optional adapter. Cluster-private shared layer under @notion/* (vendored block/page/database model, uid, inline + page markdown/html export). Pure convex block helpers ship in convex/features/notion (_blocks/_blockOps). 182 tests.",
   "namespace": "@/features/notion-app",
   "kind": "full",
   "frontend": {
@@ -51,7 +51,7 @@
         {
           "id": "starter",
           "title": "Starter page",
-          "description": "Notes page — slash menu, markdown triggers, todo, drag"
+          "description": "Notes page \u2014 slash menu, markdown triggers, todo, drag"
         },
         {
           "id": "rich",

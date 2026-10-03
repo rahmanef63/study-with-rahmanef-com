@@ -1,0 +1,10 @@
+export const DAY_MS = 86_400_000;
+export const RETENTION_DAYS = 30;
+export const DAILY_BUDGET = 5_000;
+export const BUCKET_MINUTE_LIMIT = 60;
+export const BUCKET_DAY_LIMIT = 500;
+export const SCAN_LIMIT = 6_000;
+export const PURGE_BATCH = 500;
+export const CTA_NAMES = new Set(["join", "signin", "start-learning", "view-course", "copy-skill"]);
+export const dayKey = (at: number) => new Date(at + 7 * 3_600_000).toISOString().slice(0, 10);
+export const dayStart = (at: number) => Math.floor((at + 7 * 3_600_000) / DAY_MS) * DAY_MS - 7 * 3_600_000;

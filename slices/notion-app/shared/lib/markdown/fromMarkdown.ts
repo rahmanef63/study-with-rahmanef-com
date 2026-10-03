@@ -36,13 +36,14 @@ export function markdownToBlocks(md: string): Block[] {
     if (!trimmed) { flushPara(); i++; continue; }
 
     // fenced code
-    const fence = trimmed.match(/^```(\w*)\s*$/);
+    const fence = trimmed.match(/^(`{3,}|~{3,})([^\s`]*)\s*$/);
     if (fence) {
       flushPara();
-      const lang = fence[1] || undefined;
+      const lang = fence[2] || undefined;
+      const close = new RegExp(`^${fence[1][0]}{${fence[1].length},}\\s*$`);
       const body: string[] = [];
       i++;
-      while (i < lines.length && !lines[i]!.trim().startsWith("```")) body.push(lines[i++]!);
+      while (i < lines.length && !close.test(lines[i]!.trim())) body.push(lines[i++]!);
       i++; // closing fence
       blocks.push(mk("code", body.join("\n"), { lang }));
       continue;
@@ -98,7 +99,7 @@ export function markdownToBlocks(md: string): Block[] {
     }
 
     // single-line constructs
-    flushPara();
+    if (/^(?:#{1,6}\s|>|[-*+]\s|\d+[.)]\s|!\[)|^(-{3,}|\*{3,}|_{3,})$/.test(trimmed)) flushPara();
 
     if (/^(-{3,}|\*{3,}|_{3,})$/.test(trimmed)) { blocks.push(mk("divider", "")); i++; continue; }
 

@@ -1,13 +1,12 @@
 // courses slice — the lesson player composition (R4: YouTube embed +
 // markdown + resource links). `completionSlot` is the seam for progress
 // (#3): it injects the "tandai selesai" button through the barrel.
-import { ArrowLeft, ArrowRight, Youtube } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Badge } from "@/components/mockup-kit";
 import { Button } from "@/components/ui/button";
 import { mergeCopy, type CoursesCopyOverride } from "../config/copy";
-import { buildYoutubeWatchUrl } from "../lib/youtube";
 import type { LessonViewData } from "../types";
 import { LessonLinks } from "./lesson-links";
 import { MarkdownView } from "./markdown-view";
@@ -35,8 +34,6 @@ export function LessonView({
   className,
 }: LessonViewProps) {
   const copy = mergeCopy(copyOverride);
-  const watchUrl =
-    lesson.youtubeVideoId !== undefined ? buildYoutubeWatchUrl(lesson.youtubeVideoId) : null;
 
   return (
     <article className={className ? `space-y-6 ${className}` : "space-y-6"}>
@@ -67,16 +64,6 @@ export function LessonView({
       {lesson.youtubeVideoId !== undefined ? (
         <div className="space-y-2">
           <YoutubeEmbed videoId={lesson.youtubeVideoId} title={lesson.title} />
-          {watchUrl !== null && (
-            <Link
-              href={watchUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex min-h-11 items-center gap-2 text-sm text-muted-foreground underline-offset-4 hover:underline @sm:min-h-0"
-            >
-              <Youtube className="size-4 shrink-0" aria-hidden /> {copy.watchOnYoutube}
-            </Link>
-          )}
         </div>
       ) : null}
 

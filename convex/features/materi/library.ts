@@ -1,3 +1,6 @@
+import type { QueryCtx } from "../../_generated/server";
+import type { Id } from "../../_generated/dataModel";
+import type { PaginationOptions } from "convex/server";
 // materi feature — the library. Two surfaces, ONE query, because a skill IS a
 // materi (`lessons.kind`): /k/<tenant>/materi browses `kind: "materi"` and the
 // skills library browses `kind: "skill"`. MEMBER+ throughout; there is no
@@ -68,15 +71,7 @@ export function sortCards(cards: MateriCard[], sort: MateriSort): MateriCard[] {
  * rides the TAG ROW's creation time, which is when the materi was tagged; the
  * alternative is reading every tag row in the tenant to sort by lesson time.
  */
-export const listLibrary = query({
-  args: {
-    tenantId: v.id("tenants"),
-    kind: v.optional(kindValidator),
-    tag: v.optional(v.string()),
-    sort: v.optional(sortValidator),
-    paginationOpts: paginationOptsValidator,
-  },
-  handler: async (ctx, args): Promise<MateriPage> => {
+export const listLibraryHandler = async (ctx: QueryCtx, args: {tenantId: Id<"tenants">; kind?: "materi"|"skill"; tag?: string; sort?: MateriSort; paginationOpts: PaginationOptions}): Promise<MateriPage> => {
     const { membership } = await requireTenantRole(ctx, args.tenantId, "member"); // authz FIRST (P0)
     const role = membership.role;
     const kind = args.kind ?? "materi";
@@ -151,7 +146,17 @@ export const listLibrary = query({
       isDone: result.isDone,
       continueCursor: result.continueCursor,
     };
+  };
+
+export const listLibrary = query({
+  args: {
+    tenantId: v.id("tenants"),
+    kind: v.optional(kindValidator),
+    tag: v.optional(v.string()),
+    sort: v.optional(sortValidator),
+    paginationOpts: paginationOptsValidator,
   },
+  handler: listLibraryHandler,
 });
 
 /**

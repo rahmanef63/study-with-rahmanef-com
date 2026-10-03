@@ -52,7 +52,8 @@ export const insightTables = {
     day: v.string(),
   })
     .index("by_lesson_user_day", ["lessonId", "userId", "day"])
-    .index("by_tenant_day", ["tenantId", "day"]),
+    .index("by_tenant_day", ["tenantId", "day"])
+    .index("by_day", ["day"]),
 
   /**
    * Per-materi roll-up, patched inside the same mutation that inserts the view.

@@ -1,3 +1,6 @@
+import type { QueryCtx } from "../../_generated/server";
+import type { MutationCtx } from "../../_generated/server";
+import type { Id } from "../../_generated/dataModel";
 // tenants slice — platform-admin approval queue (#6, v1.1). Every handler is
 // platform-admin gated: requirePlatformAdmin == requireUser + isPlatformAdmin,
 // so authentication runs BEFORE any tenant read (no existence oracle for
@@ -13,9 +16,7 @@ import { TENANT_REQUEST_LIMITS, toPendingRequest } from "./requestHelpers";
  * Pending community requests for the admin queue. Bounded read via by_status
  * index + take; each row projected to the admin-safe shape (never the webhook).
  */
-export const listPending = query({
-  args: { limit: v.optional(v.number()) },
-  handler: async (ctx, args) => {
+export const listPendingHandler = async (ctx: QueryCtx, args: {limit?: number}) => {
     await requirePlatformAdmin(ctx);
     const limit = Math.min(
       Math.max(1, Math.floor(args.limit ?? TENANT_REQUEST_LIMITS.listPendingMax)),
@@ -34,7 +35,11 @@ export const listPending = query({
         return toPendingRequest(tenant, profile);
       })
     );
-  },
+  };
+
+export const listPending = query({
+  args: { limit: v.optional(v.number()) },
+  handler: listPendingHandler,
 });
 
 /**
@@ -45,9 +50,7 @@ export const listPending = query({
  * The requester becomes owner of THIS tenant only; no membership is created in
  * any other tenant, so an approved owner is never an auto-instructor elsewhere.
  */
-export const approve = mutation({
-  args: { tenantId: v.id("tenants") },
-  handler: async (ctx, args) => {
+export const approveHandler = async (ctx: MutationCtx, args: {tenantId: Id<"tenants">}) => {
     await requirePlatformAdmin(ctx); // auth BEFORE the tenant read
     const tenant = await ctx.db.get(args.tenantId);
     if (tenant === null) {
@@ -72,7 +75,11 @@ export const approve = mutation({
       await ctx.db.patch(existing._id, { role: "owner" });
     }
     return { slug: tenant.slug, status: "active" as const };
-  },
+  };
+
+export const approve = mutation({
+  args: { tenantId: v.id("tenants") },
+  handler: approveHandler,
 });
 
 /**
@@ -81,9 +88,7 @@ export const approve = mutation({
  * "suspended". `requestMessage` is left intact so the decision keeps its
  * context for later review. Idempotent.
  */
-export const reject = mutation({
-  args: { tenantId: v.id("tenants") },
-  handler: async (ctx, args) => {
+export const rejectHandler = async (ctx: MutationCtx, args: {tenantId: Id<"tenants">}) => {
     await requirePlatformAdmin(ctx); // auth BEFORE the tenant read
     const tenant = await ctx.db.get(args.tenantId);
     if (tenant === null) {
@@ -93,7 +98,11 @@ export const reject = mutation({
       await ctx.db.patch(args.tenantId, { status: "suspended" });
     }
     return { slug: tenant.slug, status: "suspended" as const };
-  },
+  };
+
+export const reject = mutation({
+  args: { tenantId: v.id("tenants") },
+  handler: rejectHandler,
 });
 
 /**

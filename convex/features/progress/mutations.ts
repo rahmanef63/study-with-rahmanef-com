@@ -1,3 +1,4 @@
+import type { MutationCtx } from "../../_generated/server";
 // progress feature — the single write surface (docs/AGENT-PROMPTS.md epsilon).
 // P0 contract: v.* validators on args; authz helper as the FIRST handler line;
 // userId comes from ctx via the helper, NEVER from args — a user can only ever
@@ -41,9 +42,7 @@ type CourseOutcome = {
  * course's draft status is not. The BADGE is still course-level, so it is only
  * minted for a PUBLISHED course — no phantom badge before publish.
  */
-export const markLessonComplete = mutation({
-  args: { lessonId: v.id("lessons") },
-  handler: async (ctx, args) => {
+export const markLessonCompleteHandler = async (ctx: MutationCtx, args: {lessonId: Id<"lessons">}) => {
     const { userId, lesson, membership } = await requireMemberForLesson(ctx, args.lessonId);
     assertLessonVisibleByRole(lesson, membership.role);
 
@@ -115,5 +114,9 @@ export const markLessonComplete = mutation({
       courses,
       ...(pendingCourses > 0 ? { pendingCourses } : {}),
     };
-  },
+  };
+
+export const markLessonComplete = mutation({
+  args: { lessonId: v.id("lessons") },
+  handler: markLessonCompleteHandler,
 });

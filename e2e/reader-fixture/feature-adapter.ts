@@ -4,3 +4,6 @@ export { useCourseProgress } from "../../slices/progress/hooks/use-course-progre
 export { toPercent } from "../../slices/progress/lib/percent";
 export { parseMarkdown } from "../../slices/markdown/lib/parse";
 export { renderNodes } from "../../slices/markdown/components/MdNodeView";
+export { collectYoutubeSources } from "../../slices/markdown/lib/media";
+export { MarkdownMediaProvider } from "../../slices/markdown/components/MarkdownMediaProvider";
+export { YoutubeMarkdownEmbed } from "../../slices/markdown/components/YoutubeMarkdownEmbed";

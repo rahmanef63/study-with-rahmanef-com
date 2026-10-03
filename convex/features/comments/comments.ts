@@ -98,6 +98,15 @@ async function addOnPost(
  * - anti-spam: RATE_LIMITED past the per-user-per-target cap (antiSpam.ts);
  * - notifications are fire-and-forget and never self-notify (notify.ts).
  */
+export const addCommentHandler = async (ctx: MutationCtx, args: {lessonId?: Id<"lessons">;postId?: Id<"posts">;bodyMd:string;parentId?:Id<"comments">}): Promise<Id<"comments">> => {
+    await requireUser(ctx); // auth FIRST (P0) — before any by-ID read or arg probe
+    const target = assertExactlyOneTarget(args);
+    const rest: AddArgs = { bodyMd: args.bodyMd, parentId: args.parentId };
+    return target.kind === "post"
+      ? addOnPost(ctx, target.postId, rest)
+      : addOnLesson(ctx, target.lessonId, rest);
+  };
+
 export const addComment = mutation({
   args: {
     lessonId: v.optional(v.id("lessons")),
@@ -105,14 +114,7 @@ export const addComment = mutation({
     bodyMd: v.string(),
     parentId: v.optional(v.id("comments")),
   },
-  handler: async (ctx, args): Promise<Id<"comments">> => {
-    await requireUser(ctx); // auth FIRST (P0) — before any by-ID read or arg probe
-    const target = assertExactlyOneTarget(args);
-    const rest: AddArgs = { bodyMd: args.bodyMd, parentId: args.parentId };
-    return target.kind === "post"
-      ? addOnPost(ctx, target.postId, rest)
-      : addOnLesson(ctx, target.lessonId, rest);
-  },
+  handler: addCommentHandler,
 });
 
 /**
@@ -123,13 +125,15 @@ export const addComment = mutation({
  * occupies a slot in the thread as a placeholder, so the badge keeps matching
  * what a reader actually sees.
  */
-export const softDelete = mutation({
-  args: { commentId: v.id("comments") },
-  handler: async (ctx, args) => {
+export const softDeleteHandler = async (ctx: MutationCtx, args: {commentId:Id<"comments">}) => {
     const { comment } = await requireAuthorOrInstructorForComment(ctx, args.commentId);
     if (comment.deletedAt === undefined) {
       await ctx.db.patch(comment._id, { deletedAt: Date.now() });
     }
     return comment._id;
-  },
+  };
+
+export const softDelete = mutation({
+  args: { commentId: v.id("comments") },
+  handler: softDeleteHandler,
 });

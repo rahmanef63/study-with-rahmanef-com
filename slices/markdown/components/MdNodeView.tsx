@@ -4,7 +4,10 @@
  *  `renderInline`. */
 
 import * as React from "react";
-import { Check } from "lucide-react";
+import { MarkdownCodeBlock } from "./MarkdownCodeBlock";
+import { YoutubeMarkdownEmbed } from "./YoutubeMarkdownEmbed";
+import { renderMarkdownList, type MarkdownListNode } from "./MarkdownList";
+import { safeMarkdownUrl } from "../lib/media";
 import { cn } from "@/lib/utils";
 import type { MdNode, Align } from "../lib/parse";
 import { renderInline } from "../lib/inline";
@@ -32,40 +35,15 @@ export function renderNodes(nodes: MdNode[]): React.ReactNode {
   while (i < nodes.length) {
     const n = nodes[i]!;
     if (isListItem(n)) {
-      const run: MdNode[] = [];
-      const ordered = n.type === "numbered";
-      while (i < nodes.length && isListItem(nodes[i]!) && (nodes[i]!.type === "numbered") === ordered) {
-        run.push(nodes[i++]!);
-      }
-      const Tag = ordered ? "ol" : "ul";
-      out.push(
-        <Tag key={`l${i}`} className={cn("my-2 space-y-1", ordered ? "list-decimal" : "list-none", "pl-5")}>
-          {run.map((item, k) => <MdListItem key={k} node={item as ListNode} />)}
-        </Tag>,
-      );
+      const run: MarkdownListNode[] = [];
+      while (i < nodes.length && isListItem(nodes[i]!)) run.push(nodes[i++]! as MarkdownListNode);
+      out.push(<React.Fragment key={`l${i}`}>{renderMarkdownList(run)}</React.Fragment>);
       continue;
     }
     out.push(<MdNodeView key={i} node={n} />);
     i++;
   }
   return out;
-}
-
-type ListNode = Extract<MdNode, { type: "bullet" | "numbered" | "todo" }>;
-
-function MdListItem({ node }: { node: ListNode }) {
-  const ml = node.indent ? { marginLeft: `${node.indent * 1.25}rem` } : undefined;
-  if (node.type === "todo") {
-    return (
-      <li style={ml} className="flex items-start gap-2 text-sm leading-relaxed">
-        <span className={cn("mt-0.5 grid size-4 shrink-0 place-items-center rounded border", node.checked ? "border-primary bg-primary text-primary-foreground" : "border-muted-foreground/40")}>
-          {node.checked && <Check className="size-3" />}
-        </span>
-        <span className={cn(node.checked && "text-muted-foreground line-through")}>{renderInline(node.text)}</span>
-      </li>
-    );
-  }
-  return <li style={ml} className="text-sm leading-relaxed">{renderInline(node.text)}</li>;
 }
 
 export function MdNodeView({ node }: { node: MdNode }): React.ReactNode {
@@ -97,11 +75,9 @@ export function MdNodeView({ node }: { node: MdNode }): React.ReactNode {
         </div>
       );
     case "code":
-      return (
-        <pre className="my-3 overflow-x-auto rounded-md bg-muted/70 p-3 text-xs">
-          <code className="font-mono">{node.text}</code>
-        </pre>
-      );
+      return <MarkdownCodeBlock text={node.text} lang={node.lang} />;
+    case "youtube":
+      return <YoutubeMarkdownEmbed videoId={node.videoId} startSeconds={node.startSeconds} title={node.title} />;
     case "diagram":
       return <MermaidBlock text={node.text} />;
     case "chart":
@@ -111,11 +87,12 @@ export function MdNodeView({ node }: { node: MdNode }): React.ReactNode {
     case "divider":
       return <hr className="my-5 border-border" />;
     case "image":
+      if (!safeMarkdownUrl(node.url, true)) return <p className="my-2 text-sm">{node.caption || "Gambar tidak tersedia"}</p>;
       return (
         <figure className="my-4">
           {/* arbitrary user-authored markdown URL — next/image cannot allowlist unknown hosts */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={node.url} alt={node.caption ?? ""} className="mx-auto max-w-full rounded-md" />
+          <img src={node.url} alt={node.caption ?? ""} loading="lazy" className="mx-auto max-w-full rounded-md" />
           {node.caption && <figcaption className="mt-1 text-center text-xs text-muted-foreground">{node.caption}</figcaption>}
         </figure>
       );
@@ -124,7 +101,7 @@ export function MdNodeView({ node }: { node: MdNode }): React.ReactNode {
     case "toggle":
       return (
         <details className="my-2 rounded-md border border-border px-3 py-2 text-sm">
-          <summary className="cursor-pointer font-medium">{renderInline(node.text)}</summary>
+          <summary className="min-h-11 cursor-pointer py-2 font-medium focus-visible:outline-2 focus-visible:outline-ring">{renderInline(node.text)}</summary>
           <div className="mt-2 pl-2">{renderNodes(node.children)}</div>
         </details>
       );
@@ -137,10 +114,10 @@ function MdTable({ rows, align }: { rows: string[][]; align: Align[] }) {
   if (!rows.length) return null;
   const [head, ...body] = rows;
   return (
-    <div className="my-3 overflow-x-auto">
+    <div role="region" aria-label="Tabel materi" tabIndex={0} className="my-3 min-w-0 overflow-x-auto focus-visible:outline-2 focus-visible:outline-ring">
       <table className="w-full border-collapse text-sm">
         <thead>
-          <tr>{head!.map((c, i) => <th key={i} className={cn("border border-border px-3 py-1.5 font-semibold", ALIGN_CLASS[align[i] ?? "left"])}>{renderInline(c)}</th>)}</tr>
+          <tr>{head!.map((c, i) => <th scope="col" key={i} className={cn("border border-border px-3 py-1.5 font-semibold", ALIGN_CLASS[align[i] ?? "left"])}>{renderInline(c)}</th>)}</tr>
         </thead>
         <tbody>
           {body.map((r, ri) => (

@@ -1,23 +1,37 @@
 {
   "$schema": "https://resource.rahmanef.com/slice-schema.json",
   "slug": "courses",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "category": "lms",
   "kind": "fullstack",
-  "title": "Courses — kelas/modul/lesson CRUD + lesson player",
-  "description": "Multi-tenant course → module → lesson management (instructor+) and the member lesson player: YouTube embed (11-char ID validated server-side, youtube-nocookie origin), safe-subset markdown renderer, resource links. Drafts are invisible to members in the queries themselves. Built for belajar-with-rahmanef.com R4 (docs/PRD.md).",
+  "title": "Courses \u2014 kelas/modul/lesson CRUD + lesson player",
+  "description": "Multi-tenant course \u2192 module \u2192 lesson management (instructor+) and the member lesson player: YouTube embed (11-char ID validated server-side, youtube-nocookie origin), safe-subset markdown renderer, resource links. Drafts are invisible to members in the queries themselves. Built for belajar-with-rahmanef.com R4 (docs/PRD.md).",
   "namespace": "@/features/courses",
   "convex": {
     "tablesExport": "",
     "schemaPath": "convex/schema.ts",
-    "rootPaths": ["convex/features/courses"]
+    "rootPaths": [
+      "convex/features/courses"
+    ]
   },
-  "frontend": { "slicePath": "slices/courses", "configExport": "coursesFeature" },
+  "frontend": {
+    "slicePath": "slices/courses",
+    "configExport": "coursesFeature"
+  },
   "deps": {
     "npm": [],
-    "shadcn": ["button", "card", "input", "label", "skeleton", "tabs"],
+    "shadcn": [
+      "button",
+      "card",
+      "input",
+      "label",
+      "skeleton",
+      "tabs"
+    ],
     "env": [],
-    "peers": ["responsive-dialog"]
+    "peers": [
+      "responsive-dialog"
+    ]
   },
   "contract": {
     "barrel": {
@@ -71,7 +85,11 @@
           "LessonViewData",
           "SyllabusModuleData"
         ],
-        "landing#5": ["CourseCard", "usePublishedCourses", "CourseCatalog"]
+        "landing#5": [
+          "CourseCard",
+          "usePublishedCourses",
+          "CourseCatalog"
+        ]
       }
     },
     "convexFunctions": {
@@ -100,6 +118,13 @@
   },
   "registers": [],
   "license": "MIT",
-  "tags": ["lms", "courses", "lessons", "youtube", "markdown", "multi-tenant"],
+  "tags": [
+    "lms",
+    "courses",
+    "lessons",
+    "youtube",
+    "markdown",
+    "multi-tenant"
+  ],
   "providers": []
 }

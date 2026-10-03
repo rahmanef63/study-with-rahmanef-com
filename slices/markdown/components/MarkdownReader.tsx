@@ -10,6 +10,8 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { parseMarkdown, type MdNode } from "../lib/parse";
+import type { YoutubeMetadata } from "../lib/media";
+import { MarkdownMediaProvider } from "./MarkdownMediaProvider";
 import { renderNodes } from "./MdNodeView";
 
 const MAXW = {
@@ -31,6 +33,7 @@ export interface MarkdownReaderProps {
   /** Content column width. Default `3xl`. */
   maxWidth?: keyof typeof MAXW;
   className?: string;
+  youtubeMetadata?: Readonly<Record<string, YoutubeMetadata>>;
 }
 
 export function MarkdownReader({
@@ -40,6 +43,7 @@ export function MarkdownReader({
   icon,
   maxWidth = "3xl",
   className,
+  youtubeMetadata,
 }: MarkdownReaderProps) {
   const parsed = React.useMemo(() => nodes ?? parseMarkdown(content), [nodes, content]);
   return (
@@ -50,7 +54,7 @@ export function MarkdownReader({
           <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
         </header>
       )}
-      <div className="text-foreground">{renderNodes(parsed)}</div>
+      <MarkdownMediaProvider youtubeMetadata={youtubeMetadata}><div className="min-w-0 break-words text-foreground">{renderNodes(parsed)}</div></MarkdownMediaProvider>
     </article>
   );
 }

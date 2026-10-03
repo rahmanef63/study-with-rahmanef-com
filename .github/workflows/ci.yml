@@ -39,8 +39,8 @@ jobs:
       - name: Project contracts
         run: npm run audit
 
-      - name: Dependency advisories
-        run: npm audit
+      - name: Dependency advisories (production strict; bounded dev exception)
+        run: node scripts/dependency-audit.mjs
 
       - name: Unit + convex-test (vitest)
         run: npx vitest run

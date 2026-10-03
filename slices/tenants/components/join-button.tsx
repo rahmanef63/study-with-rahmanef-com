@@ -58,7 +58,7 @@ export function JoinButton({
   if (!isAuthenticated) {
     return (
       <Button asChild variant={variant} className={cn("min-h-11 @sm:min-h-9", className)}>
-        <Link href={loginHref}>{t.loginFirst}</Link>
+        <Link href={loginHref} data-study-cta="signin">{t.loginFirst}</Link>
       </Button>
     );
   }
@@ -77,6 +77,7 @@ export function JoinButton({
       variant={variant}
       className={cn("min-h-11 @sm:min-h-9", className)}
       disabled={isPending}
+      data-study-cta="join"
       onClick={() => void join({ tenantId })}
     >
       {isPending ? t.pending : t.cta}

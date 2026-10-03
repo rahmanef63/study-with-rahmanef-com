@@ -32,7 +32,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ACCOUNT_LINKS, profileLink } from "./nav-model";
+import { accountLinks } from "./nav-model";
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "./sidebar-menu";
 
 const TRIGGER =
@@ -77,7 +77,7 @@ export function SidebarUser({ onNavigate }: { onNavigate?: () => void }) {
     );
   }
 
-  const links = [profileLink(profile.username), ...ACCOUNT_LINKS];
+  const links = accountLinks(profile.username, profile.isPlatformAdmin === true);
 
   return (
     <div className="px-2">

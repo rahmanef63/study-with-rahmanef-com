@@ -6,8 +6,9 @@ import { AdminTenantQueueView } from "@/features/tenants";
 // shows its own denied state for non-admins).
 export default function AdminKomunitasPage() {
   return (
-    <div className="mx-auto max-w-4xl px-6 py-10">
+    <section className="space-y-6">
+      <h1 className="text-2xl font-semibold">Komunitas</h1>
       <AdminTenantQueueView />
-    </div>
+    </section>
   );
 }

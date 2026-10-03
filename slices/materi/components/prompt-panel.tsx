@@ -63,6 +63,7 @@ export function PromptPanel({ promptText, copy: copyOverride, className }: Promp
             type="button"
             size="sm"
             onClick={salin}
+            data-study-cta="copy-skill"
             aria-label={copy.promptCopy}
             className="min-h-11 shrink-0 gap-1.5 @sm:min-h-9"
           >

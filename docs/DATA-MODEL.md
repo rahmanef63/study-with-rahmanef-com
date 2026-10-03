@@ -556,3 +556,27 @@ sebelum skema dipersempit. Snapshot prod diambil lebih dulu. Index yang ikut hil
 
 `_shared/legacyLesson.ts`, `courses/modules.ts`, `courses/materiBackfill.ts`, `courses/legacyTreePurge.ts`
 dan `courses/refs.ts` dihapus — file terakhir itu tinggal berisi referensi ke dua one-shot yang sudah pergi.
+
+
+## Platform admin analytics — 2026-10-03
+
+Owner requested detailed platform learning statistics and first-party public traffic comparable to rahmanef.com. Learning queries call requirePlatformAdmin before domain reads and return safe aggregates, not identities/email/quiz answer keys. Additive materiViews.by_day = [day] supports global WIB periods. Member-days, distinct readers, active learners and completion/badge counts remain separate. Bounded reads report source completeness; incomplete counts are lower bounds and ratios are null when their sources/relations are incomplete.
+
+### Separately owned public traffic
+
+The former anonymous public pageviews mutation is not restored. Next's dedicated public-page endpoint validates origin, path, bounded payload and DNT/GPC, omits search/fragment and account/auth identifiers, classifies coarse metadata and forwards with a private server-only ingest secret. Convex HTTP verifies service authentication before parsing/touching data, then calls an internal mutation. Every administrative query calls requirePlatformAdmin first. Missing service configuration fails closed; no user guard is weakened, auth migration or member-data backfill performed.
+
+Feature-owned trafficEvents stores server timestamp, query-free public path, ephemeral browser session token unrelated to user/auth, kind (page/allowlisted cta), referrer hostname, bounded UTM labels, country code if supplied by the trusted edge, coarse viewport/browser/OS/language/timezone/local-hour buckets. Raw IP, precise location, user identity, arbitrary properties and authentication/account routes are excluded. No visitor history is inferred; collection start, unknown dimensions and coverage are explicit. Browser sessions are never described as people.
+
+trafficBudgets stores daily global acceptance/drop counts with an explicit 5,000-event/day cap. trafficRateLimits stores a server-generated daily HMAC bucket solely for rate protection, expires within two days and is never joined to traffic/user data. Strict client/global budgets limit abuse even with forged client metadata. Indexed server-time and expiry scans are bounded; internal functions have args/returns validators.
+
+Events have 30-day retention and scheduled bounded purge; expired rate/global budget rows have short TTL. Admin query scans disclose truncation and dropped collection; period options 7/30 days reflect retention. Visitor dimensions follow the reference hierarchy but retain their own trusted ingestion/privacy boundary. Optional country/city estimates come from a pinned local DB-IP City Lite file and the verified proxy adapter; missing estimates remain unknown. Language and timezone never supply location.
+
+
+### Scoped MCP access — 2026-10-03
+
+`mcpTokens` is account-owned, not tenant-owned: userId, SHA256 tokenHash, label, scope (`user` or `admin`), expiresAt and optional lastUsedAt/minute/day usage counters. Indexes `by_tokenHash` and `by_user`. At most 20 stored tokens per account; expiry 7/30/90 days; revoke deletes only a caller-owned token. Issuance/list/revocation use normal Convex Auth guards; admin issuance requires the persisted platform flag. Plaintext is returned exactly once and never stored.
+
+Separate MCP endpoints accept matching-scope bearer tokens. Every request revalidates token expiry, scope, owner existence and current admin flag; delegated capabilities revalidate again before calling existing guarded handlers. The scoped auth context is constructed ONLY inside internal functions after token validation, never from a caller-supplied user ID. Membership/publication checks stay inside the existing capability handler. Tokens are charged against 120/minute and 2,000/day limits. No arbitrary Convex function, table, filesystem, process or raw administrative credential is exposed. Stable discovery/execution tools describe bounded capability names, input schemas and effects; host transport validates their contracts and live toolset signature.
+
+Traffic `city` is optional and bounded; old rows remain unknown. Admin reads expose `topCities` and nullable recent-session city alongside country. The September 2026 local MMDB is licensed CC BY 4.0 and is never served publicly; SHA256 and operational mount provenance live in the release runbook.

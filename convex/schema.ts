@@ -25,6 +25,8 @@ import {
   quizzes,
 } from "./_tables/learning";
 import { insightTables } from "./features/insight/tables";
+import { trafficTables } from "./features/traffic/tables";
+import { mcpTables } from "./features/mcp/tables";
 
 export default defineSchema({
   ...authTables,
@@ -63,4 +65,6 @@ export default defineSchema({
   // are one row per MEMBER per materi per DAY, so there is no unbounded
   // anonymous write surface and no rate-limit table.
   ...insightTables,
+  ...trafficTables,
+  ...mcpTables,
 });

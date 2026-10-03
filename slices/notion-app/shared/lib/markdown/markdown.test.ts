@@ -7,6 +7,20 @@ const b = (p: Partial<Block> & { type: Block["type"] }): Block => ({
   id: "x", text: "", ...p,
 });
 
+it("preserves nested fences and blank lines when prompts are saved and reopened", () => {
+  const text = "Return this snippet:\n```json\n{}\n```\n\n\nThen explain.";
+  const md = blocksToMarkdown([b({ type: "code", text, lang: "plain-text" })]);
+  expect(md).toContain("````plain-text");
+  const restored = markdownToBlocks(md);
+  expect(restored).toHaveLength(1);
+  expect(restored[0]).toMatchObject({ type: "code", text, lang: "plain-text" });
+});
+it("keeps soft-wrapped paragraph lines together across the editor bridge", () => {
+  expect(markdownToBlocks("First line\nsecond line\n\n## Next")).toMatchObject([
+    { type: "paragraph", text: "First line\nsecond line" }, { type: "h2", text: "Next" },
+  ]);
+});
+
 describe("blocksToMarkdown", () => {
   it("maps headings, lists, todo, quote", () => {
     const md = blocksToMarkdown([
