@@ -63,8 +63,9 @@ export function McpAccessPanel({ scope }: { scope: McpScope }) {
       {actions.error && !target ? <p role="alert" className="text-sm text-destructive">{actions.error}</p> : null}
     </section>
     <section aria-labelledby="mcp-token-list-title" className="space-y-3">
-      <h2 id="mcp-token-list-title" className="text-base font-semibold">Token {scope} milik Anda</h2>
-      {rows === undefined ? <p role="status" className="text-sm text-muted-foreground">Memuat token…</p> : <McpTokenTable rows={rows.filter(row => row.scope === scope)} pending={actions.pending} onRevoke={row => { if (!actions.pending) { actions.clearError(); setTarget(row); } }} />}
+      <h2 id="mcp-token-list-title" className="text-base font-semibold">{scope === "user" ? "Semua token milik Anda" : "Token admin milik Anda"}</h2>
+      {scope === "user" ? <p className="text-sm text-muted-foreground">Kelola seluruh token akun di sini, termasuk token admin yang tidak digunakan lagi. Token admin tetap memerlukan peran admin platform pada setiap panggilan.</p> : null}
+      {rows === undefined ? <p role="status" className="text-sm text-muted-foreground">Memuat token…</p> : <McpTokenTable rows={scope === "user" ? rows : rows.filter(row => row.scope === "admin")} pending={actions.pending} onRevoke={row => { if (!actions.pending) { actions.clearError(); setTarget(row); } }} />}
     </section>
     <McpRevokeDialog target={target} pending={actions.pending} error={actions.error} onClose={() => { setTarget(null); actions.clearError(); }} onConfirm={async () => {
       if (!target || !await actions.revoke(target.tokenId)) return false;
