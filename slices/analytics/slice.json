@@ -1,11 +1,11 @@
 {
   "$schema": "https://resource.rahmanef.com/slice-schema.json",
   "slug": "analytics",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "category": "lms",
   "kind": "fullstack",
   "title": "Analytics \u2014 instructor and platform learning aggregates",
-  "description": "Instructor+ analytics for belajar-with-rahmanef.com: per-materi completion counts, course-completion (badge) count, tenant member count, quiz attempt/pass stats per course, and \u2014 0.3.0 \u2014 READER counts: the per-course drop-off funnel and the community's weekly pulse. Aggregates are derived on read over shared tables with documented bounded takes (no bare .collect(), P1) and carry no user identifiers. ONE write: MateriViewRecorder \u2192 insight/views:recordView, member-only and idempotent per member per materi per WIB day. EVERY reader number counts LOGGED-IN MEMBERS ONLY \u2014 anonymous reads are invisible \u2014 and MembersOnlyNote ships that caveat with the numbers. No routes: the Kelola \u203a Statistik tab mounts TenantPulseView + CourseAnalyticsView (which leads with CourseFunnelView). 0.2.0: module grouping dropped (DECISIONS #37). 0.4.0: admin-only platform inventory, selected-period activity, WIB daily trends and filterable/exportable community/course/materi/quiz tables. Count exactness and bounded-source completeness ship alongside data; no anonymous website traffic. First-party visitor analytics is a separate admin view with 7/30-day page-view/session/CTA trends, acquisition/device rankings and masked sessions; local approximate country/city GeoIP with honest unknowns and source attribution, no historical reconstruction.",
+  "description": "Instructor+ analytics for belajar-with-rahmanef.com: per-materi completion counts, course-completion (badge) count, tenant member count, quiz attempt/pass stats per course, and \u2014 0.3.0 \u2014 READER counts: the per-course drop-off funnel and the community's weekly pulse. Aggregates are derived on read over shared tables with documented bounded takes (no bare .collect(), P1) and carry no user identifiers. ONE write: MateriViewRecorder \u2192 insight/views:recordView, member-only and idempotent per member per materi per WIB day. EVERY reader number counts LOGGED-IN MEMBERS ONLY \u2014 anonymous reads are invisible \u2014 and MembersOnlyNote ships that caveat with the numbers. No routes: the Kelola \u203a Statistik tab mounts TenantPulseView + CourseAnalyticsView (which leads with CourseFunnelView). 0.2.0: module grouping dropped (DECISIONS #37). 0.4.0: admin-only platform inventory, selected-period activity, WIB daily trends and filterable/exportable community/course/materi/quiz tables. Count exactness and bounded-source completeness ship alongside data; no anonymous website traffic. First-party visitor analytics is a separate admin view with 7/30-day page-view/session/CTA trends, acquisition/device rankings and masked sessions; local approximate country/city GeoIP with honest unknowns and source attribution, no historical reconstruction. 0.5.0: platform-admin identity list and account details with bounded course progress, historical badges, reads, quiz results and separately authenticated account activity. Unknown historical locations remain unknown; anonymous sessions never become user identities. Account search explicitly covers loaded pages; CSV covers displayed rows only.",
   "namespace": "@/features/analytics",
   "convex": {
     "tablesExport": "",
@@ -13,7 +13,8 @@
     "rootPaths": [
       "convex/features/analytics",
       "convex/features/insight",
-      "convex/features/traffic"
+      "convex/features/traffic",
+      "convex/features/userAnalytics"
     ]
   },
   "frontend": {
@@ -47,14 +48,19 @@
         "MembersOnlyNote",
         "MateriViewRecorder",
         "PlatformAnalyticsDashboard",
-        "PlatformTrafficDashboard"
+        "PlatformTrafficDashboard",
+        "PlatformUsersTable",
+        "PlatformUserDetail",
+        "PlatformUsersDashboard"
       ],
       "views": [
         "CourseAnalyticsView",
         "CourseFunnelView",
         "TenantPulseView",
         "PlatformAnalyticsView",
-        "PlatformTrafficView"
+        "PlatformTrafficView",
+        "PlatformUsersView",
+        "PlatformUserDetailView"
       ],
       "hooks": [
         "useCourseAnalytics",
@@ -62,7 +68,9 @@
         "useCourseFunnel",
         "useTenantPulse",
         "usePlatformAnalytics",
-        "usePlatformTraffic"
+        "usePlatformTraffic",
+        "usePlatformUsers",
+        "usePlatformUserDetail"
       ],
       "lib": [
         "analyticsErrorMessage",
@@ -91,6 +99,10 @@
         "admin visitor route": [
           "PlatformTrafficView(enabled=true only after current-profile platform-admin gate)",
           "PlatformTrafficDashboard(data,days,onDaysChange,copy?) \u2190 isolated traffic presentation"
+        ],
+        "admin user routes": [
+          "PlatformUsersView(enabled,detailHref,copy?)",
+          "PlatformUserDetailView(enabled,userId,geoAttributionHref,copy?)"
         ]
       }
     },
@@ -106,7 +118,9 @@
       ],
       "platformAdmin": [
         "features/analytics/platform:getPlatformAnalytics",
-        "features/traffic/queries:getTrafficAnalytics"
+        "features/traffic/queries:getTrafficAnalytics",
+        "features/userAnalytics/users:listUsers",
+        "features/userAnalytics/users:getUserDetail"
       ]
     }
   },

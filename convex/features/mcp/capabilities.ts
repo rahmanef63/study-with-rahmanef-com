@@ -23,6 +23,8 @@ export const CAPABILITIES: readonly Capability[] = [
   write("user.comment_delete", "user", "Soft-delete komentar sendiri atau yang boleh dimoderasi", { commentId: id }, true),
   read("admin.learning_analytics", "admin", "Analitik pembelajaran platform, kelengkapan sumber dan inventori", { days: period }),
   read("admin.traffic_analytics", "admin", "Statistik kunjungan platform dengan batas cakupan dan retensi", { days: { type: "integer", enum: [7, 30] } }),
+  read("admin.users", "admin", "Akun terdaftar berpaginasi dan status belajar; pencarian pada halaman saja", { limit: { type: "integer", minimum: 1, maximum: 20, optional: true }, cursor: { type: "string", maxLength: 2048, optional: true }, search: { type: "string", maxLength: 100, optional: true } }),
+  read("admin.user_detail", "admin", "Progres, sumber kunjungan, lokasi perkiraan dan klik akun terautentikasi; retensi aktivitas 30 hari", { userId: id }),
   read("admin.pending_communities", "admin", "Permohonan komunitas pending; proyeksi aman tanpa webhook", { limit: { type: "integer", optional: true, minimum: 1, maximum: 100 } }),
   write("admin.approve_community", "admin", "Aktifkan komunitas dan pastikan pemohon menjadi owner", { tenantId: id }),
   write("admin.suspend_community", "admin", "Suspend/tolak komunitas; menghentikan akses konten anggotanya", { tenantId: id }, true),

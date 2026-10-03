@@ -5,6 +5,7 @@ import { VersionWatcher } from "@/components/version-watcher";
 import { LocalStoragePurge } from "@/components/local-storage-purge";
 import { ServiceWorkerRegistrar } from "@/components/pwa/service-worker";
 import { Toaster } from "@/components/ui/sonner";
+import { UserActivityRecorder } from "@/components/user-activity-recorder";
 import { PublicTrafficRecorder } from "@/components/public-traffic-recorder";
 import "./globals.css";
 
@@ -179,9 +180,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             update in that boundary — Suspense reveals included — so one tap
             replayed the whole-app entrance 2–3x. Full measurement and why CSS
             cannot scope it: the `experimental` block in next.config.mjs.
-            Orphaned by this change and safe to delete:
-            components/ui/view-transition.tsx, components/ui/route-direction.tsx. */}
-        <ConvexClientProvider>{children}</ConvexClientProvider>
+            Keep this boundary free of whole-route entrance animations. */}
+        <ConvexClientProvider><UserActivityRecorder />{children}</ConvexClientProvider>
         {/* The 3.5rem of lift removed here cleared <CommunityBottomNav/>, the
             fixed 56px bar this rebuild deleted. Nothing is bottom-anchored any
             more — a left rail at md+, a left Sheet below — so a toast floating

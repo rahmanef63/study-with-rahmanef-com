@@ -172,3 +172,7 @@ Satu baris. Sisanya sudah tidak ada.
 - **B4 "Kuis sebagai gate"** tetap keputusan produk yang belum diambil, tapi ia bukan
   *bottleneck owner* — tidak ada yang menunggunya, tidak ada env atau deploy yang menghalangi.
   Kalau kamu mau, ia jadi baris assignment biasa, bukan runbook.
+
+## 2026-10-03 real-user cleanup and analytics
+
+Alpha integrates isolated branch feat/study-real-users-20261003. Beta owns verified synthetic-account cleanup; gamma owns authenticated user activity and guarded administrative projections; delta owns the real-user administration UI. No ambiguous/real account is eligible for cleanup. Production backup and exact provenance inventory precede deletion. Public telemetry remains account-free; the new user activity boundary requires both caller authentication and server-only enrichment authorization. Design dials: variance 4, motion 2, density 7.

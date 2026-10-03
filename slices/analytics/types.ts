@@ -46,3 +46,5 @@ export type PlatformAnalyticsDays = 7 | 30 | 90;
 /** First-party traffic projection, no user identities or geographic inference. */
 export type { TrafficAnalytics as PlatformTrafficData } from "@convex/features/traffic/contract";
 export type PlatformTrafficDays = 7 | 30;
+/** Identity-level learning and visit projections are platform-admin only. */
+export type { UserRow as PlatformUserData, UserDetail as PlatformUserDetailData, UserActivity as PlatformUserActivity } from "@convex/features/userAnalytics/contract";
