@@ -22,6 +22,7 @@ import { SidebarQuickRow } from "./sidebar-quick-row";
 import { SidebarSwitcher } from "./sidebar-switcher";
 import { SidebarUser } from "./sidebar-user";
 import { ShellAction } from "./shell-action";
+import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { communityToolLinks, iconFor, isPathActive, type ShellLink } from "./nav-model";
 
 /** The community this rail is inside, when it is inside one. */
@@ -135,6 +136,7 @@ export function ShellNav({ community, onNavigate, className }: ShellNavProps) {
             </SidebarMenu>
           </SidebarGroup>
         )}
+        <AdminSidebar onNavigate={onNavigate} />
 
         </SidebarContent>
 

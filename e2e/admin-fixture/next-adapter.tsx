@@ -8,7 +8,7 @@ export function useFixtureParams() {
   return new URLSearchParams(useSyncExternalStore(subscribe, () => location.search, () => ""));
 }
 export function navigate(href: string) {
-  const routes: Record<string, string> = { "/admin": "menu", "/admin/statistik": "learning", "/admin/pengunjung": "traffic", "/admin/mcp": "mcp", "/mcp": "mcp" };
+  const routes: Record<string, string> = { "/admin": "menu", "/admin/statistik": "learning", "/admin/pengunjung": "traffic", "/admin/pengguna": "users", "/admin/mcp": "mcp", "/mcp": "mcp" };
   const url = new URL(href, location.href);
   if (routes[url.pathname] && !url.search) {
     const params = new URLSearchParams(location.search);
@@ -18,7 +18,24 @@ export function navigate(href: string) {
   history.pushState(null, "", href);
   window.dispatchEvent(new PopStateEvent("popstate"));
 }
-export function usePathname() { return location.pathname; }
+const ADMIN_VIEW_PATH: Record<string, string> = {
+  menu: "/admin",
+  learning: "/admin/statistik",
+  traffic: "/admin/pengunjung",
+  users: "/admin/pengguna",
+  "user-detail": "/admin/pengguna/fixture-user",
+  mcp: "/admin/mcp",
+  richtext: "/admin",
+};
+/** The fixture lives at `/` and switches views with a query. Admin chrome reads
+ *  the pathname, so map the active view back to the real admin route. */
+export function usePathname() {
+  const search = useSyncExternalStore(subscribe, () => location.search, () => "");
+  const path = useSyncExternalStore(subscribe, () => location.pathname, () => "/");
+  if (path !== "/") return path;
+  const view = new URLSearchParams(search).get("view") ?? "menu";
+  return ADMIN_VIEW_PATH[view] ?? "/admin";
+}
 export function useRouter() { return { push: navigate, replace: navigate, back: () => history.back() }; }
 
 function FixtureLink({ href, onClick, ...props }: AnchorHTMLAttributes<HTMLAnchorElement>) {

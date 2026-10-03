@@ -3,6 +3,8 @@ import { Suspense } from "react";
 import { api } from "@convex/_generated/api";
 import { TombolBagikan } from "@/components/tombol-bagikan";
 import { Skeleton } from "@/components/ui/skeleton";
+import { BreadcrumbTrail } from "@/components/shell/breadcrumb-trail";
+import { communityBreadcrumbs } from "@/components/shell/breadcrumb-model";
 import { communityHref } from "@/lib/community";
 import { safeQuery } from "@/lib/convex-server";
 import { absoluteUrl } from "@/lib/site";
@@ -65,10 +67,20 @@ export async function generateMetadata({
  */
 async function KelasHeader({ slug, courseSlug }: Params) {
   const overview = await getKelas(slug, courseSlug);
-  if (overview === null) return null;
+  const trail = (
+    <BreadcrumbTrail
+      items={communityBreadcrumbs(
+        communityHref.course(slug, courseSlug),
+        slug,
+        overview ? { course: overview.course.title } : undefined,
+      )}
+    />
+  );
+  if (overview === null) return <div className="mb-4">{trail}</div>;
   const { course, lessons } = overview;
   return (
-    <div className="mb-4">
+    <div className="mb-4 space-y-3">
+      {trail}
       <div className="sr-only" aria-hidden>
         <h2>{course.title}</h2>
         {course.description ? <p>{course.description}</p> : null}

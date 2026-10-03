@@ -12,13 +12,19 @@ import { ShellTopBar } from "@/components/shell";
 const TITLES: Record<string, string> = {
   "/komunitas": "Komunitas",
   "/notifikasi": "Notifikasi",
-  "/pengaturan": "Pengaturan",
   "/changelog": "Changelog",
 };
 
 export function AccountTitle() {
   const pathname = usePathname();
-  // A profile is /u/<username>, so it cannot be a map key.
-  const title = pathname.startsWith("/u/") ? "Profil" : (TITLES[pathname] ?? "Belajar");
+  // A profile is /u/<username>, so it cannot be a map key. Admin and settings
+  // have nested routes; an exact map would label those bars "Belajar".
+  const title = pathname.startsWith("/u/")
+    ? "Profil"
+    : pathname === "/admin" || pathname.startsWith("/admin/")
+      ? "Admin platform"
+      : pathname === "/pengaturan" || pathname.startsWith("/pengaturan/")
+        ? "Pengaturan"
+        : (TITLES[pathname] ?? "Belajar");
   return <ShellTopBar title={title} />;
 }

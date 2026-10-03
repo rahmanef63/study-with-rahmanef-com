@@ -1,20 +1,27 @@
 import Link from "next/link";
 import { ArrowLeft, List } from "lucide-react";
 import type { ReactNode } from "react";
+import { BreadcrumbTrail } from "@/components/shell/breadcrumb-trail";
+import type { Crumb } from "@/components/shell/breadcrumb-model";
 
-/** Desktop panes share a viewport; narrow screens keep the document scroll. */
+/** Desktop panes share a viewport; narrow screens keep the document scroll.
+ *  The trail lives in this first row so it does not sit outside the height
+ *  budget and push the panes into a second page scroll. */
 export function LessonReaderLayout({
   courseHref,
   syllabus,
   children,
+  crumbs,
 }: {
   courseHref: string;
   syllabus: ReactNode;
   children: ReactNode;
+  crumbs?: readonly Crumb[];
 }) {
   return (
     <div className="@3xl:grid @3xl:h-[calc(100dvh-4rem)] @3xl:grid-cols-[minmax(15rem,17rem)_minmax(0,1fr)] @3xl:grid-rows-[auto_minmax(0,1fr)] @3xl:gap-x-8 @3xl:gap-y-4">
-      <div className="mb-4 @3xl:col-span-2 @3xl:mb-0">
+      <div className="mb-4 space-y-2 @3xl:col-span-2 @3xl:mb-0">
+        <BreadcrumbTrail items={crumbs ?? []} />
         <Link href={courseHref} className="inline-flex min-h-11 items-center gap-2 text-sm text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
           <ArrowLeft className="size-4" aria-hidden /> Kembali ke kelas
         </Link>

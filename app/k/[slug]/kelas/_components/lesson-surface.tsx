@@ -18,6 +18,7 @@ import { CourseNav } from "@/features/roadmap";
 import { useTenantBySlug } from "@/features/tenants";
 import { Skeleton } from "@/components/ui/skeleton";
 import { GabungDulu } from "../../_components/gabung-dulu";
+import { communityBreadcrumbs } from "@/components/shell/breadcrumb-model";
 import { communityHref } from "@/lib/community";
 import { LessonReaderLayout } from "./lesson-reader-layout";
 
@@ -50,6 +51,11 @@ function LessonBody({ tenantId, slug, courseSlug, lessonId }: Props & { tenantId
     );
   }
 
+  const lessonTitle = overview.lessons.find((lesson) => lesson._id === lessonId)?.title;
+  const crumbs = communityBreadcrumbs(communityHref.lesson(slug, courseSlug, lessonId), slug, {
+    course: overview.course.title,
+    lesson: lessonTitle,
+  });
   const nav = (
     <CourseNav
       tenantId={tenantId}
@@ -60,7 +66,7 @@ function LessonBody({ tenantId, slug, courseSlug, lessonId }: Props & { tenantId
   );
 
   return (
-    <LessonReaderLayout key={lessonId} courseHref={courseHref} syllabus={nav}>
+    <LessonReaderLayout key={lessonId} courseHref={courseHref} syllabus={nav} crumbs={crumbs}>
       {/* THE MOUNT THAT MAKES THE FUNNEL REAL. Almost all reading happens here
           rather than on the permalink, so without this the course drop-off in
           Kelola › Statistik would be a flat line of zeros. Placed after the

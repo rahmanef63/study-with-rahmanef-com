@@ -10,6 +10,8 @@ import { PostBody, postKindLabel, postKindTone, POSTS_COPY, toExcerpt } from "@/
 import { TombolBagikan } from "@/components/tombol-bagikan";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { BreadcrumbTrail } from "@/components/shell/breadcrumb-trail";
+import { communityBreadcrumbs } from "@/components/shell/breadcrumb-model";
 import { communityHref } from "@/lib/community";
 import { safeQuery } from "@/lib/convex-server";
 import { absoluteUrl } from "@/lib/site";
@@ -150,8 +152,12 @@ async function PostSurface({ slug, postId }: Params) {
 
 export default async function PostPage({ params }: { params: Promise<Params> }) {
   const { slug, postId } = await params;
+  const post = await getPost(postId);
   return (
     <div className="@container mx-auto w-full max-w-3xl space-y-6">
+      <BreadcrumbTrail
+        items={communityBreadcrumbs(communityHref.post(slug, postId), slug, post ? { post: post.title } : undefined)}
+      />
       <Link
         href={communityHref.diskusi(slug)}
         className="inline-flex min-h-11 items-center gap-1.5 text-sm text-muted-foreground hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
