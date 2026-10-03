@@ -41,6 +41,7 @@ The phase 1 audit score covered its changed scope, not every screen. Authenticat
 - Public profile retains one named title, biography and primary share action. Avatar, owner edit and badges remain. Standalone/client recovery still supplies its own title when the server read had no heading.
 - Certificate retains its document details but demotes its secondary document heading and suppresses its extra copy action when the route has supplied the real heading/share action. Server-null recovery preserves a named client title.
 - Unified certificate/badge dates in the Asia/Jakarta calendar. Actual runtime revealed a certificate showing 8 July in server context and 9 July in its client document; one formatter now prevents the timezone drift.
+- Bounded the badge grid's container queries to its own section. Live visual inspection revealed six 102px cards selected by the wider shell inside a 672px profile; local width now selects two readable desktop columns and one narrow-mobile column.
 - Replaced old English arcade offline copy with Indonesian recovery instructions. Bumped the service-worker cache to v5 to refresh the precached offline page.
 - Added this phase's user-facing changelog and a reusable disconnected reader fixture outside production routes. Vitest now resolves the same feature alias as TypeScript/Next, enabling real cross-slice presentation regressions.
 
@@ -59,13 +60,13 @@ Stored cover/avatar URLs can refer to assets without source imports. No asset pu
 
 ## Verification and limits
 
-- Full suite: **1,160 tests / 133 files passed**. Focused comment, navigation, course and profile regressions passed.
-- TypeScript, project contracts and production build passed. Contracts checked 732 source files and 17 slice metadata pairs; zero violations. Dependency audit: zero vulnerabilities. ESLint: zero errors, **47 warnings**, reduced from phase 1's 59; remaining warnings are not claimed fixed.
+- Final hosted suite: **1,161 tests / 134 files passed**. Focused comment, navigation, course and profile regressions passed.
+- TypeScript, project contracts, production build and standalone readiness passed. Contracts checked 733 source files and 17 slice metadata pairs; zero violations. Dependency audit: zero vulnerabilities. ESLint: zero errors, **47 warnings**, reduced from phase 1's 59; remaining warnings are not claimed fixed.
 - Native T3 browser inspected the actual React presentation with 40 lessons, long markdown and long comments, using a disconnected local Convex adapter. At 1440×900: document 900px, reader 776px, syllabus 683px; independent scrolling left document scroll at zero. Comments were 512px and scrolled independently with composer outside.
 - Native keyboard Tab traversed all 40 syllabus links; the last became visible. Native PageDown/CtrlEnd automation did not produce reliable scroll and is not counted as a successful keyboard-scroll check.
 - At 375×812: native mobile disclosure and document reading worked, no horizontal overflow, 44px controls; completion/quiz controls clear the dock. Safe-area geometry was checked at 0 and simulated 20px. The fixture was corrected to include RootLayout's existing safe-area variables; missing fixture variables were not mistaken for a production defect.
 - Failed comment add/delete, target draft/reply/dialog reset, and quiz submit/result focus were exercised through actual hooks with local transport. No production member data was written.
-- Hosted CI run 37082060044 passed all eight disconnected browser regressions, along with the full suite and production build. A subsequent timezone regression passed the focused 18-test profile suite and typecheck; its final hosted CI is recorded with publication below.
+- Final [hosted CI run 37082671156](https://github.com/rahmanef63/study-with-rahmanef-com/actions/runs/37082671156) passed all eight disconnected browser regressions, the timezone regression, full suite and production build. The focused profile suite passed 18 tests before final CI.
 - Native browser also inspected real built Next routes for public profile/certificate success: one main, one primary heading/share action, no horizontal overflow. Injecting server-only Convex fetch failure reproduced server-null fallback; the actual public client query recovered the named profile/certificate and copy action without duplicate headings. This closes the independent async-route validation follow-up.
 - This fixture proves layout and interaction, not OAuth, live authorization, real quiz grading or user session restart. Those backend contracts are unchanged in phase 2. Actual async profile/certificate route acceptance and exact production release evidence are recorded after publication below.
 
@@ -85,4 +86,6 @@ audit_bp:
 
 ## Publication
 
-Release evidence pending the final PR/CI and exact main deployment. Prior owner authorization for main merge/publication remains applicable. Frontend rollback is preserved as `study-with-rahmanef-com-inpwce:rollback-phase2-20261003`, image `sha256:74b07b74a13d78823db3df74b9d824155428cae528e06ad9d7df2b80ca9ee15e`. Runtime config backup is private and contains no committed secret. Backend functions/data are unchanged.
+PR #2 merged at `50340b8196a41f8e52e1f3291070ffecf17c893b`; exact-main CI run 37082886714 passed. Dokploy deployment `wFFlMqNiHqR8DsgAxrQky` completed; checkout, persisted build deploymentId, runtime APP_REVISION and public health/version matched this SHA. Container was healthy; both endpoints returned 200/no-store. Native live acceptance passed certificate/profile single heading/share and consistent 9 July date, plus mobile sign-in, assessment, changelog and offline single-main/single-heading/no-overflow checks. The final badge-grid visual follow-up is recorded after its release below.
+
+Prior owner authorization for main merge/publication remains applicable. Frontend rollback is preserved as `study-with-rahmanef-com-inpwce:rollback-phase2-20261003`, image `sha256:74b07b74a13d78823db3df74b9d824155428cae528e06ad9d7df2b80ca9ee15e`. Runtime config backup is private and contains no committed secret. Backend functions/data are unchanged.
